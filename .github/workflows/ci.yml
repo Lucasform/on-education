@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Versão do pnpm vem do campo "packageManager" do package.json (evita conflito:
+      # se passarmos `version` aqui E houver packageManager, a action falha).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v4
         with:
