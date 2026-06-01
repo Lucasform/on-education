@@ -8,6 +8,13 @@
       "when": 1780344971275,
       "tag": "0000_petite_kronos",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780345979466,
+      "tag": "0001_sparkling_jetstream",
+      "breakpoints": true
     }
   ]
 }

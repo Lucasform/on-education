@@ -7,11 +7,32 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 0 — Fundação · **Status:** CONCLUÍDO · **Próximo passo:** iniciar Fase 1B (Professor Pro) ou Fase 1A (MVP Escola).
+**Fase atual:** Fase 1B.1 — Núcleo individual · **Status:** EM ANDAMENTO · **Próximo passo:** prover Supabase/`DATABASE_URL`, depois wiring de auth + UI de signup/dashboard.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 17:05] — Fase 1B.1 / Núcleo individual / Provisionamento + turmas — STATUS: EM ANDAMENTO
+
+- **Tarefa:** núcleo do professor autônomo — provisionamento do tenant `individual` e gestão leve de turmas/alunos.
+- **Segmento:** 👤 professor
+- **O que foi feito:**
+  - `packages/db`: novas tabelas `classes` e `students` (tenant-scoped + RLS); migration `0001_sparkling_jetstream.sql`.
+  - `packages/validation`: schemas `individualSignupSchema`, `createClassSchema`, `createStudentSchema`.
+  - Novo módulo `packages/modules/nucleo` (`@on-education/module-nucleo`):
+    - `provisionIndividualTenant` (admin/server-only): cria tenant + membership owner/teacher + subscription `teacher_free` + entitlements semeados + `usage_meter` de `ai_tokens`.
+    - `entitlement.ts`: `getTenantPlanId` + `assertEntitled` (perna comercial da checagem tripla).
+    - `classes.ts`: `createClass/listClasses/createStudent/listStudents` com RBAC + entitlement + RLS; cota de alunos por plano.
+  - Workspace passou a incluir `packages/modules/*`.
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0001_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/*`.
+- **Migrations/RLS:** sim — `0001` com `classes`/`students` + `ENABLE RLS` + `CREATE POLICY`.
+- **Testes:** verde — `module-nucleo` 2 unit ✓ (plano default) + 2 integração escritos e PULADOS sem `DATABASE_URL`; demais suites ok. lint 10/10, typecheck 10/10, build 10/10.
+- **Decisões (ADR?):** `docs/adr/0003-provisionamento-tenant-individual.md`.
+- **Pendências / bloqueios:** sem `DATABASE_URL`/Supabase não dá pra (a) rodar os testes de integração, (b) wirar auth real ao signup, (c) construir a UI do fluxo. Provisionamento e serviços estão prontos para plugar.
+- **Credenciais/segredos necessários:** `DATABASE_URL` (ou trio Supabase) para destravar; depois `ANTHROPIC_API_KEY` (1B.2 IA).
+- **Próximo passo sugerido:** criar projeto Supabase, setar `DATABASE_URL`, aplicar migrations (`pnpm db:migrate`), rodar os testes de integração; em seguida wiring de Supabase Auth no signup + UI de signup/dashboard. Depois 1B.2 (IA pedagógica).
+- **Commit(s):** `feat: nucleo individual — provisionamento de tenant e gestao de turmas/alunos (Fase 1B.1)`.
 
 ### [2026-06-01 16:10] — Fase 0 / Fundação / Bootstrap do monorepo — STATUS: CONCLUÍDO
 

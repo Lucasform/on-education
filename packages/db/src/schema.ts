@@ -221,6 +221,57 @@ export const auditLog = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// classes — turmas (Fase 1B.1: turmas leves do professor autônomo; também serve
+// à escola). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const classes = pgTable(
+  'classes',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    description: text('description'),
+    ...auditCols,
+  },
+  (t) => [
+    index('classes_tenant_idx').on(t.tenantId),
+    pgPolicy('classes_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// students — alunos do tenant (no individual, alunos particulares do professor).
+// `full_name` é PII: nunca logar em claro (Master Spec §7.4). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const students = pgTable(
+  'students',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id'),
+    fullName: text('full_name').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('students_tenant_idx').on(t.tenantId),
+    index('students_class_idx').on(t.classId),
+    pgPolicy('students_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -230,4 +281,6 @@ export const schema = {
   entitlements,
   usageMeters,
   auditLog,
+  classes,
+  students,
 };

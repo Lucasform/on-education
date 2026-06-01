@@ -186,6 +186,34 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.19.19)
 
+  packages/modules/nucleo:
+    dependencies:
+      '@on-education/auth':
+        specifier: workspace:*
+        version: link:../../auth
+      '@on-education/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@on-education/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@on-education/entitlements':
+        specifier: workspace:*
+        version: link:../../entitlements
+      '@on-education/validation':
+        specifier: workspace:*
+        version: link:../../validation
+      drizzle-orm:
+        specifier: ^0.38.3
+        version: 0.38.4(@types/react@19.2.15)(postgres@3.4.9)(react@19.2.6)
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.19.19)
+
   packages/ui:
     dependencies:
       class-variance-authority:

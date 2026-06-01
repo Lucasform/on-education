@@ -46,13 +46,15 @@ Base técnica multi-tenant. Nenhuma feature de produto.
 
 Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um único membro.
 
-### 1B.1 Núcleo individual `[MVP]`
+### 1B.1 Núcleo individual `[MVP]` 🚧 EM ANDAMENTO
 
-- [ ] Signup self-service instantâneo (magic link / SSO Google) → cria tenant `individual` + membership owner/teacher.
-- [ ] Plano `teacher_free` aplicado por padrão; entitlements e `usage_meters` (cota de IA) ativos.
-- [ ] Gestão leve de turmas/alunos próprios (sem aparato institucional).
+- [~] Signup self-service instantâneo (magic link / SSO Google) → cria tenant `individual` + membership owner/teacher. — **serviço de provisionamento pronto** (`provisionIndividualTenant`); falta wiring do Supabase Auth + UI.
+- [x] Plano `teacher_free` aplicado por padrão; entitlements e `usage_meters` (cota de IA) ativos.
+- [x] Gestão leve de turmas/alunos próprios (sem aparato institucional). — serviços `createClass/listClasses/createStudent/listStudents` com checagem tripla + cota de alunos.
 
 **Aceite:** um novo professor cria conta e tem valor no primeiro uso; cota de IA medida por tenant.
+**Decisão:** ver `docs/adr/0003-provisionamento-tenant-individual.md`.
+**Falta para concluir:** `DATABASE_URL`/Supabase para auth real, UI do signup/dashboard e rodar os testes de integração (hoje pulados).
 
 ### 1B.2 IA pedagógica `[MVP]`
 
