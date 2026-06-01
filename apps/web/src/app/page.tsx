@@ -1,40 +1,58 @@
-import { TENANT_TYPES } from '@on-education/core';
-import { PLANS } from '@on-education/entitlements';
 import { Button } from '@on-education/ui';
 
-/**
- * Shell da Fase 0: prova que o monorepo está de pé e que os pacotes compartilhados
- * (core, entitlements, ui) são consumidos pelo app. Nenhuma feature de produto aqui.
- */
+import { ThemeToggle } from '@/components/theme-toggle';
+
 export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 p-8">
-      <div>
-        <h1 className="text-2xl font-semibold">On Education</h1>
-        <p className="text-sm opacity-70">
-          Fundação multi-tenant no ar. Segmentos: {TENANT_TYPES.join(' · ')}.
+    <div className="relative min-h-screen overflow-hidden">
+      {/* brilho de fundo */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+
+      <header className="mx-auto flex max-w-5xl items-center justify-between p-6">
+        <div className="flex items-center gap-2">
+          <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
+          <span className="font-semibold">On Education</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="/login">
+            <Button variant="ghost" size="sm">
+              Entrar
+            </Button>
+          </a>
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <main className="mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 py-20 text-center">
+        <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
+          Plataforma educacional com IA
+        </span>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          Ensine com mais tempo para o que importa.
+        </h1>
+        <p className="max-w-xl text-balance text-muted-foreground">
+          Planos de aula e atividades com IA, gestão de turmas e alunos, tudo num só lugar — para o
+          professor autônomo e para a escola.
         </p>
-      </div>
 
-      <section className="rounded-md border p-4">
-        <h2 className="mb-2 text-sm font-medium">Planos (placeholder)</h2>
-        <ul className="space-y-1 text-sm opacity-80">
-          {Object.values(PLANS).map((p) => (
-            <li key={p.id}>
-              {p.id} <span className="opacity-60">({p.tenantType})</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <a href="/signup">
+            <Button size="lg">Sou professor — começar grátis</Button>
+          </a>
+          <a href="/signup/escola">
+            <Button size="lg" variant="outline">
+              Sou escola
+            </Button>
+          </a>
+        </div>
 
-      <div className="flex gap-3">
-        <a href="/signup">
-          <Button>Criar conta de professor</Button>
+        <a
+          href="/admin"
+          className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+        >
+          Acessar painel admin
         </a>
-        <a href="/app">
-          <Button variant="outline">Meu workspace</Button>
-        </a>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
