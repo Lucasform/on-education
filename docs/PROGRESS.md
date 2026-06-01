@@ -7,11 +7,26 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO (https://on-education-seven.vercel.app) · 1B.1 + infra + deploy OK · **Status:** EM ANDAMENTO · **Próximo passo:** UI de onboarding da escola ou 1A.2 (sala de aula). Auto-deploy no push pra `main`.
+**Fase atual:** 🚀 EM PRODUÇÃO · tema escuro + admin view-as + onboarding escola · **Status:** EM ANDAMENTO · **Próximo passo:** 1A.2 (sala de aula) ou travar o /admin com auth de admin. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 21:40] — UI/Admin / Tema escuro + admin view-as + escola — STATUS: CONCLUÍDO
+
+- **Tarefa:** UI bonita (tema escuro padrão + toggle claro), admin do app com visão de todas as contas e "entrar como" (view-as), e onboarding/gestão da escola.
+- **Segmento:** ambos + super-admin
+- **O que foi feito:**
+  - Tema: `next-themes` (escuro padrão, toggle), tokens HSL (escuro/claro), Tailwind `darkMode:class` + cores (card/muted/border/primary). Telas reestilizadas (home/login/signup/app/admin) com cards, hero, brilho.
+  - `/admin` (aberto, TEMPORÁRIO): stats do app (tenants/escolas/professores/usuários/alunos/turmas/atividades) + lista de contas + **Entrar como** (view-as via cookie de impersonação). `module-nucleo/admin.ts` (`listAllTenants`, `getAppStats`).
+  - View-as: `resolveContextForTenant` + `getAuthContext` lê o cookie de impersonação; banner no `/app` + "Sair do modo admin".
+  - Escola: `/signup/escola` (organization) + `SchoolAdmin` no `/app` (unidades, convites, ano letivo/períodos/disciplinas, responsáveis).
+- **Migrations/RLS:** sem mudança.
+- **Testes:** lint/typecheck/build 12/12; prod validado (200 em /, /login, /signup, /signup/escola, /admin).
+- **Pendências / bloqueios:** **/admin e view-as estão ABERTOS (sem auth)** — travar com auth de super-admin antes de divulgar. Aceite de convite via UI ainda não (só criar/listar). Magic link/SSO depois.
+- **Próximo passo sugerido:** 1A.2 (sala de aula) ou auth de admin (proteger /admin).
+- **Commit(s):** `feat: tema escuro + admin view-as + onboarding da escola` (`2c872ee`).
 
 ### [2026-06-01 20:55] — Deploy / Vercel produção — STATUS: CONCLUÍDO
 
