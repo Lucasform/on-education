@@ -46,15 +46,15 @@ Base técnica multi-tenant. Nenhuma feature de produto.
 
 Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um único membro.
 
-### 1B.1 Núcleo individual `[MVP]` 🚧 EM ANDAMENTO
+### 1B.1 Núcleo individual `[MVP]` ✅ CONCLUÍDA (2026-06-01)
 
-- [~] Signup self-service instantâneo → `/signup` provisiona o tenant `individual`, abre sessão e leva ao `/app`. Sessão por cookie HMAC server-side. Falta trocar pelo **Supabase Auth** (magic link / SSO Google).
+- [x] Signup self-service → `/signup` (e-mail+senha via **Supabase Auth**, usuário auto-confirmado) provisiona o tenant `individual` e abre sessão. `/login` e `/logout` ok.
 - [x] Plano `teacher_free` aplicado por padrão; entitlements e `usage_meters` (cota de IA) ativos.
 - [x] Gestão leve de turmas/alunos próprios — serviços + **UI no dashboard** (`/app`): cria/lista turmas e alunos, com checagem tripla + cota.
 
-**Aceite:** um novo professor cria conta e tem valor no primeiro uso; cota de IA medida por tenant.
+**Aceite:** ✅ professor cria conta (auth real), cai no workspace e gerencia turmas/alunos; cota de IA medida por tenant. Validado contra o Supabase real.
 **Decisão:** ver `docs/adr/0003-provisionamento-tenant-individual.md`.
-**Falta para concluir:** Supabase Auth real (hoje cookie de dev HMAC) e rodar os testes de integração (precisam de `DATABASE_URL`). App roda local com `DATABASE_URL` + `DEV_SESSION_SECRET`.
+**Evolução futura:** magic link / SSO Google (precisam SMTP/OAuth); troca de tenant (multi-membership).
 
 ### 1B.2 IA pedagógica `[MVP]` 🚧 EM ANDAMENTO
 

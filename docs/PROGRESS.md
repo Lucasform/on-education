@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Infra conectada (Supabase real) + 1B/1A.1 validados de ponta a ponta · **Status:** EM ANDAMENTO · **Próximo passo:** pegar `SUPABASE_SERVICE_ROLE_KEY` (auth real) e `ANTHROPIC_API_KEY` (IA); seguir 1A.2 (sala de aula). App roda local com `pnpm dev`.
+**Fase atual:** Auth real (Supabase) no ar · 1B.1 CONCLUÍDA · **Status:** EM ANDAMENTO · **Próximo passo:** 1A.2 (sala de aula: diário/notas/faltas/boletim) ou UI de onboarding da escola. Deploy (GitHub+Vercel) quando quiser.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 20:25] — Fase 1B.1 / Auth / Supabase e-mail+senha — STATUS: CONCLUÍDO
+
+- **Tarefa:** substituir a cookie de dev pelo Supabase Auth real (e-mail+senha).
+- **Segmento:** 👤 professor (vale p/ ambos)
+- **O que foi feito:**
+  - `apps/web`: `@supabase/ssr` + `@supabase/supabase-js`. `server/supabase.ts` (client de sessão por cookie + client admin service_role). `server/session.ts` agora deriva AuthContext da sessão Supabase → `resolveContextForUser`. `middleware.ts` faz refresh de sessão.
+  - Signup cria usuário no Supabase (service_role, `email_confirm:true` → sem SMTP) + provisiona tenant + loga. `/login`, `/logout`. `/app` redireciona p/ `/login` sem sessão.
+  - `module-nucleo/context.ts`: `resolveContextForUser` (auth user → membership/tenant).
+- **Arquivos principais:** `apps/web/src/server/{supabase,session}.ts`, `apps/web/src/middleware.ts`, `apps/web/src/app/{signup,login,app}/*`, `packages/modules/nucleo/src/context.ts`.
+- **Migrations/RLS:** sem mudança.
+- **Testes:** lint/typecheck/test/build 12/12; smoke test real: Supabase admin createUser/deleteUser ok.
+- **Decisões (ADR?):** auth e-mail+senha com auto-confirm via service_role (evita SMTP); magic link/SSO depois.
+- **Pendências / bloqueios:** deploy (GitHub+Vercel); magic link exigiria SMTP Resend no Supabase. Multi-tenant switch futuro.
+- **Credenciais/segredos necessários:** nenhuma nova (todas no `.env.local`).
+- **Próximo passo sugerido:** 1A.2 (sala de aula) ou UI de onboarding da escola; depois deploy.
+- **Commit(s):** `feat: auth com email e senha via Supabase (substitui cookie de dev)` (`99604af`).
 
 ### [2026-06-01 19:55] — Infra / Supabase conectado (schema isolado) — STATUS: CONCLUÍDO
 
