@@ -5,14 +5,20 @@ import {
   index,
   integer,
   jsonb,
-  pgEnum,
   pgPolicy,
-  pgTable,
+  pgSchema,
   text,
   timestamp,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+
+/**
+ * On Education vive num SCHEMA Postgres dedicado (`on_education`), isolado de outros
+ * produtos que compartilhem o mesmo banco (ex.: On Way Financial em `public`). Todas as
+ * tabelas e enums são criados aqui; o journal de migrations também (ver drizzle.config).
+ */
+export const oe = pgSchema('on_education');
 
 /**
  * Schema base do produto (Master Spec §5). Toda tabela de domínio carrega `tenant_id`
@@ -24,8 +30,8 @@ import {
  * Enums espelham os do @on-education/core; mudá-los exige migration, por isso ficam
  * declarados explicitamente aqui (camada de banco).
  */
-export const tenantTypeEnum = pgEnum('tenant_type', ['organization', 'individual']);
-export const roleEnum = pgEnum('role', [
+export const tenantTypeEnum = oe.enum('tenant_type', ['organization', 'individual']);
+export const roleEnum = oe.enum('role', [
   'owner',
   'director',
   'coordinator',
@@ -36,8 +42,12 @@ export const roleEnum = pgEnum('role', [
   'student',
 ]);
 
-/** Predicado RLS reutilizável: a linha pertence ao tenant da sessão. */
-const tenantPredicate = sql`tenant_id = current_setting('app.tenant_id', true)::uuid`;
+/**
+ * Predicado RLS reutilizável: a linha pertence ao tenant da sessão.
+ * `NULLIF(..., '')` trata GUC vazio como NULL → sessão sem tenant enxerga ZERO linhas
+ * (default seguro) em vez de erro `invalid input syntax for uuid: ""`.
+ */
+const tenantPredicate = sql`tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid`;
 
 /** Colunas transversais (Master Spec §5). `tenantScoped` adiciona o tenant_id. */
 const auditCols = {
@@ -50,7 +60,7 @@ const auditCols = {
 // ---------------------------------------------------------------------------
 // tenants — a fronteira de isolamento. Para esta tabela, o próprio `id` é o tenant.
 // ---------------------------------------------------------------------------
-export const tenants = pgTable(
+export const tenants = oe.table(
   'tenants',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -64,8 +74,8 @@ export const tenants = pgTable(
       as: 'permissive',
       for: 'all',
       to: 'public',
-      using: sql`id = current_setting('app.tenant_id', true)::uuid`,
-      withCheck: sql`id = current_setting('app.tenant_id', true)::uuid`,
+      using: sql`id = nullif(current_setting('app.tenant_id', true), '')::uuid`,
+      withCheck: sql`id = nullif(current_setting('app.tenant_id', true), '')::uuid`,
     }),
   ],
 );
@@ -74,7 +84,7 @@ export const tenants = pgTable(
 // users — identidade global (um usuário pode ter membership em vários tenants).
 // Não é tenant-scoped; o vínculo tenant↔user é a `memberships`.
 // ---------------------------------------------------------------------------
-export const users = pgTable(
+export const users = oe.table(
   'users',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -89,7 +99,7 @@ export const users = pgTable(
 // ---------------------------------------------------------------------------
 // memberships — User × Tenant × Role (× Unit no futuro). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const memberships = pgTable(
+export const memberships = oe.table(
   'memberships',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -114,7 +124,7 @@ export const memberships = pgTable(
 // ---------------------------------------------------------------------------
 // plans — catálogo global de planos (não tenant-scoped). Ex.: teacher_free, school_full.
 // ---------------------------------------------------------------------------
-export const plans = pgTable('plans', {
+export const plans = oe.table('plans', {
   id: text('id').primaryKey(), // slug estável: 'teacher_free', 'school_full', ...
   name: text('name').notNull(),
   tenantType: tenantTypeEnum('tenant_type').notNull(),
@@ -124,7 +134,7 @@ export const plans = pgTable('plans', {
 // ---------------------------------------------------------------------------
 // subscriptions — assinatura do SaaS por tenant (quem paga pelo produto). RLS.
 // ---------------------------------------------------------------------------
-export const subscriptions = pgTable(
+export const subscriptions = oe.table(
   'subscriptions',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -149,7 +159,7 @@ export const subscriptions = pgTable(
 // entitlements — overrides/estado de entitlement por tenant (a fonte canônica do
 // mapa plano→módulos vive em @on-education/entitlements). RLS.
 // ---------------------------------------------------------------------------
-export const entitlements = pgTable(
+export const entitlements = oe.table(
   'entitlements',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -174,7 +184,7 @@ export const entitlements = pgTable(
 // ---------------------------------------------------------------------------
 // usage_meters — cotas por período (ex.: tokens de IA/mês). RLS.
 // ---------------------------------------------------------------------------
-export const usageMeters = pgTable(
+export const usageMeters = oe.table(
   'usage_meters',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -199,7 +209,7 @@ export const usageMeters = pgTable(
 // ---------------------------------------------------------------------------
 // audit_log — trilha de auditoria (Master Spec §6.3). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const auditLog = pgTable(
+export const auditLog = oe.table(
   'audit_log',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -226,7 +236,7 @@ export const auditLog = pgTable(
 // classes — turmas (Fase 1B.1: turmas leves do professor autônomo; também serve
 // à escola). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const classes = pgTable(
+export const classes = oe.table(
   'classes',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -251,7 +261,7 @@ export const classes = pgTable(
 // students — alunos do tenant (no individual, alunos particulares do professor).
 // `full_name` é PII: nunca logar em claro (Master Spec §7.4). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const students = pgTable(
+export const students = oe.table(
   'students',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -278,7 +288,7 @@ export const students = pgTable(
 // reutilizável (plano/atividade/questão). `aiGenerated` sinaliza origem em IA
 // (transparência, Master Spec §9.3). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const activities = pgTable(
+export const activities = oe.table(
   'activities',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -307,7 +317,7 @@ export const activities = pgTable(
 // o humano revisa e aprova antes de virar conteúdo oficial. Guarda consumo de tokens.
 // Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const aiDrafts = pgTable(
+export const aiDrafts = oe.table(
   'ai_drafts',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -336,7 +346,7 @@ export const aiDrafts = pgTable(
 // ---------------------------------------------------------------------------
 // units — unidades/campus (Fase 1A; SÓ organization, Master Spec §5). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
-export const units = pgTable(
+export const units = oe.table(
   'units',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -360,7 +370,7 @@ export const units = pgTable(
 // invitations — convites para membros da escola (Fase 1A.1). O aceite cria a membership.
 // Tenant-scoped + RLS; `token` é o segredo do convite (lookup administrativo no aceite).
 // ---------------------------------------------------------------------------
-export const invitations = pgTable(
+export const invitations = oe.table(
   'invitations',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -396,7 +406,7 @@ const tenantPolicy = (name: string) =>
     withCheck: tenantPredicate,
   });
 
-export const academicYears = pgTable(
+export const academicYears = oe.table(
   'academic_years',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -412,7 +422,7 @@ export const academicYears = pgTable(
   ],
 );
 
-export const terms = pgTable(
+export const terms = oe.table(
   'terms',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -424,7 +434,7 @@ export const terms = pgTable(
   (t) => [index('terms_tenant_idx').on(t.tenantId), tenantPolicy('terms_tenant_isolation')],
 );
 
-export const subjects = pgTable(
+export const subjects = oe.table(
   'subjects',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -436,7 +446,7 @@ export const subjects = pgTable(
 );
 
 // guardians — responsáveis (PII: nunca logar em claro). Tenant-scoped + RLS.
-export const guardians = pgTable(
+export const guardians = oe.table(
   'guardians',
   {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -450,7 +460,7 @@ export const guardians = pgTable(
 );
 
 // student_guardians — N:N aluno↔responsável com atributos (Master Spec §5).
-export const studentGuardians = pgTable(
+export const studentGuardians = oe.table(
   'student_guardians',
   {
     id: uuid('id').defaultRandom().primaryKey(),

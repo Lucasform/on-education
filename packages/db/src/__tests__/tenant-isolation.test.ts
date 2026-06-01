@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createDbClient, type DbClient } from '../client';
-import { runMigrations } from '../migrate';
 
 /**
  * Teste anti-vazamento de tenant (Master Spec §4.3, §7.3; CLAUDE.md §4).
@@ -16,31 +15,26 @@ import { runMigrations } from '../migrate';
  * checkpoint como pendência.
  */
 const DATABASE_URL = process.env.DATABASE_URL;
-const RESTRICTED_ROLE = 'rls_test_role';
+// Usamos o papel nativo `authenticated` do Supabase: NÃO é superuser, NÃO tem BYPASSRLS
+// (logo o RLS se aplica), e o `postgres` já é membro dele (SET ROLE funciona sem GRANT extra
+// — no Supabase, `GRANT <role> TO current_user` derruba a conexão do pooler).
+const RESTRICTED_ROLE = 'authenticated';
 
 describe.skipIf(!DATABASE_URL)('isolamento de tenant via RLS', () => {
   let client: DbClient;
   let tenantOrg: string;
   let tenantIndividual: string;
 
+  // Schema/migrations já aplicados via `pnpm db:migrate` antes do teste.
   beforeAll(async () => {
-    client = createDbClient(DATABASE_URL!);
+    // 1 conexão só + timeouts curtos: gentil com o pooler do Supabase (Free).
+    client = createDbClient(DATABASE_URL!, { max: 1, idle_timeout: 5, connect_timeout: 30 });
     const sql = client.sql;
 
-    // Schema + políticas RLS.
-    await runMigrations(client.db);
-
-    // Papel restrito (NÃO é dono das tabelas, NÃO é superuser => sujeito ao RLS).
-    await sql.unsafe(`
-      DO $$ BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${RESTRICTED_ROLE}') THEN
-          CREATE ROLE ${RESTRICTED_ROLE} NOLOGIN;
-        END IF;
-      END $$;
-    `);
-    await sql.unsafe(`GRANT USAGE ON SCHEMA public TO ${RESTRICTED_ROLE};`);
+    // Dá ao papel `authenticated` acesso ao nosso schema (o RLS é que faz o isolamento).
+    await sql.unsafe(`GRANT USAGE ON SCHEMA on_education TO ${RESTRICTED_ROLE};`);
     await sql.unsafe(
-      `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${RESTRICTED_ROLE};`,
+      `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA on_education TO ${RESTRICTED_ROLE};`,
     );
 
     // Seed via conexão admin (bypassa RLS): um tenant de cada segmento.
@@ -57,13 +51,16 @@ describe.skipIf(!DATABASE_URL)('isolamento de tenant via RLS', () => {
       values (${tenantOrg}, gen_random_uuid(), 'owner')`;
     await sql`insert into memberships (tenant_id, user_id, role)
       values (${tenantIndividual}, gen_random_uuid(), 'owner')`;
-  });
+  }, 30000);
 
   afterAll(async () => {
     if (!client) return;
     const sql = client.sql;
-    await sql`delete from memberships where tenant_id in (${tenantOrg}, ${tenantIndividual})`;
-    await sql`delete from tenants where id in (${tenantOrg}, ${tenantIndividual})`;
+    const ids = [tenantOrg, tenantIndividual].filter(Boolean);
+    if (ids.length > 0) {
+      await sql`delete from memberships where tenant_id in ${sql(ids)}`;
+      await sql`delete from tenants where id in ${sql(ids)}`;
+    }
     await client.close();
   });
 

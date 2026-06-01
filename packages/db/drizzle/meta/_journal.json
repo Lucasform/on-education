@@ -5,43 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1780344971275,
-      "tag": "0000_petite_kronos",
+      "when": 1780353374597,
+      "tag": "0000_awesome_fabian_cortez",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1780345979466,
-      "tag": "0001_sparkling_jetstream",
+      "when": 1780354706151,
+      "tag": "0001_cultured_crusher_hogan",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1780348319400,
-      "tag": "0002_nifty_aaron_stack",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1780348876368,
-      "tag": "0003_curved_obadiah_stane",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1780350186418,
-      "tag": "0004_mean_shooting_star",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1780350401548,
-      "tag": "0005_legal_jocasta",
+      "when": 1780354885848,
+      "tag": "0002_grant_authenticated",
       "breakpoints": true
     }
   ]
