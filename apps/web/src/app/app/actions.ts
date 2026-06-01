@@ -14,7 +14,12 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 import { db } from '@/server/db';
-import { getAuthContext } from '@/server/session';
+import { getAuthContext, signOut } from '@/server/session';
+
+export async function logoutAction(): Promise<void> {
+  await signOut();
+  redirect('/login');
+}
 
 async function requireCtx(): Promise<AuthContext> {
   const ctx = await getAuthContext();

@@ -14,6 +14,7 @@ import {
   createStudentAction,
   discardDraftAction,
   generateDraftAction,
+  logoutAction,
 } from './actions';
 
 // Lê a sessão (cookie) e o banco => renderização dinâmica, nunca em build time.
@@ -22,7 +23,7 @@ export const metadata = { title: 'Meu workspace — On Education' };
 
 export default async function AppPage() {
   const ctx = await getAuthContext();
-  if (!ctx) redirect('/signup');
+  if (!ctx) redirect('/login');
 
   const client = db();
   const [turmas, alunos, atividades, rascunhos] = await Promise.all([
@@ -37,9 +38,16 @@ export default async function AppPage() {
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-8 p-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Meu workspace</h1>
-        <p className="text-sm opacity-70">Tenant individual · plano teacher_free</p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Meu workspace</h1>
+          <p className="text-sm opacity-70">Segmento: {ctx.tenantType}</p>
+        </div>
+        <form action={logoutAction}>
+          <Button type="submit" variant="outline" size="sm">
+            Sair
+          </Button>
+        </form>
       </header>
 
       <section className="grid gap-6 md:grid-cols-2">

@@ -24,11 +24,28 @@ export default function SignupPage() {
           <input name="ownerEmail" type="email" required className="rounded-md border px-3 py-2" />
         </label>
         <label className="flex flex-col gap-1 text-sm">
+          Senha <span className="opacity-60">(mín. 8 caracteres)</span>
+          <input
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            className="rounded-md border px-3 py-2"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
           Nome do workspace <span className="opacity-60">(opcional)</span>
           <input name="workspaceName" className="rounded-md border px-3 py-2" />
         </label>
         <Button type="submit">Criar conta</Button>
       </form>
+
+      <p className="text-center text-sm opacity-70">
+        Já tem conta?{' '}
+        <a href="/login" className="underline">
+          Entrar
+        </a>
+      </p>
     </main>
   );
 }
