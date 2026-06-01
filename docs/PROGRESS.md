@@ -7,11 +7,25 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 1B · **Status:** EM ANDAMENTO · **Próximo passo:** depende de você (Supabase/`DATABASE_URL` + `ANTHROPIC_API_KEY`) para destravar auth real, integração e geração de IA. Sem credencial, próximos candidatos: UI de IA no `/app`, ou começar 1A (escola).
+**Fase atual:** Fase 1B (núcleo+pedagógico+IA+web prontos no domínio/UI) · **Status:** EM ANDAMENTO · **Próximo passo:** depende de você — `DATABASE_URL`+`DEV_SESSION_SECRET` (rodar local), trio Supabase (auth real), `ANTHROPIC_API_KEY` (geração de IA). Sem credencial, candidatos: Fase 1A (escola) ou simulados/portfólio (1B.3).
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 18:45] — Fase 1B.2 / Web / UI de IA — STATUS: EM ANDAMENTO
+
+- **Tarefa:** expor a IA no dashboard — gerar rascunho, revisar, aprovar/descartar (human-in-the-loop).
+- **Segmento:** 👤 professor
+- **O que foi feito:** `/app` ganhou seção de IA: form de geração (kind + prompt) visível só quando `isAiConfigured()`; senão um aviso pedindo `ANTHROPIC_API_KEY`. Lista de rascunhos com ações Aprovar/Descartar. Server actions `generateDraftAction/approveDraftAction/discardDraftAction`.
+- **Arquivos principais:** `apps/web/src/app/app/{page.tsx,actions.ts}`, `apps/web/{package.json,next.config.mjs}`.
+- **Migrations/RLS:** sem mudança.
+- **Testes:** lint/typecheck/test/build 12/12 verdes.
+- **Decisões (ADR?):** —
+- **Pendências / bloqueios:** geração real precisa de `ANTHROPIC_API_KEY`; exercício em runtime precisa de `DATABASE_URL`. Com isso, o loop 1B (signup → turmas/alunos/atividades → gerar/aprovar IA) está completo na UI.
+- **Credenciais/segredos necessários:** `ANTHROPIC_API_KEY`, `DATABASE_URL`, `DEV_SESSION_SECRET`, trio Supabase.
+- **Próximo passo sugerido:** com credenciais — Supabase Auth + migrate + integração + geração real. Sem — Fase 1A (escola) ou 1B.3 (simulados/portfólio).
+- **Commit(s):** `feat: UI de IA no dashboard (1B.2)`.
 
 ### [2026-06-01 18:25] — Fase 1B.2 / IA pedagógica / Cota + rascunho — STATUS: EM ANDAMENTO
 

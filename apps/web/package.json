@@ -17,6 +17,7 @@
     "@on-education/core": "workspace:*",
     "@on-education/db": "workspace:*",
     "@on-education/entitlements": "workspace:*",
+    "@on-education/module-ia": "workspace:*",
     "@on-education/module-nucleo": "workspace:*",
     "@on-education/module-pedagogico": "workspace:*",
     "@on-education/ui": "workspace:*",

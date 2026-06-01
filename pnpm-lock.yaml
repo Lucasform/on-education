@@ -59,6 +59,9 @@ importers:
       '@on-education/entitlements':
         specifier: workspace:*
         version: link:../../packages/entitlements
+      '@on-education/module-ia':
+        specifier: workspace:*
+        version: link:../../packages/modules/ia
       '@on-education/module-nucleo':
         specifier: workspace:*
         version: link:../../packages/modules/nucleo

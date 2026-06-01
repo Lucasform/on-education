@@ -12,6 +12,7 @@ const nextConfig = {
     '@on-education/validation',
     '@on-education/module-nucleo',
     '@on-education/module-pedagogico',
+    '@on-education/module-ia',
   ],
 };
 

@@ -1,12 +1,14 @@
 'use server';
 
 import type { AuthContext } from '@on-education/auth';
+import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
 import { createClass, createStudent } from '@on-education/module-nucleo';
 import { createActivity } from '@on-education/module-pedagogico';
 import {
   createActivitySchema,
   createClassSchema,
   createStudentSchema,
+  generateDraftSchema,
 } from '@on-education/validation';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -54,5 +56,31 @@ export async function createActivityAction(formData: FormData): Promise<void> {
     aiGenerated: false,
   });
   await createActivity(db(), ctx, input);
+  revalidatePath('/app');
+}
+
+export async function generateDraftAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateDraftSchema.parse({
+    kind: formData.get('kind'),
+    prompt: formData.get('prompt'),
+  });
+  // Usa o provider Anthropic default (exige ANTHROPIC_API_KEY). A UI só mostra o form
+  // quando a IA está configurada; aqui a chamada lança erro legível se faltar a key.
+  await generateDraft(db(), ctx, input);
+  revalidatePath('/app');
+}
+
+export async function approveDraftAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await approveDraft(db(), ctx, id);
+  revalidatePath('/app');
+}
+
+export async function discardDraftAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await discardDraft(db(), ctx, id);
   revalidatePath('/app');
 }

@@ -1,3 +1,4 @@
+import { isAiConfigured, listDrafts } from '@on-education/module-ia';
 import { listClasses, listStudents } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
@@ -6,7 +7,14 @@ import { redirect } from 'next/navigation';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createActivityAction, createClassAction, createStudentAction } from './actions';
+import {
+  approveDraftAction,
+  createActivityAction,
+  createClassAction,
+  createStudentAction,
+  discardDraftAction,
+  generateDraftAction,
+} from './actions';
 
 // Lê a sessão (cookie) e o banco => renderização dinâmica, nunca em build time.
 export const dynamic = 'force-dynamic';
@@ -17,11 +25,13 @@ export default async function AppPage() {
   if (!ctx) redirect('/signup');
 
   const client = db();
-  const [turmas, alunos, atividades] = await Promise.all([
+  const [turmas, alunos, atividades, rascunhos] = await Promise.all([
     listClasses(client, ctx),
     listStudents(client, ctx),
     listActivities(client, ctx, {}),
+    listDrafts(client, ctx),
   ]);
+  const aiOn = isAiConfigured();
 
   const input = 'rounded-md border px-3 py-2 text-sm';
 
@@ -91,6 +101,62 @@ export default async function AppPage() {
             Salvar atividade
           </Button>
         </form>
+      </section>
+
+      <section className="rounded-md border p-4">
+        <h2 className="mb-3 text-sm font-medium">IA pedagógica · rascunhos ({rascunhos.length})</h2>
+
+        {aiOn ? (
+          <form action={generateDraftAction} className="mb-4 flex flex-col gap-2">
+            <select name="kind" className={input} defaultValue="lesson_plan">
+              <option value="lesson_plan">Plano de aula</option>
+              <option value="activity">Atividade</option>
+            </select>
+            <textarea
+              name="prompt"
+              required
+              rows={2}
+              placeholder="Descreva o que você quer gerar (ex.: plano de aula sobre frações, 6º ano)"
+              className={input}
+            />
+            <Button type="submit" size="sm">
+              Gerar rascunho
+            </Button>
+          </form>
+        ) : (
+          <p className="mb-4 rounded-md bg-accent p-2 text-xs opacity-80">
+            IA indisponível: configure <code>ANTHROPIC_API_KEY</code> para gerar rascunhos.
+          </p>
+        )}
+
+        <ul className="space-y-2 text-sm">
+          {rascunhos.map((d) => (
+            <li key={d.id} className="rounded-md border p-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium">
+                  {d.kind} <span className="opacity-60">· {d.status}</span>
+                </span>
+                {d.status === 'draft' && (
+                  <span className="flex gap-2">
+                    <form action={approveDraftAction}>
+                      <input type="hidden" name="id" value={d.id} />
+                      <Button type="submit" size="sm">
+                        Aprovar
+                      </Button>
+                    </form>
+                    <form action={discardDraftAction}>
+                      <input type="hidden" name="id" value={d.id} />
+                      <Button type="submit" size="sm" variant="outline">
+                        Descartar
+                      </Button>
+                    </form>
+                  </span>
+                )}
+              </div>
+              {d.output && <p className="mt-1 whitespace-pre-wrap opacity-80">{d.output}</p>}
+            </li>
+          ))}
+        </ul>
       </section>
     </main>
   );
