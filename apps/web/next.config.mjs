@@ -7,6 +7,11 @@ const nextConfig = {
     '@on-education/core',
     '@on-education/config',
     '@on-education/entitlements',
+    '@on-education/auth',
+    '@on-education/db',
+    '@on-education/validation',
+    '@on-education/module-nucleo',
+    '@on-education/module-pedagogico',
   ],
 };
 

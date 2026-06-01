@@ -12,13 +12,19 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@on-education/auth": "workspace:*",
     "@on-education/config": "workspace:*",
     "@on-education/core": "workspace:*",
+    "@on-education/db": "workspace:*",
     "@on-education/entitlements": "workspace:*",
+    "@on-education/module-nucleo": "workspace:*",
+    "@on-education/module-pedagogico": "workspace:*",
     "@on-education/ui": "workspace:*",
+    "@on-education/validation": "workspace:*",
     "next": "^15.1.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

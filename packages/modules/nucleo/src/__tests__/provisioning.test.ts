@@ -3,10 +3,10 @@ import {
   createDbClient,
   type DbClient,
   entitlements,
-  runMigrations,
   subscriptions,
   usageMeters,
 } from '@on-education/db';
+import { runMigrations } from '@on-education/db/migrate';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createClass, createStudent, listClasses, listStudents } from '../classes';

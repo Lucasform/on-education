@@ -27,7 +27,14 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <Button>Tudo certo</Button>
+      <div className="flex gap-3">
+        <a href="/signup">
+          <Button>Criar conta de professor</Button>
+        </a>
+        <a href="/app">
+          <Button variant="outline">Meu workspace</Button>
+        </a>
+      </div>
     </main>
   );
 }

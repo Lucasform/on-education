@@ -7,11 +7,30 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 1B (1B.1 + 1B.3 domínio prontos) · **Status:** EM ANDAMENTO · **Próximo passo:** wiring web/UI (roda com `DATABASE_URL`) e scaffolding de IA (1B.2). Auth real e geração de IA dependem de credenciais.
+**Fase atual:** Fase 1B · **Status:** EM ANDAMENTO · **Próximo passo:** scaffolding de IA (1B.2: cota + rascunho). Pendente de você: Supabase (auth + `DATABASE_URL`) e `ANTHROPIC_API_KEY`.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 18:05] — Fase 1B.1 / Web / Signup + dashboard — STATUS: EM ANDAMENTO
+
+- **Tarefa:** colocar o produto de pé no `apps/web` — signup do professor e workspace (turmas/alunos/atividades).
+- **Segmento:** 👤 professor
+- **O que foi feito:**
+  - `apps/web/src/server`: `db.ts` (client server-only) e `session.ts` (sessão por cookie **assinada por HMAC** com `DEV_SESSION_SECRET`; tenant derivado do servidor, nunca do client). Stopgap até Supabase Auth.
+  - `/signup` (form + server action `signupAction`): provisiona tenant individual e abre sessão.
+  - `/app` (RSC `force-dynamic`): lista turmas/alunos/atividades e formulários (server actions) para criar cada um, via serviços dos módulos.
+  - `next.config` transpila os pacotes do monorepo; home com links.
+  - Ajuste: `@on-education/db` deixou de reexportar `migrate` no entry (o `new URL('../drizzle')` quebrava o webpack do Next); agora em `@on-education/db/migrate`.
+- **Arquivos principais:** `apps/web/src/server/{db,session}.ts`, `apps/web/src/app/signup/*`, `apps/web/src/app/app/*`, `apps/web/next.config.mjs`, `packages/db/{src/index.ts,package.json}`.
+- **Migrations/RLS:** sem mudança (reuso de `0001`/`0002`).
+- **Testes:** lint/typecheck/test/build 11/11 verdes; `/app` build como dinâmica, `/signup` estática.
+- **Decisões (ADR?):** sessão de dev documentada em `session.ts` (substituível por Supabase Auth sem mudar a interface).
+- **Pendências / bloqueios:** auth real (Supabase) e execução com banco dependem de credenciais; UI não exercitada em runtime aqui (sem `DATABASE_URL`).
+- **Credenciais/segredos necessários:** `DATABASE_URL` + `DEV_SESSION_SECRET` para rodar local; trio Supabase para auth real; `ANTHROPIC_API_KEY` para IA.
+- **Próximo passo sugerido:** scaffolding de IA (1B.2): cota via `usage_meters`, rascunho human-in-the-loop, adapter Anthropic com geração plugável na key.
+- **Commit(s):** `feat: web — signup e dashboard do professor (Fase 1B.1)`.
 
 ### [2026-06-01 17:35] — Fase 1B.3 / Pedagógico / Banco de atividades — STATUS: EM ANDAMENTO
 

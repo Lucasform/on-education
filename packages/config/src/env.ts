@@ -23,6 +23,10 @@ const envSchema = z.object({
 
   // Observabilidade — opcional.
   SENTRY_DSN: z.string().url().optional(),
+
+  // Sessão de desenvolvimento (cookie assinada por HMAC) — stopgap até o Supabase Auth.
+  // Server-only; gere um valor aleatório forte. NÃO usar em produção sem auth real.
+  DEV_SESSION_SECRET: z.string().min(16).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,5 +1,6 @@
 import type { AuthContext } from '@on-education/auth';
-import { createDbClient, type DbClient, runMigrations } from '@on-education/db';
+import { createDbClient, type DbClient } from '@on-education/db';
+import { runMigrations } from '@on-education/db/migrate';
 import { canUse } from '@on-education/entitlements';
 import { provisionIndividualTenant } from '@on-education/module-nucleo';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
