@@ -56,13 +56,14 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 **Decisão:** ver `docs/adr/0003-provisionamento-tenant-individual.md`.
 **Falta para concluir:** Supabase Auth real (hoje cookie de dev HMAC) e rodar os testes de integração (precisam de `DATABASE_URL`). App roda local com `DATABASE_URL` + `DEV_SESSION_SECRET`.
 
-### 1B.2 IA pedagógica `[MVP]`
+### 1B.2 IA pedagógica `[MVP]` 🚧 EM ANDAMENTO
 
-- [ ] Gerador de plano de aula e de atividades (Sonnet), com human-in-the-loop (rascunho aprovável).
-- [ ] Cota por plano (free vs pro) + medição de tokens por tenant + sinalização de conteúdo gerado por IA.
-- [ ] Guardrails: isolamento por tenant, conteúdo de upload tratado como dado não confiável.
+- [~] Gerador de plano de aula e de atividades (Sonnet), com human-in-the-loop — `module-ia`: `generateDraft` cria rascunho (`status=draft`), `approveDraft/discardDraft`. Provider Anthropic via fetch (liga com `ANTHROPIC_API_KEY`); geração injetável. Falta UI.
+- [x] Cota por plano (free vs pro) + medição de tokens por tenant — `usage_meters` com `assertWithinQuota`/`recordUsage`; `ai_generated` sinaliza conteúdo de IA.
+- [~] Guardrails: isolamento por tenant (RLS + checagem tripla) ok; tratamento de upload como dado não confiável fica para quando houver upload/RAG.
 
 **Aceite:** professor gera plano/atividade, edita e salva; free esbarra na cota, pro amplia.
+**Falta para concluir:** `ANTHROPIC_API_KEY` para geração real; UI de geração/aprovação no `/app`; rodar integração (precisa `DATABASE_URL`).
 
 ### 1B.3 Pedagógico (banco pessoal) `[MVP]` 🚧 EM ANDAMENTO
 

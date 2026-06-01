@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 1B · **Status:** EM ANDAMENTO · **Próximo passo:** scaffolding de IA (1B.2: cota + rascunho). Pendente de você: Supabase (auth + `DATABASE_URL`) e `ANTHROPIC_API_KEY`.
+**Fase atual:** Fase 1B · **Status:** EM ANDAMENTO · **Próximo passo:** depende de você (Supabase/`DATABASE_URL` + `ANTHROPIC_API_KEY`) para destravar auth real, integração e geração de IA. Sem credencial, próximos candidatos: UI de IA no `/app`, ou começar 1A (escola).
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 18:25] — Fase 1B.2 / IA pedagógica / Cota + rascunho — STATUS: EM ANDAMENTO
+
+- **Tarefa:** scaffolding da IA — geração com human-in-the-loop, cota por plano e medição de tokens.
+- **Segmento:** 🏫👤 (gates `ai.lessonPlan`/`ai.activities`)
+- **O que foi feito:**
+  - `packages/db`: tabela `ai_drafts` (tenant-scoped + RLS, status draft/approved/discarded, tokens); migration `0003`.
+  - `packages/validation`: `generateDraftSchema` + `aiDraftKindSchema`.
+  - Novo módulo `@on-education/module-ia`: `provider.ts` (contrato `AiProvider` + `createAnthropicProvider` via fetch, modelo de config; `isAiConfigured`), `quota.ts` (`getUsedTokens`/`tokensRemaining`/`assertWithinQuota`/`recordUsage` upsert em `usage_meters`), `drafts.ts` (`generateDraft` com checagem tripla + cota + persiste rascunho + mede tokens, provider injetável; `approveDraft`/`discardDraft`/`listDrafts`).
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0003_*.sql`, `packages/validation/src/index.ts`, `packages/modules/ia/src/*`.
+- **Migrations/RLS:** sim — `0003` com `ai_drafts` + RLS.
+- **Testes:** verde — module-ia 3 unit ✓ (cota) + 1 integração (provider fake, roda só com `DATABASE_URL`); total lint/typecheck/test/build 12/12.
+- **Decisões (ADR?):** —
+- **Pendências / bloqueios:** geração real precisa de `ANTHROPIC_API_KEY`; UI de IA no `/app` não feita; integração precisa de `DATABASE_URL`. Cache de prompt e RAG (pgvector) ficam para evolução.
+- **Credenciais/segredos necessários:** `ANTHROPIC_API_KEY` (geração), `DATABASE_URL` + `DEV_SESSION_SECRET` (rodar/local), trio Supabase (auth real).
+- **Próximo passo sugerido:** com credenciais — Supabase Auth + integração + geração real + UI de IA. Sem credenciais — UI de geração/aprovação (inerte sem key) ou iniciar 1A (escola).
+- **Commit(s):** `feat: IA pedagogica - cota, rascunho human-in-the-loop e provider Anthropic (Fase 1B.2)`.
 
 ### [2026-06-01 18:05] — Fase 1B.1 / Web / Signup + dashboard — STATUS: EM ANDAMENTO
 

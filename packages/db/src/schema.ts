@@ -301,6 +301,37 @@ export const activities = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// ai_drafts — saídas de IA como RASCUNHO (Fase 1B.2, human-in-the-loop, Master Spec §9.3):
+// o humano revisa e aprova antes de virar conteúdo oficial. Guarda consumo de tokens.
+// Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const aiDrafts = pgTable(
+  'ai_drafts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    kind: text('kind').notNull(), // 'lesson_plan' | 'activity' | ...
+    prompt: text('prompt').notNull(),
+    output: text('output').notNull().default(''),
+    status: text('status').notNull().default('draft'), // draft | approved | discarded
+    model: text('model'),
+    tokensIn: integer('tokens_in').notNull().default(0),
+    tokensOut: integer('tokens_out').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    index('ai_drafts_tenant_idx').on(t.tenantId),
+    pgPolicy('ai_drafts_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -313,4 +344,5 @@ export const schema = {
   classes,
   students,
   activities,
+  aiDrafts,
 };

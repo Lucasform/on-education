@@ -58,3 +58,13 @@ export const searchActivitiesSchema = z.object({
   tag: z.string().max(40).optional(),
 });
 export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;
+
+/** IA pedagógica (Fase 1B.2) — pedido de geração de rascunho. */
+export const aiDraftKindSchema = z.enum(['lesson_plan', 'activity']);
+export type AiDraftKind = z.infer<typeof aiDraftKindSchema>;
+
+export const generateDraftSchema = z.object({
+  kind: aiDraftKindSchema,
+  prompt: z.string().min(1).max(10_000),
+});
+export type GenerateDraftInput = z.infer<typeof generateDraftSchema>;
