@@ -7,11 +7,25 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 1B.1 — Núcleo individual · **Status:** EM ANDAMENTO · **Próximo passo:** prover Supabase/`DATABASE_URL`, depois wiring de auth + UI de signup/dashboard.
+**Fase atual:** Fase 1B (1B.1 + 1B.3 domínio prontos) · **Status:** EM ANDAMENTO · **Próximo passo:** wiring web/UI (roda com `DATABASE_URL`) e scaffolding de IA (1B.2). Auth real e geração de IA dependem de credenciais.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 17:35] — Fase 1B.3 / Pedagógico / Banco de atividades — STATUS: EM ANDAMENTO
+
+- **Tarefa:** banco de atividades pessoal (CRUD, tags, busca) do professor.
+- **Segmento:** 🏫👤 (gate `activities.bank`)
+- **O que foi feito:** tabela `activities` (tenant-scoped + RLS, `tags text[]`, `ai_generated`; migration `0002`); schemas Zod (create/update/search); módulo `@on-education/module-pedagogico` com `createActivity/updateActivity/deleteActivity(soft)/listActivities` (busca por tag e título), checagem tripla.
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0002_*.sql`, `packages/validation/src/index.ts`, `packages/modules/pedagogico/src/*`.
+- **Migrations/RLS:** sim — `0002` com `activities` + RLS.
+- **Testes:** verde — pedagogico 1 unit ✓ + 1 integração pulada; total lint/typecheck/test/build 11/11.
+- **Decisões (ADR?):** —
+- **Pendências / bloqueios:** simulados/portfólio (1B.3 restante) não feitos; integração roda com `DATABASE_URL`.
+- **Credenciais/segredos necessários:** `DATABASE_URL` (testes); `ANTHROPIC_API_KEY` (IA, 1B.2).
+- **Próximo passo sugerido:** wiring web + UI; depois scaffolding de IA (cota + rascunho).
+- **Commit(s):** `feat: banco de atividades pessoal (Fase 1B.3)`.
 
 ### [2026-06-01 17:05] — Fase 1B.1 / Núcleo individual / Provisionamento + turmas — STATUS: EM ANDAMENTO
 

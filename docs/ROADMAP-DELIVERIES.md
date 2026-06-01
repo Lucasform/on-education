@@ -64,9 +64,9 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 
 **Aceite:** professor gera plano/atividade, edita e salva; free esbarra na cota, pro amplia.
 
-### 1B.3 Pedagógico (banco pessoal) `[MVP]`
+### 1B.3 Pedagógico (banco pessoal) `[MVP]` 🚧 EM ANDAMENTO
 
-- [ ] Banco de atividades pessoal (CRUD, tags, busca).
+- [x] Banco de atividades pessoal (CRUD, tags, busca) — `@on-education/module-pedagogico`, gate `activities.bank`, soft delete, busca por tag/título.
 - [ ] Simulados/quizzes simples + portfólio leve.
 
 ### 1B.4 Marketplace `[V1]`

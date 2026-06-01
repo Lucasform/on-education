@@ -272,6 +272,35 @@ export const students = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// activities — banco de atividades do professor (Fase 1B.3). Conteúdo pedagógico
+// reutilizável (plano/atividade/questão). `aiGenerated` sinaliza origem em IA
+// (transparência, Master Spec §9.3). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const activities = pgTable(
+  'activities',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    subject: text('subject'),
+    content: text('content').notNull().default(''),
+    tags: text('tags').array().notNull().default([]),
+    aiGenerated: boolean('ai_generated').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    index('activities_tenant_idx').on(t.tenantId),
+    pgPolicy('activities_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -283,4 +312,5 @@ export const schema = {
   auditLog,
   classes,
   students,
+  activities,
 };

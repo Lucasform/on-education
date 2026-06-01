@@ -39,3 +39,22 @@ export const createStudentSchema = z.object({
   classId: uuidSchema.optional(),
 });
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
+
+/** Banco de atividades (Fase 1B.3). */
+export const createActivitySchema = z.object({
+  title: z.string().min(1).max(300),
+  subject: z.string().max(120).optional(),
+  content: z.string().max(50_000).default(''),
+  tags: z.array(z.string().min(1).max(40)).max(30).default([]),
+  aiGenerated: z.boolean().default(false),
+});
+export type CreateActivityInput = z.infer<typeof createActivitySchema>;
+
+export const updateActivitySchema = createActivitySchema.partial();
+export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
+
+export const searchActivitiesSchema = z.object({
+  q: z.string().max(300).optional(),
+  tag: z.string().max(40).optional(),
+});
+export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;

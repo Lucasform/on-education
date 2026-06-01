@@ -15,6 +15,13 @@
       "when": 1780345979466,
       "tag": "0001_sparkling_jetstream",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780348319400,
+      "tag": "0002_nifty_aaron_stack",
+      "breakpoints": true
     }
   ]
 }
