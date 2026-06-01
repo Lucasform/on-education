@@ -7,11 +7,29 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 1B completo (domínio/UI); 1A.1 (escola) com provisionamento+convites+estrutura acadêmica+responsáveis no domínio · **Status:** EM ANDAMENTO · **Próximo passo:** UI de onboarding da escola e 1A.2 (sala de aula: diário/notas/faltas). Depende de você: `DATABASE_URL`/Supabase/`ANTHROPIC_API_KEY`.
+**Fase atual:** Infra conectada (Supabase real) + 1B/1A.1 validados de ponta a ponta · **Status:** EM ANDAMENTO · **Próximo passo:** pegar `SUPABASE_SERVICE_ROLE_KEY` (auth real) e `ANTHROPIC_API_KEY` (IA); seguir 1A.2 (sala de aula). App roda local com `pnpm dev`.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 19:55] — Infra / Supabase conectado (schema isolado) — STATUS: CONCLUÍDO
+
+- **Tarefa:** ligar o On Education ao Supabase reusando o projeto do On Way Financial, isolado.
+- **Segmento:** ambos
+- **O que foi feito:**
+  - `.env.local` com DATABASE_URL (Session pooler), SUPABASE_URL, SUPABASE_ANON_KEY (publishable) e DEV_SESSION_SECRET gerado.
+  - **Isolamento por schema**: tudo em `on_education` (pgSchema), journal de migrations em `drizzle_oe`; `public`/`drizzle` do financeiro intocados.
+  - **Fix de RLS**: predicado usa `nullif(current_setting('app.tenant_id',true),'')::uuid` (GUC vazio → zero linhas, não erro de uuid).
+  - **`withTenant` roda como papel `authenticated`** (sem BYPASSRLS) para o RLS isolar de fato; `postgres` bypassaria. Migration `0002` concede `authenticated` no schema + default privileges. Provisionamento admin segue como `postgres`.
+  - Migrations aplicadas (0000 schema, 0001 fix policies, 0002 grants). Dados de teste truncados.
+- **Migrations/RLS:** sim — schema recriado em `on_education`; RLS validado contra o banco real.
+- **Testes:** **12/12 verdes contra o Supabase real** (RLS anti-vazamento 3/3, provisionamento professor+escola, turmas/alunos/atividades, IA com cota, convites, acadêmico, responsáveis). lint/typecheck/build 12/12.
+- **Decisões (ADR?):** isolamento por schema + papel authenticated no withTenant (atualizar ADR 0002 depois).
+- **Pendências / bloqueios:** `SUPABASE_SERVICE_ROLE_KEY` (auth real), `ANTHROPIC_API_KEY` (IA real), GitHub+Vercel (deploy). Supabase Free pode reiniciar o instance (recovery transitório).
+- **Credenciais/segredos necessários:** acima. (DATABASE_URL/anon/DEV_SESSION_SECRET já no `.env.local`.)
+- **Próximo passo sugerido:** trocar a cookie de dev pelo Supabase Auth (quando vier service_role), e seguir 1A.2.
+- **Commit(s):** `feat: conecta Supabase com isolamento por schema on_education` (`04cd2f0`).
 
 ### [2026-06-01 19:35] — Fase 1A.1b / Escola / Estrutura acadêmica + responsáveis — STATUS: EM ANDAMENTO
 
