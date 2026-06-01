@@ -1,0 +1,13 @@
+import { fileURLToPath } from 'node:url';
+
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+
+import type { Database } from './client';
+
+/** Pasta de migrations gerada por `drizzle-kit generate`. */
+export const MIGRATIONS_FOLDER = fileURLToPath(new URL('../drizzle', import.meta.url));
+
+/** Aplica as migrations programaticamente (usado em testes/setup). */
+export async function runMigrations(db: Database): Promise<void> {
+  await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+}

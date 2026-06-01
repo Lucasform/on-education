@@ -1,0 +1,59 @@
+import { z } from 'zod';
+
+/**
+ * Fonte única de configuração validada. NUNCA hardcodar segredos (CLAUDE.md, Master Spec §7.3).
+ * Tudo vem de variáveis de ambiente; aqui só validamos formato e exigimos o que é obrigatório.
+ *
+ * Validação preguiçosa: chamamos `loadEnv()` no boot do server/worker. O client do Next
+ * nunca deve importar isto (segredos são server-only).
+ */
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+
+  // Banco — obrigatório para qualquer operação de dados / migrations / testes de RLS.
+  DATABASE_URL: z.string().url().optional(),
+
+  // Supabase (auth/storage) — opcionais na Fase 0; exigidos quando os módulos os usarem.
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+
+  // IA — exigido a partir das fases de IA.
+  ANTHROPIC_API_KEY: z.string().min(1).optional(),
+
+  // Observabilidade — opcional.
+  SENTRY_DSN: z.string().url().optional(),
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+let cached: Env | null = null;
+
+/** Carrega e valida o ambiente uma única vez. Lança erro legível se algo obrigatório faltar. */
+export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
+  if (cached) return cached;
+  const parsed = envSchema.safeParse(source);
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`)
+      .join('\n');
+    throw new Error(`Variáveis de ambiente inválidas:\n${issues}`);
+  }
+  cached = parsed.data;
+  return cached;
+}
+
+/** Exige uma variável que é opcional no schema mas obrigatória no contexto de uso. */
+export function requireEnv<K extends keyof Env>(key: K): NonNullable<Env[K]> {
+  const value = loadEnv()[key];
+  if (value === undefined || value === null || value === '') {
+    throw new Error(
+      `Variável de ambiente obrigatória ausente: ${String(key)}. ` +
+        `Adicione-a ao seu .env.local (ver .env.example).`,
+    );
+  }
+  return value as NonNullable<Env[K]>;
+}
+
+export const isProduction = (): boolean => loadEnv().NODE_ENV === 'production';
+export const isTest = (): boolean => loadEnv().NODE_ENV === 'test';
