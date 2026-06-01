@@ -7,11 +7,20 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Auth real (Supabase) no ar · 1B.1 CONCLUÍDA · **Status:** EM ANDAMENTO · **Próximo passo:** 1A.2 (sala de aula: diário/notas/faltas/boletim) ou UI de onboarding da escola. Deploy (GitHub+Vercel) quando quiser.
+**Fase atual:** 🚀 EM PRODUÇÃO (https://on-education-seven.vercel.app) · 1B.1 + infra + deploy OK · **Status:** EM ANDAMENTO · **Próximo passo:** UI de onboarding da escola ou 1A.2 (sala de aula). Auto-deploy no push pra `main`.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 20:55] — Deploy / Vercel produção — STATUS: CONCLUÍDO
+
+- **Tarefa:** publicar o On Education na Vercel (GitHub + Vercel).
+- **O que foi feito:** repo `Lucasform/on-education` no GitHub (branch `main`); projeto Vercel `on-education` (time `lucas-carvalho-s-projects1`) ligado ao repo, Root Directory `apps/web`, Next.js; 5 env vars setadas (prod/preview/dev); `ssoProtection` desativado (público); deploy de produção READY e validado (HTTP 200 em `/`, `/login`, `/signup`).
+- **Prod:** https://on-education-seven.vercel.app (auto-deploy a cada push em `main`).
+- **Credenciais/segredos necessários:** nenhuma nova; token Vercel do Lucas (revogável).
+- **Próximo passo sugerido:** UI de onboarding da escola (fecha 1A.1 visível) ou 1A.2 (sala de aula).
+- **Commit(s):** sem mudança de código (deploy via API/Vercel).
 
 ### [2026-06-01 20:25] — Fase 1B.1 / Auth / Supabase e-mail+senha — STATUS: CONCLUÍDO
 
