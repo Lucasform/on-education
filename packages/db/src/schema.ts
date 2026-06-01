@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -383,6 +384,91 @@ export const invitations = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Estrutura acadêmica (Fase 1A.1b, Master Spec §5). Tudo tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+const tenantPolicy = (name: string) =>
+  pgPolicy(name, {
+    as: 'permissive',
+    for: 'all',
+    to: 'public',
+    using: tenantPredicate,
+    withCheck: tenantPredicate,
+  });
+
+export const academicYears = pgTable(
+  'academic_years',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(), // ex.: '2026'
+    startsOn: date('starts_on'),
+    endsOn: date('ends_on'),
+    ...auditCols,
+  },
+  (t) => [
+    index('academic_years_tenant_idx').on(t.tenantId),
+    tenantPolicy('academic_years_tenant_isolation'),
+  ],
+);
+
+export const terms = pgTable(
+  'terms',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    academicYearId: uuid('academic_year_id').notNull(),
+    name: text('name').notNull(), // ex.: '1º bimestre'
+    ...auditCols,
+  },
+  (t) => [index('terms_tenant_idx').on(t.tenantId), tenantPolicy('terms_tenant_isolation')],
+);
+
+export const subjects = pgTable(
+  'subjects',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    ...auditCols,
+  },
+  (t) => [index('subjects_tenant_idx').on(t.tenantId), tenantPolicy('subjects_tenant_isolation')],
+);
+
+// guardians — responsáveis (PII: nunca logar em claro). Tenant-scoped + RLS.
+export const guardians = pgTable(
+  'guardians',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    fullName: text('full_name').notNull(),
+    email: text('email'),
+    phone: text('phone'),
+    ...auditCols,
+  },
+  (t) => [index('guardians_tenant_idx').on(t.tenantId), tenantPolicy('guardians_tenant_isolation')],
+);
+
+// student_guardians — N:N aluno↔responsável com atributos (Master Spec §5).
+export const studentGuardians = pgTable(
+  'student_guardians',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    guardianId: uuid('guardian_id').notNull(),
+    relation: text('relation'), // mãe, pai, responsável legal...
+    isFinancial: boolean('is_financial').notNull().default(false),
+    canPickup: boolean('can_pickup').notNull().default(false),
+    isEmergency: boolean('is_emergency').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('student_guardians_uq').on(t.tenantId, t.studentId, t.guardianId),
+    tenantPolicy('student_guardians_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -398,4 +484,9 @@ export const schema = {
   aiDrafts,
   units,
   invitations,
+  academicYears,
+  terms,
+  subjects,
+  guardians,
+  studentGuardians,
 };

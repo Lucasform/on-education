@@ -36,6 +36,13 @@
       "when": 1780350186418,
       "tag": "0004_mean_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1780350401548,
+      "tag": "0005_legal_jocasta",
+      "breakpoints": true
     }
   ]
 }

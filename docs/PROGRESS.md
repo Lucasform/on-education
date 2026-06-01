@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 1B completo no domínio/UI; 1A.1a (escola: provisionamento + unidades + convites) no domínio · **Status:** EM ANDAMENTO · **Próximo passo:** estrutura acadêmica da escola (anos/períodos/disciplinas/responsáveis) e UI de onboarding; em paralelo, depende de você: `DATABASE_URL`/Supabase/`ANTHROPIC_API_KEY`.
+**Fase atual:** 1B completo (domínio/UI); 1A.1 (escola) com provisionamento+convites+estrutura acadêmica+responsáveis no domínio · **Status:** EM ANDAMENTO · **Próximo passo:** UI de onboarding da escola e 1A.2 (sala de aula: diário/notas/faltas). Depende de você: `DATABASE_URL`/Supabase/`ANTHROPIC_API_KEY`.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 19:35] — Fase 1A.1b / Escola / Estrutura acadêmica + responsáveis — STATUS: EM ANDAMENTO
+
+- **Tarefa:** ano letivo/período, disciplinas e vínculo N:N aluno↔responsável.
+- **Segmento:** 🏫 escola
+- **O que foi feito:**
+  - `packages/db`: `academic_years`, `terms`, `subjects`, `guardians`, `student_guardians` (N:N com financeiro/busca/emergência) — tenant-scoped + RLS; migration `0005`. Helper `tenantPolicy` para reduzir repetição.
+  - `packages/validation`: schemas de ano/período/disciplina/responsável/vínculo.
+  - `module-nucleo`: `academic.ts` (createAcademicYear/listAcademicYears, createTerm/listTerms, createSubject/listSubjects) e `guardians.ts` (createGuardian/listGuardians, linkGuardian, listStudentGuardians) — RBAC + RLS.
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0005_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/{academic,guardians}.ts`.
+- **Migrations/RLS:** sim — `0005` com 5 tabelas + RLS.
+- **Testes:** verde — module-nucleo agora 3 unit ✓ + 6 integração puladas; total lint/typecheck/test/build 12/12.
+- **Decisões (ADR?):** —
+- **Pendências / bloqueios:** UI de onboarding/secretaria; séries (grades) e vínculo professor↔disciplina↔turma (1A.2); MFA/auditoria. Integração precisa de `DATABASE_URL`.
+- **Credenciais/segredos necessários:** `DATABASE_URL`, trio Supabase, `ANTHROPIC_API_KEY`.
+- **Próximo passo sugerido:** UI de onboarding da escola, ou 1A.2 (diário/notas/faltas/boletim).
+- **Commit(s):** `feat: escola - estrutura academica e responsaveis (1A.1b)`.
 
 ### [2026-06-01 19:10] — Fase 1A.1 / Escola / Núcleo institucional (provisionamento + convites) — STATUS: EM ANDAMENTO
 

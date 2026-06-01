@@ -92,3 +92,39 @@ export const acceptInvitationSchema = z.object({
   token: z.string().min(10).max(200),
 });
 export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;
+
+/** Fase 1A.1b — estrutura acadêmica + responsáveis. */
+export const createAcademicYearSchema = z.object({
+  name: z.string().min(1).max(50),
+  startsOn: z.string().date().optional(),
+  endsOn: z.string().date().optional(),
+});
+export type CreateAcademicYearInput = z.infer<typeof createAcademicYearSchema>;
+
+export const createTermSchema = z.object({
+  academicYearId: uuidSchema,
+  name: z.string().min(1).max(100),
+});
+export type CreateTermInput = z.infer<typeof createTermSchema>;
+
+export const createSubjectSchema = z.object({
+  name: z.string().min(1).max(120),
+});
+export type CreateSubjectInput = z.infer<typeof createSubjectSchema>;
+
+export const createGuardianSchema = z.object({
+  fullName: z.string().min(1).max(200),
+  email: emailSchema.optional(),
+  phone: z.string().max(40).optional(),
+});
+export type CreateGuardianInput = z.infer<typeof createGuardianSchema>;
+
+export const linkGuardianSchema = z.object({
+  studentId: uuidSchema,
+  guardianId: uuidSchema,
+  relation: z.string().max(60).optional(),
+  isFinancial: z.boolean().default(false),
+  canPickup: z.boolean().default(false),
+  isEmergency: z.boolean().default(false),
+});
+export type LinkGuardianInput = z.infer<typeof linkGuardianSchema>;
