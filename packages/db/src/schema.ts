@@ -332,6 +332,57 @@ export const aiDrafts = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// units — unidades/campus (Fase 1A; SÓ organization, Master Spec §5). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const units = pgTable(
+  'units',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('units_tenant_idx').on(t.tenantId),
+    pgPolicy('units_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// invitations — convites para membros da escola (Fase 1A.1). O aceite cria a membership.
+// Tenant-scoped + RLS; `token` é o segredo do convite (lookup administrativo no aceite).
+// ---------------------------------------------------------------------------
+export const invitations = pgTable(
+  'invitations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    email: text('email').notNull(),
+    role: roleEnum('role').notNull(),
+    token: text('token').notNull(),
+    status: text('status').notNull().default('pending'), // pending | accepted | revoked
+    ...auditCols,
+  },
+  (t) => [
+    index('invitations_tenant_idx').on(t.tenantId),
+    uniqueIndex('invitations_token_uq').on(t.token),
+    pgPolicy('invitations_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -345,4 +396,6 @@ export const schema = {
   students,
   activities,
   aiDrafts,
+  units,
+  invitations,
 };

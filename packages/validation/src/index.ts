@@ -68,3 +68,27 @@ export const generateDraftSchema = z.object({
   prompt: z.string().min(1).max(10_000),
 });
 export type GenerateDraftInput = z.infer<typeof generateDraftSchema>;
+
+/** Fase 1A — escola (organization). */
+export const organizationSignupSchema = z.object({
+  ownerEmail: emailSchema,
+  ownerName: z.string().min(2).max(200),
+  schoolName: z.string().min(2).max(200),
+});
+export type OrganizationSignupInput = z.infer<typeof organizationSignupSchema>;
+
+export const createUnitSchema = z.object({
+  name: z.string().min(1).max(200),
+});
+export type CreateUnitInput = z.infer<typeof createUnitSchema>;
+
+export const inviteMemberSchema = z.object({
+  email: emailSchema,
+  role: roleSchema,
+});
+export type InviteMemberInput = z.infer<typeof inviteMemberSchema>;
+
+export const acceptInvitationSchema = z.object({
+  token: z.string().min(10).max(200),
+});
+export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;

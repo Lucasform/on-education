@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** Fase 1B (núcleo+pedagógico+IA+web prontos no domínio/UI) · **Status:** EM ANDAMENTO · **Próximo passo:** depende de você — `DATABASE_URL`+`DEV_SESSION_SECRET` (rodar local), trio Supabase (auth real), `ANTHROPIC_API_KEY` (geração de IA). Sem credencial, candidatos: Fase 1A (escola) ou simulados/portfólio (1B.3).
+**Fase atual:** 1B completo no domínio/UI; 1A.1a (escola: provisionamento + unidades + convites) no domínio · **Status:** EM ANDAMENTO · **Próximo passo:** estrutura acadêmica da escola (anos/períodos/disciplinas/responsáveis) e UI de onboarding; em paralelo, depende de você: `DATABASE_URL`/Supabase/`ANTHROPIC_API_KEY`.
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-01 19:10] — Fase 1A.1 / Escola / Núcleo institucional (provisionamento + convites) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** onboarding da escola (tenant `organization`), unidades e convite/aceite de membros.
+- **Segmento:** 🏫 escola
+- **O que foi feito:**
+  - `packages/db`: tabelas `units` e `invitations` (tenant-scoped + RLS; `invitations.token` único); migration `0004`.
+  - `packages/validation`: `organizationSignupSchema`, `createUnitSchema`, `inviteMemberSchema`, `acceptInvitationSchema`.
+  - `module-nucleo/organization.ts`: `provisionOrganizationTenant` (owner+director, plano `school_starter`, entitlements, usage_meter, unidade "Sede"); `createUnit/listUnits`; `inviteMember` (gera token), `listInvitations`, `acceptInvitation` (admin/server-only: cria membership e marca convite aceito — mesmo padrão do provisionamento, ADR 0003).
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0004_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/organization.ts`.
+- **Migrations/RLS:** sim — `0004` com `units`/`invitations` + RLS.
+- **Testes:** verde — module-nucleo 3 unit ✓ + 4 integração puladas; total lint/typecheck/test/build 12/12.
+- **Decisões (ADR?):** reusa o padrão administrativo do ADR 0003 para `acceptInvitation`.
+- **Pendências / bloqueios:** estrutura acadêmica (anos/períodos/séries/disciplinas/responsáveis N:N) e UI de onboarding da escola; MFA/auditoria. Integração precisa de `DATABASE_URL`.
+- **Credenciais/segredos necessários:** `DATABASE_URL` (testes/rodar), trio Supabase (auth real), `ANTHROPIC_API_KEY` (IA).
+- **Próximo passo sugerido:** 1A.1b — `academic_years`/`terms`/`subjects` + `guardians`/`student_guardians` (N:N); depois UI de onboarding.
+- **Commit(s):** `feat: nucleo institucional da escola - provisionamento, unidades e convites (1A.1)`.
 
 ### [2026-06-01 18:45] — Fase 1B.2 / Web / UI de IA — STATUS: EM ANDAMENTO
 
