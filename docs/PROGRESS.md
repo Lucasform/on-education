@@ -7,11 +7,27 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · IA (gerar/corrigir/tutor) + sala de aula + comunicados + portfólio · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar Simulados/BNCC ou Financeiro. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · import em lote + chamada + calendário + detalhe do aluno · **Status:** EM ANDAMENTO · **Próximo passo:** melhorar criação de atividades (IA→banco), Simulados, Dashboards, Mensagens; travar /admin. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 02:05] — Profundidade + agenda — STATUS: EM ANDAMENTO
+
+- **Tarefa:** import em lote (turmas/alunos), chamada, calendário/eventos, detalhe do aluno, excluir nas listas.
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - Import em lote (textarea, estilo Condomínio) em turmas e alunos; `createClassesBulk`/`createStudentsBulk` (respeita cota). Excluir em turmas/alunos (`deleteClass`/`deleteStudent`).
+  - Chamada: `/app/sala/chamada` marca presença da turma inteira por data (`recordAttendanceBulk`, upsert).
+  - Calendário: tabela `events` (RLS, migration `0006`) + `module-nucleo/events` + `/app/calendario` (agenda por data, criar/excluir).
+  - Detalhe do aluno `/app/alunos/[id]`: média, frequência, notas, responsáveis, portfólio.
+  - Nav: Calendário (Visão geral) e Chamada (Sala de aula).
+- **Migrations/RLS:** `0006` (events) aplicada em prod + grant `authenticated`.
+- **Testes:** lint/typecheck/build 14/14. Push `08e0b37`.
+- **Pendências / bloqueios:** criação de atividades ainda simples (IA não joga no banco ao aprovar); Simulados/BNCC/Dashboards/Mensagens placeholder; `/admin` aberto.
+- **Próximo passo sugerido:** aprovar rascunho de IA virando atividade; Simulados; Dashboards.
+- **Commit(s):** `feat: import em lote, chamada, calendario e detalhe do aluno` (`08e0b37`).
 
 ### [2026-06-02 01:15] — IA (redação/tutor) + Portfólio — STATUS: EM ANDAMENTO
 
