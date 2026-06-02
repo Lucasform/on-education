@@ -7,11 +7,27 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · import em lote + chamada + calendário + detalhe do aluno · **Status:** EM ANDAMENTO · **Próximo passo:** melhorar criação de atividades (IA→banco), Simulados, Dashboards, Mensagens; travar /admin. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · exclusão segura (soft delete + lixeira + RBAC) · **Status:** EM ANDAMENTO · **Próximo passo:** IA→banco ao aprovar, Simulados, Dashboards, Mensagens; travar /admin com auth. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 02:45] — Exclusão segura (soft delete + lixeira + RBAC) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** permitir apagar com segurança (poder voltar) + permissões + confirmação em ações de alto impacto.
+- **Segmento:** 🏫👤 + super-admin
+- **O que foi feito:**
+  - RBAC (`packages/auth/rbac.ts`): dono/diretor/coordenador gerenciam tudo da escola; professor cria/edita/exclui conteúdo pedagógico da própria org; resto só leitura.
+  - **Soft delete + restaurar** em turmas, alunos, atividades, comunicados, eventos (set `deletedAt`); listas filtram `deletedAt`; **/app/lixeira** restaura. Sem migration (deletedAt já existia).
+  - **/admin**: excluir escola (soft, reversível) + aba "ver excluídas" + restaurar + **excluir definitivo** (`purgeTenant` apaga dados de todas as tabelas do tenant, exige digitar o nome). **NÃO apaga contas de auth** (Supabase Auth compartilhado com o app financeiro) — decisão de segurança.
+  - **ConfirmButton** (client) em ações de alto impacto: excluir turma, comunicado, evento, escola, e exclusão definitiva.
+- **Arquivos principais:** `packages/auth/src/rbac.ts`, `packages/modules/nucleo/src/{classes,events,admin}.ts`, `packages/modules/pedagogico/src/activities.ts`, `packages/modules/comunicacao/src/index.ts`, `apps/web/src/components/confirm-button.tsx`, `apps/web/src/app/app/lixeira/*`, `apps/web/src/app/admin/*`.
+- **Migrations/RLS:** sem migration (usa `deletedAt` de auditCols).
+- **Testes:** lint/typecheck/build 14/14. Push `aebbf1f`.
+- **Pendências / bloqueios:** lixeira não tem "excluir definitivo" por item ainda (só restaurar; purge total é no /admin por escola); exclusão de conta de auth fica de fora por design (auth compartilhado). `/admin` ainda aberto (sem login).
+- **Próximo passo sugerido:** aprovar rascunho de IA virando atividade no banco; Simulados; Dashboards; depois travar /admin.
+- **Commit(s):** `feat: exclusao segura (soft delete + lixeira + confirmacao + RBAC)` (`aebbf1f`).
 
 ### [2026-06-02 02:05] — Profundidade + agenda — STATUS: EM ANDAMENTO
 
