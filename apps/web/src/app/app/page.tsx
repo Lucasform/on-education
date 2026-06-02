@@ -15,7 +15,7 @@ import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
-import { getAuthContext, isImpersonating } from '@/server/session';
+import { getAuthContext, getSuperAdminEmail, isImpersonating } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Início · On Education' };
@@ -42,7 +42,11 @@ function StatCard({
 
 export default async function OverviewPage() {
   const ctx = await getAuthContext();
-  if (!ctx) redirect('/login');
+  if (!ctx) {
+    // Logado mas sem workspace: se for super-admin, vai para o painel; senão, login.
+    const admin = await getSuperAdminEmail();
+    redirect(admin ? '/admin' : '/login');
+  }
 
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
