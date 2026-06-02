@@ -7,11 +7,22 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · sidebar por funcionalidade + sala de aula (diário/notas/faltas/boletim) · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar outras "em breve" (comunicados, simulados). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · sala de aula + comunicados (IA) no ar · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar outras "em breve" (simulados, portfólio, financeiro). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 00:45] — Fase 1A.3 / Comunicação / Comunicados com IA — STATUS: EM ANDAMENTO
+
+- **Tarefa:** comunicados (escrever ou gerar por IA, publicar, excluir).
+- **Segmento:** 🏫👤
+- **O que foi feito:** tabela `communications` (RLS, migration `0004`); `@on-education/module-comunicacao` (create/list/publish/delete + `generateCommunication` via provider do module-ia, com cota + rascunho human-in-the-loop); página `/app/comunicados`; nav Comunicados vira rota real.
+- **Migrations/RLS:** `0004` (communications) aplicada em prod + grant `authenticated`.
+- **Testes:** lint/typecheck/build 14/14. Deploy READY (`7a208ee`), prod 200.
+- **Pendências / bloqueios:** Notification Service (e-mail/push), bilhetes, portal do responsável; `/admin` ainda aberto.
+- **Próximo passo sugerido:** auth de super-admin no /admin, ou Simulados/Portfólio.
+- **Commit(s):** `feat: comunicados com geracao por IA` (`7a208ee`).
 
 ### [2026-06-02 00:10] — Fase 1A.2 / Sala de aula + restrutura de navegação — STATUS: EM ANDAMENTO
 

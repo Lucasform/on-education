@@ -94,9 +94,9 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 - [x] Diário (lessons), notas (grades), faltas (attendance) e boletim (média + frequência) — `@on-education/module-sala-de-aula`, RLS, páginas `/app/sala/*`. Migration `0003` (lessons/grades/attendance).
 - [ ] Ocorrências; `[V1]` conselho de classe.
 
-### 1A.3 Comunicação institucional `[MVP]`
+### 1A.3 Comunicação institucional `[MVP]` 🚧 EM ANDAMENTO
 
-- [ ] Notification Service (in-app + e-mail + push), bilhetes, comunicados, portal do responsável.
+- [~] Comunicados (criar, gerar por IA, publicar, excluir) — `@on-education/module-comunicacao`, tabela `communications` (migration `0004`), página `/app/comunicados`. Falta Notification Service (e-mail/push), bilhetes, portal do responsável.
 - [ ] `[V1]` WhatsApp Cloud API oficial (templates por categoria, janela de serviço gratuita).
 
 ---
