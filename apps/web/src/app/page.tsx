@@ -1,6 +1,7 @@
 import { Button } from '@on-education/ui';
 import {
   CalendarDays,
+  Check,
   ClipboardCheck,
   FolderOpen,
   GraduationCap,
@@ -12,8 +13,59 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV = [
   { label: 'Recursos', href: '#recursos' },
+  { label: 'Planos', href: '#planos' },
   { label: 'Para professores', href: '/signup' },
   { label: 'Para escolas', href: '/signup/escola' },
+];
+
+const PLANOS = [
+  {
+    nome: 'Professor Grátis',
+    preco: 'R$ 0',
+    periodo: 'para sempre',
+    resumo: 'Para começar a planejar e organizar suas turmas.',
+    recursos: [
+      'Turmas e alunos',
+      'IA pedagógica (cota mensal)',
+      'Banco de atividades e portfólio',
+      'Diário, chamada e boletim',
+    ],
+    cta: 'Começar grátis',
+    href: '/signup',
+    destaque: false,
+  },
+  {
+    nome: 'Professor Pro',
+    preco: 'R$ 29',
+    periodo: 'por mês',
+    resumo: 'Para quem quer IA sem limites e mais produtividade.',
+    recursos: [
+      'Tudo do plano Grátis',
+      'IA pedagógica ampliada',
+      'Simulados com correção automática',
+      'Comunicados e calendário',
+      'Sem marca On Education',
+    ],
+    cta: 'Assinar o Pro',
+    href: '/signup',
+    destaque: true,
+  },
+  {
+    nome: 'Escola',
+    preco: 'Sob consulta',
+    periodo: 'plano institucional',
+    resumo: 'Para colégios, com gestão e vários perfis de acesso.',
+    recursos: [
+      'Diretor, coordenação e professores',
+      'Unidades, ano letivo e disciplinas',
+      'Relatórios de direção',
+      'Responsáveis e comunicação',
+      'Onboarding e suporte',
+    ],
+    cta: 'Falar com a gente',
+    href: '/signup/escola',
+    destaque: false,
+  },
 ];
 
 const DESTAQUES = [
@@ -167,6 +219,61 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* planos */}
+        <section id="planos" className="mt-20">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Planos para cada momento
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              Comece grátis e evolua quando precisar. Sem fidelidade.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {PLANOS.map((p) => (
+              <div
+                key={p.nome}
+                className={`relative flex flex-col rounded-2xl border p-6 ${
+                  p.destaque
+                    ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
+                    : 'border-border bg-card'
+                }`}
+              >
+                {p.destaque && (
+                  <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-primary to-fuchsia-500 px-3 py-0.5 text-xs font-medium text-white">
+                    Mais popular
+                  </span>
+                )}
+                <h3 className="text-lg font-semibold">{p.nome}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{p.resumo}</p>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">{p.preco}</span>
+                  <span className="text-sm text-muted-foreground">/ {p.periodo}</span>
+                </div>
+                <ul className="mt-6 flex-1 space-y-2 text-sm">
+                  {p.recursos.map((r) => (
+                    <li key={r} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a href={p.href} className="mt-6">
+                  <Button
+                    className="w-full rounded-full"
+                    variant={p.destaque ? 'default' : 'outline'}
+                  >
+                    {p.cta}
+                  </Button>
+                </a>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Valores ilustrativos para validação. Ajuste fino dos preços em breve.
+          </p>
         </section>
 
         {/* cta final */}
