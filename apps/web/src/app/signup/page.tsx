@@ -38,8 +38,14 @@ export default function SignupPage() {
         <Field label="Senha" hint="(mín. 8 caracteres)">
           <input name="password" type="password" required minLength={8} className={fieldClass} />
         </Field>
-        <Field label="Nome do workspace" hint="(opcional)">
-          <input name="workspaceName" className={fieldClass} />
+        <Field label="Nome do workspace">
+          <input
+            name="workspaceName"
+            required
+            minLength={2}
+            placeholder="Ex.: Aulas da Profª Ana"
+            className={fieldClass}
+          />
         </Field>
         <Button type="submit" className="mt-2 w-full">
           Criar conta

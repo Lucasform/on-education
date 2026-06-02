@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import type { AuthContext } from '@on-education/auth';
 import { loadEnv } from '@on-education/config';
 import { getDbClient } from '@on-education/db';
@@ -17,7 +19,7 @@ export const IMPERSONATION_COOKIE = 'oe_admin_tenant';
  * 2) Senão, deriva da sessão do Supabase Auth → membership do usuário.
  * O `tenantId` nunca vem como parâmetro do client; vem da sessão/cookie httpOnly.
  */
-export async function getAuthContext(): Promise<AuthContext | null> {
+export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
   try {
     const cookieStore = await cookies();
     const impersonated = cookieStore.get(IMPERSONATION_COOKIE)?.value;
@@ -35,7 +37,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página.
     return null;
   }
-}
+});
 
 /** Indica se a sessão atual é uma impersonação de admin (para o banner do /app). */
 export async function isImpersonating(): Promise<boolean> {
@@ -54,7 +56,7 @@ function superAdminEmails(): string[] {
  * Usa a sessão REAL do Supabase (ignora o cookie de impersonação de propósito) e
  * retorna `null` para qualquer um fora da lista — allowlist vazia tranca o /admin.
  */
-export async function getSuperAdminEmail(): Promise<string | null> {
+export const getSuperAdminEmail = cache(async (): Promise<string | null> => {
   try {
     const allow = superAdminEmails();
     if (allow.length === 0) return null;
@@ -68,7 +70,7 @@ export async function getSuperAdminEmail(): Promise<string | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function signOut(): Promise<void> {
   const supabase = await createSupabaseServerClient();

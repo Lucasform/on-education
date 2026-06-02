@@ -24,16 +24,9 @@ export default function HomePage() {
       </header>
 
       <main className="mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 py-20 text-center">
-        <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
-          Plataforma educacional com IA
-        </span>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Ensine com mais tempo para o que importa.
         </h1>
-        <p className="mx-auto max-w-xl text-balance text-muted-foreground">
-          Planos de aula e atividades com IA, gestão de turmas e alunos, tudo num só lugar, para o
-          professor autônomo e para a escola.
-        </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <a href="/signup">

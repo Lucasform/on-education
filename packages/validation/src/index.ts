@@ -23,8 +23,8 @@ export const emailSchema = z.string().email().max(320);
 export const individualSignupSchema = z.object({
   ownerEmail: emailSchema,
   ownerName: z.string().min(2).max(200),
-  /** Nome do workspace; default derivável do nome do professor se ausente. */
-  workspaceName: z.string().min(2).max(200).optional(),
+  /** Nome do workspace (obrigatório no cadastro). */
+  workspaceName: z.string().min(2).max(200),
 });
 export type IndividualSignupInput = z.infer<typeof individualSignupSchema>;
 

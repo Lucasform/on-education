@@ -15,7 +15,6 @@ import {
   GraduationCap,
   Home,
   Library,
-  Link2,
   type LucideIcon,
   Megaphone,
   MessageCircleQuestion,
@@ -138,11 +137,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Integrações',
-    items: [
-      soon('Marketplace', 'marketplace', Store),
-      soon('API aberta', 'api', Plug),
-      soon('Google Classroom', 'classroom', Link2),
-    ],
+    items: [soon('Marketplace', 'marketplace', Store), soon('API aberta', 'api', Plug)],
   },
 ];
 
