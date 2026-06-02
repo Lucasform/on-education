@@ -1,8 +1,9 @@
 import { listDrafts } from '@on-education/module-ia';
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { listClasses, listStudents, listUpcomingEvents } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import {
   BarChart3,
+  CalendarDays,
   FolderOpen,
   GraduationCap,
   Sparkles,
@@ -45,12 +46,15 @@ export default async function OverviewPage() {
 
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
-  const [turmas, alunos, atividades, rascunhos] = await Promise.all([
+  const hoje = new Date().toISOString().slice(0, 10);
+  const [turmas, alunos, atividades, rascunhos, proximosEventos] = await Promise.all([
     listClasses(client, ctx),
     listStudents(client, ctx),
     listActivities(client, ctx, {}),
     listDrafts(client, ctx),
+    listUpcomingEvents(client, ctx, hoje),
   ]);
+  const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
   const impersonating = await isImpersonating();
 
   return (
@@ -66,7 +70,7 @@ export default async function OverviewPage() {
         </div>
       )}
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Turmas" value={turmas.length} href="/app/turmas" />
         <StatCard icon={GraduationCap} label="Alunos" value={alunos.length} href="/app/alunos" />
         <StatCard
@@ -75,8 +79,39 @@ export default async function OverviewPage() {
           value={atividades.length}
           href="/app/atividades"
         />
-        <StatCard icon={Sparkles} label="Rascunhos de IA" value={rascunhos.length} href="/app/ia" />
+        <StatCard
+          icon={CalendarDays}
+          label="Próximos eventos"
+          value={proximosEventos.length}
+          href="/app/calendario"
+        />
+        <StatCard
+          icon={Sparkles}
+          label="Rascunhos pendentes"
+          value={rascunhosPendentes}
+          href="/app/ia"
+        />
       </section>
+
+      {proximosEventos.length > 0 && (
+        <section className={cardClass}>
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-medium">Próximos eventos</h2>
+          </div>
+          <ul className="mt-3 space-y-2 text-sm">
+            {proximosEventos.slice(0, 5).map((e) => (
+              <li key={e.id} className="flex items-center justify-between gap-3">
+                <span className="font-medium">{e.title}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {e.date.split('-').reverse().join('/')}
+                  {e.time ? ` · ${e.time.slice(0, 5)}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className={cardClass}>
         <div className="flex items-center gap-2">

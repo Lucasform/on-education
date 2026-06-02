@@ -27,6 +27,10 @@ const envSchema = z.object({
   // Sessão de desenvolvimento (cookie assinada por HMAC) — stopgap até o Supabase Auth.
   // Server-only; gere um valor aleatório forte. NÃO usar em produção sem auth real.
   DEV_SESSION_SECRET: z.string().min(16).optional(),
+
+  // E-mails autorizados a acessar o painel /admin (super-admin), separados por vírgula.
+  // Vazio = /admin fica totalmente trancado (ninguém entra). Server-only.
+  SUPER_ADMIN_EMAILS: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

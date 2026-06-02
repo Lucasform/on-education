@@ -132,6 +132,26 @@ export async function approveDraftAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/**
+ * Aprova o rascunho e o materializa como atividade no banco pedagógico (IA→banco).
+ * Só faz sentido para `activity`/`lesson_plan`; o título sai da primeira linha do prompt.
+ */
+export async function approveDraftToBankAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  const draft = await approveDraft(db(), ctx, id);
+  if (draft && (draft.kind === 'activity' || draft.kind === 'lesson_plan') && draft.output) {
+    const title = (draft.prompt ?? 'Atividade gerada por IA').trim().slice(0, 120) || 'Atividade';
+    await createActivity(db(), ctx, {
+      title,
+      content: draft.output,
+      tags: ['ia', draft.kind],
+      aiGenerated: true,
+    });
+  }
+  revalidatePath('/app', 'layout');
+}
+
 export async function discardDraftAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));

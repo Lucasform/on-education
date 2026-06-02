@@ -6,7 +6,12 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { approveDraftAction, discardDraftAction, generateDraftAction } from '../actions';
+import {
+  approveDraftAction,
+  approveDraftToBankAction,
+  discardDraftAction,
+  generateDraftAction,
+} from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'IA pedagógica · On Education' };
@@ -63,16 +68,24 @@ export default async function IaPage() {
                     {d.kind} <span className="text-muted-foreground">· {d.status}</span>
                   </span>
                   {d.status === 'draft' && (
-                    <span className="flex gap-2">
+                    <span className="flex flex-wrap gap-2">
+                      {(d.kind === 'activity' || d.kind === 'lesson_plan') && (
+                        <form action={approveDraftToBankAction}>
+                          <input type="hidden" name="id" value={d.id} />
+                          <Button type="submit" size="sm">
+                            Aprovar e salvar no banco
+                          </Button>
+                        </form>
+                      )}
                       <form action={approveDraftAction}>
                         <input type="hidden" name="id" value={d.id} />
-                        <Button type="submit" size="sm">
-                          Aprovar
+                        <Button type="submit" size="sm" variant="outline">
+                          Só aprovar
                         </Button>
                       </form>
                       <form action={discardDraftAction}>
                         <input type="hidden" name="id" value={d.id} />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button type="submit" size="sm" variant="ghost">
                           Descartar
                         </Button>
                       </form>

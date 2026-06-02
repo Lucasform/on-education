@@ -5,6 +5,7 @@ import { ConfirmButton } from '@/components/confirm-button';
 import { fieldClass } from '@/components/form';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { db } from '@/server/db';
+import { getSuperAdminEmail } from '@/server/session';
 
 import {
   enterTenantAction,
@@ -33,7 +34,8 @@ export default async function AdminPage({
   const { deleted } = await searchParams;
   const showDeleted = deleted === '1';
   const client = db();
-  const [stats, tenants] = await Promise.all([
+  const [adminEmail, stats, tenants] = await Promise.all([
+    getSuperAdminEmail(),
     getAppStats(client),
     listAllTenants(client, { includeDeleted: showDeleted }),
   ]);
@@ -46,16 +48,11 @@ export default async function AdminPage({
           <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
           <div>
             <h1 className="text-lg font-semibold leading-none">On Education</h1>
-            <p className="text-xs text-muted-foreground">Admin do app</p>
+            <p className="text-xs text-muted-foreground">Admin do app · {adminEmail}</p>
           </div>
         </div>
         <ThemeToggle />
       </header>
-
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-500">
-        Modo admin aberto (temporário, sem login). Travar com autenticação de admin antes do
-        lançamento.
-      </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
         <StatCard label="Tenants" value={stats.tenants} />
