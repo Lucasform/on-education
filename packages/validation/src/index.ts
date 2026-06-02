@@ -60,7 +60,7 @@ export const searchActivitiesSchema = z.object({
 export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;
 
 /** IA pedagógica (Fase 1B.2) — pedido de geração de rascunho. */
-export const aiDraftKindSchema = z.enum(['lesson_plan', 'activity']);
+export const aiDraftKindSchema = z.enum(['lesson_plan', 'activity', 'essay', 'tutor']);
 export type AiDraftKind = z.infer<typeof aiDraftKindSchema>;
 
 export const generateDraftSchema = z.object({
@@ -168,3 +168,11 @@ export const generateCommunicationSchema = z.object({
   prompt: z.string().min(1).max(2000),
 });
 export type GenerateCommunicationInput = z.infer<typeof generateCommunicationSchema>;
+
+/** Pedagógico — portfólio do aluno. */
+export const createPortfolioEntrySchema = z.object({
+  studentId: uuidSchema,
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+});
+export type CreatePortfolioEntryInput = z.infer<typeof createPortfolioEntrySchema>;

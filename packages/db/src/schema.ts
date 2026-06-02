@@ -553,6 +553,25 @@ export const communications = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// portfolio_entries — portfólio do aluno (Pedagógico). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const portfolioEntries = oe.table(
+  'portfolio_entries',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    ...auditCols,
+  },
+  (t) => [
+    index('portfolio_entries_tenant_idx').on(t.tenantId),
+    tenantPolicy('portfolio_entries_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -577,4 +596,5 @@ export const schema = {
   grades,
   attendance,
   communications,
+  portfolioEntries,
 };

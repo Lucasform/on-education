@@ -92,7 +92,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
       soon('Simulados e quizzes', 'simulados', ClipboardList),
-      soon('Portfólio', 'portfolio', BookOpen),
+      { label: 'Portfólio', href: '/app/portfolio', icon: BookOpen },
       soon('Planejamento BNCC', 'bncc', BookOpen),
     ],
   },
@@ -100,8 +100,8 @@ export const NAV: NavGroup[] = [
     label: 'Inteligência artificial',
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
-      soon('Correção de redação', 'redacao', PenLine),
-      soon('Tutor do aluno', 'tutor', MessageCircleQuestion),
+      { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
+      { label: 'Tutor do aluno', href: '/app/ia/tutor', icon: MessageCircleQuestion },
     ],
   },
   {

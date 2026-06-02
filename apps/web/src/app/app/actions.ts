@@ -18,7 +18,7 @@ import {
   createUnit,
   inviteMember,
 } from '@on-education/module-nucleo';
-import { createActivity } from '@on-education/module-pedagogico';
+import { createActivity, createPortfolioEntry } from '@on-education/module-pedagogico';
 import { createLesson, recordAttendance, recordGrade } from '@on-education/module-sala-de-aula';
 import {
   createAcademicYearSchema,
@@ -27,6 +27,7 @@ import {
   createCommunicationSchema,
   createGuardianSchema,
   createLessonSchema,
+  createPortfolioEntrySchema,
   createStudentSchema,
   createSubjectSchema,
   createTermSchema,
@@ -242,5 +243,18 @@ export async function publishCommunicationAction(formData: FormData): Promise<vo
 export async function deleteCommunicationAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteCommunication(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+// --- Portfólio ---------------------------------------------------------------
+
+export async function createPortfolioEntryAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createPortfolioEntrySchema.parse({
+    studentId: formData.get('studentId'),
+    title: formData.get('title'),
+    description: (formData.get('description') as string) || undefined,
+  });
+  await createPortfolioEntry(db(), ctx, input);
   revalidatePath('/app', 'layout');
 }

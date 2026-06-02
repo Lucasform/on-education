@@ -17,6 +17,8 @@ import { assertWithinQuota, recordUsage } from './quota';
 const FEATURE_BY_KIND: Record<AiDraftKind, Feature> = {
   lesson_plan: 'ai.lessonPlan',
   activity: 'ai.activities',
+  essay: 'ai.activities',
+  tutor: 'ai.activities',
 };
 
 const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
@@ -26,6 +28,14 @@ const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
   activity:
     'Você é um assistente pedagógico. Gere uma atividade pedagógica em português. ' +
     'É um RASCUNHO para o professor revisar e ajustar.',
+  essay:
+    'Você é um corretor de redações. Avalie o texto a seguir por competências (tema, coesão, ' +
+    'coerência, gramática, proposta), aponte pontos fortes e o que melhorar, e sugira uma nota. ' +
+    'É um RASCUNHO de correção para o professor revisar; não é a nota final.',
+  tutor:
+    'Você é um tutor paciente para estudantes. Responda de forma clara e adequada à idade, ' +
+    'explicando o raciocínio passo a passo. Não faça a tarefa pelo aluno: oriente para ele ' +
+    'chegar à resposta. Conteúdo seguro e apropriado.',
 };
 
 export async function generateDraft(
