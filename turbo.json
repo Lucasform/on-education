@@ -7,7 +7,8 @@
     "SUPABASE_ANON_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
     "ANTHROPIC_API_KEY",
-    "SENTRY_DSN"
+    "SENTRY_DSN",
+    "SUPER_ADMIN_EMAILS"
   ],
   "tasks": {
     "build": {

@@ -29,6 +29,7 @@ describe.skipIf(!DATABASE_URL)('provisionamento + turmas (Fase 1B.1)', () => {
     const result = await provisionIndividualTenant(client, OWNER_ID, {
       ownerEmail: 'professor@teste.dev',
       ownerName: 'Professor Teste',
+      workspaceName: 'Aulas do Professor Teste',
     });
     tenantId = result.tenantId;
   });
