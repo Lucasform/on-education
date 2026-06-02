@@ -1,5 +1,7 @@
 import { listClasses, listEvents } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -12,68 +14,182 @@ import { createEventAction, deleteEventAction } from '../actions';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Calendário · On Education' };
 
-export default async function CalendarioPage() {
+const MESES = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
+];
+const SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+export default async function CalendarioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mes?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
   const [eventos, turmas] = await Promise.all([listEvents(client, ctx), listClasses(client, ctx)]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 
-  // Agrupa por data para um calendário em lista.
-  const porData = new Map<string, typeof eventos>();
+  const hoje = new Date();
+  const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
+
+  const { mes } = await searchParams;
+  const [ano, m] =
+    mes && /^\d{4}-\d{2}$/.test(mes)
+      ? (mes.split('-').map(Number) as [number, number])
+      : [hoje.getFullYear(), hoje.getMonth() + 1];
+
+  const prev = m === 1 ? `${ano - 1}-12` : `${ano}-${pad(m - 1)}`;
+  const next = m === 12 ? `${ano + 1}-01` : `${ano}-${pad(m + 1)}`;
+
+  // Eventos do mês, agrupados por dia (YYYY-MM-DD).
+  const prefixo = `${ano}-${pad(m)}-`;
+  const porDia = new Map<string, typeof eventos>();
   for (const e of eventos) {
-    const arr = porData.get(e.date) ?? [];
+    if (!e.date.startsWith(prefixo)) continue;
+    const arr = porDia.get(e.date) ?? [];
     arr.push(e);
-    porData.set(e.date, arr);
+    porDia.set(e.date, arr);
   }
+  const doMes = eventos
+    .filter((e) => e.date.startsWith(prefixo))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''));
+
+  // Monta as células da grade (espaços em branco antes do dia 1 e depois do último).
+  const primeiroDow = new Date(ano, m - 1, 1).getDay();
+  const diasNoMes = new Date(ano, m, 0).getDate();
+  const celulas: (number | null)[] = [];
+  for (let i = 0; i < primeiroDow; i++) celulas.push(null);
+  for (let d = 1; d <= diasNoMes; d++) celulas.push(d);
+  while (celulas.length % 7 !== 0) celulas.push(null);
 
   return (
     <>
       <PageHeader title="Calendário" description="Eventos e agendamentos da escola." />
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Agenda ({eventos.length})</h2>
-          {eventos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum evento agendado.</p>
-          ) : (
-            <div className="space-y-4">
-              {[...porData.entries()].map(([data, lista]) => (
-                <div key={data}>
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {data}
-                  </p>
-                  <ul className="space-y-1 text-sm">
-                    {lista.map((e) => (
-                      <li key={e.id} className="flex items-center justify-between gap-2">
-                        <span>
-                          {e.time && <span className="text-muted-foreground">{e.time} · </span>}
-                          {e.title}
-                          {e.classId && (
-                            <span className="text-muted-foreground">
-                              {' '}
-                              · {turmaNome.get(e.classId)}
-                            </span>
-                          )}
-                        </span>
-                        <form action={deleteEventAction}>
-                          <input type="hidden" name="id" value={e.id} />
-                          <ConfirmButton
-                            size="sm"
-                            variant="ghost"
-                            message={`Excluir o evento "${e.title}"? Vai para a Lixeira.`}
-                          >
-                            Excluir
-                          </ConfirmButton>
-                        </form>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
+
+      <section className={cardClass}>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold">
+            {MESES[m - 1]} <span className="text-muted-foreground">{ano}</span>
+          </h2>
+          <div className="flex items-center gap-1">
+            <Link href={`/app/calendario?mes=${prev}`} aria-label="Mês anterior">
+              <Button size="sm" variant="ghost">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/app/calendario">
+              <Button size="sm" variant="ghost">
+                Hoje
+              </Button>
+            </Link>
+            <Link href={`/app/calendario?mes=${next}`} aria-label="Próximo mês">
+              <Button size="sm" variant="ghost">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className={cardClass}>
+
+        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-sm">
+          {SEMANA.map((s) => (
+            <div
+              key={s}
+              className="bg-card px-2 py-1.5 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              {s}
+            </div>
+          ))}
+          {celulas.map((d, i) => {
+            if (d === null) return <div key={`v-${i}`} className="min-h-20 bg-muted/30" />;
+            const dataStr = `${ano}-${pad(m)}-${pad(d)}`;
+            const evs = porDia.get(dataStr) ?? [];
+            const isHoje = dataStr === hojeStr;
+            return (
+              <div key={dataStr} className="min-h-20 bg-card p-1.5">
+                <div
+                  className={`mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                    isHoje
+                      ? 'bg-primary font-semibold text-primary-foreground'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {d}
+                </div>
+                <div className="space-y-0.5">
+                  {evs.slice(0, 3).map((e) => (
+                    <div
+                      key={e.id}
+                      title={e.title}
+                      className="truncate rounded bg-primary/10 px-1 py-0.5 text-[11px] text-primary"
+                    >
+                      {e.time ? `${e.time.slice(0, 5)} ` : ''}
+                      {e.title}
+                    </div>
+                  ))}
+                  {evs.length > 3 && (
+                    <div className="px-1 text-[10px] text-muted-foreground">+{evs.length - 3}</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <section className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">
+            Eventos de {MESES[m - 1]} ({doMes.length})
+          </h2>
+          {doMes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhum evento neste mês.</p>
+          ) : (
+            <ul className="space-y-1 text-sm">
+              {doMes.map((e) => (
+                <li key={e.id} className="flex items-center justify-between gap-2">
+                  <span>
+                    <span className="text-muted-foreground">
+                      {e.date.slice(8)}/{pad(m)}
+                    </span>{' '}
+                    {e.time && (
+                      <span className="text-muted-foreground">{e.time.slice(0, 5)} · </span>
+                    )}
+                    {e.title}
+                    {e.classId && (
+                      <span className="text-muted-foreground"> · {turmaNome.get(e.classId)}</span>
+                    )}
+                  </span>
+                  <form action={deleteEventAction}>
+                    <input type="hidden" name="id" value={e.id} />
+                    <ConfirmButton
+                      size="sm"
+                      variant="ghost"
+                      message={`Excluir o evento "${e.title}"? Vai para a Lixeira.`}
+                    >
+                      Excluir
+                    </ConfirmButton>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Novo evento</h2>
           <form action={createEventAction} className="flex flex-col gap-2">
             <input name="title" required placeholder="Título do evento" className={fieldClass} />
@@ -99,7 +215,7 @@ export default async function CalendarioPage() {
               Agendar
             </Button>
           </form>
-        </div>
+        </section>
       </div>
     </>
   );
