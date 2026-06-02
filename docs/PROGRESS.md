@@ -7,11 +7,25 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · acesso admin + perf + UI · **Status:** EM ANDAMENTO · **Próximo passo:** calendário em grade mensal (estilo Condomínio), depois Mensagens internas/BNCC. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · landing nova + planos + calendário em grade · **Status:** EM ANDAMENTO · **Próximo passo:** refinar textos/preços da landing, Mensagens internas, BNCC. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 06:30] — Landing nova + planos + calendário em grade — STATUS: EM ANDAMENTO
+
+- **Tarefa:** calendário visual mensal (estilo On Condomínio) e landing page estilosa com seção de planos (referências Plurall/Quality/softwareparaescolas).
+- **Segmento:** 🏫👤 + visitante
+- **O que foi feito:**
+  - **Calendário** (`/app/calendario`): grade mensal real com navegação de mês (prev/hoje/próximo via `?mes=YYYY-MM`), dia de hoje destacado, eventos nas células (até 3 + "+N"), lista do mês com excluir e form de novo evento.
+  - **Landing** (`/`): hero com gradiente, mock flutuante (painel da turma + chips), faixa de recursos, **seção de planos** (Grátis/Pro destaque/Escola, alinhada às entitlements), CTA final e footer. Textos provisórios (refinar depois).
+- **Arquivos principais:** `apps/web/src/app/app/calendario/page.tsx`, `apps/web/src/app/page.tsx`.
+- **Migrations/RLS:** sem migration.
+- **Testes:** `tsc` + `next build` verdes. Deploys: `44658f7` e seguintes ficaram presos no INITIALIZING (fila da Vercel, não código); cancelei o preso → `c4ef428` foi READY. Prod 200, landing com hero/planos confirmados.
+- **Pendências / bloqueios:** preços da landing são ilustrativos; calendário não tem clique-no-dia (interatividade) ainda. Vercel teve soluço de fila (resolvido cancelando o deploy travado).
+- **Próximo passo sugerido:** refinar textos/preços; Mensagens internas; BNCC.
+- **Commit(s):** `feat: calendario em grade mensal e nova landing` (`44658f7`), `feat: secao de planos` (`c4ef428`).
 
 ### [2026-06-02 05:40] — Acesso admin + performance + ajustes de UI — STATUS: EM ANDAMENTO
 
