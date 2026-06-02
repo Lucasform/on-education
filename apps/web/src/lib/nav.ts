@@ -122,8 +122,8 @@ export const NAV: NavGroup[] = [
     label: 'Gestão e analytics',
     only: 'organization',
     items: [
-      soon('Dashboards', 'dashboards', BarChart3),
-      soon('Relatórios', 'relatorios', FileBarChart),
+      { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
+      soon('Dashboards avançados', 'dashboards', BarChart3),
       soon('Censo INEP', 'inep', School),
     ],
   },
