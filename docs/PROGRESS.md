@@ -7,11 +7,23 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · marca On Way Education + agente EduON · **Status:** EM ANDAMENTO · **Próximo passo:** refinar preços, Mensagens internas, BNCC, gerar simulado pelo EduON. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · EduON gera simulados · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, BNCC, refinar preços, polimentos de UX. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 07:35] — EduON gera simulados — STATUS: EM ANDAMENTO
+
+- **Tarefa:** o agente EduON cria simulados completos (diferencial de IA visível).
+- **Segmento:** 🏫👤
+- **O que foi feito:** `generateQuizWithEduON` no module-pedagogico gera questões de múltipla escolha por IA (provider Anthropic), com parse robusto do JSON, cria o quiz + questões já corrigíveis; cota por tenant + checagem tripla. Action `generateQuizAction` e card "Gerar com o EduON" em `/app/simulados` (tema + nº de questões). `module-pedagogico` passou a depender de `module-ia`.
+- **Arquivos principais:** `packages/modules/pedagogico/src/quizzes.ts`, `packages/modules/pedagogico/package.json`, `packages/validation/src/index.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/simulados/page.tsx`.
+- **Migrations/RLS:** sem migration (reusa tabelas do `0007`).
+- **Testes:** `tsc` (validation/pedagogico/web) + `next build` verdes. Push `3a8d7cb`, deploy READY, prod 200.
+- **Pendências / bloqueios:** gera 4 alternativas fixas; sem dificuldade configurável ainda. Depende de `ANTHROPIC_API_KEY` (já em prod).
+- **Próximo passo sugerido:** Mensagens internas; Planejamento BNCC; refinar preços; polimentos de UX.
+- **Commit(s):** `feat: gerar simulado pelo eduon` (`3a8d7cb`).
 
 ### [2026-06-02 07:10] — Marca On Way Education + agente EduON + landing — STATUS: EM ANDAMENTO
 
