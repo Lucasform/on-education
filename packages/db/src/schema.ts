@@ -645,6 +645,28 @@ export const quizAttempts = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Mensagens internas (Fase 1A.3): registro de comunicação direta com um responsável,
+// opcionalmente no contexto de um aluno. Conteúdo é PII; nunca logar. Tenant-scoped + RLS.
+// (Resposta do responsável virá com o portal do responsável, no futuro.)
+// ---------------------------------------------------------------------------
+export const messages = oe.table(
+  'messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    guardianId: uuid('guardian_id').notNull(),
+    studentId: uuid('student_id'),
+    subject: text('subject').notNull(),
+    body: text('body').notNull().default(''),
+    ...auditCols,
+  },
+  (t) => [
+    index('messages_guardian_idx').on(t.guardianId),
+    tenantPolicy('messages_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -674,4 +696,5 @@ export const schema = {
   quizzes,
   quizQuestions,
   quizAttempts,
+  messages,
 };

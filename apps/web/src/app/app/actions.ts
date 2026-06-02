@@ -3,7 +3,9 @@
 import type { AuthContext } from '@on-education/auth';
 import {
   createCommunication,
+  createMessage,
   deleteCommunication,
+  deleteMessage,
   generateCommunication,
   restoreCommunication,
   setCommunicationStatus,
@@ -52,6 +54,7 @@ import {
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
+  createMessageSchema,
   createQuizSchema,
   generateQuizSchema,
   submitQuizAttemptSchema,
@@ -472,6 +475,26 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+// --- Mensagens internas (responsáveis) ---------------------------------------
+
+export async function createMessageAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createMessageSchema.parse({
+    guardianId: formData.get('guardianId'),
+    studentId: (formData.get('studentId') as string) || undefined,
+    subject: formData.get('subject'),
+    body: (formData.get('body') as string) || '',
+  });
+  await createMessage(db(), ctx, input);
+  revalidatePath('/app/mensagens', 'page');
+}
+
+export async function deleteMessageAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteMessage(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/mensagens', 'page');
 }
 
 /** Gera um simulado completo pelo EduON e abre o resultado para revisão. */

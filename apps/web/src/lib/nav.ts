@@ -113,7 +113,7 @@ export const NAV: NavGroup[] = [
     label: 'Comunicação',
     items: [
       { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
-      soon('Mensagens', 'mensagens', MessagesSquare),
+      { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
       soon('WhatsApp', 'whatsapp', Phone),
     ],
   },

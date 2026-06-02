@@ -210,6 +210,15 @@ export const submitQuizAttemptSchema = z.object({
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
 
+/** Mensagem interna para um responsável (Fase 1A.3). */
+export const createMessageSchema = z.object({
+  guardianId: uuidSchema,
+  studentId: uuidSchema.optional(),
+  subject: z.string().min(1).max(200),
+  body: z.string().max(5000).default(''),
+});
+export type CreateMessageInput = z.infer<typeof createMessageSchema>;
+
 /** Geração de simulado pelo EduON (IA). */
 export const generateQuizSchema = z.object({
   topic: z.string().min(2).max(300),

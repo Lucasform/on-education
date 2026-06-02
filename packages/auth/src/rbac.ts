@@ -27,6 +27,7 @@ const TEACHING_RESOURCES: readonly string[] = [
   'event',
   'communication',
   'quiz',
+  'message',
 ];
 
 /**

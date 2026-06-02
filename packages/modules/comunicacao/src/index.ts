@@ -1,3 +1,5 @@
+export * from './messages';
+
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { communications, type DbClient } from '@on-education/db';
 import { assertEntitled } from '@on-education/module-nucleo';
