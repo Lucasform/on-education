@@ -35,7 +35,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export default async function CalendarioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string }>;
+  searchParams: Promise<{ mes?: string; dia?: string }>;
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
@@ -46,11 +46,14 @@ export default async function CalendarioPage({
   const hoje = new Date();
   const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
 
-  const { mes } = await searchParams;
+  const { mes, dia } = await searchParams;
   const [ano, m] =
     mes && /^\d{4}-\d{2}$/.test(mes)
       ? (mes.split('-').map(Number) as [number, number])
       : [hoje.getFullYear(), hoje.getMonth() + 1];
+  // Dia selecionado (clicado), se válido e dentro do mês exibido.
+  const diaSel =
+    dia && /^\d{4}-\d{2}-\d{2}$/.test(dia) && dia.startsWith(`${ano}-${pad(m)}-`) ? dia : null;
 
   const prev = m === 1 ? `${ano - 1}-12` : `${ano}-${pad(m - 1)}`;
   const next = m === 12 ? `${ano + 1}-01` : `${ano}-${pad(m + 1)}`;
@@ -118,8 +121,16 @@ export default async function CalendarioPage({
             const dataStr = `${ano}-${pad(m)}-${pad(d)}`;
             const evs = porDia.get(dataStr) ?? [];
             const isHoje = dataStr === hojeStr;
+            const isSel = dataStr === diaSel;
             return (
-              <div key={dataStr} className="min-h-20 bg-card p-1.5">
+              <Link
+                key={dataStr}
+                href={`/app/calendario?mes=${ano}-${pad(m)}&dia=${dataStr}`}
+                scroll={false}
+                className={`min-h-20 bg-card p-1.5 transition-colors hover:bg-accent/50 ${
+                  isSel ? 'ring-2 ring-inset ring-primary' : ''
+                }`}
+              >
                 <div
                   className={`mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs ${
                     isHoje
@@ -144,7 +155,7 @@ export default async function CalendarioPage({
                     <div className="px-1 text-[10px] text-muted-foreground">+{evs.length - 3}</div>
                   )}
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -152,14 +163,28 @@ export default async function CalendarioPage({
 
       <div className="grid gap-5 md:grid-cols-2">
         <section className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">
-            Eventos de {MESES[m - 1]} ({doMes.length})
+          <h2 className="mb-3 flex items-center justify-between text-sm font-medium">
+            <span>
+              {diaSel
+                ? `Eventos de ${diaSel.slice(8)}/${pad(m)} (${(porDia.get(diaSel) ?? []).length})`
+                : `Eventos de ${MESES[m - 1]} (${doMes.length})`}
+            </span>
+            {diaSel && (
+              <Link
+                href={`/app/calendario?mes=${ano}-${pad(m)}`}
+                className="text-xs font-normal text-primary hover:underline"
+              >
+                ver o mês
+              </Link>
+            )}
           </h2>
-          {doMes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum evento neste mês.</p>
+          {(diaSel ? (porDia.get(diaSel) ?? []) : doMes).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {diaSel ? 'Nenhum evento neste dia.' : 'Nenhum evento neste mês.'}
+            </p>
           ) : (
             <ul className="space-y-1 text-sm">
-              {doMes.map((e) => (
+              {(diaSel ? (porDia.get(diaSel) ?? []) : doMes).map((e) => (
                 <li key={e.id} className="flex items-center justify-between gap-2">
                   <span>
                     <span className="text-muted-foreground">
@@ -194,7 +219,13 @@ export default async function CalendarioPage({
           <form action={createEventAction} className="flex flex-col gap-2">
             <input name="title" required placeholder="Título do evento" className={fieldClass} />
             <div className="flex gap-2">
-              <input name="date" type="date" required className={fieldClass} />
+              <input
+                name="date"
+                type="date"
+                required
+                defaultValue={diaSel ?? undefined}
+                className={fieldClass}
+              />
               <input name="time" type="time" className={fieldClass} />
             </div>
             <select name="classId" className={fieldClass} defaultValue="">

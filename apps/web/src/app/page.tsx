@@ -8,6 +8,7 @@ import {
   Users,
 } from 'lucide-react';
 
+import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 import { PricingCards } from '@/components/pricing-cards';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -61,7 +62,7 @@ export default function HomePage() {
       </div>
 
       {/* cabeçalho */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <a href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-white">
             <GraduationCap className="h-5 w-5" />
@@ -77,11 +78,12 @@ export default function HomePage() {
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <a href="/login">
+          <a href="/login" className="hidden sm:block">
             <Button size="sm" className="rounded-full px-5">
               Entrar
             </Button>
           </a>
+          <LandingMobileMenu items={NAV} />
         </div>
       </header>
 
