@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · landing nova + planos + calendário em grade · **Status:** EM ANDAMENTO · **Próximo passo:** refinar textos/preços da landing, Mensagens internas, BNCC. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · marca On Way Education + agente EduON · **Status:** EM ANDAMENTO · **Próximo passo:** refinar preços, Mensagens internas, BNCC, gerar simulado pelo EduON. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 07:10] — Marca On Way Education + agente EduON + landing — STATUS: EM ANDAMENTO
+
+- **Tarefa:** rebrand para On Way Education, batizar a IA como agente EduON e evoluir a landing (slogan, planos interativos).
+- **Segmento:** 🏫👤 + visitante
+- **O que foi feito:**
+  - **Rebrand**: "On Education" → "On Way Education" em todo o app (33 telas) + metadata.
+  - **EduON**: a IA vira o agente EduON (ON em destaque no gradiente). Aplicado na landing (anúncio, hero, recursos, mock) e dentro do app (menu "EduON", página `/app/ia` titulada EduON).
+  - **Landing**: slogan novo ("Ensine com inteligência. Do plano de aula ao boletim."), botões por público (Sou professor / Sou escola; CTA final Sou professor autônomo / Tenho uma escola), menu enxuto, painel admin removido da landing pública.
+  - **Planos**: componente client `PricingCards` com seleção que **muda de cor ao clicar** (Pro pré-selecionado); fim do "grátis para sempre" (agora 14 dias de teste; Professor R$19 / Pro R$39 / Escola sob consulta, valores ilustrativos).
+  - **SEO**: description da raiz com slogan + agente.
+- **Arquivos principais:** `apps/web/src/app/page.tsx`, `apps/web/src/components/pricing-cards.tsx`, `apps/web/src/lib/nav.ts`, `apps/web/src/app/app/ia/page.tsx`, `apps/web/src/app/layout.tsx`, + 33 telas renomeadas.
+- **Migrations/RLS:** sem migration.
+- **Testes:** `tsc` + `next build` verdes. Deploys: Vercel teve fila travada algumas vezes (resolvido cancelando o deploy preso). `ed6bfce` READY, prod 200, EduON/On Way Education confirmados na home.
+- **Pendências / bloqueios:** preços ilustrativos a calibrar; admin ainda usa o /login comum (separação só visual, link tirado da landing); EduON é só nome (entitlements/cota inalterados).
+- **Próximo passo sugerido:** refinar preços; Mensagens internas; gerar simulado pelo EduON; BNCC.
+- **Commit(s):** `c4ef428` (planos), `7a83694` (rebrand+landing), `ed6bfce` (eduon no app).
 
 ### [2026-06-02 06:30] — Landing nova + planos + calendário em grade — STATUS: EM ANDAMENTO
 
