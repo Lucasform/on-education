@@ -7,11 +7,23 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · Simulados/Quizzes com correção automática · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, Relatórios de direção, BNCC. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · Relatórios de direção (indicadores por turma) · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, Planejamento BNCC, vincular simulado a aluno real. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 04:45] — Relatórios de direção — STATUS: EM ANDAMENTO
+
+- **Tarefa:** visão de direção com indicadores da escola e desempenho por turma (sem migration).
+- **Segmento:** 🏫 escola
+- **O que foi feito:** `/app/relatorios` com KPIs (turmas, alunos, média geral, frequência geral, atividades, simulados) e tabela por turma (alunos, média, frequência), agregando `listGrades`/`listAttendance`/`listClasses`/`listStudents`/`listActivities`/`listQuizzes`. Bucket "Sem turma" para alunos sem classId. Restrito a `organization`. Nav: Relatórios saiu de "em breve".
+- **Arquivos principais:** `apps/web/src/app/app/relatorios/page.tsx`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** sem migration (só leitura agregada, RLS já cobre as tabelas-fonte).
+- **Testes:** `tsc --noEmit` (web) e `next build` verdes. Push `6f6e726`, deploy READY, prod 200.
+- **Pendências / bloqueios:** sem multi-unidade/rede nem gráficos; números dependem de notas/presenças lançadas.
+- **Próximo passo sugerido:** Mensagens internas; Planejamento BNCC; vincular tentativa de simulado a `student_id` real.
+- **Commit(s):** `feat: relatorios de direcao (indicadores da escola e por turma)` (`6f6e726`).
 
 ### [2026-06-02 04:20] — Simulados/Quizzes — STATUS: EM ANDAMENTO
 
