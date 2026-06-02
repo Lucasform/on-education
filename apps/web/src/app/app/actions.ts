@@ -5,6 +5,7 @@ import {
   createCommunication,
   deleteCommunication,
   generateCommunication,
+  restoreCommunication,
   setCommunicationStatus,
 } from '@on-education/module-comunicacao';
 import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
@@ -23,11 +24,15 @@ import {
   deleteEvent,
   deleteStudent,
   inviteMember,
+  restoreClass,
+  restoreEvent,
+  restoreStudent,
 } from '@on-education/module-nucleo';
 import {
   createActivity,
   createPortfolioEntry,
   deleteActivity,
+  restoreActivity,
 } from '@on-education/module-pedagogico';
 import {
   createLesson,
@@ -359,5 +364,37 @@ export async function createEventAction(formData: FormData): Promise<void> {
 export async function deleteEventAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteEvent(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+// --- Restaurar (Lixeira) -----------------------------------------------------
+
+export async function restoreClassAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await restoreClass(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function restoreStudentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await restoreStudent(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function restoreActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await restoreActivity(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function restoreCommunicationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await restoreCommunication(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function restoreEventAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await restoreEvent(db(), ctx, String(formData.get('id')));
   revalidatePath('/app', 'layout');
 }

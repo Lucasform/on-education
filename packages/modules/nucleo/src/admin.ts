@@ -7,7 +7,7 @@ import {
   tenants,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { count, countDistinct, desc, eq } from 'drizzle-orm';
+import { count, countDistinct, desc, eq, isNull } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -19,6 +19,7 @@ export interface TenantOverview {
   name: string;
   tenantType: TenantType;
   createdAt: Date;
+  deletedAt: Date | null;
   members: number;
   students: number;
 }
@@ -33,16 +34,22 @@ export interface AppStats {
   activities: number;
 }
 
-export async function listAllTenants(client: DbClient): Promise<TenantOverview[]> {
-  const rows = await client.db
+export async function listAllTenants(
+  client: DbClient,
+  opts: { includeDeleted?: boolean } = {},
+): Promise<TenantOverview[]> {
+  const base = client.db
     .select({
       id: tenants.id,
       name: tenants.name,
       tenantType: tenants.tenantType,
       createdAt: tenants.createdAt,
+      deletedAt: tenants.deletedAt,
     })
-    .from(tenants)
-    .orderBy(desc(tenants.createdAt));
+    .from(tenants);
+  const rows = await (opts.includeDeleted
+    ? base.orderBy(desc(tenants.createdAt))
+    : base.where(isNull(tenants.deletedAt)).orderBy(desc(tenants.createdAt)));
 
   const memberCounts = await client.db
     .select({ tenantId: memberships.tenantId, c: countDistinct(memberships.userId) })
@@ -66,10 +73,11 @@ export async function listAllTenants(client: DbClient): Promise<TenantOverview[]
 export async function getAppStats(client: DbClient): Promise<AppStats> {
   const [allTenants, byType, users, studentsTotal, classesTotal, activitiesTotal] =
     await Promise.all([
-      client.db.select({ c: count() }).from(tenants),
+      client.db.select({ c: count() }).from(tenants).where(isNull(tenants.deletedAt)),
       client.db
         .select({ tenantType: tenants.tenantType, c: count() })
         .from(tenants)
+        .where(isNull(tenants.deletedAt))
         .groupBy(tenants.tenantType),
       client.db.select({ c: countDistinct(memberships.userId) }).from(memberships),
       client.db.select({ c: count() }).from(students),
@@ -91,5 +99,49 @@ export async function getAppStats(client: DbClient): Promise<AppStats> {
   };
 }
 
-// Evita "import não usado" enquanto eq não é necessário aqui; mantém a porta aberta.
-export const __adminInternals = { eq };
+/** Tabelas tenant-scoped que devem ser purgadas ao apagar uma escola definitivamente. */
+const TENANT_TABLES = [
+  'memberships',
+  'subscriptions',
+  'entitlements',
+  'usage_meters',
+  'audit_log',
+  'classes',
+  'students',
+  'activities',
+  'ai_drafts',
+  'units',
+  'invitations',
+  'academic_years',
+  'terms',
+  'subjects',
+  'guardians',
+  'student_guardians',
+  'lessons',
+  'grades',
+  'attendance',
+  'communications',
+  'portfolio_entries',
+  'events',
+];
+
+/** Soft delete da escola/tenant (reversível). Operação de super-admin (server-only). */
+export async function softDeleteTenant(client: DbClient, tenantId: string) {
+  await client.db.update(tenants).set({ deletedAt: new Date() }).where(eq(tenants.id, tenantId));
+}
+
+export async function restoreTenant(client: DbClient, tenantId: string) {
+  await client.db.update(tenants).set({ deletedAt: null }).where(eq(tenants.id, tenantId));
+}
+
+/**
+ * Exclusão DEFINITIVA da escola: apaga todos os dados do tenant (todas as tabelas) e o
+ * próprio tenant. NÃO apaga contas de auth (o Supabase Auth é compartilhado com outro app).
+ * Irreversível: a UI exige confirmação forte.
+ */
+export async function purgeTenant(client: DbClient, tenantId: string) {
+  for (const table of TENANT_TABLES) {
+    await client.sql.unsafe(`delete from on_education.${table} where tenant_id = $1`, [tenantId]);
+  }
+  await client.sql.unsafe(`delete from on_education.tenants where id = $1`, [tenantId]);
+}

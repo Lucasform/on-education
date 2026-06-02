@@ -11,12 +11,30 @@ import type { AuthContext } from './context';
  */
 export type Action = 'create' | 'read' | 'update' | 'delete';
 
-/** Papéis com poder amplo dentro do tenant (atalho de leitura para o esqueleto). */
-const FULL_ACCESS_ROLES: readonly Role[] = ['owner', 'director'];
+/** Papéis com poder amplo dentro do tenant: gerenciam tudo da escola (inclui excluir). */
+const FULL_ACCESS_ROLES: readonly Role[] = ['owner', 'director', 'coordinator'];
 
-export function can(ctx: AuthContext, action: Action, _resource: string): boolean {
+/** Recursos pedagógicos do dia a dia que o professor pode criar/editar/excluir na sua org. */
+const TEACHING_RESOURCES: readonly string[] = [
+  'class',
+  'student',
+  'lesson',
+  'grade',
+  'attendance',
+  'activity',
+  'ai_draft',
+  'portfolio',
+  'event',
+  'communication',
+];
+
+/**
+ * Matriz de autorização (Master Spec §6.2). Default mais restritivo: sem regra, só leitura.
+ * O super-admin do app NÃO passa por aqui (opera via /admin, fora do contexto de tenant).
+ */
+export function can(ctx: AuthContext, action: Action, resource: string): boolean {
   if (ctx.roles.some((r) => FULL_ACCESS_ROLES.includes(r))) return true;
-  // Default mais restritivo: sem regra específica, só leitura é liberada (Master Spec §7.4).
+  if (ctx.roles.includes('teacher') && TEACHING_RESOURCES.includes(resource)) return true;
   return action === 'read';
 }
 

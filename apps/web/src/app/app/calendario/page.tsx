@@ -2,6 +2,7 @@ import { listClasses, listEvents } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
+import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -56,9 +57,13 @@ export default async function CalendarioPage() {
                         </span>
                         <form action={deleteEventAction}>
                           <input type="hidden" name="id" value={e.id} />
-                          <Button type="submit" size="sm" variant="ghost">
+                          <ConfirmButton
+                            size="sm"
+                            variant="ghost"
+                            message={`Excluir o evento "${e.title}"? Vai para a Lixeira.`}
+                          >
                             Excluir
-                          </Button>
+                          </ConfirmButton>
                         </form>
                       </li>
                     ))}

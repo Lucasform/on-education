@@ -6,7 +6,7 @@ import type {
   SearchActivitiesInput,
   UpdateActivityInput,
 } from '@on-education/validation';
-import { and, arrayContains, desc, eq, ilike, isNull } from 'drizzle-orm';
+import { and, arrayContains, desc, eq, ilike, isNotNull, isNull } from 'drizzle-orm';
 
 /**
  * Banco de atividades pessoal (Fase 1B.3). Disponível a 🏫 e 👤 via entitlement
@@ -61,6 +61,20 @@ export async function deleteActivity(client: DbClient, ctx: AuthContext, id: str
   await assertEntitled(client, ctx.tenantId, FEATURE);
   await client.withTenant(ctx.tenantId, (tx) =>
     tx.update(activities).set({ deletedAt: new Date() }).where(eq(activities.id, id)),
+  );
+}
+
+export async function restoreActivity(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'activity');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(activities).set({ deletedAt: null }).where(eq(activities.id, id)),
+  );
+}
+
+export async function listDeletedActivities(client: DbClient, ctx: AuthContext) {
+  assertCan(ctx, 'read', 'activity');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(activities).where(isNotNull(activities.deletedAt)),
   );
 }
 

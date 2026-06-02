@@ -28,6 +28,7 @@ import {
   School,
   Sparkles,
   Store,
+  Trash2,
   UserPlus,
   Users,
   Wallet,
@@ -65,6 +66,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Início', href: '/app', icon: Home },
       { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
+      { label: 'Lixeira', href: '/app/lixeira', icon: Trash2 },
     ],
   },
   {

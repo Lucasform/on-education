@@ -1,10 +1,17 @@
 import { getAppStats, listAllTenants } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
 
+import { ConfirmButton } from '@/components/confirm-button';
+import { fieldClass } from '@/components/form';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { db } from '@/server/db';
 
-import { enterTenantAction } from './actions';
+import {
+  enterTenantAction,
+  purgeTenantAction,
+  restoreTenantAction,
+  softDeleteTenantAction,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin · On Education' };
@@ -18,9 +25,19 @@ function StatCard({ label, value }: { label: string; value: number }) {
   );
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ deleted?: string }>;
+}) {
+  const { deleted } = await searchParams;
+  const showDeleted = deleted === '1';
   const client = db();
-  const [stats, tenants] = await Promise.all([getAppStats(client), listAllTenants(client)]);
+  const [stats, tenants] = await Promise.all([
+    getAppStats(client),
+    listAllTenants(client, { includeDeleted: showDeleted }),
+  ]);
+  const lista = showDeleted ? tenants.filter((t) => t.deletedAt) : tenants;
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 md:p-10">
@@ -52,8 +69,15 @@ export default async function AdminPage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium">Contas ({tenants.length})</h2>
+          <h2 className="text-sm font-medium">
+            {showDeleted ? 'Lixeira de contas' : 'Contas'} ({lista.length})
+          </h2>
           <div className="flex gap-2">
+            <a href={showDeleted ? '/admin' : '/admin?deleted=1'}>
+              <Button size="sm" variant="ghost">
+                {showDeleted ? 'Ver ativas' : 'Ver excluídas'}
+              </Button>
+            </a>
             <a href="/signup">
               <Button size="sm" variant="outline">
                 + Professor
@@ -79,14 +103,14 @@ export default async function AdminPage() {
               </tr>
             </thead>
             <tbody>
-              {tenants.length === 0 && (
+              {lista.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
-                    Nenhuma conta ainda. Crie um professor ou uma escola acima.
+                    {showDeleted ? 'Nenhuma conta excluída.' : 'Nenhuma conta ainda.'}
                   </td>
                 </tr>
               )}
-              {tenants.map((t) => (
+              {lista.map((t) => (
                 <tr key={t.id} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-2 font-medium">{t.name}</td>
                   <td className="px-4 py-2">
@@ -96,13 +120,52 @@ export default async function AdminPage() {
                   </td>
                   <td className="px-4 py-2 text-muted-foreground">{t.members}</td>
                   <td className="px-4 py-2 text-muted-foreground">{t.students}</td>
-                  <td className="px-4 py-2 text-right">
-                    <form action={enterTenantAction}>
-                      <input type="hidden" name="tenantId" value={t.id} />
-                      <Button type="submit" size="sm">
-                        Entrar
-                      </Button>
-                    </form>
+                  <td className="px-4 py-2">
+                    {showDeleted ? (
+                      <div className="flex flex-col items-end gap-2">
+                        <form action={restoreTenantAction}>
+                          <input type="hidden" name="tenantId" value={t.id} />
+                          <Button type="submit" size="sm" variant="outline">
+                            Restaurar
+                          </Button>
+                        </form>
+                        <form action={purgeTenantAction} className="flex items-center gap-1">
+                          <input type="hidden" name="tenantId" value={t.id} />
+                          <input type="hidden" name="tenantName" value={t.name} />
+                          <input
+                            name="confirmName"
+                            placeholder={`digite "${t.name}"`}
+                            className={`${fieldClass} h-8 w-40`}
+                          />
+                          <ConfirmButton
+                            size="sm"
+                            variant="ghost"
+                            message={`Excluir DEFINITIVAMENTE "${t.name}" e todos os seus dados? Não dá para desfazer.`}
+                          >
+                            Excluir definitivo
+                          </ConfirmButton>
+                        </form>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-2">
+                        <form action={enterTenantAction}>
+                          <input type="hidden" name="tenantId" value={t.id} />
+                          <Button type="submit" size="sm">
+                            Entrar
+                          </Button>
+                        </form>
+                        <form action={softDeleteTenantAction}>
+                          <input type="hidden" name="tenantId" value={t.id} />
+                          <ConfirmButton
+                            size="sm"
+                            variant="ghost"
+                            message={`Excluir "${t.name}"? Vai para a lixeira e pode ser restaurada.`}
+                          >
+                            Excluir
+                          </ConfirmButton>
+                        </form>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

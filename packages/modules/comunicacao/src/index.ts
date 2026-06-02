@@ -11,7 +11,7 @@ import type {
   CreateCommunicationInput,
   GenerateCommunicationInput,
 } from '@on-education/validation';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, isNotNull, isNull } from 'drizzle-orm';
 
 /**
  * Comunicados (Comunicação). Checagem tripla (RBAC + entitlement + RLS). Gate em
@@ -51,7 +51,25 @@ export async function createCommunication(
 export async function listCommunications(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'communication');
   return client.withTenant(ctx.tenantId, (tx) =>
-    tx.select().from(communications).orderBy(desc(communications.createdAt)),
+    tx
+      .select()
+      .from(communications)
+      .where(isNull(communications.deletedAt))
+      .orderBy(desc(communications.createdAt)),
+  );
+}
+
+export async function listDeletedCommunications(client: DbClient, ctx: AuthContext) {
+  assertCan(ctx, 'read', 'communication');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(communications).where(isNotNull(communications.deletedAt)),
+  );
+}
+
+export async function restoreCommunication(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'communication');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(communications).set({ deletedAt: null }).where(eq(communications.id, id)),
   );
 }
 
@@ -75,7 +93,7 @@ export async function setCommunicationStatus(
 export async function deleteCommunication(client: DbClient, ctx: AuthContext, id: string) {
   assertCan(ctx, 'delete', 'communication');
   await client.withTenant(ctx.tenantId, (tx) =>
-    tx.delete(communications).where(eq(communications.id, id)),
+    tx.update(communications).set({ deletedAt: new Date() }).where(eq(communications.id, id)),
   );
 }
 

@@ -3,6 +3,7 @@ import { listCommunications } from '@on-education/module-comunicacao';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
+import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -94,9 +95,13 @@ export default async function ComunicadosPage() {
                     )}
                     <form action={deleteCommunicationAction}>
                       <input type="hidden" name="id" value={c.id} />
-                      <Button type="submit" size="sm" variant="outline">
+                      <ConfirmButton
+                        size="sm"
+                        variant="outline"
+                        message={`Excluir o comunicado "${c.title}"? Vai para a Lixeira.`}
+                      >
                         Excluir
-                      </Button>
+                      </ConfirmButton>
                     </form>
                   </span>
                 </div>

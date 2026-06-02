@@ -2,7 +2,7 @@ import { assertCan, type AuthContext } from '@on-education/auth';
 import { classes, type DbClient, students } from '@on-education/db';
 import { limitFor } from '@on-education/entitlements';
 import type { CreateClassInput, CreateStudentInput } from '@on-education/validation';
-import { count, eq } from 'drizzle-orm';
+import { count, eq, isNotNull, isNull } from 'drizzle-orm';
 
 import { assertEntitled } from './entitlement';
 
@@ -31,7 +31,9 @@ export async function createClass(client: DbClient, ctx: AuthContext, input: Cre
 
 export async function listClasses(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'class');
-  return client.withTenant(ctx.tenantId, (tx) => tx.select().from(classes));
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(classes).where(isNull(classes.deletedAt)),
+  );
 }
 
 export async function createStudent(client: DbClient, ctx: AuthContext, input: CreateStudentInput) {
@@ -42,7 +44,10 @@ export async function createStudent(client: DbClient, ctx: AuthContext, input: C
   return client.withTenant(ctx.tenantId, async (tx) => {
     // Cota por plano (essencial no freemium): -1 e undefined = sem limite.
     if (cap !== undefined && cap !== -1) {
-      const rows = await tx.select({ total: count() }).from(students);
+      const rows = await tx
+        .select({ total: count() })
+        .from(students)
+        .where(isNull(students.deletedAt));
       const total = rows[0]?.total ?? 0;
       if (total >= cap) {
         throw new Error(`Limite de alunos do plano atingido (${cap}). Faça upgrade do plano.`);
@@ -63,17 +68,53 @@ export async function createStudent(client: DbClient, ctx: AuthContext, input: C
 
 export async function listStudents(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'student');
-  return client.withTenant(ctx.tenantId, (tx) => tx.select().from(students));
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(students).where(isNull(students.deletedAt)),
+  );
 }
 
+// Soft delete (poder voltar): marca deletedAt. Exclusão física só via Lixeira (gestor).
 export async function deleteClass(client: DbClient, ctx: AuthContext, id: string) {
   assertCan(ctx, 'delete', 'class');
-  await client.withTenant(ctx.tenantId, (tx) => tx.delete(classes).where(eq(classes.id, id)));
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(classes).set({ deletedAt: new Date() }).where(eq(classes.id, id)),
+  );
+}
+
+export async function restoreClass(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'class');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(classes).set({ deletedAt: null }).where(eq(classes.id, id)),
+  );
 }
 
 export async function deleteStudent(client: DbClient, ctx: AuthContext, id: string) {
   assertCan(ctx, 'delete', 'student');
-  await client.withTenant(ctx.tenantId, (tx) => tx.delete(students).where(eq(students.id, id)));
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(students).set({ deletedAt: new Date() }).where(eq(students.id, id)),
+  );
+}
+
+export async function restoreStudent(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'student');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.update(students).set({ deletedAt: null }).where(eq(students.id, id)),
+  );
+}
+
+/** Itens na lixeira (soft-deleted) para restaurar. */
+export async function listDeletedClasses(client: DbClient, ctx: AuthContext) {
+  assertCan(ctx, 'read', 'class');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(classes).where(isNotNull(classes.deletedAt)),
+  );
+}
+
+export async function listDeletedStudents(client: DbClient, ctx: AuthContext) {
+  assertCan(ctx, 'read', 'student');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(students).where(isNotNull(students.deletedAt)),
+  );
 }
 
 /** Importa turmas em lote (uma por nome). Ignora linhas vazias. Retorna quantas criou. */
@@ -109,7 +150,10 @@ export async function createStudentsBulk(
 
   return client.withTenant(ctx.tenantId, async (tx) => {
     if (cap !== undefined && cap !== -1) {
-      const rows = await tx.select({ total: count() }).from(students);
+      const rows = await tx
+        .select({ total: count() })
+        .from(students)
+        .where(isNull(students.deletedAt));
       const total = rows[0]?.total ?? 0;
       if (total + valid.length > cap) {
         throw new Error(`Limite de alunos do plano (${cap}) seria excedido. Faça upgrade.`);

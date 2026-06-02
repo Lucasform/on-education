@@ -6,6 +6,8 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { ConfirmButton } from '@/components/confirm-button';
+
 import { createClassAction, deleteClassAction, importClassesAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -31,9 +33,13 @@ export default async function TurmasPage() {
                   <span>{t.name}</span>
                   <form action={deleteClassAction}>
                     <input type="hidden" name="id" value={t.id} />
-                    <Button type="submit" size="sm" variant="ghost">
+                    <ConfirmButton
+                      size="sm"
+                      variant="ghost"
+                      message={`Excluir a turma "${t.name}"? Vai para a Lixeira e pode ser restaurada.`}
+                    >
                       Excluir
-                    </Button>
+                    </ConfirmButton>
                   </form>
                 </li>
               ))}
