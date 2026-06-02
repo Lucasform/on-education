@@ -7,6 +7,7 @@ import {
   jsonb,
   pgPolicy,
   pgSchema,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -479,6 +480,59 @@ export const studentGuardians = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Sala de aula (Fase 1A.2): diário (lessons), notas (grades), faltas (attendance).
+// Tudo tenant-scoped + RLS. Reusam classes/students/subjects/terms já existentes.
+// ---------------------------------------------------------------------------
+export const lessons = oe.table(
+  'lessons',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id'),
+    date: date('date').notNull(),
+    topic: text('topic').notNull(),
+    notes: text('notes'),
+    ...auditCols,
+  },
+  (t) => [index('lessons_tenant_idx').on(t.tenantId), tenantPolicy('lessons_tenant_isolation')],
+);
+
+export const grades = oe.table(
+  'grades',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    classId: uuid('class_id'),
+    subjectId: uuid('subject_id'),
+    termId: uuid('term_id'),
+    label: text('label').notNull(), // ex.: 'Prova 1'
+    value: real('value').notNull(), // 0..10 (ou outra escala)
+    ...auditCols,
+  },
+  (t) => [index('grades_tenant_idx').on(t.tenantId), tenantPolicy('grades_tenant_isolation')],
+);
+
+export const attendance = oe.table(
+  'attendance',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    date: date('date').notNull(),
+    present: boolean('present').notNull().default(true),
+    ...auditCols,
+  },
+  (t) => [
+    index('attendance_tenant_idx').on(t.tenantId),
+    uniqueIndex('attendance_uq').on(t.tenantId, t.studentId, t.classId, t.date),
+    tenantPolicy('attendance_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -499,4 +553,7 @@ export const schema = {
   subjects,
   guardians,
   studentGuardians,
+  lessons,
+  grades,
+  attendance,
 };

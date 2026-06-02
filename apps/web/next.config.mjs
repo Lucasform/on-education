@@ -13,6 +13,7 @@ const nextConfig = {
     '@on-education/module-nucleo',
     '@on-education/module-pedagogico',
     '@on-education/module-ia',
+    '@on-education/module-sala-de-aula',
   ],
 };
 

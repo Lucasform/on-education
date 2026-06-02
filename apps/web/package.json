@@ -20,6 +20,7 @@
     "@on-education/module-ia": "workspace:*",
     "@on-education/module-nucleo": "workspace:*",
     "@on-education/module-pedagogico": "workspace:*",
+    "@on-education/module-sala-de-aula": "workspace:*",
     "@on-education/ui": "workspace:*",
     "@on-education/validation": "workspace:*",
     "@supabase/ssr": "^0.5.2",

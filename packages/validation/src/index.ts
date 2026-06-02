@@ -128,3 +128,31 @@ export const linkGuardianSchema = z.object({
   isEmergency: z.boolean().default(false),
 });
 export type LinkGuardianInput = z.infer<typeof linkGuardianSchema>;
+
+/** Fase 1A.2 — sala de aula. */
+export const createLessonSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  date: z.string().date(),
+  topic: z.string().min(1).max(300),
+  notes: z.string().max(5000).optional(),
+});
+export type CreateLessonInput = z.infer<typeof createLessonSchema>;
+
+export const recordGradeSchema = z.object({
+  studentId: uuidSchema,
+  classId: uuidSchema.optional(),
+  subjectId: uuidSchema.optional(),
+  termId: uuidSchema.optional(),
+  label: z.string().min(1).max(120),
+  value: z.coerce.number().min(0).max(100),
+});
+export type RecordGradeInput = z.infer<typeof recordGradeSchema>;
+
+export const recordAttendanceSchema = z.object({
+  studentId: uuidSchema,
+  classId: uuidSchema,
+  date: z.string().date(),
+  present: z.coerce.boolean(),
+});
+export type RecordAttendanceInput = z.infer<typeof recordAttendanceSchema>;

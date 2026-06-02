@@ -81,10 +81,10 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Turmas', href: '/app/turmas', icon: Users },
       { label: 'Alunos', href: '/app/alunos', icon: GraduationCap },
-      soon('Diário de classe', 'diario', NotebookPen),
-      soon('Notas', 'notas', ClipboardList),
-      soon('Faltas', 'faltas', CalendarX),
-      soon('Boletim', 'boletim', FileText),
+      { label: 'Diário de classe', href: '/app/sala/diario', icon: NotebookPen },
+      { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },
+      { label: 'Faltas', href: '/app/sala/faltas', icon: CalendarX },
+      { label: 'Boletim', href: '/app/sala/boletim', icon: FileText },
     ],
   },
   {

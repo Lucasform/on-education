@@ -13,17 +13,21 @@ import {
   inviteMember,
 } from '@on-education/module-nucleo';
 import { createActivity } from '@on-education/module-pedagogico';
+import { createLesson, recordAttendance, recordGrade } from '@on-education/module-sala-de-aula';
 import {
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
   createGuardianSchema,
+  createLessonSchema,
   createStudentSchema,
   createSubjectSchema,
   createTermSchema,
   createUnitSchema,
   generateDraftSchema,
   inviteMemberSchema,
+  recordAttendanceSchema,
+  recordGradeSchema,
 } from '@on-education/validation';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -160,5 +164,44 @@ export async function createGuardianAction(formData: FormData): Promise<void> {
     phone: (formData.get('phone') as string) || undefined,
   });
   await createGuardian(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+// --- Sala de aula — Fase 1A.2 ------------------------------------------------
+
+export async function createLessonAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createLessonSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    date: formData.get('date'),
+    topic: formData.get('topic'),
+    notes: (formData.get('notes') as string) || undefined,
+  });
+  await createLesson(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+export async function recordGradeAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = recordGradeSchema.parse({
+    studentId: formData.get('studentId'),
+    classId: (formData.get('classId') as string) || undefined,
+    label: formData.get('label'),
+    value: formData.get('value'),
+  });
+  await recordGrade(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+export async function recordAttendanceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = recordAttendanceSchema.parse({
+    studentId: formData.get('studentId'),
+    classId: formData.get('classId'),
+    date: formData.get('date'),
+    present: formData.get('present') === 'on' || formData.get('present') === 'true',
+  });
+  await recordAttendance(db(), ctx, input);
   revalidatePath('/app', 'layout');
 }
