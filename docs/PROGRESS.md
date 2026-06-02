@@ -7,11 +7,27 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · exclusão segura (soft delete + lixeira + RBAC) · **Status:** EM ANDAMENTO · **Próximo passo:** IA→banco ao aprovar, Simulados, Dashboards, Mensagens; travar /admin com auth. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · /admin trancado + IA→banco + dashboard · **Status:** EM ANDAMENTO · **Próximo passo:** Lucas setar `SUPER_ADMIN_EMAILS` em prod; depois Simulados/Quizzes, Mensagens internas, Relatórios. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 03:20] — Trava /admin + IA→banco + dashboard — STATUS: EM ANDAMENTO
+
+- **Tarefa:** avançar autônomo: trancar o painel de admin, fechar o ciclo IA→banco e dar números reais no início.
+- **Segmento:** 🏫👤 + super-admin
+- **O que foi feito:**
+  - **/admin trancado** por allowlist `SUPER_ADMIN_EMAILS` (server-only). Guard em `app/admin/layout.tsx`; `getSuperAdminEmail()` usa a sessão REAL do Supabase (ignora o cookie de impersonação) e valida o e-mail. Allowlist vazia = ninguém entra (seguro por padrão). Removido o banner "modo aberto".
+  - **IA→banco:** `approveDraftToBankAction` aprova o rascunho e cria a atividade no banco pedagógico (kind activity/lesson_plan); botão "Aprovar e salvar no banco" em `/app/ia`. Fecha o human-in-the-loop.
+  - **Dashboard `/app`:** cards de próximos eventos e rascunhos pendentes + lista dos próximos 5 eventos.
+- **Arquivos principais:** `packages/config/src/env.ts`, `apps/web/src/server/session.ts`, `apps/web/src/app/admin/{layout.tsx,page.tsx}`, `apps/web/src/app/app/{actions.ts,ia/page.tsx,page.tsx}`, `.env.example`.
+- **Migrations/RLS:** sem migration.
+- **Testes:** lint/typecheck/build 14/14. Push `f22f396`.
+- **Pendências / bloqueios:** **`SUPER_ADMIN_EMAILS` ainda NÃO setada em prod** → enquanto isso o `/admin` fica trancado para todos (inclusive o Lucas). Setar na Vercel com o e-mail do Lucas destrava. A tentativa automática foi barrada pelo classificador (não autorizo e-mail por adivinhação).
+- **Credenciais/segredos necessários:** `SUPER_ADMIN_EMAILS` (e-mail(s) de super-admin, separados por vírgula) na Vercel.
+- **Próximo passo sugerido:** Simulados/Quizzes; Mensagens internas; Relatórios/dashboards de direção.
+- **Commit(s):** `feat: trava /admin (allowlist super-admin), IA->banco e dashboard com eventos` (`f22f396`).
 
 ### [2026-06-02 02:45] — Exclusão segura (soft delete + lixeira + RBAC) — STATUS: EM ANDAMENTO
 
