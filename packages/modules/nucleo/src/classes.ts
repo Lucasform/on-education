@@ -2,7 +2,7 @@ import { assertCan, type AuthContext } from '@on-education/auth';
 import { classes, type DbClient, students } from '@on-education/db';
 import { limitFor } from '@on-education/entitlements';
 import type { CreateClassInput, CreateStudentInput } from '@on-education/validation';
-import { count } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 
 import { assertEntitled } from './entitlement';
 
@@ -64,4 +64,67 @@ export async function createStudent(client: DbClient, ctx: AuthContext, input: C
 export async function listStudents(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'student');
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(students));
+}
+
+export async function deleteClass(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'class');
+  await client.withTenant(ctx.tenantId, (tx) => tx.delete(classes).where(eq(classes.id, id)));
+}
+
+export async function deleteStudent(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'student');
+  await client.withTenant(ctx.tenantId, (tx) => tx.delete(students).where(eq(students.id, id)));
+}
+
+/** Importa turmas em lote (uma por nome). Ignora linhas vazias. Retorna quantas criou. */
+export async function createClassesBulk(client: DbClient, ctx: AuthContext, names: string[]) {
+  assertCan(ctx, 'create', 'class');
+  await assertEntitled(client, ctx.tenantId, 'classes.manage');
+  const clean = names.map((n) => n.trim()).filter(Boolean);
+  if (clean.length === 0) return 0;
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .insert(classes)
+      .values(clean.map((name) => ({ tenantId: ctx.tenantId, name, createdBy: ctx.userId }))),
+  );
+  return clean.length;
+}
+
+/**
+ * Importa alunos em lote. Cada item tem nome e, opcionalmente, o nome da turma (resolvido
+ * para uma turma existente). Respeita a cota de alunos do plano.
+ */
+export async function createStudentsBulk(
+  client: DbClient,
+  ctx: AuthContext,
+  items: { fullName: string; className?: string }[],
+) {
+  assertCan(ctx, 'create', 'student');
+  const planId = await assertEntitled(client, ctx.tenantId, 'classes.manage');
+  const cap = limitFor(planId, 'students');
+  const valid = items
+    .map((i) => ({ fullName: i.fullName.trim(), className: i.className?.trim() }))
+    .filter((i) => i.fullName);
+  if (valid.length === 0) return 0;
+
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    if (cap !== undefined && cap !== -1) {
+      const rows = await tx.select({ total: count() }).from(students);
+      const total = rows[0]?.total ?? 0;
+      if (total + valid.length > cap) {
+        throw new Error(`Limite de alunos do plano (${cap}) seria excedido. Faça upgrade.`);
+      }
+    }
+    const turmas = await tx.select({ id: classes.id, name: classes.name }).from(classes);
+    const byName = new Map(turmas.map((t) => [t.name.toLowerCase(), t.id]));
+    await tx.insert(students).values(
+      valid.map((i) => ({
+        tenantId: ctx.tenantId,
+        fullName: i.fullName,
+        classId: i.className ? (byName.get(i.className.toLowerCase()) ?? null) : null,
+        createdBy: ctx.userId,
+      })),
+    );
+    return valid.length;
+  });
 }

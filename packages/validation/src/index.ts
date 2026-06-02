@@ -176,3 +176,13 @@ export const createPortfolioEntrySchema = z.object({
   description: z.string().max(5000).optional(),
 });
 export type CreatePortfolioEntryInput = z.infer<typeof createPortfolioEntrySchema>;
+
+/** Calendário — eventos. */
+export const createEventSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  date: z.string().date(),
+  time: z.string().max(10).optional(),
+  classId: uuidSchema.optional(),
+});
+export type CreateEventInput = z.infer<typeof createEventSchema>;

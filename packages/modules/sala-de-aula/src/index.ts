@@ -103,3 +103,35 @@ export async function listAttendance(client: DbClient, ctx: AuthContext) {
     tx.select().from(attendance).orderBy(desc(attendance.date)),
   );
 }
+
+/** Chamada: registra presença de vários alunos de uma turma numa data (upsert por aluno). */
+export async function recordAttendanceBulk(
+  client: DbClient,
+  ctx: AuthContext,
+  classId: string,
+  date: string,
+  entries: { studentId: string; present: boolean }[],
+) {
+  assertCan(ctx, 'create', 'attendance');
+  await assertEntitled(client, ctx.tenantId, FEATURE);
+  if (entries.length === 0) return 0;
+  await client.withTenant(ctx.tenantId, async (tx) => {
+    for (const e of entries) {
+      await tx
+        .insert(attendance)
+        .values({
+          tenantId: ctx.tenantId,
+          studentId: e.studentId,
+          classId,
+          date,
+          present: e.present,
+          createdBy: ctx.userId,
+        })
+        .onConflictDoUpdate({
+          target: [attendance.tenantId, attendance.studentId, attendance.classId, attendance.date],
+          set: { present: e.present, updatedAt: sql`now()` },
+        });
+    }
+  });
+  return entries.length;
+}

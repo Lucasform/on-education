@@ -6,7 +6,7 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createClassAction } from '../actions';
+import { createClassAction, deleteClassAction, importClassesAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Turmas · On Education' };
@@ -25,22 +25,47 @@ export default async function TurmasPage() {
           {turmas.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma turma ainda.</p>
           ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
+            <ul className="space-y-1 text-sm">
               {turmas.map((t) => (
-                <li key={t.id}>{t.name}</li>
+                <li key={t.id} className="flex items-center justify-between gap-2">
+                  <span>{t.name}</span>
+                  <form action={deleteClassAction}>
+                    <input type="hidden" name="id" value={t.id} />
+                    <Button type="submit" size="sm" variant="ghost">
+                      Excluir
+                    </Button>
+                  </form>
+                </li>
               ))}
             </ul>
           )}
         </div>
-        <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Nova turma</h2>
-          <form action={createClassAction} className="flex flex-col gap-2">
-            <input name="name" required placeholder="Nome da turma" className={fieldClass} />
-            <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
-            <Button type="submit" size="sm">
-              Adicionar turma
-            </Button>
-          </form>
+        <div className="flex flex-col gap-5">
+          <div className={cardClass}>
+            <h2 className="mb-3 text-sm font-medium">Nova turma</h2>
+            <form action={createClassAction} className="flex flex-col gap-2">
+              <input name="name" required placeholder="Nome da turma" className={fieldClass} />
+              <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
+              <Button type="submit" size="sm">
+                Adicionar turma
+              </Button>
+            </form>
+          </div>
+          <div className={cardClass}>
+            <h2 className="mb-1 text-sm font-medium">Importar em lote</h2>
+            <p className="mb-2 text-xs text-muted-foreground">Uma turma por linha.</p>
+            <form action={importClassesAction} className="flex flex-col gap-2">
+              <textarea
+                name="lista"
+                rows={4}
+                placeholder={'6º A\n6º B\n7º A'}
+                className={fieldClass}
+              />
+              <Button type="submit" size="sm" variant="outline">
+                Importar turmas
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     </>

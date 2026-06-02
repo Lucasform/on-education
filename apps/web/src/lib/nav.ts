@@ -62,7 +62,10 @@ const soon = (label: string, slug: string, icon: LucideIcon): NavItem => ({
 export const NAV: NavGroup[] = [
   {
     label: 'Visão geral',
-    items: [{ label: 'Início', href: '/app', icon: Home }],
+    items: [
+      { label: 'Início', href: '/app', icon: Home },
+      { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
+    ],
   },
   {
     label: 'Escola',
@@ -82,6 +85,7 @@ export const NAV: NavGroup[] = [
       { label: 'Turmas', href: '/app/turmas', icon: Users },
       { label: 'Alunos', href: '/app/alunos', icon: GraduationCap },
       { label: 'Diário de classe', href: '/app/sala/diario', icon: NotebookPen },
+      { label: 'Chamada', href: '/app/sala/chamada', icon: ClipboardList },
       { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },
       { label: 'Faltas', href: '/app/sala/faltas', icon: CalendarX },
       { label: 'Boletim', href: '/app/sala/boletim', icon: FileText },

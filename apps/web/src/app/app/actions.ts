@@ -11,20 +11,36 @@ import { approveDraft, discardDraft, generateDraft } from '@on-education/module-
 import {
   createAcademicYear,
   createClass,
+  createClassesBulk,
+  createEvent,
   createGuardian,
   createStudent,
+  createStudentsBulk,
   createSubject,
   createTerm,
   createUnit,
+  deleteClass,
+  deleteEvent,
+  deleteStudent,
   inviteMember,
 } from '@on-education/module-nucleo';
-import { createActivity, createPortfolioEntry } from '@on-education/module-pedagogico';
-import { createLesson, recordAttendance, recordGrade } from '@on-education/module-sala-de-aula';
+import {
+  createActivity,
+  createPortfolioEntry,
+  deleteActivity,
+} from '@on-education/module-pedagogico';
+import {
+  createLesson,
+  recordAttendance,
+  recordAttendanceBulk,
+  recordGrade,
+} from '@on-education/module-sala-de-aula';
 import {
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
   createCommunicationSchema,
+  createEventSchema,
   createGuardianSchema,
   createLessonSchema,
   createPortfolioEntrySchema,
@@ -256,5 +272,92 @@ export async function createPortfolioEntryAction(formData: FormData): Promise<vo
     description: (formData.get('description') as string) || undefined,
   });
   await createPortfolioEntry(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+// --- Exclusões ---------------------------------------------------------------
+
+export async function deleteClassAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteClass(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function deleteStudentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteStudent(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+export async function deleteActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteActivity(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
+}
+
+// --- Importação em lote ------------------------------------------------------
+
+export async function importClassesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const names = String(formData.get('lista') ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  await createClassesBulk(db(), ctx, names);
+  revalidatePath('/app', 'layout');
+}
+
+export async function importStudentsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  // Uma linha por aluno: "Nome Completo" ou "Nome Completo; Turma".
+  const items = String(formData.get('lista') ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const [fullName, className] = l.split(';').map((p) => p.trim());
+      return { fullName: fullName ?? '', className: className || undefined };
+    });
+  await createStudentsBulk(db(), ctx, items);
+  revalidatePath('/app', 'layout');
+}
+
+// --- Chamada (presença em lote por turma/data) -------------------------------
+
+export async function recordChamadaAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '');
+  const date = String(formData.get('date') ?? '');
+  const ids = String(formData.get('studentIds') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  // Cada aluno tem um checkbox present_<id>; marcado = presente.
+  const entries = ids.map((id) => ({
+    studentId: id,
+    present: formData.get(`present_${id}`) != null,
+  }));
+  if (classId && date) await recordAttendanceBulk(db(), ctx, classId, date, entries);
+  revalidatePath('/app', 'layout');
+}
+
+// --- Calendário / eventos ----------------------------------------------------
+
+export async function createEventAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createEventSchema.parse({
+    title: formData.get('title'),
+    description: (formData.get('description') as string) || undefined,
+    date: formData.get('date'),
+    time: (formData.get('time') as string) || undefined,
+    classId: (formData.get('classId') as string) || undefined,
+  });
+  await createEvent(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+export async function deleteEventAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteEvent(db(), ctx, String(formData.get('id')));
   revalidatePath('/app', 'layout');
 }

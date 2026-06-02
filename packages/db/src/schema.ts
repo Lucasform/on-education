@@ -572,6 +572,24 @@ export const portfolioEntries = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// events — calendário/agenda. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const events = oe.table(
+  'events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    date: date('date').notNull(),
+    time: text('time'),
+    classId: uuid('class_id'),
+    ...auditCols,
+  },
+  (t) => [index('events_tenant_idx').on(t.tenantId), tenantPolicy('events_tenant_isolation')],
+);
+
 export const schema = {
   tenants,
   users,
@@ -597,4 +615,5 @@ export const schema = {
   attendance,
   communications,
   portfolioEntries,
+  events,
 };
