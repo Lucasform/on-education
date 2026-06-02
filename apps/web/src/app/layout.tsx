@@ -6,7 +6,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'On Way Education',
-  description: 'SaaS educacional multi-tenant (escola e professor autônomo).',
+  description:
+    'Ensine com inteligência, do plano de aula ao boletim. A plataforma completa para professores e escolas, com o agente EduON ao seu lado.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

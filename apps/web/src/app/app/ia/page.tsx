@@ -14,7 +14,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'IA pedagógica · On Way Education' };
+export const metadata = { title: 'EduON · On Way Education' };
 
 export default async function IaPage() {
   const ctx = await getAuthContext();
@@ -25,8 +25,8 @@ export default async function IaPage() {
   return (
     <>
       <PageHeader
-        title="IA pedagógica"
-        description="Gere planos e atividades. Você revisa e aprova cada rascunho."
+        title="EduON"
+        description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
       />
 
       <div className={cardClass}>

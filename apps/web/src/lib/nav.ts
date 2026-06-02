@@ -102,7 +102,7 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
-    label: 'Inteligência artificial',
+    label: 'EduON',
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
