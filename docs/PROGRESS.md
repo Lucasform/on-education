@@ -7,11 +7,29 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · Relatórios de direção (indicadores por turma) · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, Planejamento BNCC, vincular simulado a aluno real. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · acesso admin + perf + UI · **Status:** EM ANDAMENTO · **Próximo passo:** calendário em grade mensal (estilo Condomínio), depois Mensagens internas/BNCC. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 05:40] — Acesso admin + performance + ajustes de UI — STATUS: EM ANDAMENTO
+
+- **Tarefa:** destravar login admin, deixar o app responsivo e ajustes pedidos (ícone, home, workspace, Classroom).
+- **Segmento:** 🏫👤 + super-admin
+- **O que foi feito:**
+  - **Login**: erro de credencial vira mensagem amigável (antes `throw` → tela "Application error" com digest). `/login` redireciona se já logado. `/app` manda super-admin sem tenant para `/admin` (fim do loop).
+  - **Recuperação de senha**: `/esqueci-senha` (resetPasswordForEmail) + `/nova-senha` (updateUser) + link no login; `/auth/confirm` trata `type=recovery`.
+  - **Admin dedicado**: criada conta `admin@oneducation.app` (senha definida via service_role), adicionada à allowlist `SUPER_ADMIN_EMAILS` em prod. Login testado via API (OK).
+  - **Performance**: `getAuthContext`/`getSuperAdminEmail`/`isImpersonating` memoizados por request (React `cache`); `loading.tsx` em `/app` e `/admin` (feedback instantâneo ao navegar).
+  - **UI**: ícone da marca em `app/icon.svg` (favicon); home sem subtítulo/parágrafo de marketing; cadastro com **workspace obrigatório**; removido Google Classroom do menu.
+- **Arquivos principais:** `apps/web/src/app/login/*`, `apps/web/src/app/{esqueci-senha,nova-senha}/*`, `apps/web/src/server/session.ts`, `apps/web/src/app/{app,admin}/loading.tsx`, `apps/web/src/app/icon.svg`, `apps/web/src/app/page.tsx`, `apps/web/src/app/signup/page.tsx`, `packages/validation/src/index.ts`, `apps/web/src/lib/nav.ts`, `turbo.json`.
+- **Migrations/RLS:** sem migration.
+- **Testes:** build de todos os pacotes verde (3 testes de provisioning ajustados p/ workspace obrigatório). Deploys 151c502/e04370d falharam por isso; `a53d9da` READY, prod 200.
+- **Pendências / bloqueios:** calendário ainda é lista (falta grade mensal estilo Condomínio); reset por e-mail self-service depende do SMTP do Supabase (o admin entra por senha).
+- **Credenciais/segredos necessários:** `SUPER_ADMIN_EMAILS` atualizada (Lucas + admin@oneducation.app).
+- **Próximo passo sugerido:** calendário em grade mensal; depois Mensagens internas / BNCC.
+- **Commit(s):** `0d4b592`, `151c502`, `e04370d`, `a53d9da`.
 
 ### [2026-06-02 04:45] — Relatórios de direção — STATUS: EM ANDAMENTO
 
