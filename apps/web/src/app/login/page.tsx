@@ -47,6 +47,14 @@ export default async function LoginPage({
         <Field label="Senha">
           <input name="password" type="password" required className={fieldClass} />
         </Field>
+        <div className="text-right">
+          <a
+            href="/esqueci-senha"
+            className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Esqueci a senha
+          </a>
+        </div>
         <Button type="submit" className="mt-2 w-full">
           Entrar
         </Button>
