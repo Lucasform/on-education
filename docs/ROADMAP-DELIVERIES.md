@@ -143,7 +143,7 @@ Entregas que cruzam módulos e não pertencem a uma única fase.
 
 ### T.1 Produtividade do dia a dia `[MVP]` ✅
 
-- [x] Importação em lote de turmas e de alunos (uma por linha) — `/app/turmas` e `/app/alunos`.
+- [x] Importação em lote de turmas, alunos, disciplinas e responsáveis (uma por linha; alunos/responsáveis aceitam campos extras com `;`) — `/app/turmas`, `/app/alunos`, `/app/escola/disciplinas`, `/app/escola/responsaveis`.
 - [x] Calendário/agenda de eventos — tabela `events`, `@on-education/module-nucleo` (`events.ts`), página `/app/calendario` + próximos eventos no overview.
 - [x] Dashboard de início (`/app`) com números reais: turmas, alunos, atividades, próximos eventos, rascunhos de IA pendentes + lista dos próximos eventos.
 
@@ -157,7 +157,7 @@ Entregas que cruzam módulos e não pertencem a uma única fase.
 
 - [x] Painel `/admin`: estatísticas, listar contas, "entrar como" (view-as por cookie de impersonação).
 - [x] Excluir escola (soft, reversível), lixeira de contas, restaurar e excluir definitivo (purga dados do tenant, exige digitar o nome). NÃO apaga contas de auth (Supabase Auth compartilhado com o app financeiro).
-- [x] `/admin` trancado por allowlist `SUPER_ADMIN_EMAILS` (login Supabase + e-mail na lista; vazio = trancado para todos). Falta setar a env em prod com o(s) e-mail(s) — depende do Lucas.
+- [x] `/admin` trancado por allowlist `SUPER_ADMIN_EMAILS` (login Supabase + e-mail na lista; vazio = trancado para todos). Env setada em prod com o e-mail do Lucas (autorizado 2026-06-02).
 
 ---
 

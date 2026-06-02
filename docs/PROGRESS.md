@@ -7,11 +7,25 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · /admin trancado + IA→banco + dashboard · **Status:** EM ANDAMENTO · **Próximo passo:** Lucas setar `SUPER_ADMIN_EMAILS` em prod; depois Simulados/Quizzes, Mensagens internas, Relatórios. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · import em lote ampliado + /admin destravado · **Status:** EM ANDAMENTO · **Próximo passo:** Simulados/Quizzes, Mensagens internas, Relatórios de direção. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 03:45] — Import em lote ampliado + /admin destravado — STATUS: EM ANDAMENTO
+
+- **Tarefa:** levar a inserção em massa a onde falta (estilo On Way Condomínio) e aplicar a env do super-admin.
+- **Segmento:** 🏫 escola
+- **O que foi feito:**
+  - Import em lote de **disciplinas** (`/app/escola/disciplinas`, uma por linha) e **responsáveis** (`/app/escola/responsaveis`, formato `Nome; email; telefone`). `createSubjectsBulk` e `createGuardiansBulk` no module-nucleo. Agora há import em massa em turmas, alunos, disciplinas e responsáveis.
+  - **`SUPER_ADMIN_EMAILS`** setada na Vercel (prod/preview/dev) com o e-mail do Lucas, autorizado por ele. Deploy `397b6dd` buildado DEPOIS da env, então o `/admin` libera para o e-mail autorizado.
+- **Arquivos principais:** `packages/modules/nucleo/src/{academic,guardians}.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/escola/{disciplinas,responsaveis}/page.tsx`.
+- **Migrations/RLS:** sem migration.
+- **Testes:** `tsc --noEmit` (nucleo + web) e `next build` verdes (turbo deu `spawn UNKNOWN` no Windows, transiente; rodei direto). Push `397b6dd`, deploy READY, prod 200.
+- **Pendências / bloqueios:** turbo flaky no Windows local (não afeta CI/Vercel). Mudar o super-admin = atualizar a env na Vercel (Lucas avisa).
+- **Próximo passo sugerido:** Simulados/Quizzes; Mensagens internas; Relatórios de direção.
+- **Commit(s):** `feat: importacao em lote de disciplinas e responsaveis` (`397b6dd`).
 
 ### [2026-06-02 03:20] — Trava /admin + IA→banco + dashboard — STATUS: EM ANDAMENTO
 
