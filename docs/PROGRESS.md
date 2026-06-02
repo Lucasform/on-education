@@ -7,11 +7,26 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · tema escuro + admin view-as + onboarding escola · **Status:** EM ANDAMENTO · **Próximo passo:** 1A.2 (sala de aula) ou travar o /admin com auth de admin. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · sidebar por funcionalidade + sala de aula (diário/notas/faltas/boletim) · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar outras "em breve" (comunicados, simulados). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 00:10] — Fase 1A.2 / Sala de aula + restrutura de navegação — STATUS: EM ANDAMENTO
+
+- **Tarefa:** sidebar com uma rota por funcionalidade + overview; sala de aula real (diário/notas/faltas/boletim); link mágico.
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - `/app` virou layout com **sidebar** (padrão On Condomínio): grupos + itens com ícone e rota ativa; cada funcionalidade tem sua página. `/app` = overview (cards + atalhos).
+  - **Sala de aula** (`module-sala-de-aula`): `lessons`/`grades`/`attendance` (migration `0003`, RLS); páginas `/app/sala/{diario,notas,faltas,boletim}`; boletim com média + frequência.
+  - Itens não construídos viram `/app/em-breve/[slug]` (navegáveis).
+  - **Link mágico**: rota `/auth/confirm` (verifyOtp por token_hash, sem SMTP); links gerados via Admin API.
+- **Migrations/RLS:** `0003` (lessons/grades/attendance) aplicada em prod + grant `authenticated`.
+- **Testes:** lint/typecheck/build 13/13. Deploy READY (`de92ed0`), prod 200.
+- **Pendências / bloqueios:** `/admin` e view-as ainda ABERTOS (sem auth) — travar antes de divulgar. Demais "em breve" (comunicados, simulados, portfólio, financeiro, etc.) seguem como placeholder.
+- **Próximo passo sugerido:** auth de super-admin no `/admin`, ou avançar Comunicados/Simulados.
+- **Commit(s):** `feat: sidebar com uma rota por funcionalidade e overview` (`e2d288a`), `feat: sala de aula real` (`de92ed0`).
 
 ### [2026-06-01 21:40] — UI/Admin / Tema escuro + admin view-as + escola — STATUS: CONCLUÍDO
 
