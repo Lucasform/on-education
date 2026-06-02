@@ -18,7 +18,7 @@ import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail, isImpersonating } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Início · On Education' };
+export const metadata = { title: 'Início · On Way Education' };
 
 function StatCard({
   icon: Icon,

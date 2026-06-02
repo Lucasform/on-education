@@ -11,7 +11,7 @@ import { getAuthContext } from '@/server/session';
 import { createQuizAction, deleteQuizAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Simulados · On Education' };
+export const metadata = { title: 'Simulados · On Way Education' };
 
 export default async function SimuladosPage() {
   const ctx = await getAuthContext();

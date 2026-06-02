@@ -5,7 +5,7 @@ import { Field, fieldClass } from '@/components/form';
 
 import { signupSchoolAction } from './actions';
 
-export const metadata = { title: 'Criar escola · On Education' };
+export const metadata = { title: 'Criar escola · On Way Education' };
 
 export default function SchoolSignupPage() {
   return (

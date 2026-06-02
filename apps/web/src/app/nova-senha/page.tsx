@@ -8,7 +8,7 @@ import { createSupabaseServerClient } from '@/server/supabase';
 import { setPasswordAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Nova senha · On Education' };
+export const metadata = { title: 'Nova senha · On Way Education' };
 
 const MENSAGENS: Record<string, string> = {
   curta: 'A senha precisa ter ao menos 8 caracteres.',

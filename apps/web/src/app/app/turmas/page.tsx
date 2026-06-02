@@ -11,7 +11,7 @@ import { ConfirmButton } from '@/components/confirm-button';
 import { createClassAction, deleteClassAction, importClassesAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Turmas · On Education' };
+export const metadata = { title: 'Turmas · On Way Education' };
 
 export default async function TurmasPage() {
   const ctx = await getAuthContext();

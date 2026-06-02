@@ -12,7 +12,7 @@ import { getAuthContext } from '@/server/session';
 import { createEventAction, deleteEventAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Calendário · On Education' };
+export const metadata = { title: 'Calendário · On Way Education' };
 
 const MESES = [
   'Janeiro',

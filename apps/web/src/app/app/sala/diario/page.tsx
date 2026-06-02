@@ -10,7 +10,7 @@ import { getAuthContext } from '@/server/session';
 import { createLessonAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Diário de classe · On Education' };
+export const metadata = { title: 'Diário de classe · On Way Education' };
 
 export default async function DiarioPage() {
   const ctx = await getAuthContext();

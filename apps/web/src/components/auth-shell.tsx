@@ -23,7 +23,7 @@ export function AuthShell({
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-xl">
         <div className="mb-6 flex items-center gap-2">
           <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
-          <span className="font-semibold">On Education</span>
+          <span className="font-semibold">On Way Education</span>
         </div>
         <h1 className="text-center text-xl font-semibold">{title}</h1>
         {subtitle && <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>}

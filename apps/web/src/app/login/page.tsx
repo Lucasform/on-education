@@ -8,7 +8,7 @@ import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 import { loginAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Entrar · On Education' };
+export const metadata = { title: 'Entrar · On Way Education' };
 
 export default async function LoginPage({
   searchParams,

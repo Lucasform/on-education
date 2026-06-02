@@ -5,7 +5,7 @@ import { IaGenerator } from '@/components/ia-generator';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Tutor do aluno · On Education' };
+export const metadata = { title: 'Tutor do aluno · On Way Education' };
 
 export default async function TutorPage() {
   const ctx = await getAuthContext();

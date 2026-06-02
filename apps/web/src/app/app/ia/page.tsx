@@ -14,7 +14,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'IA pedagógica · On Education' };
+export const metadata = { title: 'IA pedagógica · On Way Education' };
 
 export default async function IaPage() {
   const ctx = await getAuthContext();

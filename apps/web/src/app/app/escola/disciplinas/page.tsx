@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { createSubjectAction, importSubjectsAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Disciplinas · On Education' };
+export const metadata = { title: 'Disciplinas · On Way Education' };
 
 export default async function DisciplinasPage() {
   const ctx = await getAuthContext();

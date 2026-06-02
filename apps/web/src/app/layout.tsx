@@ -5,7 +5,7 @@ import { ThemeProvider } from './theme-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'On Education',
+  title: 'On Way Education',
   description: 'SaaS educacional multi-tenant (escola e professor autônomo).',
 };
 

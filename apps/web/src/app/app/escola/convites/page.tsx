@@ -10,7 +10,7 @@ import { getAuthContext } from '@/server/session';
 import { inviteMemberAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Convites e membros · On Education' };
+export const metadata = { title: 'Convites e membros · On Way Education' };
 
 export default async function ConvitesPage() {
   const ctx = await getAuthContext();

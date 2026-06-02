@@ -10,7 +10,7 @@ import { getAuthContext } from '@/server/session';
 import { createPortfolioEntryAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Portfólio · On Education' };
+export const metadata = { title: 'Portfólio · On Way Education' };
 
 export default async function PortfolioPage() {
   const ctx = await getAuthContext();

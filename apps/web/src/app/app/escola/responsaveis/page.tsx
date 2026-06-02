@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { createGuardianAction, importGuardiansAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Responsáveis · On Education' };
+export const metadata = { title: 'Responsáveis · On Way Education' };
 
 export default async function ResponsaveisPage() {
   const ctx = await getAuthContext();

@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { createActivityAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Banco de atividades · On Education' };
+export const metadata = { title: 'Banco de atividades · On Way Education' };
 
 export default async function AtividadesPage() {
   const ctx = await getAuthContext();

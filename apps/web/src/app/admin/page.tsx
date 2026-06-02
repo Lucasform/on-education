@@ -15,7 +15,7 @@ import {
 } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Admin · On Education' };
+export const metadata = { title: 'Admin · On Way Education' };
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -47,7 +47,7 @@ export default async function AdminPage({
         <div className="flex items-center gap-2">
           <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
           <div>
-            <h1 className="text-lg font-semibold leading-none">On Education</h1>
+            <h1 className="text-lg font-semibold leading-none">On Way Education</h1>
             <p className="text-xs text-muted-foreground">Admin do app · {adminEmail}</p>
           </div>
         </div>

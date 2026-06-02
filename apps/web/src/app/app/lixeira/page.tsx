@@ -21,7 +21,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Lixeira · On Education' };
+export const metadata = { title: 'Lixeira · On Way Education' };
 
 type Item = { id: string; label: string };
 

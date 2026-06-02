@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { createAcademicYearAction, createTermAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Ano letivo · On Education' };
+export const metadata = { title: 'Ano letivo · On Way Education' };
 
 export default async function AnoLetivoPage() {
   const ctx = await getAuthContext();

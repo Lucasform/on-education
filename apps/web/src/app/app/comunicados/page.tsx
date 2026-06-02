@@ -16,7 +16,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Comunicados · On Education' };
+export const metadata = { title: 'Comunicados · On Way Education' };
 
 export default async function ComunicadosPage() {
   const ctx = await getAuthContext();

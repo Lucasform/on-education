@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { recordChamadaAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Chamada · On Education' };
+export const metadata = { title: 'Chamada · On Way Education' };
 
 export default async function ChamadaPage({
   searchParams,

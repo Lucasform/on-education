@@ -8,7 +8,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Relatórios · On Education' };
+export const metadata = { title: 'Relatórios · On Way Education' };
 
 function Kpi({ label, value }: { label: string; value: string | number }) {
   return (

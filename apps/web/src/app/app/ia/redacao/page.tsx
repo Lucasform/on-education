@@ -5,7 +5,7 @@ import { IaGenerator } from '@/components/ia-generator';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Correção de redação · On Education' };
+export const metadata = { title: 'Correção de redação · On Way Education' };
 
 export default async function RedacaoPage() {
   const ctx = await getAuthContext();

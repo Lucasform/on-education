@@ -10,7 +10,7 @@ import { getAuthContext } from '@/server/session';
 import { recordAttendanceAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Faltas · On Education' };
+export const metadata = { title: 'Faltas · On Way Education' };
 
 export default async function FaltasPage() {
   const ctx = await getAuthContext();
