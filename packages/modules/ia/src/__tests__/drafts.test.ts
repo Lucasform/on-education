@@ -33,6 +33,7 @@ describe.skipIf(!DATABASE_URL)('IA — rascunho + cota (1B.2)', () => {
     const r = await provisionIndividualTenant(client, OWNER_ID, {
       ownerEmail: 'ia@teste.dev',
       ownerName: 'Prof IA',
+      workspaceName: 'Aulas do Prof IA',
     });
     tenantId = r.tenantId;
     ctx = { userId: OWNER_ID, tenantId, tenantType: 'individual', roles: ['owner', 'teacher'] };

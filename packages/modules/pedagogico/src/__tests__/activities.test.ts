@@ -27,6 +27,7 @@ describe.skipIf(!DATABASE_URL)('banco de atividades — integração (1B.3)', ()
     const r = await provisionIndividualTenant(client, OWNER_ID, {
       ownerEmail: 'ped@teste.dev',
       ownerName: 'Prof Pedagógico',
+      workspaceName: 'Aulas do Prof Pedagógico',
     });
     tenantId = r.tenantId;
     ctx = { userId: OWNER_ID, tenantId, tenantType: 'individual', roles: ['owner', 'teacher'] };
