@@ -7,11 +7,22 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · sala de aula + comunicados (IA) no ar · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar outras "em breve" (simulados, portfólio, financeiro). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · IA (gerar/corrigir/tutor) + sala de aula + comunicados + portfólio · **Status:** EM ANDAMENTO · **Próximo passo:** travar /admin com auth de super-admin; avançar Simulados/BNCC ou Financeiro. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 01:15] — IA (redação/tutor) + Portfólio — STATUS: EM ANDAMENTO
+
+- **Tarefa:** avançar "em breve" sem ações manuais — correção de redação, tutor do aluno, portfólio.
+- **Segmento:** 🏫👤
+- **O que foi feito:** IA ganhou tipos `essay` e `tutor` (reusa `ai_drafts`, sem migration) com prompts próprios; páginas `/app/ia/redacao` e `/app/ia/tutor` (componente `IaGenerator`). Portfólio: tabela `portfolio_entries` (RLS, migration `0005`) + `module-pedagogico` (create/list) + página `/app/portfolio`. Nav: 3 itens saem de em-breve.
+- **Migrations/RLS:** `0005` (portfolio_entries) aplicada em prod + grant `authenticated`.
+- **Testes:** lint/typecheck/build 14/14. Deploy via push (`e5035ee`).
+- **Pendências / bloqueios:** `/admin` ainda aberto; essay gated em `ai.activities` (demo usa o mesmo gate; correção fina de plano depois). Simulados, BNCC, Mensagens/WhatsApp, Gestão, Financeiro, Marketplace ainda placeholder.
+- **Próximo passo sugerido:** Simulados/BNCC, ou travar /admin.
+- **Commit(s):** `feat: correcao de redacao e tutor (IA) + portfolio` (`e5035ee`).
 
 ### [2026-06-02 00:45] — Fase 1A.3 / Comunicação / Comunicados com IA — STATUS: EM ANDAMENTO
 
