@@ -17,18 +17,23 @@ export const IMPERSONATION_COOKIE = 'oe_admin_tenant';
  * O `tenantId` nunca vem como parâmetro do client; vem da sessão/cookie httpOnly.
  */
 export async function getAuthContext(): Promise<AuthContext | null> {
-  const cookieStore = await cookies();
-  const impersonated = cookieStore.get(IMPERSONATION_COOKIE)?.value;
-  if (impersonated) {
-    return resolveContextForTenant(getDbClient(), impersonated);
-  }
+  try {
+    const cookieStore = await cookies();
+    const impersonated = cookieStore.get(IMPERSONATION_COOKIE)?.value;
+    if (impersonated) {
+      return await resolveContextForTenant(getDbClient(), impersonated);
+    }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-  return resolveContextForUser(getDbClient(), user.id);
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return null;
+    return await resolveContextForUser(getDbClient(), user.id);
+  } catch {
+    // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página.
+    return null;
+  }
 }
 
 /** Indica se a sessão atual é uma impersonação de admin (para o banner do /app). */

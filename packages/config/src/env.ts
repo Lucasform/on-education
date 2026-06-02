@@ -36,7 +36,12 @@ let cached: Env | null = null;
 /** Carrega e valida o ambiente uma única vez. Lança erro legível se algo obrigatório faltar. */
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   if (cached) return cached;
-  const parsed = envSchema.safeParse(source);
+  // Variável vazia ('') = não setada (ex.: CI passa `DATABASE_URL: ${{ secrets.X }}` vazio).
+  // Sem isso, `z.string().url().optional()` reclamaria de "Invalid url" no '' em vez de ignorar.
+  const cleaned = Object.fromEntries(
+    Object.entries(source).map(([k, v]) => [k, v === '' ? undefined : v]),
+  );
+  const parsed = envSchema.safeParse(cleaned);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`)

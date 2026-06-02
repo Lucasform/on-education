@@ -30,14 +30,14 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Ensine com mais tempo para o que importa.
         </h1>
-        <p className="max-w-xl text-balance text-muted-foreground">
-          Planos de aula e atividades com IA, gestão de turmas e alunos, tudo num só lugar — para o
+        <p className="mx-auto max-w-xl text-balance text-muted-foreground">
+          Planos de aula e atividades com IA, gestão de turmas e alunos, tudo num só lugar, para o
           professor autônomo e para a escola.
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <a href="/signup">
-            <Button size="lg">Sou professor — começar grátis</Button>
+            <Button size="lg">Começar grátis como professor</Button>
           </a>
           <a href="/signup/escola">
             <Button size="lg" variant="outline">

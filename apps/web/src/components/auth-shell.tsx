@@ -25,8 +25,8 @@ export function AuthShell({
           <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
           <span className="font-semibold">On Education</span>
         </div>
-        <h1 className="text-xl font-semibold">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+        <h1 className="text-center text-xl font-semibold">{title}</h1>
+        {subtitle && <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>}
         <div className="mt-6">{children}</div>
         {footer && <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>}
       </div>

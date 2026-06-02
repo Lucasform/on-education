@@ -5,7 +5,7 @@ import { Field, fieldClass } from '@/components/form';
 
 import { signupAction } from './actions';
 
-export const metadata = { title: 'Criar conta — On Education' };
+export const metadata = { title: 'Criar conta · On Education' };
 
 export default function SignupPage() {
   return (

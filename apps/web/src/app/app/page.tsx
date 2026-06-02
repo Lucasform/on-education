@@ -5,8 +5,8 @@ import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { exitImpersonationAction } from '@/app/admin/actions';
+import { AppShell } from '@/components/app-shell';
 import { fieldClass } from '@/components/form';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { db } from '@/server/db';
 import { getAuthContext, isImpersonating } from '@/server/session';
 
@@ -41,46 +41,49 @@ export default async function AppPage() {
   const aiOn = isAiConfigured();
   const isSchool = ctx.tenantType === 'organization';
 
+  const headerActions = impersonating ? (
+    <form action={exitImpersonationAction}>
+      <Button type="submit" variant="outline" size="sm">
+        Sair do modo admin
+      </Button>
+    </form>
+  ) : (
+    <form action={logoutAction}>
+      <Button type="submit" variant="outline" size="sm">
+        Sair
+      </Button>
+    </form>
+  );
+
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 md:p-10">
-      <header className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-fuchsia-500" />
-          <div>
-            <h1 className="text-lg font-semibold leading-none">Workspace</h1>
-            <p className="text-xs text-muted-foreground">
-              {isSchool ? '🏫 escola' : '👤 professor'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          {impersonating ? (
-            <form action={exitImpersonationAction}>
-              <Button type="submit" variant="outline" size="sm">
-                Sair do modo admin
-              </Button>
-            </form>
-          ) : (
-            <form action={logoutAction}>
-              <Button type="submit" variant="outline" size="sm">
-                Sair
-              </Button>
-            </form>
-          )}
-        </div>
-      </header>
+    <AppShell
+      tenantType={ctx.tenantType}
+      subtitle={isSchool ? 'Escola' : 'Professor'}
+      headerActions={headerActions}
+    >
+      <div id="topo">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {isSchool ? 'Painel da escola' : 'Meu workspace'}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Tudo o que você precisa para ensinar, em um só lugar.
+        </p>
+      </div>
 
       {impersonating && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-500">
-          Modo admin — você está vendo este tenant como super-admin (view-as).
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-500">
+          Modo admin ativo. Você está vendo este tenant como super-admin (view-as).
         </div>
       )}
 
-      {isSchool && <SchoolAdmin ctx={ctx} />}
+      {isSchool && (
+        <div id="escola">
+          <SchoolAdmin ctx={ctx} />
+        </div>
+      )}
 
       <section className="grid gap-5 md:grid-cols-2">
-        <div className={card}>
+        <div id="turmas" className={card}>
           <h2 className="mb-3 text-sm font-medium">Turmas ({turmas.length})</h2>
           <ul className="mb-4 space-y-1 text-sm text-muted-foreground">
             {turmas.map((t) => (
@@ -95,7 +98,7 @@ export default async function AppPage() {
           </form>
         </div>
 
-        <div className={card}>
+        <div id="alunos" className={card}>
           <h2 className="mb-3 text-sm font-medium">Alunos ({alunos.length})</h2>
           <ul className="mb-4 space-y-1 text-sm text-muted-foreground">
             {alunos.map((a) => (
@@ -119,7 +122,7 @@ export default async function AppPage() {
         </div>
       </section>
 
-      <section className={card}>
+      <section id="atividades" className={card}>
         <h2 className="mb-3 text-sm font-medium">Banco de atividades ({atividades.length})</h2>
         <ul className="mb-4 space-y-1 text-sm text-muted-foreground">
           {atividades.map((a) => (
@@ -140,7 +143,7 @@ export default async function AppPage() {
         </form>
       </section>
 
-      <section className={card}>
+      <section id="ia" className={card}>
         <h2 className="mb-3 text-sm font-medium">IA pedagógica · rascunhos ({rascunhos.length})</h2>
         {aiOn ? (
           <form action={generateDraftAction} className="mb-4 flex flex-col gap-2">
@@ -152,7 +155,7 @@ export default async function AppPage() {
               name="prompt"
               required
               rows={2}
-              placeholder="Ex.: plano de aula sobre frações, 6º ano"
+              placeholder="Ex.: plano de aula sobre frações para o 6º ano"
               className={fieldClass}
             />
             <Button type="submit" size="sm">
@@ -161,7 +164,7 @@ export default async function AppPage() {
           </form>
         ) : (
           <p className="mb-4 rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            IA indisponível: configure <code>ANTHROPIC_API_KEY</code> para gerar rascunhos.
+            IA indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar rascunhos.
           </p>
         )}
 
@@ -196,6 +199,6 @@ export default async function AppPage() {
           ))}
         </ul>
       </section>
-    </main>
+    </AppShell>
   );
 }

@@ -5,7 +5,7 @@ import { Field, fieldClass } from '@/components/form';
 
 import { loginAction } from './actions';
 
-export const metadata = { title: 'Entrar — On Education' };
+export const metadata = { title: 'Entrar · On Education' };
 
 export default function LoginPage() {
   return (

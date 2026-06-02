@@ -23,7 +23,12 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-  await supabase.auth.getUser();
+  // Um soluço do Supabase (ex.: instance reiniciando no Free) NUNCA pode derrubar as rotas.
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // segue sem refresh; a próxima requisição tenta de novo.
+  }
   return response;
 }
 
