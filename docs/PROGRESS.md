@@ -7,11 +7,27 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · import em lote ampliado + /admin destravado · **Status:** EM ANDAMENTO · **Próximo passo:** Simulados/Quizzes, Mensagens internas, Relatórios de direção. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · Simulados/Quizzes com correção automática · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, Relatórios de direção, BNCC. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 04:20] — Simulados/Quizzes — STATUS: EM ANDAMENTO
+
+- **Tarefa:** simulados de múltipla escolha com correção automática (item aberto da Fase 1B.3).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - Schema: `quizzes`, `quiz_questions` (prompt, options[], correct_index, position), `quiz_attempts` (answers jsonb, score, total) — migration `0007`, RLS em todas + grant `authenticated`.
+  - `module-pedagogico/quizzes.ts`: createQuiz, addQuizQuestion (índice correto validado), getQuiz, submitQuizAttempt (corrige comparando resposta × correct_index), listQuizzes, listQuizAttempts, deleteQuiz (soft). Gate `activities.bank`; checagem tripla.
+  - RBAC: recurso `quiz` adicionado às TEACHING_RESOURCES (professor cria/edita/exclui).
+  - UI: `/app/simulados` (lista + criar) e `/app/simulados/[id]` (ver questões com gabarito, adicionar questão, responder com correção automática, resultados por aluno %). Nav: Simulados deixou de ser "em breve".
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0007_*.sql`, `packages/validation/src/index.ts`, `packages/auth/src/rbac.ts`, `packages/modules/pedagogico/src/quizzes.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/simulados/{page.tsx,[id]/page.tsx}`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** `0007` (quizzes/quiz_questions/quiz_attempts) aplicada em prod + grant `authenticated` (verificado: 4 privilégios por tabela).
+- **Testes:** `tsc --noEmit` (db/validation/auth/pedagogico/web) e `next build` verdes. Push `88f0e80`, deploy READY, prod 200.
+- **Pendências / bloqueios:** responder hoje é avulso (nome digitado); vincular a `student_id` real e portal do aluno depois. Sem geração de simulado por IA ainda.
+- **Próximo passo sugerido:** Mensagens internas; Relatórios de direção; Planejamento BNCC.
+- **Commit(s):** `feat: simulados/quizzes com correcao automatica` (`88f0e80`).
 
 ### [2026-06-02 03:45] — Import em lote ampliado + /admin destravado — STATUS: EM ANDAMENTO
 
