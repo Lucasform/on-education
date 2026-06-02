@@ -15,9 +15,11 @@ import {
   createClassesBulk,
   createEvent,
   createGuardian,
+  createGuardiansBulk,
   createStudent,
   createStudentsBulk,
   createSubject,
+  createSubjectsBulk,
   createTerm,
   createUnit,
   deleteClass,
@@ -344,6 +346,31 @@ export async function importStudentsAction(formData: FormData): Promise<void> {
       return { fullName: fullName ?? '', className: className || undefined };
     });
   await createStudentsBulk(db(), ctx, items);
+  revalidatePath('/app', 'layout');
+}
+
+export async function importSubjectsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const names = String(formData.get('lista') ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  await createSubjectsBulk(db(), ctx, names);
+  revalidatePath('/app', 'layout');
+}
+
+export async function importGuardiansAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  // Uma linha por responsável: "Nome" ou "Nome; email; telefone".
+  const items = String(formData.get('lista') ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const [fullName, email, phone] = l.split(';').map((p) => p.trim());
+      return { fullName: fullName ?? '', email: email || undefined, phone: phone || undefined };
+    });
+  await createGuardiansBulk(db(), ctx, items);
   revalidatePath('/app', 'layout');
 }
 

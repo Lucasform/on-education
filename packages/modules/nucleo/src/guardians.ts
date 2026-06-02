@@ -28,6 +28,38 @@ export async function createGuardian(
   });
 }
 
+/**
+ * Importa responsáveis em lote. Cada item tem nome e, opcionalmente, e-mail e telefone
+ * (PII — nunca logar). Retorna quantos foram criados.
+ */
+export async function createGuardiansBulk(
+  client: DbClient,
+  ctx: AuthContext,
+  items: { fullName: string; email?: string; phone?: string }[],
+) {
+  assertCan(ctx, 'create', 'guardian');
+  const valid = items
+    .map((i) => ({
+      fullName: i.fullName.trim(),
+      email: i.email?.trim() || null,
+      phone: i.phone?.trim() || null,
+    }))
+    .filter((i) => i.fullName);
+  if (valid.length === 0) return 0;
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.insert(guardians).values(
+      valid.map((i) => ({
+        tenantId: ctx.tenantId,
+        fullName: i.fullName,
+        email: i.email,
+        phone: i.phone,
+        createdBy: ctx.userId,
+      })),
+    ),
+  );
+  return valid.length;
+}
+
 export async function listGuardians(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'guardian');
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(guardians));

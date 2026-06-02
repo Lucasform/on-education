@@ -72,6 +72,19 @@ export async function createSubject(client: DbClient, ctx: AuthContext, input: C
   });
 }
 
+/** Importa disciplinas em lote (uma por linha). Retorna quantas foram criadas. */
+export async function createSubjectsBulk(client: DbClient, ctx: AuthContext, names: string[]) {
+  assertCan(ctx, 'create', 'subject');
+  const clean = names.map((n) => n.trim()).filter(Boolean);
+  if (clean.length === 0) return 0;
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .insert(subjects)
+      .values(clean.map((name) => ({ tenantId: ctx.tenantId, name, createdBy: ctx.userId }))),
+  );
+  return clean.length;
+}
+
 export async function listSubjects(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'subject');
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(subjects));

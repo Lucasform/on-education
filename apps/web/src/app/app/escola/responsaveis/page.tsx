@@ -6,7 +6,7 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createGuardianAction } from '../../actions';
+import { createGuardianAction, importGuardiansAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Responsáveis · On Education' };
@@ -48,6 +48,25 @@ export default async function ResponsaveisPage() {
               Adicionar responsável
             </Button>
           </div>
+        </form>
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Importar em lote</h2>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Um responsável por linha. Formato: <code>Nome; email; telefone</code> (e-mail e telefone
+          opcionais).
+        </p>
+        <form action={importGuardiansAction} className="flex flex-col gap-2">
+          <textarea
+            name="lista"
+            rows={4}
+            placeholder={'Maria Souza; maria@email.com; 11999990000\nJoão Lima'}
+            className={fieldClass}
+          />
+          <Button type="submit" size="sm" variant="outline">
+            Importar responsáveis
+          </Button>
         </form>
       </div>
     </>
