@@ -1,0 +1,113 @@
+import { isAiConfigured } from '@on-education/module-ia';
+import { listCommunications } from '@on-education/module-comunicacao';
+import { Button } from '@on-education/ui';
+import { redirect } from 'next/navigation';
+
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { db } from '@/server/db';
+import { getAuthContext } from '@/server/session';
+
+import {
+  createCommunicationAction,
+  deleteCommunicationAction,
+  generateCommunicationAction,
+  publishCommunicationAction,
+} from '../actions';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Comunicados · On Education' };
+
+export default async function ComunicadosPage() {
+  const ctx = await getAuthContext();
+  if (!ctx) redirect('/login');
+  const comunicados = await listCommunications(db(), ctx);
+  const aiOn = isAiConfigured();
+
+  return (
+    <>
+      <PageHeader title="Comunicados" description="Escreva ou gere comunicados e publique." />
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Novo comunicado</h2>
+          <form action={createCommunicationAction} className="flex flex-col gap-2">
+            <input name="title" required placeholder="Título" className={fieldClass} />
+            <textarea
+              name="body"
+              rows={5}
+              placeholder="Texto do comunicado"
+              className={fieldClass}
+            />
+            <Button type="submit" size="sm">
+              Salvar rascunho
+            </Button>
+          </form>
+        </div>
+
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Gerar com IA</h2>
+          {aiOn ? (
+            <form action={generateCommunicationAction} className="flex flex-col gap-2">
+              <textarea
+                name="prompt"
+                required
+                rows={5}
+                placeholder="Descreva o comunicado (ex.: reunião de pais dia 20/06 às 19h no auditório)"
+                className={fieldClass}
+              />
+              <Button type="submit" size="sm">
+                Gerar rascunho
+              </Button>
+            </form>
+          ) : (
+            <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+              IA indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar comunicados.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Comunicados ({comunicados.length})</h2>
+        {comunicados.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum comunicado ainda.</p>
+        ) : (
+          <ul className="space-y-3 text-sm">
+            {comunicados.map((c) => (
+              <li key={c.id} className="rounded-md border border-border p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium">
+                    {c.title}{' '}
+                    <span className="text-muted-foreground">
+                      · {c.status === 'published' ? 'publicado' : 'rascunho'}
+                      {c.aiGenerated ? ' · IA' : ''}
+                    </span>
+                  </span>
+                  <span className="flex gap-2">
+                    {c.status !== 'published' && (
+                      <form action={publishCommunicationAction}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button type="submit" size="sm">
+                          Publicar
+                        </Button>
+                      </form>
+                    )}
+                    <form action={deleteCommunicationAction}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <Button type="submit" size="sm" variant="outline">
+                        Excluir
+                      </Button>
+                    </form>
+                  </span>
+                </div>
+                {c.body && (
+                  <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{c.body}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
+  );
+}

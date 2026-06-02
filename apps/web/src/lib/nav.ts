@@ -107,7 +107,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'Comunicação',
     items: [
-      soon('Comunicados', 'comunicados', Megaphone),
+      { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
       soon('Mensagens', 'mensagens', MessagesSquare),
       soon('WhatsApp', 'whatsapp', Phone),
     ],

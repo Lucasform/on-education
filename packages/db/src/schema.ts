@@ -533,6 +533,26 @@ export const attendance = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// communications — comunicados (Comunicação). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const communications = oe.table(
+  'communications',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    body: text('body').notNull().default(''),
+    status: text('status').notNull().default('draft'), // draft | published
+    aiGenerated: boolean('ai_generated').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    index('communications_tenant_idx').on(t.tenantId),
+    tenantPolicy('communications_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -556,4 +576,5 @@ export const schema = {
   lessons,
   grades,
   attendance,
+  communications,
 };

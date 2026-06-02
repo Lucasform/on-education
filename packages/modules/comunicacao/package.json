@@ -1,0 +1,27 @@
+{
+  "name": "@on-education/module-comunicacao",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@on-education/auth": "workspace:*",
+    "@on-education/db": "workspace:*",
+    "@on-education/module-ia": "workspace:*",
+    "@on-education/module-nucleo": "workspace:*",
+    "@on-education/validation": "workspace:*",
+    "drizzle-orm": "^0.38.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

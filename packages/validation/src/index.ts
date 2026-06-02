@@ -156,3 +156,15 @@ export const recordAttendanceSchema = z.object({
   present: z.coerce.boolean(),
 });
 export type RecordAttendanceInput = z.infer<typeof recordAttendanceSchema>;
+
+/** Comunicação — comunicados. */
+export const createCommunicationSchema = z.object({
+  title: z.string().min(1).max(200),
+  body: z.string().max(20_000).default(''),
+});
+export type CreateCommunicationInput = z.infer<typeof createCommunicationSchema>;
+
+export const generateCommunicationSchema = z.object({
+  prompt: z.string().min(1).max(2000),
+});
+export type GenerateCommunicationInput = z.infer<typeof generateCommunicationSchema>;

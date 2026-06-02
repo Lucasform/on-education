@@ -14,6 +14,7 @@ const nextConfig = {
     '@on-education/module-pedagogico',
     '@on-education/module-ia',
     '@on-education/module-sala-de-aula',
+    '@on-education/module-comunicacao',
   ],
 };
 

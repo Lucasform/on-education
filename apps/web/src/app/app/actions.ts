@@ -1,6 +1,12 @@
 'use server';
 
 import type { AuthContext } from '@on-education/auth';
+import {
+  createCommunication,
+  deleteCommunication,
+  generateCommunication,
+  setCommunicationStatus,
+} from '@on-education/module-comunicacao';
 import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
 import {
   createAcademicYear,
@@ -18,12 +24,14 @@ import {
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
+  createCommunicationSchema,
   createGuardianSchema,
   createLessonSchema,
   createStudentSchema,
   createSubjectSchema,
   createTermSchema,
   createUnitSchema,
+  generateCommunicationSchema,
   generateDraftSchema,
   inviteMemberSchema,
   recordAttendanceSchema,
@@ -203,5 +211,36 @@ export async function recordAttendanceAction(formData: FormData): Promise<void> 
     present: formData.get('present') === 'on' || formData.get('present') === 'true',
   });
   await recordAttendance(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+// --- Comunicados -------------------------------------------------------------
+
+export async function createCommunicationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createCommunicationSchema.parse({
+    title: formData.get('title'),
+    body: (formData.get('body') as string) || '',
+  });
+  await createCommunication(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+export async function generateCommunicationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateCommunicationSchema.parse({ prompt: formData.get('prompt') });
+  await generateCommunication(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+export async function publishCommunicationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await setCommunicationStatus(db(), ctx, String(formData.get('id')), 'published');
+  revalidatePath('/app', 'layout');
+}
+
+export async function deleteCommunicationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteCommunication(db(), ctx, String(formData.get('id')));
   revalidatePath('/app', 'layout');
 }

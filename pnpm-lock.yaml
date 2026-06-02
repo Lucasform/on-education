@@ -59,6 +59,9 @@ importers:
       '@on-education/entitlements':
         specifier: workspace:*
         version: link:../../packages/entitlements
+      '@on-education/module-comunicacao':
+        specifier: workspace:*
+        version: link:../../packages/modules/comunicacao
       '@on-education/module-ia':
         specifier: workspace:*
         version: link:../../packages/modules/ia
@@ -214,6 +217,34 @@ importers:
       '@on-education/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.19.19)
+
+  packages/modules/comunicacao:
+    dependencies:
+      '@on-education/auth':
+        specifier: workspace:*
+        version: link:../../auth
+      '@on-education/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@on-education/module-ia':
+        specifier: workspace:*
+        version: link:../ia
+      '@on-education/module-nucleo':
+        specifier: workspace:*
+        version: link:../nucleo
+      '@on-education/validation':
+        specifier: workspace:*
+        version: link:../../validation
+      drizzle-orm:
+        specifier: ^0.38.3
+        version: 0.38.4(@types/react@19.2.15)(postgres@3.4.9)(react@19.2.6)
     devDependencies:
       typescript:
         specifier: ^5.7.3
