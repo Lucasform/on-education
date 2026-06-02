@@ -16,6 +16,7 @@
     "@on-education/auth": "workspace:*",
     "@on-education/db": "workspace:*",
     "@on-education/entitlements": "workspace:*",
+    "@on-education/module-ia": "workspace:*",
     "@on-education/module-nucleo": "workspace:*",
     "@on-education/validation": "workspace:*",
     "drizzle-orm": "^0.38.3"

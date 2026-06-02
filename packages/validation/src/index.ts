@@ -209,3 +209,12 @@ export const submitQuizAttemptSchema = z.object({
   answers: z.array(z.number().int().min(0)),
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
+
+/** Geração de simulado pelo EduON (IA). */
+export const generateQuizSchema = z.object({
+  topic: z.string().min(2).max(300),
+  subject: z.string().max(120).optional(),
+  level: z.string().max(120).optional(),
+  count: z.number().int().min(1).max(15).default(5),
+});
+export type GenerateQuizInput = z.infer<typeof generateQuizSchema>;

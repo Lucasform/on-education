@@ -37,6 +37,7 @@ import {
   createQuiz,
   deleteActivity,
   deleteQuiz,
+  generateQuizWithEduON,
   restoreActivity,
   submitQuizAttempt,
 } from '@on-education/module-pedagogico';
@@ -52,6 +53,7 @@ import {
   createActivitySchema,
   createClassSchema,
   createQuizSchema,
+  generateQuizSchema,
   submitQuizAttemptSchema,
   createCommunicationSchema,
   createEventSchema,
@@ -470,6 +472,19 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+/** Gera um simulado completo pelo EduON e abre o resultado para revisão. */
+export async function generateQuizAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateQuizSchema.parse({
+    topic: formData.get('topic'),
+    subject: (formData.get('subject') as string) || undefined,
+    level: (formData.get('level') as string) || undefined,
+    count: Number(formData.get('count') ?? 5),
+  });
+  const quiz = await generateQuizWithEduON(db(), ctx, input);
+  redirect(`/app/simulados/${quiz.id}`);
 }
 
 export async function addQuizQuestionAction(formData: FormData): Promise<void> {

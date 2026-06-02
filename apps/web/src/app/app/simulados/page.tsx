@@ -1,5 +1,7 @@
+import { isAiConfigured } from '@on-education/module-ia';
 import { listQuizzes } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
+import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -8,7 +10,7 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createQuizAction, deleteQuizAction } from '../actions';
+import { createQuizAction, deleteQuizAction, generateQuizAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Simulados · On Way Education' };
@@ -17,6 +19,7 @@ export default async function SimuladosPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const simulados = await listQuizzes(db(), ctx);
+  const aiOn = isAiConfigured();
 
   return (
     <>
@@ -55,16 +58,66 @@ export default async function SimuladosPage() {
             </ul>
           )}
         </div>
-        <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Novo simulado</h2>
-          <form action={createQuizAction} className="flex flex-col gap-2">
-            <input name="title" required placeholder="Título do simulado" className={fieldClass} />
-            <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
-            <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
-            <Button type="submit" size="sm">
-              Criar e adicionar questões
-            </Button>
-          </form>
+        <div className="flex flex-col gap-5">
+          <div className={cardClass}>
+            <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Gerar com o EduON
+            </h2>
+            <p className="mb-2 text-xs text-muted-foreground">
+              O agente cria as questões. Você revisa e ajusta o gabarito.
+            </p>
+            {aiOn ? (
+              <form action={generateQuizAction} className="flex flex-col gap-2">
+                <input
+                  name="topic"
+                  required
+                  placeholder="Tema (ex.: frações no 6º ano)"
+                  className={fieldClass}
+                />
+                <div className="flex gap-2">
+                  <input
+                    name="subject"
+                    placeholder="Disciplina (opcional)"
+                    className={fieldClass}
+                  />
+                  <input
+                    name="count"
+                    type="number"
+                    min={1}
+                    max={15}
+                    defaultValue={5}
+                    className={`${fieldClass} w-20`}
+                    aria-label="Número de questões"
+                  />
+                </div>
+                <Button type="submit" size="sm">
+                  Gerar simulado
+                </Button>
+              </form>
+            ) : (
+              <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+                EduON indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar simulados.
+              </p>
+            )}
+          </div>
+
+          <div className={cardClass}>
+            <h2 className="mb-3 text-sm font-medium">Novo simulado (manual)</h2>
+            <form action={createQuizAction} className="flex flex-col gap-2">
+              <input
+                name="title"
+                required
+                placeholder="Título do simulado"
+                className={fieldClass}
+              />
+              <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
+              <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
+              <Button type="submit" size="sm" variant="outline">
+                Criar e adicionar questões
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     </>

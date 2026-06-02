@@ -1,9 +1,16 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { type DbClient, quizAttempts, quizQuestions, quizzes } from '@on-education/db';
+import { type DbClient, quizQuestions, quizzes, quizAttempts } from '@on-education/db';
+import {
+  type AiProvider,
+  assertWithinQuota,
+  createAnthropicProvider,
+  recordUsage,
+} from '@on-education/module-ia';
 import { assertEntitled } from '@on-education/module-nucleo';
 import type {
   AddQuizQuestionInput,
   CreateQuizInput,
+  GenerateQuizInput,
   SubmitQuizAttemptInput,
 } from '@on-education/validation';
 import { asc, desc, eq, isNull } from 'drizzle-orm';
@@ -30,6 +37,108 @@ export async function createQuiz(client: DbClient, ctx: AuthContext, input: Crea
       .returning();
     return rows[0]!;
   });
+}
+
+type GeradaQuestao = { prompt: string; options: string[]; correctIndex: number };
+
+/** Extrai e valida o JSON de questões vindo do modelo (tolerante a cercas ```json). */
+function parseQuestoes(text: string): GeradaQuestao[] {
+  const limpo = text
+    .replace(/```json/gi, '')
+    .replace(/```/g, '')
+    .trim();
+  const ini = limpo.indexOf('{');
+  const fim = limpo.lastIndexOf('}');
+  if (ini === -1 || fim === -1) throw new Error('O EduON não retornou um simulado válido.');
+  let dados: unknown;
+  try {
+    dados = JSON.parse(limpo.slice(ini, fim + 1));
+  } catch {
+    throw new Error('O EduON não retornou um simulado válido. Tente de novo.');
+  }
+  const lista = (dados as { questions?: unknown }).questions;
+  if (!Array.isArray(lista)) throw new Error('O EduON não retornou questões. Tente de novo.');
+  const questoes: GeradaQuestao[] = [];
+  for (const q of lista) {
+    const prompt = String((q as GeradaQuestao)?.prompt ?? '').trim();
+    const options = (q as GeradaQuestao)?.options;
+    const correctIndex = Number((q as GeradaQuestao)?.correctIndex);
+    if (
+      prompt &&
+      Array.isArray(options) &&
+      options.length >= 2 &&
+      Number.isInteger(correctIndex) &&
+      correctIndex >= 0 &&
+      correctIndex < options.length
+    ) {
+      questoes.push({
+        prompt,
+        options: options.map((o) => String(o).trim()).filter(Boolean),
+        correctIndex,
+      });
+    }
+  }
+  if (questoes.length === 0)
+    throw new Error('O EduON não conseguiu gerar questões. Tente de novo.');
+  return questoes;
+}
+
+/**
+ * Gera um simulado completo com o EduON (IA): cria o quiz e as questões de múltipla escolha
+ * já corrigíveis. Checagem tripla + cota; consumo medido por tenant. Provider injetável.
+ */
+export async function generateQuizWithEduON(
+  client: DbClient,
+  ctx: AuthContext,
+  input: GenerateQuizInput,
+  provider?: AiProvider,
+) {
+  assertCan(ctx, 'create', 'quiz');
+  const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
+  await assertWithinQuota(client, ctx.tenantId, planId);
+
+  const ai = provider ?? createAnthropicProvider('sonnet');
+  const system =
+    'Você é o EduON, um assistente pedagógico. Gere questões de múltipla escolha em português ' +
+    'do Brasil. Responda APENAS com JSON válido, sem nenhum texto fora do JSON, no formato: ' +
+    '{"questions":[{"prompt":"enunciado","options":["a","b","c","d"],"correctIndex":0}]}. ' +
+    'Use 4 alternativas por questão e correctIndex é o índice (0-based) da correta.';
+  const prompt =
+    `Gere ${input.count} questões de múltipla escolha sobre: ${input.topic}.` +
+    (input.subject ? ` Disciplina: ${input.subject}.` : '') +
+    (input.level ? ` Nível/ano: ${input.level}.` : '');
+
+  const result = await ai.generate({ prompt, system });
+  const questoes = parseQuestoes(result.text);
+
+  const quiz = await client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .insert(quizzes)
+      .values({
+        tenantId: ctx.tenantId,
+        title: input.topic.slice(0, 120),
+        description: 'Gerado pelo EduON',
+        subject: input.subject ?? null,
+        createdBy: ctx.userId,
+      })
+      .returning();
+    const novo = rows[0]!;
+    await tx.insert(quizQuestions).values(
+      questoes.map((q, i) => ({
+        tenantId: ctx.tenantId,
+        quizId: novo.id,
+        prompt: q.prompt,
+        options: q.options,
+        correctIndex: Math.min(q.correctIndex, q.options.length - 1),
+        position: i,
+        createdBy: ctx.userId,
+      })),
+    );
+    return novo;
+  });
+
+  await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
+  return quiz;
 }
 
 export async function listQuizzes(client: DbClient, ctx: AuthContext) {

@@ -323,6 +323,9 @@ importers:
       '@on-education/entitlements':
         specifier: workspace:*
         version: link:../../entitlements
+      '@on-education/module-ia':
+        specifier: workspace:*
+        version: link:../ia
       '@on-education/module-nucleo':
         specifier: workspace:*
         version: link:../nucleo
