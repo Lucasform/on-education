@@ -49,7 +49,7 @@ export async function createClassAction(formData: FormData): Promise<void> {
     description: (formData.get('description') as string) || undefined,
   });
   await createClass(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createStudentAction(formData: FormData): Promise<void> {
@@ -59,7 +59,7 @@ export async function createStudentAction(formData: FormData): Promise<void> {
     classId: (formData.get('classId') as string) || undefined,
   });
   await createStudent(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createActivityAction(formData: FormData): Promise<void> {
@@ -76,7 +76,7 @@ export async function createActivityAction(formData: FormData): Promise<void> {
     aiGenerated: false,
   });
   await createActivity(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function generateDraftAction(formData: FormData): Promise<void> {
@@ -88,21 +88,21 @@ export async function generateDraftAction(formData: FormData): Promise<void> {
   // Usa o provider Anthropic default (exige ANTHROPIC_API_KEY). A UI só mostra o form
   // quando a IA está configurada; aqui a chamada lança erro legível se faltar a key.
   await generateDraft(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function approveDraftAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));
   await approveDraft(db(), ctx, id);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function discardDraftAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));
   await discardDraft(db(), ctx, id);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 // --- Escola (organization) — Fase 1A.1 ---------------------------------------
@@ -111,7 +111,7 @@ export async function createUnitAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = createUnitSchema.parse({ name: formData.get('name') });
   await createUnit(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function inviteMemberAction(formData: FormData): Promise<void> {
@@ -121,7 +121,7 @@ export async function inviteMemberAction(formData: FormData): Promise<void> {
     role: formData.get('role'),
   });
   await inviteMember(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createAcademicYearAction(formData: FormData): Promise<void> {
@@ -132,7 +132,7 @@ export async function createAcademicYearAction(formData: FormData): Promise<void
     endsOn: (formData.get('endsOn') as string) || undefined,
   });
   await createAcademicYear(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createTermAction(formData: FormData): Promise<void> {
@@ -142,14 +142,14 @@ export async function createTermAction(formData: FormData): Promise<void> {
     name: formData.get('name'),
   });
   await createTerm(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createSubjectAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = createSubjectSchema.parse({ name: formData.get('name') });
   await createSubject(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }
 
 export async function createGuardianAction(formData: FormData): Promise<void> {
@@ -160,5 +160,5 @@ export async function createGuardianAction(formData: FormData): Promise<void> {
     phone: (formData.get('phone') as string) || undefined,
   });
   await createGuardian(db(), ctx, input);
-  revalidatePath('/app');
+  revalidatePath('/app', 'layout');
 }

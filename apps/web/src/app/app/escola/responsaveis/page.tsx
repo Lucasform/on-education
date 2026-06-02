@@ -1,0 +1,55 @@
+import { listGuardians } from '@on-education/module-nucleo';
+import { Button } from '@on-education/ui';
+import { redirect } from 'next/navigation';
+
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { db } from '@/server/db';
+import { getAuthContext } from '@/server/session';
+
+import { createGuardianAction } from '../../actions';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Responsáveis · On Education' };
+
+export default async function ResponsaveisPage() {
+  const ctx = await getAuthContext();
+  if (!ctx) redirect('/login');
+  if (ctx.tenantType !== 'organization') redirect('/app');
+  const responsaveis = await listGuardians(db(), ctx);
+
+  return (
+    <>
+      <PageHeader title="Responsáveis" description="Pais e responsáveis pelos alunos." />
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Responsáveis ({responsaveis.length})</h2>
+        {responsaveis.length === 0 ? (
+          <p className="mb-4 text-sm text-muted-foreground">Nenhum responsável ainda.</p>
+        ) : (
+          <ul className="mb-4 space-y-1 text-sm text-muted-foreground">
+            {responsaveis.map((g) => (
+              <li key={g.id}>
+                {g.fullName}
+                {g.phone && <span className="opacity-60"> · {g.phone}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+        <form action={createGuardianAction} className="grid gap-2 sm:grid-cols-3">
+          <input
+            name="fullName"
+            required
+            placeholder="Nome do responsável"
+            className={fieldClass}
+          />
+          <input name="email" type="email" placeholder="E-mail (opcional)" className={fieldClass} />
+          <input name="phone" placeholder="Telefone (opcional)" className={fieldClass} />
+          <div className="sm:col-span-3">
+            <Button type="submit" size="sm">
+              Adicionar responsável
+            </Button>
+          </div>
+        </form>
+      </div>
+    </>
+  );
+}
