@@ -26,6 +26,7 @@ const TEACHING_RESOURCES: readonly string[] = [
   'portfolio',
   'event',
   'communication',
+  'quiz',
 ];
 
 /**

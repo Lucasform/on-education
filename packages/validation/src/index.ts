@@ -186,3 +186,26 @@ export const createEventSchema = z.object({
   classId: uuidSchema.optional(),
 });
 export type CreateEventInput = z.infer<typeof createEventSchema>;
+
+/** Simulados/Quizzes (Fase 1B.3). */
+export const createQuizSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  subject: z.string().max(120).optional(),
+});
+export type CreateQuizInput = z.infer<typeof createQuizSchema>;
+
+export const addQuizQuestionSchema = z.object({
+  quizId: uuidSchema,
+  prompt: z.string().min(1).max(2000),
+  options: z.array(z.string().min(1).max(500)).min(2).max(8),
+  correctIndex: z.number().int().min(0),
+});
+export type AddQuizQuestionInput = z.infer<typeof addQuizQuestionSchema>;
+
+export const submitQuizAttemptSchema = z.object({
+  quizId: uuidSchema,
+  studentName: z.string().max(200).optional(),
+  answers: z.array(z.number().int().min(0)),
+});
+export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;

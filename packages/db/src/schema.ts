@@ -590,6 +590,61 @@ export const events = oe.table(
   (t) => [index('events_tenant_idx').on(t.tenantId), tenantPolicy('events_tenant_isolation')],
 );
 
+// ---------------------------------------------------------------------------
+// Simulados/Quizzes (Fase 1B.3). Um quiz tem N questões de múltipla escolha;
+// cada tentativa de aluno guarda as respostas e a nota auto-corrigida.
+// Tenant-scoped + RLS em todas as três tabelas.
+// ---------------------------------------------------------------------------
+export const quizzes = oe.table(
+  'quizzes',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    subject: text('subject'),
+    ...auditCols,
+  },
+  (t) => [index('quizzes_tenant_idx').on(t.tenantId), tenantPolicy('quizzes_tenant_isolation')],
+);
+
+export const quizQuestions = oe.table(
+  'quiz_questions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    quizId: uuid('quiz_id').notNull(),
+    prompt: text('prompt').notNull(),
+    options: text('options').array().notNull().default([]),
+    correctIndex: integer('correct_index').notNull().default(0),
+    position: integer('position').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    index('quiz_questions_quiz_idx').on(t.quizId),
+    tenantPolicy('quiz_questions_tenant_isolation'),
+  ],
+);
+
+export const quizAttempts = oe.table(
+  'quiz_attempts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    quizId: uuid('quiz_id').notNull(),
+    studentId: uuid('student_id'),
+    studentName: text('student_name'),
+    answers: jsonb('answers').notNull().default([]),
+    score: real('score').notNull().default(0),
+    total: integer('total').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    index('quiz_attempts_quiz_idx').on(t.quizId),
+    tenantPolicy('quiz_attempts_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -616,4 +671,7 @@ export const schema = {
   communications,
   portfolioEntries,
   events,
+  quizzes,
+  quizQuestions,
+  quizAttempts,
 };

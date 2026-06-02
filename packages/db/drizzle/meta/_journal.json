@@ -50,6 +50,13 @@
       "when": 1780399495822,
       "tag": "0006_big_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780432413699,
+      "tag": "0007_sturdy_lethal_legion",
+      "breakpoints": true
     }
   ]
 }

@@ -97,7 +97,7 @@ export const NAV: NavGroup[] = [
     label: 'Pedagógico',
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
-      soon('Simulados e quizzes', 'simulados', ClipboardList),
+      { label: 'Simulados e quizzes', href: '/app/simulados', icon: ClipboardList },
       { label: 'Portfólio', href: '/app/portfolio', icon: BookOpen },
       soon('Planejamento BNCC', 'bncc', BookOpen),
     ],

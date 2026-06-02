@@ -31,10 +31,14 @@ import {
   restoreStudent,
 } from '@on-education/module-nucleo';
 import {
+  addQuizQuestion,
   createActivity,
   createPortfolioEntry,
+  createQuiz,
   deleteActivity,
+  deleteQuiz,
   restoreActivity,
+  submitQuizAttempt,
 } from '@on-education/module-pedagogico';
 import {
   createLesson,
@@ -43,9 +47,12 @@ import {
   recordGrade,
 } from '@on-education/module-sala-de-aula';
 import {
+  addQuizQuestionSchema,
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
+  createQuizSchema,
+  submitQuizAttemptSchema,
   createCommunicationSchema,
   createEventSchema,
   createGuardianSchema,
@@ -444,4 +451,56 @@ export async function restoreEventAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await restoreEvent(db(), ctx, String(formData.get('id')));
   revalidatePath('/app', 'layout');
+}
+
+// --- Simulados / quizzes -----------------------------------------------------
+
+export async function createQuizAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createQuizSchema.parse({
+    title: formData.get('title'),
+    description: (formData.get('description') as string) || undefined,
+    subject: (formData.get('subject') as string) || undefined,
+  });
+  const quiz = await createQuiz(db(), ctx, input);
+  redirect(`/app/simulados/${quiz.id}`);
+}
+
+export async function deleteQuizAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteQuiz(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/simulados', 'page');
+}
+
+export async function addQuizQuestionAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  // Opções: uma por linha. O índice correto é 1-based no form (mais natural ao humano).
+  const options = String(formData.get('options') ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const correct1 = Number(formData.get('correct') ?? 1);
+  const input = addQuizQuestionSchema.parse({
+    quizId: formData.get('quizId'),
+    prompt: formData.get('prompt'),
+    options,
+    correctIndex: Number.isFinite(correct1) ? Math.max(0, correct1 - 1) : 0,
+  });
+  await addQuizQuestion(db(), ctx, input);
+  revalidatePath(`/app/simulados/${input.quizId}`, 'page');
+}
+
+export async function submitQuizAttemptAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const quizId = String(formData.get('quizId') ?? '');
+  const count = Number(formData.get('count') ?? 0);
+  // Cada questão i tem um grupo de rádios `q_<i>` com o índice (0-based) escolhido.
+  const answers = Array.from({ length: count }, (_, i) => Number(formData.get(`q_${i}`) ?? -1));
+  const input = submitQuizAttemptSchema.parse({
+    quizId,
+    studentName: (formData.get('studentName') as string) || undefined,
+    answers,
+  });
+  await submitQuizAttempt(db(), ctx, input);
+  revalidatePath(`/app/simulados/${quizId}`, 'page');
 }
