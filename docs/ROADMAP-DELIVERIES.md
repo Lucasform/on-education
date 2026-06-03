@@ -191,7 +191,12 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
   - [ ] **7.3** Planejamento de avaliações e trabalhos.
 - [~] **8. Chamada vinculada aos alunos + relatórios** (chamada ok; relatórios parciais em `/app/relatorios`).
+  - [ ] **8.1 Faltas por matéria** (a chamada/falta deve contar por disciplina, não só por dia).
+  - [ ] **8.2 Geração de documento de faltas** (da turma e individual; por turma, por matéria), com geração fácil (PDF/impressão).
 - [~] **9. Notas: participação, formais e anotações por aluno** (notas formais ok; falta participação + anotações).
+- [ ] **9.1 Relatórios com geração de doc fácil** (faltas, atividades, notas, ocorrências) — exportar/imprimir em PDF.
+- [ ] **17. Vínculos do professor** (membership ↔ matéria ↔ turma): cada professor leciona matérias específicas em turmas específicas. Base para diário/notas/faltas por professor.
+- [ ] **18. Formato simplificado do professor autônomo (👤):** o individual NÃO usa tudo da escola. Definir um subconjunto enxuto (turmas/alunos, EduON, banco, simulados, agenda) e esconder gestão institucional. Aprimorar caso a caso.
 
 ### EduON (IA) ancorado no material da escola
 

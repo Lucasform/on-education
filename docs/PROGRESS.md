@@ -7,7 +7,7 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · EduON atividades + onboarding + personalização da escola · **Status:** EM ANDAMENTO · **Próximo passo:** importação por planilha (CSV), views semana/mês no diário, BNCC, notificações. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · Ocorrências + visão completa da Escola no roadmap · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** seguir o backlog "Escola — visão detalhada" do ROADMAP (itens 1–18), priorizando: vínculos do professor (17), faltas por matéria + doc (8.1/8.2), relatórios com PDF (9.1), importação CSV, formato simplificado do individual (18). Prod: https://on-education-seven.vercel.app
 
 ---
 
