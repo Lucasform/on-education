@@ -7,11 +7,30 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · Ocorrências + visão completa da Escola no roadmap · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** seguir o backlog "Escola — visão detalhada" do ROADMAP (itens 1–18), priorizando: vínculos do professor (17), faltas por matéria + doc (8.1/8.2), relatórios com PDF (9.1), importação CSV, formato simplificado do individual (18). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · Vínculos do professor + faltas por matéria + relatórios PDF + import CSV + menu enxuto do individual · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** seguir o backlog "Escola — visão detalhada" — próximos: vínculo turma↔matéria (3.2) e material didático (3.1/3.3, depende de Storage), cronograma (7), "Meu padrão" do professor autônomo (18.3/18.6), BNCC. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-03 13:30] — Vínculos prof. + faltas/matéria + PDF + CSV + menu enxuto — STATUS: EM ANDAMENTO
+
+- **Tarefa:** avançar o backlog "Escola — visão detalhada" nas 5 prioridades combinadas (sem o que depende de credencial: Storage/Stripe/WhatsApp).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **17 · Vínculos do professor** (membership ↔ turma ↔ matéria): tabela `teaching_assignments` (RLS), módulo `module-nucleo/teaching.ts` (`listTeachers`, `assignTeaching`, `listTeachingAssignments`, `listAssignmentsForMembership`, `removeTeachingAssignment`), página `/app/escola/professores` (criar/remover; matéria vazia = regente). RBAC: gestão institucional (só owner/director/coordinator criam).
+  - **8.1 · Faltas por matéria:** `attendance.subject_id` + índice `attendance_uq` recriado com **NULLS NOT DISTINCT** (chamada do dia, subject nulo, segue upsert idempotente; falta por matéria convive). Chamada e Faltas com seletor de matéria.
+  - **8.2 · Documento de faltas:** `/app/relatorios/faltas` (filtros turma/aluno/matéria, resumo por aluno + detalhamento) imprimível.
+  - **9.1 · Doc fácil em PDF/impressão:** `PrintButton` (`window.print()`) + folha de impressão via `print:hidden` na casca (esconde sidebar/header) em Relatórios, Boletim e Relatório de faltas.
+  - **Import CSV/Excel:** `lib/csv.ts` (parser próprio: auto-detecta `,`/`;`, aspas `""`, BOM, CRLF) + `components/csv-import.tsx` (baixar modelo com BOM p/ Excel pt-BR + upload). Actions `importStudentsCsvAction`/`importClassesCsvAction`/`importGuardiansCsvAction` reusam os serviços bulk. Cards em Turmas, Alunos e Responsáveis.
+  - **18 (parcial) · Menu enxuto do individual:** `NavItem.only` + `navFor` filtra grupos e itens por segmento; o professor autônomo perde Escola, Comunicação, Gestão, Financeiro, Integrações e Ocorrências (some grupo vazio). Escola mantém tudo.
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0011_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/teaching.ts` (+`index.ts`), `packages/modules/sala-de-aula/src/index.ts`, `apps/web/src/lib/{csv.ts,nav.ts}`, `apps/web/src/components/{print-button,csv-import,app-shell}.tsx`, `apps/web/src/app/app/actions.ts`, páginas `escola/professores`, `relatorios/faltas`, `sala/{chamada,faltas,boletim}`, `relatorios`, `turmas`, `alunos`, `escola/responsaveis`.
+- **Migrations/RLS:** `0011_sturdy_silverclaw` aplicada em prod (teaching_assignments + attendance.subject_id + índices `NULLS NOT DISTINCT`). Verificado: authenticated com 4 privilégios em `teaching_assignments`, coluna e índice OK.
+- **Testes:** `pnpm typecheck` 14/14, `pnpm lint` 14/14, `pnpm build` 14/14 verdes. Deploy: push p/ main (auto na Vercel).
+- **Decisões:** índice de presença com `NULLS NOT DISTINCT` (patch manual no SQL gerado) para casar chamada-por-dia e falta-por-matéria no mesmo upsert; geração de doc via impressão do navegador (sem dependência de PDF no servidor), reusada como base do 9.1/8.2.
+- **Pendências / bloqueios:** Storage (upload de logo/materiais — 3.1/3.3), Stripe (billing — adiado a pedido do Lucas), WhatsApp Cloud API; "Meu padrão" do professor autônomo (18.3/18.6) e navegação centrada em EduON (18.8) seguem pendentes; import só CSV (xlsx exigiria SheetJS).
+- **Próximo passo sugerido:** vínculo turma↔matéria (3.2) aproveitando `teaching_assignments`; depois cronograma (7) ou "Meu padrão" (18.3).
+- **Commit(s):** ver `feat: vinculos do professor, faltas por materia, relatorios em pdf, import csv e menu enxuto do individual`.
 
 ### [2026-06-03 10:30] — EduON atividades + datas + onboarding + personalização — STATUS: EM ANDAMENTO
 

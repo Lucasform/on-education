@@ -112,6 +112,15 @@ export const createSubjectSchema = z.object({
 });
 export type CreateSubjectInput = z.infer<typeof createSubjectSchema>;
 
+/** Item 17 — vínculo do professor (membership ↔ turma ↔ matéria). */
+export const assignTeachingSchema = z.object({
+  membershipId: uuidSchema,
+  classId: uuidSchema,
+  /** Vazio = regente da turma (todas as matérias). */
+  subjectId: uuidSchema.optional(),
+});
+export type AssignTeachingInput = z.infer<typeof assignTeachingSchema>;
+
 export const createGuardianSchema = z.object({
   fullName: z.string().min(1).max(200),
   email: emailSchema.optional(),
@@ -152,6 +161,7 @@ export type RecordGradeInput = z.infer<typeof recordGradeSchema>;
 export const recordAttendanceSchema = z.object({
   studentId: uuidSchema,
   classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
   date: z.string().date(),
   present: z.coerce.boolean(),
 });

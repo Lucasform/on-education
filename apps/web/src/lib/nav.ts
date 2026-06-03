@@ -19,6 +19,7 @@ import {
   Megaphone,
   MessageCircleQuestion,
   MessagesSquare,
+  Network,
   NotebookPen,
   Palette,
   PenLine,
@@ -40,6 +41,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** Funcionalidade ainda não construída (página de "em construção"). */
   soon?: boolean;
+  /** Restringe o item a um segmento; ausente = aparece para todos. */
+  only?: TenantType;
 }
 
 export interface NavGroup {
@@ -77,6 +80,7 @@ export const NAV: NavGroup[] = [
       { label: 'Convites e membros', href: '/app/escola/convites', icon: UserPlus },
       { label: 'Ano letivo e períodos', href: '/app/escola/ano-letivo', icon: CalendarDays },
       { label: 'Disciplinas', href: '/app/escola/disciplinas', icon: Library },
+      { label: 'Professores e vínculos', href: '/app/escola/professores', icon: Network },
       { label: 'Responsáveis', href: '/app/escola/responsaveis', icon: Contact },
       { label: 'Personalização', href: '/app/escola/personalizacao', icon: Palette },
       soon('Matrícula e documentos', 'matricula', FileSignature),
@@ -92,7 +96,7 @@ export const NAV: NavGroup[] = [
       { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },
       { label: 'Faltas', href: '/app/sala/faltas', icon: CalendarX },
       { label: 'Boletim', href: '/app/sala/boletim', icon: FileText },
-      { label: 'Ocorrências', href: '/app/ocorrencias', icon: AlertCircle },
+      { label: 'Ocorrências', href: '/app/ocorrencias', icon: AlertCircle, only: 'organization' },
     ],
   },
   {
@@ -114,6 +118,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Comunicação',
+    only: 'organization',
     items: [
       { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
@@ -125,6 +130,7 @@ export const NAV: NavGroup[] = [
     only: 'organization',
     items: [
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
+      { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
       soon('Dashboards avançados', 'dashboards', BarChart3),
       soon('Censo INEP', 'inep', School),
     ],
@@ -140,12 +146,21 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Integrações',
+    only: 'organization',
     items: [soon('Marketplace', 'marketplace', Store), soon('API aberta', 'api', Plug)],
   },
 ];
 
+/**
+ * Menu por segmento. O professor autônomo (`individual`) recebe um formato simplificado
+ * (item 18): some a gestão institucional (Escola, Comunicação, Gestão, Financeiro,
+ * Integrações e itens marcados `only`), sobrando o essencial: turmas/alunos, sala de aula,
+ * pedagógico, EduON e agenda. A escola (`organization`) vê tudo.
+ */
 export function navFor(tenantType: TenantType): NavGroup[] {
-  return NAV.filter((g) => !g.only || g.only === tenantType);
+  return NAV.filter((g) => !g.only || g.only === tenantType)
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.only || i.only === tenantType) }))
+    .filter((g) => g.items.length > 0);
 }
 
 /** Mapa slug -> rótulo para a página de "em construção". */

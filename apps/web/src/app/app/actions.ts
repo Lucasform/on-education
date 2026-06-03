@@ -12,6 +12,7 @@ import {
 } from '@on-education/module-comunicacao';
 import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
 import {
+  assignTeaching,
   createAcademicYear,
   createClass,
   createClassesBulk,
@@ -30,6 +31,7 @@ import {
   deleteOccurrence,
   deleteStudent,
   inviteMember,
+  removeTeachingAssignment,
   restoreClass,
   restoreEvent,
   restoreStudent,
@@ -55,6 +57,7 @@ import {
 } from '@on-education/module-sala-de-aula';
 import {
   addQuizQuestionSchema,
+  assignTeachingSchema,
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
@@ -83,6 +86,7 @@ import {
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
+import { parseCsvRecords, pick } from '@/lib/csv';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
 
@@ -282,6 +286,7 @@ export async function recordAttendanceAction(formData: FormData): Promise<void> 
   const input = recordAttendanceSchema.parse({
     studentId: formData.get('studentId'),
     classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
     date: formData.get('date'),
     present: formData.get('present') === 'on' || formData.get('present') === 'true',
   });
@@ -411,6 +416,8 @@ export async function recordChamadaAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const classId = String(formData.get('classId') ?? '');
   const date = String(formData.get('date') ?? '');
+  // Matéria opcional: chamada por dia (vazio) ou por matéria (8.1).
+  const subjectId = (formData.get('subjectId') as string) || null;
   const ids = String(formData.get('studentIds') ?? '')
     .split(',')
     .map((s) => s.trim())
@@ -420,7 +427,7 @@ export async function recordChamadaAction(formData: FormData): Promise<void> {
     studentId: id,
     present: formData.get(`present_${id}`) != null,
   }));
-  if (classId && date) await recordAttendanceBulk(db(), ctx, classId, date, entries);
+  if (classId && date) await recordAttendanceBulk(db(), ctx, classId, date, entries, subjectId);
   revalidatePath('/app', 'layout');
 }
 
@@ -596,4 +603,68 @@ export async function submitQuizAttemptAction(formData: FormData): Promise<void>
   });
   await submitQuizAttempt(db(), ctx, input);
   revalidatePath(`/app/simulados/${quizId}`, 'page');
+}
+
+// --- Vínculos do professor (item 17) -----------------------------------------
+
+export async function assignTeachingAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = assignTeachingSchema.parse({
+    membershipId: formData.get('membershipId'),
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+  });
+  await assignTeaching(db(), ctx, input);
+  revalidatePath('/app/escola/professores', 'page');
+}
+
+export async function removeTeachingAssignmentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await removeTeachingAssignment(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/escola/professores', 'page');
+}
+
+// --- Importação por planilha (CSV/Excel) -------------------------------------
+
+/** Lê o arquivo CSV enviado e devolve os registros (coluna→valor) já normalizados. */
+async function readCsv(formData: FormData): Promise<Record<string, string>[]> {
+  const file = formData.get('file');
+  if (!(file instanceof File) || file.size === 0) return [];
+  const text = await file.text();
+  return parseCsvRecords(text);
+}
+
+export async function importStudentsCsvAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const recs = await readCsv(formData);
+  const items = recs
+    .map((r) => ({
+      fullName: pick(r, 'nome', 'aluno', 'nome completo', 'name'),
+      className: pick(r, 'turma', 'classe', 'serie', 'class') || undefined,
+    }))
+    .filter((i) => i.fullName);
+  if (items.length) await createStudentsBulk(db(), ctx, items);
+  revalidatePath('/app/alunos', 'page');
+}
+
+export async function importClassesCsvAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const recs = await readCsv(formData);
+  const names = recs.map((r) => pick(r, 'nome', 'turma', 'name')).filter(Boolean);
+  if (names.length) await createClassesBulk(db(), ctx, names);
+  revalidatePath('/app/turmas', 'page');
+}
+
+export async function importGuardiansCsvAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const recs = await readCsv(formData);
+  const items = recs
+    .map((r) => ({
+      fullName: pick(r, 'nome', 'responsavel', 'name'),
+      email: pick(r, 'email', 'e-mail') || undefined,
+      phone: pick(r, 'telefone', 'celular', 'fone', 'phone') || undefined,
+    }))
+    .filter((i) => i.fullName);
+  if (items.length) await createGuardiansBulk(db(), ctx, items);
+  revalidatePath('/app/escola/responsaveis', 'page');
 }

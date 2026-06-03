@@ -7,7 +7,14 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createStudentAction, deleteStudentAction, importStudentsAction } from '../actions';
+import { CsvImport } from '@/components/csv-import';
+
+import {
+  createStudentAction,
+  deleteStudentAction,
+  importStudentsAction,
+  importStudentsCsvAction,
+} from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Alunos · On Way Education' };
@@ -78,6 +85,14 @@ export default async function AlunosPage() {
                 Importar alunos
               </Button>
             </form>
+          </div>
+          <div className={cardClass}>
+            <CsvImport
+              action={importStudentsCsvAction}
+              templateName="modelo-alunos.csv"
+              templateContent={'nome;turma\nAna Souza;6º A\nBruno Lima;6º A\nCarla Dias;\n'}
+              hint="Colunas: nome, turma (opcional). A turma é casada pelo nome já existente."
+            />
           </div>
         </div>
       </div>

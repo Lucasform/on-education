@@ -86,12 +86,19 @@ export async function recordAttendance(
         tenantId: ctx.tenantId,
         studentId: input.studentId,
         classId: input.classId,
+        subjectId: input.subjectId ?? null,
         date: input.date,
         present: input.present,
         createdBy: ctx.userId,
       })
       .onConflictDoUpdate({
-        target: [attendance.tenantId, attendance.studentId, attendance.classId, attendance.date],
+        target: [
+          attendance.tenantId,
+          attendance.studentId,
+          attendance.classId,
+          attendance.date,
+          attendance.subjectId,
+        ],
         set: { present: input.present, updatedAt: sql`now()` },
       }),
   );
@@ -104,13 +111,17 @@ export async function listAttendance(client: DbClient, ctx: AuthContext) {
   );
 }
 
-/** Chamada: registra presença de vários alunos de uma turma numa data (upsert por aluno). */
+/**
+ * Chamada: registra presença de vários alunos de uma turma numa data (upsert por aluno).
+ * `subjectId` opcional faz a chamada ser POR MATÉRIA (8.1); nulo = chamada do dia.
+ */
 export async function recordAttendanceBulk(
   client: DbClient,
   ctx: AuthContext,
   classId: string,
   date: string,
   entries: { studentId: string; present: boolean }[],
+  subjectId?: string | null,
 ) {
   assertCan(ctx, 'create', 'attendance');
   await assertEntitled(client, ctx.tenantId, FEATURE);
@@ -123,12 +134,19 @@ export async function recordAttendanceBulk(
           tenantId: ctx.tenantId,
           studentId: e.studentId,
           classId,
+          subjectId: subjectId ?? null,
           date,
           present: e.present,
           createdBy: ctx.userId,
         })
         .onConflictDoUpdate({
-          target: [attendance.tenantId, attendance.studentId, attendance.classId, attendance.date],
+          target: [
+            attendance.tenantId,
+            attendance.studentId,
+            attendance.classId,
+            attendance.date,
+            attendance.subjectId,
+          ],
           set: { present: e.present, updatedAt: sql`now()` },
         });
     }

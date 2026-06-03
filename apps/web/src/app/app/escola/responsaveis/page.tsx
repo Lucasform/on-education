@@ -3,10 +3,15 @@ import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { CsvImport } from '@/components/csv-import';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createGuardianAction, importGuardiansAction } from '../../actions';
+import {
+  createGuardianAction,
+  importGuardiansAction,
+  importGuardiansCsvAction,
+} from '../../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Responsáveis · On Way Education' };
@@ -68,6 +73,17 @@ export default async function ResponsaveisPage() {
             Importar responsáveis
           </Button>
         </form>
+      </div>
+
+      <div className={cardClass}>
+        <CsvImport
+          action={importGuardiansCsvAction}
+          templateName="modelo-responsaveis.csv"
+          templateContent={
+            'nome;email;telefone\nMaria Souza;maria@email.com;11999990000\nJoão Lima;;\n'
+          }
+          hint="Colunas: nome, email (opcional), telefone (opcional)."
+        />
       </div>
     </>
   );

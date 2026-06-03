@@ -214,13 +214,13 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [ ] **7.1** Plano de aulas por turma/matéria, vínculo com diário e com o cronograma.
   - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
   - [ ] **7.3** Planejamento de avaliações e trabalhos.
-- [~] **8. Chamada vinculada aos alunos + relatórios** (chamada ok; relatórios parciais em `/app/relatorios`).
-  - [ ] **8.1 Faltas por matéria** (a chamada/falta deve contar por disciplina, não só por dia).
-  - [ ] **8.2 Geração de documento de faltas** (da turma e individual; por turma, por matéria), com geração fácil (PDF/impressão).
+- [x] **8. Chamada vinculada aos alunos + relatórios** (chamada por dia/matéria; relatório de faltas em `/app/relatorios/faltas`).
+  - [x] **8.1 Faltas por matéria** — `attendance.subject_id` (índice `NULLS NOT DISTINCT`); chamada e faltas com seletor de matéria (vazio = chamada do dia).
+  - [x] **8.2 Geração de documento de faltas** — `/app/relatorios/faltas` (filtros turma/aluno/matéria, resumo por aluno + detalhamento), imprimível em PDF.
 - [~] **9. Notas: participação, formais e anotações por aluno** (notas formais ok; falta participação + anotações).
-- [ ] **9.1 Relatórios com geração de doc fácil** (faltas, atividades, notas, ocorrências) — exportar/imprimir em PDF.
-- [ ] **17. Vínculos do professor** (membership ↔ matéria ↔ turma): cada professor leciona matérias específicas em turmas específicas. Base para diário/notas/faltas por professor.
-- [~] **18. Professor autônomo (👤) — nicho focado em IA + padronização.** Produto enxuto e diferente da escola: o individual NÃO usa gestão institucional (secretaria, financeiro institucional, unidades, multi-perfil, NFS-e). Mapa do que importa:
+- [x] **9.1 Relatórios com geração de doc fácil** — botão Imprimir/PDF em Relatórios, Boletim e Relatório de faltas; a folha de impressão (`print:hidden`) esconde a navegação e deixa só o documento.
+- [x] **17. Vínculos do professor** (membership ↔ turma ↔ matéria) — tabela `teaching_assignments` + `/app/escola/professores` (criar/remover; matéria vazia = regente). Base para diário/notas/faltas por professor.
+- [~] **18. Professor autônomo (👤) — nicho focado em IA + padronização.** _(18.4/18.5/18.8 parciais: `navFor` já entrega o menu enxuto por segmento — some Escola, Comunicação, Gestão, Financeiro, Integrações e Ocorrências; o individual vê visão geral, sala de aula, pedagógico e EduON. Falta o "Meu padrão" (18.3), PDF no padrão (18.6) e a navegação centrada em EduON (18.8).)_ Produto enxuto e diferente da escola: o individual NÃO usa gestão institucional (secretaria, financeiro institucional, unidades, multi-perfil, NFS-e). Mapa do que importa:
   - **18.1 Posicionamento:** "o professor que ensina com IA e entrega tudo no SEU padrão". Os dois pilares são **EduON (IA)** e **padronização pessoal**.
   - **18.2 EduON como centro (o app gira em torno disso):** gerar plano de aula, atividade, **prova**, **trabalho**, **roteiro de estudo**, lista de exercícios; corrigir redação; tutor do aluno. Tudo human-in-the-loop, com cota por plano.
   - **18.3 "Meu padrão" (diferencial central):** o professor define UM padrão pessoal (estilo, cabeçalho/rodapé, fonte, formato de prova/lição de casa/roteiro/bilhete, nível de dificuldade preferido) e **todo conteúdo gerado pelo EduON sai nesse padrão**. Reaproveita `tenant_settings` (logo/identidade pessoal) + um "perfil de padrão" aplicado aos prompts e à exportação em PDF.
@@ -265,7 +265,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Pendências transversais já mapeadas
 
-- [ ] Importação por planilha (CSV/Excel: baixar modelo → preencher → importar) para alunos/turmas/responsáveis.
+- [x] Importação por planilha (CSV/Excel: baixar modelo → preencher → importar) para alunos/turmas/responsáveis — componente `CsvImport` + parser próprio em `lib/csv.ts` (auto-detecta `,`/`;`, aspas, BOM), modelos `.csv` com BOM para o Excel pt-BR.
 - [ ] Visualização por semana/mês/período no diário e na chamada.
 - [ ] Planejamento BNCC (banco de habilidades por disciplina/ano).
 

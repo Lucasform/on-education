@@ -4,6 +4,7 @@ import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
+import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -64,10 +65,13 @@ export default async function RelatoriosPage() {
 
   return (
     <>
-      <PageHeader
-        title="Relatórios"
-        description="Visão de direção: indicadores da escola e desempenho por turma."
-      />
+      <div className="flex items-start justify-between gap-3">
+        <PageHeader
+          title="Relatórios"
+          description="Visão de direção: indicadores da escola e desempenho por turma."
+        />
+        <PrintButton />
+      </div>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <Kpi label="Turmas" value={turmas.length} />

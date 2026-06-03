@@ -3,6 +3,7 @@ import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
+import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -32,7 +33,10 @@ export default async function BoletimPage() {
 
   return (
     <>
-      <PageHeader title="Boletim" description="Média das notas e frequência por aluno." />
+      <div className="flex items-start justify-between gap-3 print:hidden">
+        <PageHeader title="Boletim" description="Média das notas e frequência por aluno." />
+        <PrintButton />
+      </div>
       <div className={`${cardClass} overflow-x-auto p-0`}>
         <table className="w-full text-sm">
           <thead className="border-b border-border text-left text-xs text-muted-foreground">

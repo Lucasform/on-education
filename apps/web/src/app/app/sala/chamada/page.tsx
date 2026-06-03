@@ -1,4 +1,4 @@
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
@@ -15,15 +15,20 @@ export const metadata = { title: 'Chamada · On Way Education' };
 export default async function ChamadaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ classId?: string }>;
+  searchParams: Promise<{ classId?: string; subjectId?: string }>;
 }) {
-  const { classId } = await searchParams;
+  const { classId, subjectId } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [turmas, alunos] = await Promise.all([listClasses(client, ctx), listStudents(client, ctx)]);
+  const [turmas, alunos, disciplinas] = await Promise.all([
+    listClasses(client, ctx),
+    listStudents(client, ctx),
+    listSubjects(client, ctx),
+  ]);
 
   const turmaId = classId || turmas[0]?.id || '';
+  const subjId = subjectId ?? '';
   const daTurma = alunos.filter((a) => a.classId === turmaId);
 
   return (
@@ -41,8 +46,19 @@ export default async function ChamadaPage({
             ))}
           </select>
         </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Matéria <span className="text-muted-foreground">(opcional)</span>
+          <select name="subjectId" defaultValue={subjId} className={fieldClass}>
+            <option value="">Chamada do dia</option>
+            {disciplinas.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <Button type="submit" size="sm" variant="outline">
-          Trocar turma
+          Aplicar
         </Button>
       </form>
 
@@ -51,6 +67,7 @@ export default async function ChamadaPage({
       ) : (
         <form action={recordChamadaAction} className={cardClass}>
           <input type="hidden" name="classId" value={turmaId} />
+          <input type="hidden" name="subjectId" value={subjId} />
           <input type="hidden" name="studentIds" value={daTurma.map((a) => a.id).join(',')} />
           <div className="mb-3 flex items-end justify-between gap-3">
             <label className="flex flex-col gap-1 text-sm">

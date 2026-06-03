@@ -7,8 +7,14 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import { ConfirmButton } from '@/components/confirm-button';
+import { CsvImport } from '@/components/csv-import';
 
-import { createClassAction, deleteClassAction, importClassesAction } from '../actions';
+import {
+  createClassAction,
+  deleteClassAction,
+  importClassesAction,
+  importClassesCsvAction,
+} from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Turmas · On Way Education' };
@@ -71,6 +77,14 @@ export default async function TurmasPage() {
                 Importar turmas
               </Button>
             </form>
+          </div>
+          <div className={cardClass}>
+            <CsvImport
+              action={importClassesCsvAction}
+              templateName="modelo-turmas.csv"
+              templateContent={'nome\n6º A\n6º B\n7º A\n'}
+              hint="Coluna: nome. Abra no Excel, preencha e salve como CSV."
+            />
           </div>
         </div>
       </div>

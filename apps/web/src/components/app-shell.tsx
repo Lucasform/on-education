@@ -32,9 +32,9 @@ export function AppShell({
   const groups = navFor(tenantType);
 
   return (
-    <div className="min-h-screen md:pl-64">
+    <div className="min-h-screen md:pl-64 print:pl-0">
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-card transition-transform md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-card transition-transform md:translate-x-0 print:hidden ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -103,7 +103,7 @@ export function AppShell({
         />
       )}
 
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-8">
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-8 print:hidden">
         <button
           type="button"
           aria-label="Abrir menu"
@@ -119,7 +119,9 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 md:p-8">{children}</main>
+      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 md:p-8 print:max-w-none print:p-0">
+        {children}
+      </main>
     </div>
   );
 }

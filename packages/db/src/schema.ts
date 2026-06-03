@@ -446,6 +446,30 @@ export const subjects = oe.table(
   (t) => [index('subjects_tenant_idx').on(t.tenantId), tenantPolicy('subjects_tenant_isolation')],
 );
 
+// ---------------------------------------------------------------------------
+// teaching_assignments — vínculo do professor (item 17): membership ↔ turma ↔ matéria.
+// Cada professor leciona matérias específicas em turmas específicas. Base para que
+// diário/notas/faltas reconheçam "quem leciona o quê". subject_id nulo = regente da turma
+// (todas as matérias). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const teachingAssignments = oe.table(
+  'teaching_assignments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    membershipId: uuid('membership_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id'),
+    ...auditCols,
+  },
+  (t) => [
+    index('teaching_assignments_tenant_idx').on(t.tenantId),
+    index('teaching_assignments_membership_idx').on(t.membershipId),
+    uniqueIndex('teaching_assignments_uq').on(t.tenantId, t.membershipId, t.classId, t.subjectId),
+    tenantPolicy('teaching_assignments_tenant_isolation'),
+  ],
+);
+
 // guardians — responsáveis (PII: nunca logar em claro). Tenant-scoped + RLS.
 export const guardians = oe.table(
   'guardians',
@@ -522,13 +546,17 @@ export const attendance = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     studentId: uuid('student_id').notNull(),
     classId: uuid('class_id').notNull(),
+    // subjectId nulo = chamada por DIA (modelo antigo); preenchido = falta POR MATÉRIA (8.1).
+    subjectId: uuid('subject_id'),
     date: date('date').notNull(),
     present: boolean('present').notNull().default(true),
     ...auditCols,
   },
   (t) => [
     index('attendance_tenant_idx').on(t.tenantId),
-    uniqueIndex('attendance_uq').on(t.tenantId, t.studentId, t.classId, t.date),
+    // O índice físico usa NULLS NOT DISTINCT (ver migration) para que a chamada por dia
+    // (subject_id NULL) continue sendo upsert idempotente, e a falta por matéria conviva.
+    uniqueIndex('attendance_uq').on(t.tenantId, t.studentId, t.classId, t.date, t.subjectId),
     tenantPolicy('attendance_tenant_isolation'),
   ],
 );
@@ -743,6 +771,7 @@ export const schema = {
   academicYears,
   terms,
   subjects,
+  teachingAssignments,
   guardians,
   studentGuardians,
   lessons,
