@@ -34,6 +34,7 @@ import {
   UserPlus,
   Users,
   Wallet,
+  Wand2,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -117,6 +118,7 @@ export const NAV: NavGroup[] = [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
       { label: 'Tutor do aluno', href: '/app/ia/tutor', icon: MessageCircleQuestion },
+      { label: 'Meu padrão', href: '/app/meu-padrao', icon: Wand2 },
     ],
   },
   {

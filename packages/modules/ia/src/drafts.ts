@@ -1,7 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { aiDrafts, type DbClient } from '@on-education/db';
 import type { Feature } from '@on-education/entitlements';
-import { assertEntitled } from '@on-education/module-nucleo';
+import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
 import { eq } from 'drizzle-orm';
 
@@ -49,7 +49,11 @@ export async function generateDraft(
   await assertWithinQuota(client, ctx.tenantId, planId);
 
   const ai = provider ?? createAnthropicProvider('sonnet');
-  const result = await ai.generate({ prompt: input.prompt, system: SYSTEM_BY_KIND[input.kind] });
+  const standard = await getAiStandard(client, ctx);
+  const result = await ai.generate({
+    prompt: input.prompt,
+    system: applyAiStandard(SYSTEM_BY_KIND[input.kind], standard),
+  });
 
   const draft = await client.withTenant(ctx.tenantId, async (tx) => {
     const rows = await tx

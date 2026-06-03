@@ -758,6 +758,9 @@ export const tenantSettings = oe.table(
     themeColor: text('theme_color'),
     regimento: text('regimento'),
     docTemplates: text('doc_templates'),
+    // "Meu padrão" / padrão da escola (itens 18.3 / 11.5): estilo, cabeçalho/rodapé,
+    // formato e nível de dificuldade aplicados a TODO conteúdo gerado pelo EduON.
+    aiStandard: text('ai_standard'),
     ...auditCols,
   },
   (t) => [

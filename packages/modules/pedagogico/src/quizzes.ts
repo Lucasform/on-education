@@ -6,7 +6,7 @@ import {
   createAnthropicProvider,
   recordUsage,
 } from '@on-education/module-ia';
-import { assertEntitled } from '@on-education/module-nucleo';
+import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type {
   AddQuizQuestionInput,
   CreateQuizInput,
@@ -98,11 +98,14 @@ export async function generateQuizWithEduON(
   await assertWithinQuota(client, ctx.tenantId, planId);
 
   const ai = provider ?? createAnthropicProvider('sonnet');
-  const system =
+  const standard = await getAiStandard(client, ctx);
+  const system = applyAiStandard(
     'Você é o EduON, um assistente pedagógico. Gere questões de múltipla escolha em português ' +
-    'do Brasil. Responda APENAS com JSON válido, sem nenhum texto fora do JSON, no formato: ' +
-    '{"questions":[{"prompt":"enunciado","options":["a","b","c","d"],"correctIndex":0}]}. ' +
-    'Use 4 alternativas por questão e correctIndex é o índice (0-based) da correta.';
+      'do Brasil. Responda APENAS com JSON válido, sem nenhum texto fora do JSON, no formato: ' +
+      '{"questions":[{"prompt":"enunciado","options":["a","b","c","d"],"correctIndex":0}]}. ' +
+      'Use 4 alternativas por questão e correctIndex é o índice (0-based) da correta.',
+    standard,
+  );
   const prompt =
     `Gere ${input.count} questões de múltipla escolha sobre: ${input.topic}.` +
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +

@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."tenant_settings" ADD COLUMN "ai_standard" text;

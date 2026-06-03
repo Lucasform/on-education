@@ -6,7 +6,7 @@ import {
   createAnthropicProvider,
   recordUsage,
 } from '@on-education/module-ia';
-import { assertEntitled } from '@on-education/module-nucleo';
+import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type {
   CreateActivityInput,
   GenerateActivityInput,
@@ -60,10 +60,13 @@ export async function generateActivityWithEduON(
   await assertWithinQuota(client, ctx.tenantId, planId);
 
   const ai = provider ?? createAnthropicProvider('sonnet');
-  const system =
+  const standard = await getAiStandard(client, ctx);
+  const system = applyAiStandard(
     'Você é o EduON, um assistente pedagógico. Gere uma atividade pedagógica completa e pronta ' +
-    'para uso em português do Brasil (enunciado, questões/exercícios e, quando fizer sentido, ' +
-    'gabarito ao final). Responda apenas com o conteúdo da atividade, sem comentários.';
+      'para uso em português do Brasil (enunciado, questões/exercícios e, quando fizer sentido, ' +
+      'gabarito ao final). Responda apenas com o conteúdo da atividade, sem comentários.',
+    standard,
+  );
   const prompt =
     `Crie uma atividade sobre: ${input.topic}.` +
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +

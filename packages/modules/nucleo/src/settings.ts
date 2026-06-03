@@ -24,13 +24,15 @@ export async function upsertTenantSettings(
   input: UpdateTenantSettingsInput,
 ) {
   assertCan(ctx, 'update', 'tenant_settings');
-  const values = {
-    logoUrl: input.logoUrl ? input.logoUrl : null,
-    themeColor: input.themeColor ?? null,
-    regimento: input.regimento ?? null,
-    docTemplates: input.docTemplates ?? null,
-    updatedAt: new Date(),
-  };
+  // Merge parcial: só toca nos campos enviados (undefined preserva o valor atual).
+  // Assim a tela "Meu padrão" não apaga logo/cor, e a personalização não apaga o padrão.
+  const patch: Record<string, unknown> = { updatedAt: new Date() };
+  if (input.logoUrl !== undefined) patch.logoUrl = input.logoUrl || null;
+  if (input.themeColor !== undefined) patch.themeColor = input.themeColor || null;
+  if (input.regimento !== undefined) patch.regimento = input.regimento || null;
+  if (input.docTemplates !== undefined) patch.docTemplates = input.docTemplates || null;
+  if (input.aiStandard !== undefined) patch.aiStandard = input.aiStandard || null;
+
   return client.withTenant(ctx.tenantId, async (tx) => {
     const existing = await tx
       .select({ id: tenantSettings.id })
@@ -39,15 +41,34 @@ export async function upsertTenantSettings(
     if (existing.length > 0) {
       const rows = await tx
         .update(tenantSettings)
-        .set(values)
+        .set(patch)
         .where(eq(tenantSettings.tenantId, ctx.tenantId))
         .returning();
       return rows[0]!;
     }
     const rows = await tx
       .insert(tenantSettings)
-      .values({ tenantId: ctx.tenantId, createdBy: ctx.userId, ...values })
+      .values({ tenantId: ctx.tenantId, createdBy: ctx.userId, ...patch })
       .returning();
     return rows[0]!;
   });
+}
+
+/**
+ * Padrão do EduON do tenant ("Meu padrão"/padrão da escola), ou null. Usado pelos
+ * geradores de IA para padronizar o estilo/formato do conteúdo (itens 18.3 / 11.5).
+ */
+export async function getAiStandard(client: DbClient, ctx: AuthContext): Promise<string | null> {
+  const settings = await getTenantSettings(client, ctx);
+  return settings?.aiStandard ?? null;
+}
+
+/** Acrescenta o padrão do educador ao prompt de sistema do EduON (no-op se vazio). */
+export function applyAiStandard(system: string, standard?: string | null): string {
+  const s = standard?.trim();
+  if (!s) return system;
+  return (
+    `${system}\n\nSiga RIGOROSAMENTE este padrão definido pelo educador ` +
+    `(estilo, formato, cabeçalho/rodapé, nível de dificuldade):\n${s}`
+  );
 }

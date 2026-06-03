@@ -223,7 +223,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [~] **18. Professor autônomo (👤) — nicho focado em IA + padronização.** _(18.4/18.5/18.8 parciais: `navFor` já entrega o menu enxuto por segmento — some Escola, Comunicação, Gestão, Financeiro, Integrações e Ocorrências; o individual vê visão geral, sala de aula, pedagógico e EduON. Falta o "Meu padrão" (18.3), PDF no padrão (18.6) e a navegação centrada em EduON (18.8).)_ Produto enxuto e diferente da escola: o individual NÃO usa gestão institucional (secretaria, financeiro institucional, unidades, multi-perfil, NFS-e). Mapa do que importa:
   - **18.1 Posicionamento:** "o professor que ensina com IA e entrega tudo no SEU padrão". Os dois pilares são **EduON (IA)** e **padronização pessoal**.
   - **18.2 EduON como centro (o app gira em torno disso):** gerar plano de aula, atividade, **prova**, **trabalho**, **roteiro de estudo**, lista de exercícios; corrigir redação; tutor do aluno. Tudo human-in-the-loop, com cota por plano.
-  - **18.3 "Meu padrão" (diferencial central):** o professor define UM padrão pessoal (estilo, cabeçalho/rodapé, fonte, formato de prova/lição de casa/roteiro/bilhete, nível de dificuldade preferido) e **todo conteúdo gerado pelo EduON sai nesse padrão**. Reaproveita `tenant_settings` (logo/identidade pessoal) + um "perfil de padrão" aplicado aos prompts e à exportação em PDF.
+  - [~] **18.3 "Meu padrão" (diferencial central):** o professor define UM padrão pessoal (estilo, cabeçalho/rodapé, fonte, formato de prova/lição de casa/roteiro/bilhete, nível de dificuldade preferido) e **todo conteúdo gerado pelo EduON sai nesse padrão**. FEITO: `tenant_settings.ai_standard` + página `/app/meu-padrao` + aplicado aos prompts do EduON (gerar conteúdo/redação/tutor/atividade/simulado via `applyAiStandard`). Falta: exportação em PDF no padrão (18.6).
   - **18.4 Núcleo enxuto:** turmas/alunos próprios, agenda pessoal, banco de atividades/provas, simulados, portfólio do aluno. Acompanhamento simples de desempenho (notas/frequência leves), sem a máquina institucional.
   - **18.5 Comunicação leve:** falar só com os responsáveis dos próprios alunos (boletim/relatório simples), sem secretaria.
   - **18.6 Geração de documentos:** exportar atividade/prova/roteiro/boletim em PDF já no padrão do professor (com a identidade dele).
@@ -238,7 +238,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [ ] **11.2** Provas com base no material anexado.
   - [ ] **11.3** Trabalhos com base no material ou sugestão.
   - [ ] **11.4** Roteiros de estudo com base no material e na prova criada.
-  - [ ] **11.5** Padronização das atividades pelo padrão da escola (provas/lição de casa/bilhetes/roteiros por turma).
+  - [~] **11.5** Padronização das atividades pelo padrão da escola — `tenant_settings.ai_standard` aplicado às gerações do EduON (mesmo mecanismo de 18.3). Falta: padrão por turma/tipo de documento.
 
 ### Comunicação e acervo
 

@@ -66,6 +66,7 @@ import {
   addQuizQuestionSchema,
   assignTeachingSchema,
   createScheduleSlotSchema,
+  updateAiStandardSchema,
   linkClassSubjectSchema,
   linkGuardianSchema,
   updateClassSchema,
@@ -553,6 +554,17 @@ export async function updateTenantSettingsAction(formData: FormData): Promise<vo
   });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+// --- Meu padrão / padrão do EduON (item 18.3) --------------------------------
+
+export async function updateAiStandardAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateAiStandardSchema.parse({
+    aiStandard: (formData.get('aiStandard') as string) ?? '',
+  });
+  await upsertTenantSettings(db(), ctx, input);
+  revalidatePath('/app/meu-padrao', 'page');
 }
 
 // --- Mensagens internas (responsáveis) ---------------------------------------

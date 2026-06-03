@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 15:50] — "Meu padrão" do EduON (itens 18.3 / 11.5) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** padrão pessoal/da escola aplicado a TODA geração do EduON.
+- **Segmento:** 🏫👤
+- **O que foi feito:** `tenant_settings.ai_standard` (migration); página `/app/meu-padrao` (ambos os segmentos; título adapta "Meu padrão"/"Padrão do EduON"); `upsertTenantSettings` virou **merge parcial** (salvar o padrão não apaga logo/cor e vice-versa); helpers `getAiStandard` + `applyAiStandard` no module-nucleo. Aplicado nos geradores: `generateDraft` (gerar conteúdo/redação/tutor), `generateActivityWithEduON` e `generateQuizWithEduON` — o padrão entra no system prompt. Nav: item "Meu padrão" no grupo EduON.
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0015_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/settings.ts`, `packages/modules/ia/src/drafts.ts`, `packages/modules/pedagogico/src/{activities,quizzes}.ts`, `apps/web/src/app/app/{actions.ts,meu-padrao/page.tsx}`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** `0015_reflective_vargas` aplicada em prod (tenant_settings.ai_standard).
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** exportação em PDF no padrão (18.6) e padrão por turma/tipo de documento (11.5) seguem pendentes.
+- **Próximo passo sugerido:** chegou nos itens que dependem do Lucas (Storage p/ materiais 3.1/3.3/11.2-11.4 RAG, Stripe billing, WhatsApp) + BNCC (dados). Bom ponto de pausa.
+- **Commit(s):** ver `feat: meu padrao do eduon aplicado nas geracoes`.
+
 ### [2026-06-03 15:25] — Quadro de funcionários (item 1) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** tela de quadro da equipe da escola (item 1).

@@ -280,7 +280,14 @@ export const updateTenantSettingsSchema = z.object({
   themeColor: z.string().max(40).optional(),
   regimento: z.string().max(50_000).optional(),
   docTemplates: z.string().max(50_000).optional(),
+  aiStandard: z.string().max(10_000).optional(),
 });
+
+/** "Meu padrão" do EduON (item 18.3) — só o campo do padrão. */
+export const updateAiStandardSchema = z.object({
+  aiStandard: z.string().max(10_000).optional(),
+});
+export type UpdateAiStandardInput = z.infer<typeof updateAiStandardSchema>;
 export type UpdateTenantSettingsInput = z.infer<typeof updateTenantSettingsSchema>;
 
 /** Mensagem interna para um responsável (Fase 1A.3). */
