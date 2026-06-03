@@ -195,7 +195,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Pessoas e estrutura
 
-- [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: convites + papéis (`/app/escola/convites`, roleEnum). Falta: tela de quadro, papel `monitor`, perfis de visualização por papel, vínculo funcionário↔turma.
+- [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: **quadro** em `/app/escola/quadro` (equipe por função + nº de vínculos de aula), convites + papéis, vínculo funcionário↔turma via `/app/escola/professores`. Falta: papel `monitor` (exige `ALTER TYPE ... ADD VALUE`, fora de transação — fazer manual) e perfis de visualização por papel.
 - [x] **2. Documentos: regimento + modelos gerais** (`/app/escola/personalizacao`). Evoluir: anexos de arquivo (Storage).
 - [x] **3. Turmas, séries, idades.** `classes.grade_level` + `classes.age_range`; detalhe da turma em `/app/turmas/[id]` (editar série/idade/descrição).
   - [ ] **3.1** Cadastro de material didático + vínculo com a turma. _(depende de Storage)_

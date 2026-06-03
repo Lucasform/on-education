@@ -78,6 +78,7 @@ export const NAV: NavGroup[] = [
     only: 'organization',
     items: [
       { label: 'Unidades', href: '/app/escola/unidades', icon: Building2 },
+      { label: 'Quadro de funcionários', href: '/app/escola/quadro', icon: Users },
       { label: 'Convites e membros', href: '/app/escola/convites', icon: UserPlus },
       { label: 'Ano letivo e períodos', href: '/app/escola/ano-letivo', icon: CalendarDays },
       { label: 'Disciplinas', href: '/app/escola/disciplinas', icon: Library },

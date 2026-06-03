@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 15:25] — Quadro de funcionários (item 1) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** tela de quadro da equipe da escola (item 1).
+- **Segmento:** 🏫
+- **O que foi feito:** página `/app/escola/quadro` (só escola): equipe agrupada por função (responsável/direção/coordenação/professores/secretaria/financeiro), KPIs (membros, professores, vínculos de aula, funções), atalho para Convidar membro e, por professor, link para definir vínculos turma/matéria. Reusa `listTeachers` + `listTeachingAssignments` (sem migration). Nav: item "Quadro de funcionários" no grupo Escola.
+- **Arquivos principais:** `apps/web/src/app/app/escola/quadro/page.tsx`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** nenhuma (só leitura agregada).
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** papel `monitor` exige `ALTER TYPE role ADD VALUE` (não roda dentro da transação do drizzle migrate) — aplicar manual quando for o caso; perfis de visualização por papel pendentes.
+- **Próximo passo sugerido:** "Meu padrão" do professor autônomo (18.3, reusa tenant_settings); plano de aulas (7.1); painel geral + filtros (14/15).
+- **Commit(s):** ver `feat: quadro de funcionarios da escola`.
+
 ### [2026-06-03 15:05] — Cronograma das turmas (item 7) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** horário semanal por turma (item 7).
