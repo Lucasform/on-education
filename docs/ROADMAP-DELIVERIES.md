@@ -164,4 +164,64 @@ Entregas que cruzam módulos e não pertencem a uma única fase.
 
 ---
 
+---
+
+## Escola — visão detalhada (backlog priorizado, 2026-06-03)
+
+Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~]` parcial · `[ ]` a fazer.
+
+### Pessoas e estrutura
+
+- [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: convites + papéis (`/app/escola/convites`, roleEnum). Falta: tela de quadro, papel `monitor`, perfis de visualização por papel, vínculo funcionário↔turma.
+- [x] **2. Documentos: regimento + modelos gerais** (`/app/escola/personalizacao`). Evoluir: anexos de arquivo (Storage).
+- [~] **3. Turmas, séries, idades.** Turmas existem (nome/descrição). Falta: campos série/ano e faixa etária na turma.
+  - [ ] **3.1** Cadastro de material didático + vínculo com a turma.
+  - [~] **3.2** Matérias da turma. Disciplinas existem; falta vínculo turma↔matéria.
+  - [ ] **3.3** Anexo de materiais didáticos por turma e por matéria (Storage).
+- [~] **4. Responsáveis + vínculo com aluno.** `guardians` + `student_guardians` existem; falta UI de vínculo.
+  - [ ] **4.1 / 10. Ocorrências dos alunos** (1 ou múltiplos alunos). **← em construção agora.**
+- [~] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; falta UI de vínculo com responsável.
+  - [ ] **5.1** Acompanhamento financeiro do responsável (vínculo aluno↔responsável↔financeiro). Fase 2.
+
+### Acadêmico e rotina
+
+- [x] **6. Calendário escolar** (`/app/calendario`).
+- [ ] **7. Cronograma das turmas** (horários semanais, com alterações).
+  - [ ] **7.1** Plano de aulas por turma/matéria, vínculo com diário e com o cronograma.
+  - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
+  - [ ] **7.3** Planejamento de avaliações e trabalhos.
+- [~] **8. Chamada vinculada aos alunos + relatórios** (chamada ok; relatórios parciais em `/app/relatorios`).
+- [~] **9. Notas: participação, formais e anotações por aluno** (notas formais ok; falta participação + anotações).
+
+### EduON (IA) ancorado no material da escola
+
+- [~] **11. Atividades por IA com base no material didático.** EduON gera por tema; falta ancorar no material anexado (RAG).
+  - [x] **11.1** Criação de atividade por descrição/solicitação do professor (`/app/atividades`).
+  - [ ] **11.2** Provas com base no material anexado.
+  - [ ] **11.3** Trabalhos com base no material ou sugestão.
+  - [ ] **11.4** Roteiros de estudo com base no material e na prova criada.
+  - [ ] **11.5** Padronização das atividades pelo padrão da escola (provas/lição de casa/bilhetes/roteiros por turma).
+
+### Comunicação e acervo
+
+- [ ] **12. Mural informativo para os pais.**
+- [ ] **13. Banco de atividades coletivas** (padrão On Way, sem vínculo com a escola, por faixa etária).
+
+### Visão geral
+
+- [~] **14. Painel geral de acompanhamento** (visão consolidada da escola: turmas, alunos, frequência, notas, ocorrências, pendências). Hoje: `/app` (início) + `/app/relatorios`. Evoluir para um painel único e rico.
+- [ ] **15. Divisão e formato de visualização** (filtros por turma/série/período; alternar entre cartões, tabela e gráficos).
+
+### Plataforma
+
+- [~] **16. App mobile** com os assuntos centralizados e o melhor UI possível. Hoje: web responsivo (sidebar vira drawer no mobile). Evoluir: navegação inferior por seções e/ou app nativo (PWA como primeiro passo).
+
+### Pendências transversais já mapeadas
+
+- [ ] Importação por planilha (CSV/Excel: baixar modelo → preencher → importar) para alunos/turmas/responsáveis.
+- [ ] Visualização por semana/mês/período no diário e na chamada.
+- [ ] Planejamento BNCC (banco de habilidades por disciplina/ano).
+
+---
+
 _Fim do roadmap. Marcar `[x]` a cada delivery concluído no checkpoint (CLAUDE.md §5)._
