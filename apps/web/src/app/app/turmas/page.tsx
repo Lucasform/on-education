@@ -1,5 +1,6 @@
 import { listClasses } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -36,7 +37,14 @@ export default async function TurmasPage() {
             <ul className="space-y-1 text-sm">
               {turmas.map((t) => (
                 <li key={t.id} className="flex items-center justify-between gap-2">
-                  <span>{t.name}</span>
+                  <Link href={`/app/turmas/${t.id}`} className="hover:underline">
+                    {t.name}
+                    {t.gradeLevel && (
+                      <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                        {t.gradeLevel}
+                      </span>
+                    )}
+                  </Link>
                   <form action={deleteClassAction}>
                     <input type="hidden" name="id" value={t.id} />
                     <ConfirmButton
@@ -57,6 +65,10 @@ export default async function TurmasPage() {
             <h2 className="mb-3 text-sm font-medium">Nova turma</h2>
             <form action={createClassAction} className="flex flex-col gap-2">
               <input name="name" required placeholder="Nome da turma" className={fieldClass} />
+              <div className="flex gap-2">
+                <input name="gradeLevel" placeholder="Série/ano" className={fieldClass} />
+                <input name="ageRange" placeholder="Faixa etária" className={fieldClass} />
+              </div>
               <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
               <Button type="submit" size="sm">
                 Adicionar turma

@@ -1,8 +1,12 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { classes, type DbClient, students } from '@on-education/db';
 import { limitFor } from '@on-education/entitlements';
-import type { CreateClassInput, CreateStudentInput } from '@on-education/validation';
-import { count, eq, isNotNull, isNull } from 'drizzle-orm';
+import type {
+  CreateClassInput,
+  CreateStudentInput,
+  UpdateClassInput,
+} from '@on-education/validation';
+import { and, count, eq, isNotNull, isNull } from 'drizzle-orm';
 
 import { assertEntitled } from './entitlement';
 
@@ -22,6 +26,8 @@ export async function createClass(client: DbClient, ctx: AuthContext, input: Cre
         tenantId: ctx.tenantId,
         name: input.name,
         description: input.description ?? null,
+        gradeLevel: input.gradeLevel ?? null,
+        ageRange: input.ageRange ?? null,
         createdBy: ctx.userId,
       })
       .returning();
@@ -33,6 +39,38 @@ export async function listClasses(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'class');
   return client.withTenant(ctx.tenantId, (tx) =>
     tx.select().from(classes).where(isNull(classes.deletedAt)),
+  );
+}
+
+/** Uma turma pelo id (ou null). Para a tela de detalhe da turma. */
+export async function getClass(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'read', 'class');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .select()
+      .from(classes)
+      .where(and(eq(classes.id, id), isNull(classes.deletedAt)));
+    return rows[0] ?? null;
+  });
+}
+
+/** Atualiza série/faixa etária/descrição da turma (item 3). */
+export async function updateClassDetails(
+  client: DbClient,
+  ctx: AuthContext,
+  input: UpdateClassInput,
+) {
+  assertCan(ctx, 'update', 'class');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(classes)
+      .set({
+        description: input.description ?? null,
+        gradeLevel: input.gradeLevel ?? null,
+        ageRange: input.ageRange ?? null,
+        updatedAt: new Date(),
+      })
+      .where(eq(classes.id, input.classId)),
   );
 }
 

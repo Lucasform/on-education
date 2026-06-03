@@ -1,12 +1,16 @@
-import { listStudentGuardians, listStudents } from '@on-education/module-nucleo';
+import { listGuardians, listStudentGuardians, listStudents } from '@on-education/module-nucleo';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { listPortfolioEntries } from '@on-education/module-pedagogico';
+import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { cardClass, PageHeader } from '@/components/form';
+import { ConfirmButton } from '@/components/confirm-button';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+
+import { linkGuardianAction, unlinkGuardianAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,16 +20,21 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   if (!ctx) redirect('/login');
   const client = db();
 
-  const [alunos, notas, presencas, portfolio, vinculos] = await Promise.all([
+  const isSchool = ctx.tenantType === 'organization';
+  const [alunos, notas, presencas, portfolio, vinculos, responsaveis] = await Promise.all([
     listStudents(client, ctx),
     listGrades(client, ctx),
     listAttendance(client, ctx),
     listPortfolioEntries(client, ctx),
     listStudentGuardians(client, ctx, id),
+    isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
   ]);
 
   const aluno = alunos.find((a) => a.id === id);
   if (!aluno) redirect('/app/alunos');
+
+  const vinculados = new Set(vinculos.map((v) => v.guardianId));
+  const guardiansDisponiveis = responsaveis.filter((g) => !vinculados.has(g.id));
 
   const minhasNotas = notas.filter((n) => n.studentId === id);
   const minhasPresencas = presencas.filter((p) => p.studentId === id);
@@ -84,15 +93,78 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           {vinculos.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem responsáveis vinculados.</p>
           ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
+            <ul className="space-y-2 text-sm">
               {vinculos.map((v) => (
-                <li key={v.id}>
-                  {v.relation ?? 'responsável'}
-                  {v.isFinancial ? ' · financeiro' : ''}
-                  {v.isEmergency ? ' · emergência' : ''}
+                <li key={v.id} className="flex items-start justify-between gap-2">
+                  <span>
+                    <span className="font-medium">{v.guardianName ?? 'Responsável'}</span>
+                    <span className="text-muted-foreground">
+                      {' '}
+                      · {v.relation ?? 'responsável'}
+                      {v.isFinancial ? ' · financeiro' : ''}
+                      {v.canPickup ? ' · busca' : ''}
+                      {v.isEmergency ? ' · emergência' : ''}
+                    </span>
+                    {v.guardianPhone && (
+                      <span className="block text-xs text-muted-foreground">{v.guardianPhone}</span>
+                    )}
+                  </span>
+                  {isSchool && (
+                    <form action={unlinkGuardianAction}>
+                      <input type="hidden" name="id" value={v.id} />
+                      <input type="hidden" name="studentId" value={aluno.id} />
+                      <ConfirmButton
+                        size="sm"
+                        variant="ghost"
+                        message="Desvincular este responsável?"
+                        className="h-7 px-2 text-xs"
+                      >
+                        Desvincular
+                      </ConfirmButton>
+                    </form>
+                  )}
                 </li>
               ))}
             </ul>
+          )}
+
+          {isSchool && (
+            <form
+              action={linkGuardianAction}
+              className="mt-4 flex flex-col gap-2 border-t border-border pt-3"
+            >
+              <input type="hidden" name="studentId" value={aluno.id} />
+              <select name="guardianId" required className={fieldClass} defaultValue="">
+                <option value="" disabled>
+                  Vincular responsável…
+                </option>
+                {guardiansDisponiveis.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.fullName}
+                  </option>
+                ))}
+              </select>
+              <input name="relation" placeholder="Parentesco (ex.: mãe)" className={fieldClass} />
+              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <label className="flex items-center gap-1.5">
+                  <input type="checkbox" name="isFinancial" /> financeiro
+                </label>
+                <label className="flex items-center gap-1.5">
+                  <input type="checkbox" name="canPickup" /> pode buscar
+                </label>
+                <label className="flex items-center gap-1.5">
+                  <input type="checkbox" name="isEmergency" /> emergência
+                </label>
+              </div>
+              <Button type="submit" size="sm" variant="outline">
+                Vincular
+              </Button>
+              {responsaveis.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Cadastre responsáveis em Escola › Responsáveis primeiro.
+                </p>
+              )}
+            </form>
           )}
         </div>
       </div>

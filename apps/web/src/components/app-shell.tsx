@@ -8,6 +8,7 @@ import { type ReactNode, useState } from 'react';
 
 import { navFor } from '@/lib/nav';
 
+import { BottomNav } from './bottom-nav';
 import { ThemeToggle } from './theme-toggle';
 
 /**
@@ -119,9 +120,11 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 md:p-8 print:max-w-none print:p-0">
+      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 pb-20 md:p-8 md:pb-8 print:max-w-none print:p-0">
         {children}
       </main>
+
+      <BottomNav />
     </div>
   );
 }

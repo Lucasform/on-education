@@ -31,8 +31,26 @@ export type IndividualSignupInput = z.infer<typeof individualSignupSchema>;
 export const createClassSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
+  gradeLevel: z.string().max(60).optional(),
+  ageRange: z.string().max(60).optional(),
 });
 export type CreateClassInput = z.infer<typeof createClassSchema>;
+
+/** Edição dos detalhes da turma (série/faixa etária/descrição) — item 3. */
+export const updateClassSchema = z.object({
+  classId: uuidSchema,
+  description: z.string().max(2000).optional(),
+  gradeLevel: z.string().max(60).optional(),
+  ageRange: z.string().max(60).optional(),
+});
+export type UpdateClassInput = z.infer<typeof updateClassSchema>;
+
+/** Vínculo turma↔matéria (item 3.2). */
+export const linkClassSubjectSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema,
+});
+export type LinkClassSubjectInput = z.infer<typeof linkClassSubjectSchema>;
 
 export const createStudentSchema = z.object({
   fullName: z.string().min(1).max(200),

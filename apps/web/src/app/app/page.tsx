@@ -132,6 +132,32 @@ export default async function OverviewPage() {
         />
       </section>
 
+      <section className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Ações rápidas</h2>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: '+ Nova turma', href: '/app/turmas' },
+            { label: '+ Novo aluno', href: '/app/alunos' },
+            { label: 'Fazer chamada', href: '/app/sala/chamada' },
+            { label: 'Gerar com EduON', href: '/app/ia' },
+            ...(isSchool
+              ? [
+                  { label: 'Novo comunicado', href: '/app/comunicados' },
+                  { label: 'Relatório de faltas', href: '/app/relatorios/faltas' },
+                ]
+              : [{ label: 'Banco de atividades', href: '/app/atividades' }]),
+          ].map((a) => (
+            <Link
+              key={a.href + a.label}
+              href={a.href}
+              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
+            >
+              {a.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {proximosEventos.length > 0 && (
         <section className={cardClass}>
           <div className="flex items-center gap-2">

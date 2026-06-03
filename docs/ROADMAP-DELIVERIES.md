@@ -197,13 +197,13 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 - [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: convites + papéis (`/app/escola/convites`, roleEnum). Falta: tela de quadro, papel `monitor`, perfis de visualização por papel, vínculo funcionário↔turma.
 - [x] **2. Documentos: regimento + modelos gerais** (`/app/escola/personalizacao`). Evoluir: anexos de arquivo (Storage).
-- [~] **3. Turmas, séries, idades.** Turmas existem (nome/descrição). Falta: campos série/ano e faixa etária na turma.
-  - [ ] **3.1** Cadastro de material didático + vínculo com a turma.
-  - [~] **3.2** Matérias da turma. Disciplinas existem; falta vínculo turma↔matéria.
-  - [ ] **3.3** Anexo de materiais didáticos por turma e por matéria (Storage).
-- [~] **4. Responsáveis + vínculo com aluno.** `guardians` + `student_guardians` existem; falta UI de vínculo.
+- [x] **3. Turmas, séries, idades.** `classes.grade_level` + `classes.age_range`; detalhe da turma em `/app/turmas/[id]` (editar série/idade/descrição).
+  - [ ] **3.1** Cadastro de material didático + vínculo com a turma. _(depende de Storage)_
+  - [x] **3.2** Matérias da turma — tabela `class_subjects` (N:N turma↔disciplina) + grade na tela de detalhe da turma.
+  - [ ] **3.3** Anexo de materiais didáticos por turma e por matéria (Storage). _(depende de Storage)_
+- [x] **4. Responsáveis + vínculo com aluno.** UI de vínculo no detalhe do aluno (`/app/alunos/[id]`): vincular/desvincular responsável com parentesco + financeiro/busca/emergência.
   - [ ] **4.1 / 10. Ocorrências dos alunos** (1 ou múltiplos alunos). **← em construção agora.**
-- [~] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; falta UI de vínculo com responsável.
+- [x] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; vínculo aluno↔responsável com UI no detalhe do aluno.
   - [ ] **5.1** Acompanhamento financeiro do responsável (vínculo aluno↔responsável↔financeiro). Fase 2.
     - [ ] **5.1.1 Histórico de pagamento do responsável** (mensalidades pagas/em aberto/vencidas por responsável, com vínculo ao(s) aluno(s); extrato e status). Base da régua de cobrança da Fase 2.
 
@@ -261,7 +261,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Plataforma
 
-- [~] **16. App mobile** com os assuntos centralizados e o melhor UI possível. Hoje: web responsivo (sidebar vira drawer no mobile). Evoluir: navegação inferior por seções e/ou app nativo (PWA como primeiro passo).
+- [~] **16. App mobile** com os assuntos centralizados e o melhor UI possível. Hoje: web responsivo (sidebar vira drawer no mobile) + **navegação inferior** no mobile (`BottomNav`: Início/Turmas/Alunos/EduON/Agenda). Evoluir: PWA (manifest + service worker) e/ou app nativo.
 
 ### Pendências transversais já mapeadas
 

@@ -31,10 +31,15 @@ import {
   deleteOccurrence,
   deleteStudent,
   inviteMember,
+  linkClassSubject,
+  linkGuardian,
   removeTeachingAssignment,
   restoreClass,
   restoreEvent,
   restoreStudent,
+  unlinkClassSubject,
+  unlinkGuardian,
+  updateClassDetails,
   upsertTenantSettings,
 } from '@on-education/module-nucleo';
 import {
@@ -58,6 +63,9 @@ import {
 import {
   addQuizQuestionSchema,
   assignTeachingSchema,
+  linkClassSubjectSchema,
+  linkGuardianSchema,
+  updateClassSchema,
   createAcademicYearSchema,
   createActivitySchema,
   createClassSchema,
@@ -106,6 +114,8 @@ export async function createClassAction(formData: FormData): Promise<void> {
   const input = createClassSchema.parse({
     name: formData.get('name'),
     description: (formData.get('description') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageRange: (formData.get('ageRange') as string) || undefined,
   });
   await createClass(db(), ctx, input);
   revalidatePath('/app', 'layout');
@@ -667,4 +677,56 @@ export async function importGuardiansCsvAction(formData: FormData): Promise<void
     .filter((i) => i.fullName);
   if (items.length) await createGuardiansBulk(db(), ctx, items);
   revalidatePath('/app/escola/responsaveis', 'page');
+}
+
+// --- Turma: detalhes (série/idade) + matérias da turma (itens 3 / 3.2) -------
+
+export async function updateClassDetailsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateClassSchema.parse({
+    classId: formData.get('classId'),
+    description: (formData.get('description') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageRange: (formData.get('ageRange') as string) || undefined,
+  });
+  await updateClassDetails(db(), ctx, input);
+  revalidatePath(`/app/turmas/${input.classId}`, 'page');
+}
+
+export async function linkClassSubjectAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = linkClassSubjectSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: formData.get('subjectId'),
+  });
+  await linkClassSubject(db(), ctx, input);
+  revalidatePath(`/app/turmas/${input.classId}`, 'page');
+}
+
+export async function unlinkClassSubjectAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await unlinkClassSubject(db(), ctx, String(formData.get('id')));
+  revalidatePath(`/app/turmas/${String(formData.get('classId'))}`, 'page');
+}
+
+// --- Vínculo aluno↔responsável (itens 4 / 5) ---------------------------------
+
+export async function linkGuardianAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = linkGuardianSchema.parse({
+    studentId: formData.get('studentId'),
+    guardianId: formData.get('guardianId'),
+    relation: (formData.get('relation') as string) || undefined,
+    isFinancial: formData.get('isFinancial') != null,
+    canPickup: formData.get('canPickup') != null,
+    isEmergency: formData.get('isEmergency') != null,
+  });
+  await linkGuardian(db(), ctx, input);
+  revalidatePath(`/app/alunos/${input.studentId}`, 'page');
+}
+
+export async function unlinkGuardianAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await unlinkGuardian(db(), ctx, String(formData.get('id')));
+  revalidatePath(`/app/alunos/${String(formData.get('studentId'))}`, 'page');
 }

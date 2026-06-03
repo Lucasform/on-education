@@ -89,6 +89,28 @@ export async function linkGuardian(client: DbClient, ctx: AuthContext, input: Li
 export async function listStudentGuardians(client: DbClient, ctx: AuthContext, studentId: string) {
   assertCan(ctx, 'read', 'student_guardian');
   return client.withTenant(ctx.tenantId, (tx) =>
-    tx.select().from(studentGuardians).where(eq(studentGuardians.studentId, studentId)),
+    tx
+      .select({
+        id: studentGuardians.id,
+        guardianId: studentGuardians.guardianId,
+        relation: studentGuardians.relation,
+        isFinancial: studentGuardians.isFinancial,
+        canPickup: studentGuardians.canPickup,
+        isEmergency: studentGuardians.isEmergency,
+        guardianName: guardians.fullName,
+        guardianPhone: guardians.phone,
+        guardianEmail: guardians.email,
+      })
+      .from(studentGuardians)
+      .leftJoin(guardians, eq(guardians.id, studentGuardians.guardianId))
+      .where(eq(studentGuardians.studentId, studentId)),
+  );
+}
+
+/** Desfaz o vínculo aluno↔responsável (item 5). */
+export async function unlinkGuardian(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'student_guardian');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.delete(studentGuardians).where(eq(studentGuardians.id, id)),
   );
 }

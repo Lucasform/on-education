@@ -244,6 +244,9 @@ export const classes = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     name: text('name').notNull(),
     description: text('description'),
+    // Item 3: série/ano (ex.: "6º ano") e faixa etária (ex.: "11-12 anos").
+    gradeLevel: text('grade_level'),
+    ageRange: text('age_range'),
     ...auditCols,
   },
   (t) => [
@@ -467,6 +470,26 @@ export const teachingAssignments = oe.table(
     index('teaching_assignments_membership_idx').on(t.membershipId),
     uniqueIndex('teaching_assignments_uq').on(t.tenantId, t.membershipId, t.classId, t.subjectId),
     tenantPolicy('teaching_assignments_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// class_subjects — matérias da turma (item 3.2): vínculo N:N turma↔disciplina.
+// Define a grade curricular da turma. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const classSubjects = oe.table(
+  'class_subjects',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('class_subjects_class_idx').on(t.classId),
+    uniqueIndex('class_subjects_uq').on(t.tenantId, t.classId, t.subjectId),
+    tenantPolicy('class_subjects_tenant_isolation'),
   ],
 );
 
@@ -772,6 +795,7 @@ export const schema = {
   terms,
   subjects,
   teachingAssignments,
+  classSubjects,
   guardians,
   studentGuardians,
   lessons,

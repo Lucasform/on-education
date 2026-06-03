@@ -13,6 +13,23 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 14:10] — Matérias da turma + série/idade + vínculo responsável + UI mobile — STATUS: EM ANDAMENTO
+
+- **Tarefa:** continuar o backlog "Escola — visão detalhada" (itens 3, 3.2, 4, 5) + melhorias de UI pedidas pelo Lucas.
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **3 · Série/faixa etária da turma:** `classes.grade_level` + `classes.age_range`; nova tela `/app/turmas/[id]` (detalhe da turma: editar série/idade/descrição, ver alunos, gerir matérias). Turmas viram links; form de nova turma com série/idade.
+  - **3.2 · Matérias da turma:** tabela `class_subjects` (N:N turma↔disciplina, RLS) + módulo `class-subjects.ts` (link/list/unlink); grade curricular na tela de detalhe (só escola).
+  - **4 e 5 · Vínculo aluno↔responsável:** UI no detalhe do aluno (`/app/alunos/[id]`): vincular responsável existente (parentesco + financeiro/busca/emergência) e desvincular; `listStudentGuardians` agora resolve nome/telefone; `unlinkGuardian` novo.
+  - **UI mobile (item 16):** `BottomNav` (navegação inferior no mobile: Início/Turmas/Alunos/EduON/Agenda), some no desktop e na impressão; main ganha padding inferior no mobile.
+  - **UI dashboard:** seção "Ações rápidas" no início (atalhos por segmento).
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0012_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/{classes,class-subjects,guardians,index}.ts`, `apps/web/src/components/{bottom-nav,app-shell}.tsx`, `apps/web/src/app/app/{actions.ts,page.tsx,turmas/page.tsx,turmas/[id]/page.tsx,alunos/[id]/page.tsx}`.
+- **Migrations/RLS:** `0012_right_meggan` aplicada em prod (class_subjects + classes.grade_level/age_range). Verificado: authenticated 4 privilégios em class_subjects, colunas OK.
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** vínculo responsável só aparece na escola (individual não tem responsáveis); materiais didáticos (3.1/3.3) seguem dependendo de Storage.
+- **Próximo passo sugerido:** Notas com participação + anotações (9); cronograma das turmas (7); quadro de funcionários + papel monitor (1).
+- **Commit(s):** ver `feat: materias da turma, serie/idade, vinculo responsavel e navegacao mobile`.
+
 ### [2026-06-03 13:30] — Vínculos prof. + faltas/matéria + PDF + CSV + menu enxuto — STATUS: EM ANDAMENTO
 
 - **Tarefa:** avançar o backlog "Escola — visão detalhada" nas 5 prioridades combinadas (sem o que depende de credencial: Storage/Stripe/WhatsApp).
