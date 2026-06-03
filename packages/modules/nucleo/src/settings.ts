@@ -32,6 +32,7 @@ export async function upsertTenantSettings(
   if (input.regimento !== undefined) patch.regimento = input.regimento || null;
   if (input.docTemplates !== undefined) patch.docTemplates = input.docTemplates || null;
   if (input.aiStandard !== undefined) patch.aiStandard = input.aiStandard || null;
+  if (input.gradeScale !== undefined) patch.gradeScale = input.gradeScale;
 
   return client.withTenant(ctx.tenantId, async (tx) => {
     const existing = await tx

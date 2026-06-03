@@ -3,6 +3,7 @@ export * from './organization';
 export * from './academic';
 export * from './teaching';
 export * from './class-subjects';
+export * from './grade-components';
 export * from './guardians';
 export * from './entitlement';
 export * from './classes';

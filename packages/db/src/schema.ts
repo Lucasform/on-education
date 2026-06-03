@@ -559,8 +559,12 @@ export const grades = oe.table(
     // kind (item 9): 'formal' (avaliação), 'participacao' (nota de participação),
     // 'anotacao' (observação qualitativa sem nota — value fica nulo).
     kind: text('kind').notNull().default('formal'),
-    value: real('value'), // 0..10/100; nulo para anotações
+    value: real('value'), // 0..escala; nulo para anotações
     note: text('note'), // texto da anotação/observação
+    // componentId (item: pesos): a qual componente da média esta nota pertence
+    // (ex.: Prova, Trabalho). Nulo = componente padrão (peso 1). A média final é
+    // ponderada por componente (média dentro do componente × peso do componente).
+    componentId: uuid('component_id'),
     ...auditCols,
   },
   (t) => [index('grades_tenant_idx').on(t.tenantId), tenantPolicy('grades_tenant_isolation')],
@@ -608,6 +612,29 @@ export const scheduleSlots = oe.table(
   (t) => [
     index('schedule_slots_class_idx').on(t.classId),
     tenantPolicy('schedule_slots_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// grade_components — composição da média definida pela ESCOLA (pesos das atividades).
+// Ex.: Prova (peso 1), Trabalho (peso 2). A média final é ponderada por componente:
+// média das notas dentro do componente × peso, somado e dividido pela soma dos pesos.
+// Assim "quantos trabalhos" não desequilibra (faz a média dentro do componente).
+// Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const gradeComponents = oe.table(
+  'grade_components',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    weight: real('weight').notNull().default(1),
+    position: integer('position').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    index('grade_components_tenant_idx').on(t.tenantId),
+    tenantPolicy('grade_components_tenant_isolation'),
   ],
 );
 
@@ -758,6 +785,8 @@ export const tenantSettings = oe.table(
     themeColor: text('theme_color'),
     regimento: text('regimento'),
     docTemplates: text('doc_templates'),
+    // Escala da nota (0..gradeScale); padrão 10. Definida pela escola.
+    gradeScale: integer('grade_scale').notNull().default(10),
     // "Meu padrão" / padrão da escola (itens 18.3 / 11.5): estilo, cabeçalho/rodapé,
     // formato e nível de dificuldade aplicados a TODO conteúdo gerado pelo EduON.
     aiStandard: text('ai_standard'),
@@ -830,6 +859,7 @@ export const schema = {
   studentGuardians,
   lessons,
   grades,
+  gradeComponents,
   attendance,
   scheduleSlots,
   communications,

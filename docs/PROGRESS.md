@@ -13,6 +13,20 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 17:10] — Notas com pesos definidos pela escola (item 9.2) + planos/landing — STATUS: EM ANDAMENTO
+
+- **Tarefa:** a escola define a composição/pesos da média e o sistema calcula sozinho; ajustes de preço/landing pedidos pelo Lucas.
+- **Segmento:** 🏫 (cálculo) + visitante (landing)
+- **O que foi feito:**
+  - **Pesos da nota (9.2):** tabela `grade_components` (nome + peso, ex.: Prova 1 / Trabalho 2), `tenant_settings.grade_scale` (escala 0..N), `grades.component_id`. Tela `/app/escola/notas`. Cálculo **por trás**: `weightedAverage` = média dentro de cada componente × peso, somado / soma dos pesos (assim "quantos trabalhos" não desequilibra). Aplicado em Boletim, Relatórios (geral/turma/risco) e detalhe do aluno. Sem componentes → média simples (não afeta o professor autônomo). Form de notas com seletor de componente; tag nas listas. Nav: "Notas e pesos" em Escola.
+  - **Planos/landing:** preço **só mensal** (sem alternância anual), **Escola = "Consultar preço"** (sem valor, sem mínimo R$499), teste **7 dias** (era 14). CTA final vira `AudienceButtons`: mesma cor, selecionável ao clicar (igual aos cards de plano).
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0016_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/{grade-components,settings,index}.ts`, `packages/modules/sala-de-aula/src/index.ts`, `apps/web/src/app/app/{actions.ts,escola/notas/page.tsx,sala/{notas,boletim}/page.tsx,relatorios/page.tsx,alunos/[id]/page.tsx}`, `apps/web/src/lib/nav.ts`, `apps/web/src/components/{pricing-cards,audience-buttons}.tsx`, `apps/web/src/app/page.tsx`.
+- **Migrations/RLS:** `0016_purple_pandemic` aplicada em prod (grade_components + grades.component_id + tenant_settings.grade_scale). Verificado: grants/colunas OK.
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main (commit `675480e` planos/botões + o desta entrega).
+- **Pendências / bloqueios:** exportar boletim com composição detalhada por componente (nice-to-have); resto do backlog depende do Lucas (Storage/Stripe/WhatsApp/BNCC).
+- **Próximo passo sugerido:** plano de aulas (7.1) ou mural dos pais (12); ou destravar Storage/Stripe/WhatsApp.
+- **Commit(s):** ver `feat: notas com pesos definidos pela escola (media ponderada)`.
+
 ### [2026-06-03 16:25] — PWA instalável (item 16) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** tornar o app instalável (primeiro passo de app mobile, item 16).

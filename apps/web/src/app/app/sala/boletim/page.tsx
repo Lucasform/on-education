@@ -1,4 +1,4 @@
-import { listStudents } from '@on-education/module-nucleo';
+import { listGradeComponents, listStudents, weightedAverage } from '@on-education/module-nucleo';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
@@ -14,17 +14,21 @@ export default async function BoletimPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [alunos, notas, presencas] = await Promise.all([
+  const isSchool = ctx.tenantType === 'organization';
+  const [alunos, notas, presencas, componentes] = await Promise.all([
     listStudents(client, ctx),
     listGrades(client, ctx),
     listAttendance(client, ctx),
+    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
   ]);
 
+  // Média ponderada por componente (pesos definidos pela escola). Sem componentes → simples.
   const media = (sid: string) => {
-    const vs = notas
-      .filter((n) => n.studentId === sid && n.value !== null)
-      .map((n) => n.value as number);
-    return vs.length ? (vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(1) : '—';
+    const m = weightedAverage(
+      notas.filter((n) => n.studentId === sid),
+      componentes,
+    );
+    return m === null ? '—' : m.toFixed(1);
   };
   const presenca = (sid: string) => {
     const rs = presencas.filter((p) => p.studentId === sid);

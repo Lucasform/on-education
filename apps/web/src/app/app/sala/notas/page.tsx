@@ -1,4 +1,4 @@
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { listClasses, listGradeComponents, listStudents } from '@on-education/module-nucleo';
 import { listGrades } from '@on-education/module-sala-de-aula';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
@@ -16,12 +16,15 @@ export default async function NotasPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [notas, alunos, turmas] = await Promise.all([
+  const isSchool = ctx.tenantType === 'organization';
+  const [notas, alunos, turmas, componentes] = await Promise.all([
     listGrades(client, ctx),
     listStudents(client, ctx),
     listClasses(client, ctx),
+    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
+  const compNome = new Map(componentes.map((c) => [c.id, c.name]));
   const KIND_LABEL: Record<string, string> = {
     formal: 'avaliação',
     participacao: 'participação',
@@ -48,6 +51,11 @@ export default async function NotasPage() {
                     <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
                       {KIND_LABEL[n.kind] ?? n.kind}
                     </span>
+                    {n.componentId && compNome.get(n.componentId) && (
+                      <span className="ml-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] text-primary">
+                        {compNome.get(n.componentId)}
+                      </span>
+                    )}
                     {n.note && <span className="block text-xs opacity-80">{n.note}</span>}
                   </span>
                   <span className="font-medium text-foreground">
@@ -84,6 +92,16 @@ export default async function NotasPage() {
               <option value="participacao">Participação</option>
               <option value="anotacao">Anotação (sem nota)</option>
             </select>
+            {isSchool && componentes.length > 0 && (
+              <select name="componentId" className={fieldClass} defaultValue="">
+                <option value="">Componente da média (opcional)</option>
+                {componentes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} (peso {c.weight})
+                  </option>
+                ))}
+              </select>
+            )}
             <input
               name="label"
               required

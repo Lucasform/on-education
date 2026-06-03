@@ -17,6 +17,8 @@ import {
   createClass,
   createClassesBulk,
   createEvent,
+  createGradeComponent,
+  deleteGradeComponent,
   createGuardian,
   createGuardiansBulk,
   createOccurrence,
@@ -66,6 +68,8 @@ import {
   addQuizQuestionSchema,
   assignTeachingSchema,
   createScheduleSlotSchema,
+  createGradeComponentSchema,
+  updateGradeScaleSchema,
   updateAiStandardSchema,
   linkClassSubjectSchema,
   linkGuardianSchema,
@@ -293,6 +297,7 @@ export async function recordGradeAction(formData: FormData): Promise<void> {
     label: formData.get('label'),
     value: rawValue === '' ? undefined : rawValue,
     note: (formData.get('note') as string) || undefined,
+    componentId: (formData.get('componentId') as string) || undefined,
   });
   await recordGrade(db(), ctx, input);
   revalidatePath('/app', 'layout');
@@ -725,6 +730,31 @@ export async function unlinkClassSubjectAction(formData: FormData): Promise<void
   const ctx = await requireCtx();
   await unlinkClassSubject(db(), ctx, String(formData.get('id')));
   revalidatePath(`/app/turmas/${String(formData.get('classId'))}`, 'page');
+}
+
+// --- Notas: composição/pesos definidos pela escola ---------------------------
+
+export async function createGradeComponentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createGradeComponentSchema.parse({
+    name: formData.get('name'),
+    weight: formData.get('weight'),
+  });
+  await createGradeComponent(db(), ctx, input);
+  revalidatePath('/app/escola/notas', 'page');
+}
+
+export async function deleteGradeComponentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteGradeComponent(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/escola/notas', 'page');
+}
+
+export async function updateGradeScaleAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateGradeScaleSchema.parse({ gradeScale: formData.get('gradeScale') });
+  await upsertTenantSettings(db(), ctx, input);
+  revalidatePath('/app/escola/notas', 'page');
 }
 
 // --- Cronograma / horário semanal (item 7) -----------------------------------

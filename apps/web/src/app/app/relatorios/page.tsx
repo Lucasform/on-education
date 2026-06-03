@@ -1,4 +1,10 @@
-import { listClasses, listOccurrences, listStudents } from '@on-education/module-nucleo';
+import {
+  listClasses,
+  listGradeComponents,
+  listOccurrences,
+  listStudents,
+  weightedAverage,
+} from '@on-education/module-nucleo';
 import { listActivities, listQuizzes } from '@on-education/module-pedagogico';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
@@ -47,7 +53,7 @@ export default async function RelatoriosPage({
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
-  const [turmas, alunosAll, notas, presencas, atividades, simulados, ocorrencias] =
+  const [turmas, alunosAll, notas, presencas, atividades, simulados, ocorrencias, componentes] =
     await Promise.all([
       listClasses(client, ctx),
       listStudents(client, ctx),
@@ -56,37 +62,41 @@ export default async function RelatoriosPage({
       listActivities(client, ctx, {}),
       listQuizzes(client, ctx),
       listOccurrences(client, ctx),
+      listGradeComponents(client, ctx),
     ]);
+
+  // Média ponderada por aluno (pesos definidos pela escola). Cacheada por id.
+  const notasByStudent = new Map<string, typeof notas>();
+  for (const n of notas) {
+    const arr = notasByStudent.get(n.studentId) ?? [];
+    arr.push(n);
+    notasByStudent.set(n.studentId, arr);
+  }
+  const mediaAluno = (sid: string) => weightedAverage(notasByStudent.get(sid) ?? [], componentes);
 
   // Filtro por turma (item 15): escopa alunos e, por consequência, notas/frequência.
   const alunos = classId ? alunosAll.filter((a) => a.classId === classId) : alunosAll;
   const escopoIds = new Set(alunos.map((a) => a.id));
   const inEscopo = (sid: string) => !classId || escopoIds.has(sid);
 
-  // Indicadores gerais (só notas com valor; anotações têm value nulo).
-  const comValor = notas.filter((n) => n.value !== null && inEscopo(n.studentId)) as {
-    studentId: string;
-    value: number;
-  }[];
+  // Indicadores gerais: média = média das médias (ponderadas) dos alunos do escopo.
+  const mediasEscopo = alunos.map((a) => mediaAluno(a.id)).filter((m): m is number => m !== null);
   const presEscopo = presencas.filter((p) => inEscopo(p.studentId));
-  const mediaGeral = avg(comValor.map((n) => n.value));
+  const mediaGeral = avg(mediasEscopo);
   const freqGeral = pct(presEscopo.filter((p) => p.present).length, presEscopo.length);
 
   // Agregação por turma (quando sem filtro) — com barras.
   const semTurma = { id: '—', name: 'Sem turma' };
   const grupos = [...turmas, semTurma].map((t) => {
-    const ids = new Set(
-      alunosAll.filter((a) => (t.id === '—' ? !a.classId : a.classId === t.id)).map((a) => a.id),
-    );
-    const notasT = notas
-      .filter((n) => n.value !== null && ids.has(n.studentId))
-      .map((n) => n.value as number);
+    const alunosT = alunosAll.filter((a) => (t.id === '—' ? !a.classId : a.classId === t.id));
+    const ids = new Set(alunosT.map((a) => a.id));
+    const mediasT = alunosT.map((a) => mediaAluno(a.id)).filter((m): m is number => m !== null);
     const presT = presencas.filter((p) => ids.has(p.studentId));
     return {
       id: t.id,
       name: t.name,
       alunos: ids.size,
-      media: avg(notasT),
+      media: avg(mediasT),
       freq: pct(presT.filter((p) => p.present).length, presT.length),
     };
   });
@@ -95,11 +105,8 @@ export default async function RelatoriosPage({
   // Alunos em risco (item 14): frequência < 75% ou média < 6.
   const risco = alunos
     .map((a) => {
-      const ns = notas
-        .filter((n) => n.value !== null && n.studentId === a.id)
-        .map((n) => n.value as number);
       const ps = presencas.filter((p) => p.studentId === a.id);
-      const m = avg(ns);
+      const m = mediaAluno(a.id);
       const f = pct(ps.filter((p) => p.present).length, ps.length);
       return { id: a.id, nome: a.fullName, media: m, freq: f };
     })

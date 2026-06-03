@@ -178,8 +178,10 @@ export const recordGradeSchema = z
     kind: gradeKindSchema.default('formal'),
     label: z.string().min(1).max(120),
     /** Nulo para anotações (observação sem nota). */
-    value: z.coerce.number().min(0).max(100).optional(),
+    value: z.coerce.number().min(0).max(1000).optional(),
     note: z.string().max(2000).optional(),
+    /** Componente da média (Prova/Trabalho...). Vazio = componente padrão (peso 1). */
+    componentId: uuidSchema.optional(),
   })
   .refine((d) => d.kind === 'anotacao' || d.value !== undefined, {
     message: 'Informe a nota para avaliação ou participação.',
@@ -281,7 +283,20 @@ export const updateTenantSettingsSchema = z.object({
   regimento: z.string().max(50_000).optional(),
   docTemplates: z.string().max(50_000).optional(),
   aiStandard: z.string().max(10_000).optional(),
+  gradeScale: z.coerce.number().int().min(1).max(1000).optional(),
 });
+
+/** Composição da média (pesos) definida pela escola. */
+export const createGradeComponentSchema = z.object({
+  name: z.string().min(1).max(80),
+  weight: z.coerce.number().min(0).max(100).default(1),
+});
+export type CreateGradeComponentInput = z.infer<typeof createGradeComponentSchema>;
+
+export const updateGradeScaleSchema = z.object({
+  gradeScale: z.coerce.number().int().min(1).max(1000),
+});
+export type UpdateGradeScaleInput = z.infer<typeof updateGradeScaleSchema>;
 
 /** "Meu padrão" do EduON (item 18.3) — só o campo do padrão. */
 export const updateAiStandardSchema = z.object({

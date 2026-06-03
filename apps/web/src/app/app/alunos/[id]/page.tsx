@@ -1,4 +1,10 @@
-import { listGuardians, listStudentGuardians, listStudents } from '@on-education/module-nucleo';
+import {
+  listGradeComponents,
+  listGuardians,
+  listStudentGuardians,
+  listStudents,
+  weightedAverage,
+} from '@on-education/module-nucleo';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { listPortfolioEntries } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
@@ -21,14 +27,16 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   const client = db();
 
   const isSchool = ctx.tenantType === 'organization';
-  const [alunos, notas, presencas, portfolio, vinculos, responsaveis] = await Promise.all([
-    listStudents(client, ctx),
-    listGrades(client, ctx),
-    listAttendance(client, ctx),
-    listPortfolioEntries(client, ctx),
-    listStudentGuardians(client, ctx, id),
-    isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
-  ]);
+  const [alunos, notas, presencas, portfolio, vinculos, responsaveis, componentes] =
+    await Promise.all([
+      listStudents(client, ctx),
+      listGrades(client, ctx),
+      listAttendance(client, ctx),
+      listPortfolioEntries(client, ctx),
+      listStudentGuardians(client, ctx, id),
+      isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
+      isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
+    ]);
 
   const aluno = alunos.find((a) => a.id === id);
   if (!aluno) redirect('/app/alunos');
@@ -39,10 +47,9 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   const minhasNotas = notas.filter((n) => n.studentId === id);
   const minhasPresencas = presencas.filter((p) => p.studentId === id);
   const meuPortfolio = portfolio.filter((p) => p.studentId === id);
-  const notasComValor = minhasNotas.filter((n) => n.value !== null) as { value: number }[];
-  const media = notasComValor.length
-    ? (notasComValor.reduce((a, b) => a + b.value, 0) / notasComValor.length).toFixed(1)
-    : '—';
+  const mediaNum = weightedAverage(minhasNotas, componentes);
+  const media = mediaNum === null ? '—' : mediaNum.toFixed(1);
+  const compNome = new Map(componentes.map((c) => [c.id, c.name]));
   const freq = minhasPresencas.length
     ? `${Math.round((minhasPresencas.filter((p) => p.present).length / minhasPresencas.length) * 100)}%`
     : '—';
@@ -87,6 +94,11 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
                     {n.kind !== 'formal' && (
                       <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
                         {n.kind === 'participacao' ? 'participação' : 'anotação'}
+                      </span>
+                    )}
+                    {n.componentId && compNome.get(n.componentId) && (
+                      <span className="ml-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] text-primary">
+                        {compNome.get(n.componentId)}
                       </span>
                     )}
                     {n.note && <span className="block text-xs opacity-80">{n.note}</span>}
