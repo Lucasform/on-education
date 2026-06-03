@@ -247,9 +247,10 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [~] **11.0 Criação de aulas pelo agente (ambos os segmentos 🏫👤).** O EduON gera a **aula/plano de aula** completo, tanto no fluxo da escola (vinculado a turma/matéria/diário, item 7.1) quanto no do professor autônomo (item 18.2), sempre no padrão definido (da escola ou "meu padrão"). Hoje há geração de plano em `/app/ia`; falta o vínculo direto turma↔matéria↔diário e a aplicação do padrão.
 - [~] **11. Atividades por IA com base no material didático.** EduON gera por tema; falta ancorar no material anexado (RAG).
   - [x] **11.1** Criação de atividade por descrição/solicitação do professor (`/app/atividades`).
-  - [ ] **11.2** Provas com base no material anexado.
-  - [ ] **11.3** Trabalhos com base no material ou sugestão.
-  - [ ] **11.4** Roteiros de estudo com base no material e na prova criada.
+  - [~] **11.2** Provas — gerador por tema feito (EduON cria prova com questões + gabarito, seguindo o padrão). Falta ancorar no material anexado (RAG, depende de Storage).
+  - [~] **11.3** Trabalhos — gerador por tema feito (objetivo, etapas, critérios). Falta com base no material anexado.
+  - [~] **11.4** Roteiros de estudo — gerador por tema feito (resumo, passos, exercícios). Falta com base no material/prova.
+  - **(11.2–11.4)** Tudo via seletor de tipo (Atividade/Prova/Trabalho/Roteiro) no card "Gerar com o EduON" em `/app/atividades`, aplicando `applyAiStandard` (o padrão da escola/professor) e gravando no banco com etiqueta do tipo.
   - [~] **11.5** Padronização das atividades pelo padrão da escola — `tenant_settings.ai_standard` aplicado às gerações do EduON (mesmo mecanismo de 18.3). Falta: padrão por turma/tipo de documento.
 
 ### Comunicação e acervo
