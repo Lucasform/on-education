@@ -71,6 +71,13 @@
       "when": 1780457370713,
       "tag": "0009_rich_clea",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780458337933,
+      "tag": "0010_amusing_thundra",
+      "breakpoints": true
     }
   ]
 }

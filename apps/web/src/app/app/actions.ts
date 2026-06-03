@@ -18,6 +18,7 @@ import {
   createEvent,
   createGuardian,
   createGuardiansBulk,
+  createOccurrence,
   createStudent,
   createStudentsBulk,
   createSubject,
@@ -26,6 +27,7 @@ import {
   createUnit,
   deleteClass,
   deleteEvent,
+  deleteOccurrence,
   deleteStudent,
   inviteMember,
   restoreClass,
@@ -57,6 +59,7 @@ import {
   createActivitySchema,
   createClassSchema,
   createMessageSchema,
+  createOccurrenceSchema,
   createQuizSchema,
   generateActivitySchema,
   generateQuizSchema,
@@ -491,6 +494,28 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+// --- Ocorrências -------------------------------------------------------------
+
+export async function createOccurrenceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentIds = formData.getAll('studentIds').map(String).filter(Boolean);
+  const input = createOccurrenceSchema.parse({
+    title: formData.get('title'),
+    description: (formData.get('description') as string) || undefined,
+    date: formData.get('date'),
+    severity: formData.get('severity'),
+    studentIds,
+  });
+  await createOccurrence(db(), ctx, input);
+  revalidatePath('/app/ocorrencias', 'page');
+}
+
+export async function deleteOccurrenceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteOccurrence(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/ocorrencias', 'page');
 }
 
 // --- Personalização da escola ------------------------------------------------

@@ -92,6 +92,7 @@ export const NAV: NavGroup[] = [
       { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },
       { label: 'Faltas', href: '/app/sala/faltas', icon: CalendarX },
       { label: 'Boletim', href: '/app/sala/boletim', icon: FileText },
+      { label: 'Ocorrências', href: '/app/ocorrencias', icon: AlertCircle },
     ],
   },
   {

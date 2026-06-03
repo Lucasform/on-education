@@ -688,6 +688,43 @@ export const tenantSettings = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Ocorrências (Fase 1A): registro disciplinar/pedagógico, vinculável a 1 ou vários alunos.
+// Conteúdo é dado sensível de menores: nunca logar. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const occurrences = oe.table(
+  'occurrences',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    date: date('date').notNull(),
+    severity: text('severity').notNull().default('leve'), // leve | media | grave
+    ...auditCols,
+  },
+  (t) => [
+    index('occurrences_tenant_idx').on(t.tenantId),
+    tenantPolicy('occurrences_tenant_isolation'),
+  ],
+);
+
+export const occurrenceStudents = oe.table(
+  'occurrence_students',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    occurrenceId: uuid('occurrence_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('occurrence_students_occ_idx').on(t.occurrenceId),
+    index('occurrence_students_student_idx').on(t.studentId),
+    tenantPolicy('occurrence_students_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -719,4 +756,6 @@ export const schema = {
   quizAttempts,
   messages,
   tenantSettings,
+  occurrences,
+  occurrenceStudents,
 };

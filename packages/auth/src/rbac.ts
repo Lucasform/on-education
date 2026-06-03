@@ -28,6 +28,7 @@ const TEACHING_RESOURCES: readonly string[] = [
   'communication',
   'quiz',
   'message',
+  'occurrence',
 ];
 
 /**

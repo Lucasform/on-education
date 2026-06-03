@@ -210,6 +210,16 @@ export const submitQuizAttemptSchema = z.object({
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
 
+/** Ocorrências do aluno (Fase 1A) — vinculável a 1 ou vários alunos. */
+export const createOccurrenceSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  date: z.string().date(),
+  severity: z.enum(['leve', 'media', 'grave']).default('leve'),
+  studentIds: z.array(uuidSchema).min(1),
+});
+export type CreateOccurrenceInput = z.infer<typeof createOccurrenceSchema>;
+
 /** Personalização da escola (Fase 1A). */
 export const updateTenantSettingsSchema = z.object({
   logoUrl: z.string().url().max(2000).optional().or(z.literal('')),
