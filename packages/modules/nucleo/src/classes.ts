@@ -97,6 +97,7 @@ export async function createStudent(client: DbClient, ctx: AuthContext, input: C
         tenantId: ctx.tenantId,
         fullName: input.fullName,
         classId: input.classId ?? null,
+        birthDate: input.birthDate ?? null,
         createdBy: ctx.userId,
       })
       .returning();
@@ -176,13 +177,17 @@ export async function createClassesBulk(client: DbClient, ctx: AuthContext, name
 export async function createStudentsBulk(
   client: DbClient,
   ctx: AuthContext,
-  items: { fullName: string; className?: string }[],
+  items: { fullName: string; className?: string; birthDate?: string }[],
 ) {
   assertCan(ctx, 'create', 'student');
   const planId = await assertEntitled(client, ctx.tenantId, 'classes.manage');
   const cap = limitFor(planId, 'students');
   const valid = items
-    .map((i) => ({ fullName: i.fullName.trim(), className: i.className?.trim() }))
+    .map((i) => ({
+      fullName: i.fullName.trim(),
+      className: i.className?.trim(),
+      birthDate: i.birthDate?.trim() || null,
+    }))
     .filter((i) => i.fullName);
   if (valid.length === 0) return 0;
 
@@ -204,6 +209,7 @@ export async function createStudentsBulk(
         tenantId: ctx.tenantId,
         fullName: i.fullName,
         classId: i.className ? (byName.get(i.className.toLowerCase()) ?? null) : null,
+        birthDate: i.birthDate,
         createdBy: ctx.userId,
       })),
     );

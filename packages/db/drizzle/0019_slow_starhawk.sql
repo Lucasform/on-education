@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."students" ADD COLUMN "birth_date" date;

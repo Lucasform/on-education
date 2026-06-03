@@ -140,6 +140,7 @@ export async function createStudentAction(formData: FormData): Promise<void> {
   const input = createStudentSchema.parse({
     fullName: formData.get('fullName'),
     classId: (formData.get('classId') as string) || undefined,
+    birthDate: (formData.get('birthDate') as string) || undefined,
   });
   await createStudent(db(), ctx, input);
   revalidatePath('/app', 'layout');
@@ -674,6 +675,15 @@ async function readCsv(formData: FormData): Promise<Record<string, string>[]> {
   return parseCsvRecords(text);
 }
 
+/** Converte "DD/MM/AAAA" ou "AAAA-MM-DD" para ISO (AAAA-MM-DD); senão, undefined. */
+function parseBrDate(raw: string): string | undefined {
+  const s = raw.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]!.padStart(2, '0')}-${m[1]!.padStart(2, '0')}`;
+  return undefined;
+}
+
 export async function importStudentsCsvAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const recs = await readCsv(formData);
@@ -681,6 +691,9 @@ export async function importStudentsCsvAction(formData: FormData): Promise<void>
     .map((r) => ({
       fullName: pick(r, 'nome', 'aluno', 'nome completo', 'name'),
       className: pick(r, 'turma', 'classe', 'serie', 'class') || undefined,
+      birthDate: parseBrDate(
+        pick(r, 'nascimento', 'data de nascimento', 'aniversario', 'birthdate'),
+      ),
     }))
     .filter((i) => i.fullName);
   if (items.length) await createStudentsBulk(db(), ctx, items);

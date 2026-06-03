@@ -64,6 +64,10 @@ export default async function AlunosPage() {
                   </option>
                 ))}
               </select>
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                Nascimento (opcional)
+                <input name="birthDate" type="date" className={fieldClass} />
+              </label>
               <Button type="submit" size="sm">
                 Adicionar aluno
               </Button>
@@ -90,8 +94,10 @@ export default async function AlunosPage() {
             <CsvImport
               action={importStudentsCsvAction}
               templateName="modelo-alunos.csv"
-              templateContent={'nome;turma\nAna Souza;6º A\nBruno Lima;6º A\nCarla Dias;\n'}
-              hint="Colunas: nome, turma (opcional). A turma é casada pelo nome já existente."
+              templateContent={
+                'nome;turma;nascimento\nAna Souza;6º A;15/03/2014\nBruno Lima;6º A;\nCarla Dias;;\n'
+              }
+              hint="Colunas: nome, turma (opcional), nascimento (DD/MM/AAAA, opcional)."
             />
           </div>
         </div>

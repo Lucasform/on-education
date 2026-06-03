@@ -273,6 +273,7 @@ export const students = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     classId: uuid('class_id'),
     fullName: text('full_name').notNull(),
+    birthDate: date('birth_date'), // aniversariantes do mês + idade
     ...auditCols,
   },
   (t) => [

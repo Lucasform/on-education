@@ -8,6 +8,7 @@ import {
 } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import {
+  Cake,
   CalendarDays,
   CheckCircle2,
   Circle,
@@ -71,6 +72,19 @@ export default async function OverviewPage() {
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
   const impersonating = await isImpersonating();
+
+  // Aniversariantes do mês (inspirado em painéis de gestão escolar, no nosso padrão).
+  const mesAtual = hoje.slice(5, 7);
+  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
+  const aniversariantes = alunos
+    .filter((a) => a.birthDate && a.birthDate.slice(5, 7) === mesAtual)
+    .map((a) => ({
+      id: a.id,
+      nome: a.fullName,
+      dia: a.birthDate!.slice(8, 10),
+      turma: a.classId ? (turmaNome.get(a.classId) ?? '') : '',
+    }))
+    .sort((a, b) => a.dia.localeCompare(b.dia));
 
   // Checklist de onboarding: o usuário vai alimentando o sistema sem ficar travado.
   const passos = [
@@ -157,6 +171,35 @@ export default async function OverviewPage() {
           ))}
         </div>
       </section>
+
+      {aniversariantes.length > 0 && (
+        <section className={cardClass}>
+          <div className="mb-3 flex items-center gap-2">
+            <Cake className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-medium">
+              Aniversariantes do mês ({aniversariantes.length})
+            </h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="border-b border-border text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="py-1.5 pr-4 font-medium">Dia</th>
+                <th className="py-1.5 pr-4 font-medium">Aluno</th>
+                <th className="py-1.5 font-medium">Turma</th>
+              </tr>
+            </thead>
+            <tbody>
+              {aniversariantes.map((a) => (
+                <tr key={a.id} className="border-b border-border/50 last:border-0">
+                  <td className="py-1.5 pr-4 font-medium">{a.dia}</td>
+                  <td className="py-1.5 pr-4">{a.nome}</td>
+                  <td className="py-1.5 text-muted-foreground">{a.turma || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       {proximosEventos.length > 0 && (
         <section className={cardClass}>

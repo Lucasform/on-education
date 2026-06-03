@@ -55,6 +55,7 @@ export type LinkClassSubjectInput = z.infer<typeof linkClassSubjectSchema>;
 export const createStudentSchema = z.object({
   fullName: z.string().min(1).max(200),
   classId: uuidSchema.optional(),
+  birthDate: z.string().date().optional(),
 });
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 

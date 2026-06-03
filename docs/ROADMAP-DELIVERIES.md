@@ -255,6 +255,12 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [ ] **19.4** Histórico escolar (registro acadêmico do aluno; geração de documento padronizado).
   - [ ] **19.5** Anexos e **criação de arquivo padronizado** (declarações, históricos, autorizações) a partir de modelos da escola → exportar PDF.
 
+### Inspirações externas (telas que o Lucas viu) — adaptar ao NOSSO padrão
+
+- [x] **Aniversariantes do mês** no dashboard (`/app`): `students.birth_date` + card com dia/aluno/turma. Data de nascimento no cadastro/CSV do aluno.
+- [ ] **Movimento financeiro mensal** (gráfico receitas×despesas) — depende do módulo Financeiro (item 16, "depois").
+- [ ] **Contas a receber/recebidas** (filtros por responsável/aluno/centro de receita + situação) — base do Financeiro manual (item 16, "depois").
+
 ### Visão geral
 
 - [x] **14. Painel geral de acompanhamento** — `/app/relatorios` consolidado: KPIs (turmas/alunos/média/frequência/ocorrências/simulados), desempenho por turma com barras e **alunos em risco** (freq < 75% ou média < 6, com link). Evoluir: pendências e período.

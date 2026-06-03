@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 19:10] — Aniversariantes do mês (inspiração externa, nosso padrão) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** o Lucas mandou prints de outro sistema (dashboard + financeiro). Decisão dele: "usar de referência onde encaixa; financeiro depois". Encaixe imediato e sem credencial = aniversariantes do mês.
+- **Segmento:** 🏫👤
+- **O que foi feito:** `students.birth_date` (migration); data de nascimento no cadastro do aluno e no **CSV** (coluna `nascimento`, aceita DD/MM/AAAA via `parseBrDate`); card **"Aniversariantes do mês"** no dashboard `/app` (dia/aluno/turma, ordenado por dia). Roadmap ganhou seção "Inspirações externas" registrando os outros itens (movimento financeiro, contas a receber) como dependentes do módulo Financeiro (depois).
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0019_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/classes.ts`, `apps/web/src/app/app/{actions.ts,page.tsx,alunos/page.tsx}`.
+- **Migrations/RLS:** `0019_slow_starhawk` aplicada em prod (students.birth_date). Verificado.
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** Financeiro (movimento mensal + contas a receber/recebidas) fica para quando o Lucas pedir; gateway depende de provedor.
+- **Próximo passo sugerido:** item 11 (perfis por papel) ou liberar Storage (12).
+- **Commit(s):** ver `feat: aniversariantes do mes no dashboard + data de nascimento do aluno`.
+
 ### [2026-06-03 18:40] — Lista "a desenvolver" itens 6–10 — STATUS: EM ANDAMENTO
 
 - **Tarefa:** itens 6–10 da lista (todos 🟢 sem credencial).
