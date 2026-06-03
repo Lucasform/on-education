@@ -7,11 +7,28 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · UX polish + Mensagens internas · **Status:** EM ANDAMENTO · **Próximo passo:** BNCC, refinar preços, notificações (e-mail/WhatsApp), portal do responsável. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · EduON atividades + onboarding + personalização da escola · **Status:** EM ANDAMENTO · **Próximo passo:** importação por planilha (CSV), views semana/mês no diário, BNCC, notificações. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-03 10:30] — EduON atividades + datas + onboarding + personalização — STATUS: EM ANDAMENTO
+
+- **Tarefa:** reforçar EduON, padrões de data, onboarding guiado e personalização da escola (sequência autônoma).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **EduON**: gera atividade direto no banco (`generateActivityWithEduON`, `/app/atividades`) e simulado com **dificuldade** (fácil/médio/difícil).
+  - **Datas**: diário, chamada e novo evento já vêm com a **data de hoje** (fuso SP) editável (`@/lib/date`).
+  - **Onboarding**: checklist de "primeiros passos" no início (progresso x/y, marca o feito, some quando completo).
+  - **Personalização da escola** (`/app/escola/personalizacao`): logo (URL), cor do tema (presets aplicados como `--primary` em todo o app), regimento, modelos de documento. Tabela `tenant_settings` (migration `0009`, RLS + grant). Logo aparece na sidebar; escrita restrita à gestão.
+  - **Landing**: rodapé só com © centralizado. **/admin** blindado contra falha transitória de banco (o erro 500 que o Lucas viu era transiente, durante um deploy; reproduzi o login do admin e deu 200).
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0009_*.sql`, `packages/modules/nucleo/src/settings.ts`, `packages/modules/pedagogico/src/activities.ts`, `apps/web/src/app/app/{page.tsx,escola/personalizacao/page.tsx,layout.tsx}`, `apps/web/src/components/app-shell.tsx`, `apps/web/src/lib/{date.ts,nav.ts}`, `apps/web/src/app/page.tsx`, `apps/web/src/app/admin/page.tsx`.
+- **Migrations/RLS:** `0009` (tenant_settings) aplicada em prod + grant `authenticated` (4).
+- **Testes:** `tsc` + `next build` verdes. Deploys `114b828`, `fb54e01`, `58cb253`, `6e41b9b` READY, prod 200.
+- **Pendências / bloqueios:** logo é por URL (upload via Storage depois); cor por presets (hex livre depois); importação por planilha (CSV) e views semana/mês ainda pendentes (pedidos do Lucas); cronograma pré-preenchido adiado a pedido dele.
+- **Próximo passo sugerido:** importação por planilha (CSV template + upload); views semana/mês/período no diário e chamada; BNCC.
+- **Commit(s):** `114b828`, `fb54e01`, `58cb253`, `6e41b9b`.
 
 ### [2026-06-02 08:05] — UX polish + Mensagens internas — STATUS: EM ANDAMENTO
 
