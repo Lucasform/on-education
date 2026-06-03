@@ -109,6 +109,7 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 ## Fase 2 — Financeiro institucional 🏫 `[V1]`
 
 - [ ] Mensalidades, régua de cobrança, inadimplência (Asaas/Iugu — PIX/boleto/cartão).
+- [ ] **Histórico de pagamento por responsável** (extrato: pago/aberto/vencido, por aluno) — ver item 5.1.1.
 - [ ] NFS-e automática ao confirmar pagamento; webhooks idempotentes e assinados.
 - [ ] `[V2]` bolsas/descontos, loja, split (rede). PCI: nunca armazenar cartão.
 
@@ -182,6 +183,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [ ] **4.1 / 10. Ocorrências dos alunos** (1 ou múltiplos alunos). **← em construção agora.**
 - [~] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; falta UI de vínculo com responsável.
   - [ ] **5.1** Acompanhamento financeiro do responsável (vínculo aluno↔responsável↔financeiro). Fase 2.
+    - [ ] **5.1.1 Histórico de pagamento do responsável** (mensalidades pagas/em aberto/vencidas por responsável, com vínculo ao(s) aluno(s); extrato e status). Base da régua de cobrança da Fase 2.
 
 ### Acadêmico e rotina
 
