@@ -204,8 +204,19 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [x] **4. Responsáveis + vínculo com aluno.** UI de vínculo no detalhe do aluno (`/app/alunos/[id]`): vincular/desvincular responsável com parentesco + financeiro/busca/emergência.
   - [ ] **4.1 / 10. Ocorrências dos alunos** (1 ou múltiplos alunos). **← em construção agora.**
 - [x] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; vínculo aluno↔responsável com UI no detalhe do aluno.
-  - [ ] **5.1** Acompanhamento financeiro do responsável (vínculo aluno↔responsável↔financeiro). Fase 2.
-    - [ ] **5.1.1 Histórico de pagamento do responsável** (mensalidades pagas/em aberto/vencidas por responsável, com vínculo ao(s) aluno(s); extrato e status). Base da régua de cobrança da Fase 2.
+  - [ ] **5.1 Acompanhamento financeiro do responsável — ESCOPO (Fase 2).** Vínculo aluno↔responsável pagador↔financeiro. Reusa `student_guardians.is_financial` (responsável que paga).
+    - **Objetivo:** a escola controla mensalidades por aluno e o responsável vê o extrato dele. Tudo INTERNO primeiro; integração bancária (boletos/PIX/NFS-e) é a Fase 2.F.
+    - **Modelo de dados (preparar; criar quando a fase começar):**
+      - `tuition_plans` — valor da mensalidade por turma/aluno (valor, dia de vencimento, desconto/bolsa %, vigência).
+      - `invoices` (ou `charges`) — cobrança mensal por aluno: competência (AAAA-MM), valor, vencimento, `status` (aberto/pago/vencido/cancelado), responsável pagador, aluno.
+      - `payments` — baixa: data, valor, método (dinheiro/pix/cartão/boleto), referência externa (PSP), `invoice_id`.
+      - `payment_events` — auditoria (entra na 2.F com webhooks do PSP).
+    - **Funcionalidades (faseadas):**
+      - **2.a (sem banco/PSP, já agrega valor):** cadastrar mensalidade por aluno/turma; **gerar cobranças do mês** (em lote por competência); **baixa manual** de pagamento; **extrato por responsável** (5.1.1); **dashboard financeiro** da escola (a receber, recebido no mês, inadimplência).
+      - **2.F (com PSP):** boleto/PIX via API, **confirmação por webhook**, NFS-e, **comprovante/nota automáticos** (ver bloco 2.F).
+    - **Segurança/LGPD:** dado financeiro sensível; RBAC restrito a gestão/financeiro (papéis `director`/`coordinator`/`staff_finance`); o responsável só enxerga o **próprio** extrato (via portal do responsável, futuro). Idempotência em geração de cobrança e baixa.
+    - **Não-objetivos agora:** não processa cartão, não emite boleto (isso é 2.F); sem integração externa.
+    - [ ] **5.1.1 Histórico de pagamento do responsável** (extrato: mensalidades pagas/em aberto/vencidas por responsável, com vínculo ao(s) aluno(s) e status). É a tela-âncora da 2.a e base da régua de cobrança.
 
 ### Acadêmico e rotina
 
