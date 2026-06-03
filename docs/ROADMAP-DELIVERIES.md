@@ -124,6 +124,17 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 - [ ] Conciliação e relatórios financeiros; régua de inadimplência automática.
 - **Credenciais necessárias (no momento):** chave do PSP (Asaas/Iugu), credenciais de NFS-e (prefeitura), e-mail (Resend) e/ou WhatsApp Cloud API.
 
+**Processo e necessidades técnicas das conexões bancárias (manter em mente desde já):**
+
+- **PSP, não banco direto:** integrar via gateway/PSP (Asaas, Iugu, Pagar.me, Stripe) que já fala com os bancos. Evita homologação banco a banco. Decisão de qual PSP → ADR antes de codar.
+- **Credenciais por tenant:** cada escola tem a própria conta no PSP. Guardar chaves do PSP **por tenant**, criptografadas (nunca em texto puro, nunca em log, nunca no client). Provável tabela `payment_accounts` (tenant_id, provider, credenciais cifradas, status).
+- **Webhooks assinados + idempotência:** receber confirmação de pagamento por webhook do PSP; **verificar assinatura** e tratar entrega duplicada com chave de idempotência. Toda baixa/_envio de comprovante_ é idempotente.
+- **Modelo de dados financeiro:** `invoices`/`charges` (mensalidade → boleto/PIX), `payments` (baixa), `payment_events` (auditoria do webhook). Vínculo com responsável (5.1.1) e aluno.
+- **Sandbox → produção:** começar no ambiente sandbox do PSP; só promover com testes de webhook de ponta a ponta. Variáveis de ambiente separadas por ambiente.
+- **Segurança/compliance:** **PCI — nunca tocar/armazenar cartão** (tokenização no PSP). LGPD em dados financeiros do responsável. Auditoria nas operações sensíveis.
+- **NFS-e:** emissão municipal varia por cidade; usar provedor de NFS-e (PlugNotas/Focus NFe) em vez de integrar prefeitura a prefeitura.
+- **Antifragilidade:** retries com backoff, fila para emissão/envio, e _circuit breaker_ para o PSP fora do ar (mesma postura do Segue Financeira).
+
 ## Fase 3 — Gestão & Analytics 🏫 `[V1]`
 
 - [x] Relatórios de direção (MVP): `/app/relatorios` com KPIs da escola (turmas, alunos, média geral, frequência, atividades, simulados) e desempenho por turma. Falta multi-unidade/rede e dashboards avançados.
