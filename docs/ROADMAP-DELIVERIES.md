@@ -256,8 +256,8 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Visão geral
 
-- [~] **14. Painel geral de acompanhamento** (visão consolidada da escola: turmas, alunos, frequência, notas, ocorrências, pendências). Hoje: `/app` (início) + `/app/relatorios`. Evoluir para um painel único e rico.
-- [ ] **15. Divisão e formato de visualização** (filtros por turma/série/período; alternar entre cartões, tabela e gráficos).
+- [x] **14. Painel geral de acompanhamento** — `/app/relatorios` consolidado: KPIs (turmas/alunos/média/frequência/ocorrências/simulados), desempenho por turma com barras e **alunos em risco** (freq < 75% ou média < 6, com link). Evoluir: pendências e período.
+- [~] **15. Divisão e formato de visualização** — filtro por turma no painel + barras (gráfico CSS) por turma. Falta: filtro por série/período e alternância cartões/tabela/gráficos.
 
 ### Plataforma
 

@@ -1,10 +1,12 @@
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { listClasses, listOccurrences, listStudents } from '@on-education/module-nucleo';
 import { listActivities, listQuizzes } from '@on-education/module-pedagogico';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
-import { cardClass, PageHeader } from '@/components/form';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
+import { Button } from '@on-education/ui';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -20,100 +22,183 @@ function Kpi({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+/** Barra horizontal simples (sem lib de gráfico): 0..max → largura %. */
+function Bar({ value, max, tone }: { value: number | null; max: number; tone: string }) {
+  const w = value === null ? 0 : Math.max(2, Math.min(100, Math.round((value / max) * 100)));
+  return (
+    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+      <div className={`h-full rounded-full ${tone}`} style={{ width: `${w}%` }} />
+    </div>
+  );
+}
+
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const fmt = (n: number | null, suffix = '') => (n === null ? '—' : `${n.toFixed(1)}${suffix}`);
 const pct = (part: number, total: number) => (total ? Math.round((part / total) * 100) : null);
 
-export default async function RelatoriosPage() {
+export default async function RelatoriosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ classId?: string }>;
+}) {
+  const { classId } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
-  const [turmas, alunos, notas, presencas, atividades, simulados] = await Promise.all([
-    listClasses(client, ctx),
-    listStudents(client, ctx),
-    listGrades(client, ctx),
-    listAttendance(client, ctx),
-    listActivities(client, ctx, {}),
-    listQuizzes(client, ctx),
-  ]);
+  const [turmas, alunosAll, notas, presencas, atividades, simulados, ocorrencias] =
+    await Promise.all([
+      listClasses(client, ctx),
+      listStudents(client, ctx),
+      listGrades(client, ctx),
+      listAttendance(client, ctx),
+      listActivities(client, ctx, {}),
+      listQuizzes(client, ctx),
+      listOccurrences(client, ctx),
+    ]);
 
-  // Indicadores gerais da escola (só notas com valor; anotações têm value nulo).
-  const comValor = notas.filter((n) => n.value !== null) as { studentId: string; value: number }[];
+  // Filtro por turma (item 15): escopa alunos e, por consequência, notas/frequência.
+  const alunos = classId ? alunosAll.filter((a) => a.classId === classId) : alunosAll;
+  const escopoIds = new Set(alunos.map((a) => a.id));
+  const inEscopo = (sid: string) => !classId || escopoIds.has(sid);
+
+  // Indicadores gerais (só notas com valor; anotações têm value nulo).
+  const comValor = notas.filter((n) => n.value !== null && inEscopo(n.studentId)) as {
+    studentId: string;
+    value: number;
+  }[];
+  const presEscopo = presencas.filter((p) => inEscopo(p.studentId));
   const mediaGeral = avg(comValor.map((n) => n.value));
-  const presentes = presencas.filter((p) => p.present).length;
-  const freqGeral = pct(presentes, presencas.length);
+  const freqGeral = pct(presEscopo.filter((p) => p.present).length, presEscopo.length);
 
-  // Agregação por turma.
+  // Agregação por turma (quando sem filtro) — com barras.
   const semTurma = { id: '—', name: 'Sem turma' };
   const grupos = [...turmas, semTurma].map((t) => {
     const ids = new Set(
-      alunos.filter((a) => (t.id === '—' ? !a.classId : a.classId === t.id)).map((a) => a.id),
+      alunosAll.filter((a) => (t.id === '—' ? !a.classId : a.classId === t.id)).map((a) => a.id),
     );
-    const notasT = comValor.filter((n) => ids.has(n.studentId)).map((n) => n.value);
+    const notasT = notas
+      .filter((n) => n.value !== null && ids.has(n.studentId))
+      .map((n) => n.value as number);
     const presT = presencas.filter((p) => ids.has(p.studentId));
-    const presentesT = presT.filter((p) => p.present).length;
     return {
       id: t.id,
       name: t.name,
       alunos: ids.size,
       media: avg(notasT),
-      freq: pct(presentesT, presT.length),
+      freq: pct(presT.filter((p) => p.present).length, presT.length),
     };
   });
   const linhas = grupos.filter((g) => g.alunos > 0);
+
+  // Alunos em risco (item 14): frequência < 75% ou média < 6.
+  const risco = alunos
+    .map((a) => {
+      const ns = notas
+        .filter((n) => n.value !== null && n.studentId === a.id)
+        .map((n) => n.value as number);
+      const ps = presencas.filter((p) => p.studentId === a.id);
+      const m = avg(ns);
+      const f = pct(ps.filter((p) => p.present).length, ps.length);
+      return { id: a.id, nome: a.fullName, media: m, freq: f };
+    })
+    .filter((a) => (a.media !== null && a.media < 6) || (a.freq !== null && a.freq < 75))
+    .sort((a, b) => (a.freq ?? 100) - (b.freq ?? 100));
 
   return (
     <>
       <div className="flex items-start justify-between gap-3">
         <PageHeader
-          title="Relatórios"
-          description="Visão de direção: indicadores da escola e desempenho por turma."
+          title="Painel da escola"
+          description="Visão consolidada: indicadores, desempenho por turma e alunos que precisam de atenção."
         />
         <PrintButton />
       </div>
 
+      <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3 print:hidden`}>
+        <label className="flex flex-col gap-1 text-sm">
+          Filtrar por turma
+          <select name="classId" defaultValue={classId ?? ''} className={fieldClass}>
+            <option value="">Toda a escola</option>
+            {turmas.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Button type="submit" size="sm" variant="outline">
+          Aplicar
+        </Button>
+      </form>
+
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <Kpi label="Turmas" value={turmas.length} />
-        <Kpi label="Alunos" value={alunos.length} />
+        <Kpi label={classId ? 'Alunos (turma)' : 'Alunos'} value={alunos.length} />
         <Kpi label="Média geral" value={fmt(mediaGeral)} />
         <Kpi label="Frequência" value={freqGeral === null ? '—' : `${freqGeral}%`} />
-        <Kpi label="Atividades" value={atividades.length} />
+        <Kpi label="Ocorrências" value={ocorrencias.length} />
         <Kpi label="Simulados" value={simulados.length} />
       </section>
 
-      <section className={`${cardClass} overflow-x-auto p-0`}>
-        <table className="w-full text-sm">
-          <thead className="border-b border-border text-left text-xs text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2 font-medium">Turma</th>
-              <th className="px-4 py-2 font-medium">Alunos</th>
-              <th className="px-4 py-2 font-medium">Média</th>
-              <th className="px-4 py-2 font-medium">Frequência</th>
-            </tr>
-          </thead>
-          <tbody>
-            {linhas.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-muted-foreground">
-                  Cadastre turmas e alunos e lance notas para ver os indicadores.
-                </td>
-              </tr>
-            )}
-            {linhas.map((g) => (
-              <tr key={g.id} className="border-b border-border/60 last:border-0">
-                <td className="px-4 py-2 font-medium">{g.name}</td>
-                <td className="px-4 py-2 text-muted-foreground">{g.alunos}</td>
-                <td className="px-4 py-2">{fmt(g.media)}</td>
-                <td className="px-4 py-2 text-muted-foreground">
-                  {g.freq === null ? '—' : `${g.freq}%`}
-                </td>
-              </tr>
+      {risco.length > 0 && (
+        <section className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">
+            Atenção: {risco.length} aluno(s) com frequência &lt; 75% ou média &lt; 6
+          </h2>
+          <ul className="space-y-1.5 text-sm">
+            {risco.slice(0, 12).map((a) => (
+              <li key={a.id} className="flex items-center justify-between gap-2">
+                <Link href={`/app/alunos/${a.id}`} className="hover:underline">
+                  {a.nome}
+                </Link>
+                <span className="text-xs text-muted-foreground">
+                  média {fmt(a.media)} · freq {a.freq === null ? '—' : `${a.freq}%`}
+                </span>
+              </li>
             ))}
-          </tbody>
-        </table>
-      </section>
+          </ul>
+        </section>
+      )}
+
+      {!classId && (
+        <section className={cardClass}>
+          <h2 className="mb-4 text-sm font-medium">Desempenho por turma</h2>
+          {linhas.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Cadastre turmas e alunos e lance notas para ver os indicadores.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {linhas.map((g) => (
+                <div key={g.id} className="grid grid-cols-[1fr,auto] items-center gap-x-4 gap-y-1">
+                  <span className="text-sm font-medium">{g.name}</span>
+                  <span className="text-xs text-muted-foreground">{g.alunos} aluno(s)</span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                      média {fmt(g.media)}
+                    </span>
+                    <Bar value={g.media} max={10} tone="bg-primary" />
+                  </div>
+                  <span />
+                  <div className="flex items-center gap-2">
+                    <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                      freq {g.freq === null ? '—' : `${g.freq}%`}
+                    </span>
+                    <Bar value={g.freq} max={100} tone="bg-emerald-500" />
+                  </div>
+                  <span />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      <p className="text-xs text-muted-foreground print:hidden">
+        Atividades no banco: {atividades.length}.
+      </p>
     </>
   );
 }

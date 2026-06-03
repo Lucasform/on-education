@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 16:10] — Painel geral + filtros/gráficos (itens 14/15) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** painel de direção consolidado e visualização com filtro/gráfico (itens 14 e 15, parcial).
+- **Segmento:** 🏫
+- **O que foi feito:** `/app/relatorios` virou "Painel da escola": KPIs incluindo **ocorrências**; filtro por turma (searchParam, escopa alunos/notas/frequência); **desempenho por turma com barras** (gráfico CSS puro, sem lib); seção **alunos em risco** (frequência < 75% ou média < 6, ordenado por frequência, link p/ o aluno). Tudo imprimível.
+- **Arquivos principais:** `apps/web/src/app/app/relatorios/page.tsx`.
+- **Migrations/RLS:** nenhuma (só leitura agregada).
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** filtro por série/período e alternância cartões/tabela/gráficos (15) pendentes.
+- **Próximo passo sugerido:** PWA (16); plano de aulas (7.1). Demais itens dependem do Lucas (Storage/Stripe/WhatsApp/BNCC).
+- **Commit(s):** ver `feat: painel da escola com filtro, graficos e alunos em risco`.
+
 ### [2026-06-03 15:50] — "Meu padrão" do EduON (itens 18.3 / 11.5) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** padrão pessoal/da escola aplicado a TODA geração do EduON.
