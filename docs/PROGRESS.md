@@ -7,11 +7,26 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · EduON gera simulados · **Status:** EM ANDAMENTO · **Próximo passo:** Mensagens internas, BNCC, refinar preços, polimentos de UX. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · UX polish + Mensagens internas · **Status:** EM ANDAMENTO · **Próximo passo:** BNCC, refinar preços, notificações (e-mail/WhatsApp), portal do responsável. Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-02 08:05] — UX polish + Mensagens internas — STATUS: EM ANDAMENTO
+
+- **Tarefa:** polimentos (calendário clicável, menu mobile) e mensagens internas para responsáveis.
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **Calendário**: clicar num dia abre os eventos daquele dia (destaque + painel "ver o mês") e o form de novo evento já vem com a data clicada (tudo via searchParam, sem client JS).
+  - **Landing**: menu sanduíche no mobile (`LandingMobileMenu`), já que a nav some em telas pequenas.
+  - **Mensagens internas**: tabela `messages` (migration `0008`, RLS + grant), `module-comunicacao/messages` (create/list/delete soft), página `/app/mensagens` (registrar por responsável + aluno opcional, histórico). RBAC recurso `message`; nav Mensagens vira rota real.
+- **Arquivos principais:** `apps/web/src/app/app/calendario/page.tsx`, `apps/web/src/components/landing-mobile-menu.tsx`, `apps/web/src/app/page.tsx`, `packages/db/src/schema.ts` + `drizzle/0008_*.sql`, `packages/modules/comunicacao/src/messages.ts`, `apps/web/src/app/app/mensagens/page.tsx`, `packages/validation/src/index.ts`, `packages/auth/src/rbac.ts`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** `0008` (messages) aplicada em prod + grant `authenticated` (verificado: 4).
+- **Testes:** `tsc` (db/validation/auth/comunicacao/web) + `next build` verdes. Push `34f09f7` (polish) e `1a9285f` (mensagens), deploys READY, prod 200.
+- **Pendências / bloqueios:** mensagem fica só registrada (sem envio e-mail/WhatsApp); resposta do responsável depende de portal; envio precisa de SMTP/WhatsApp (credenciais).
+- **Próximo passo sugerido:** Planejamento BNCC; notificações; refinar preços.
+- **Commit(s):** `34f09f7` (calendário+menu mobile), `1a9285f` (mensagens internas).
 
 ### [2026-06-02 07:35] — EduON gera simulados — STATUS: EM ANDAMENTO
 
