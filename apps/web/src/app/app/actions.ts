@@ -31,6 +31,7 @@ import {
   restoreClass,
   restoreEvent,
   restoreStudent,
+  upsertTenantSettings,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -60,6 +61,7 @@ import {
   generateActivitySchema,
   generateQuizSchema,
   submitQuizAttemptSchema,
+  updateTenantSettingsSchema,
   createCommunicationSchema,
   createEventSchema,
   createGuardianSchema,
@@ -489,6 +491,20 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+// --- Personalização da escola ------------------------------------------------
+
+export async function updateTenantSettingsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateTenantSettingsSchema.parse({
+    logoUrl: (formData.get('logoUrl') as string) || '',
+    themeColor: (formData.get('themeColor') as string) || undefined,
+    regimento: (formData.get('regimento') as string) || undefined,
+    docTemplates: (formData.get('docTemplates') as string) || undefined,
+  });
+  await upsertTenantSettings(db(), ctx, input);
+  revalidatePath('/app', 'layout');
 }
 
 // --- Mensagens internas (responsáveis) ---------------------------------------

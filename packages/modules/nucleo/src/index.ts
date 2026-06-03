@@ -7,3 +7,4 @@ export * from './classes';
 export * from './context';
 export * from './admin';
 export * from './events';
+export * from './settings';

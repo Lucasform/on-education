@@ -667,6 +667,27 @@ export const messages = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Personalização da escola (Fase 1A): identidade visual e documentos. Uma linha por tenant.
+// `theme_color` guarda um triplo HSL (ex.: "262 83% 58%") aplicado como --primary. RLS.
+// ---------------------------------------------------------------------------
+export const tenantSettings = oe.table(
+  'tenant_settings',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    logoUrl: text('logo_url'),
+    themeColor: text('theme_color'),
+    regimento: text('regimento'),
+    docTemplates: text('doc_templates'),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('tenant_settings_tenant_uq').on(t.tenantId),
+    tenantPolicy('tenant_settings_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -697,4 +718,5 @@ export const schema = {
   quizQuestions,
   quizAttempts,
   messages,
+  tenantSettings,
 };

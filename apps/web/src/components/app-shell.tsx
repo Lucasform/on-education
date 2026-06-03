@@ -18,11 +18,13 @@ export function AppShell({
   tenantType,
   subtitle,
   headerActions,
+  logoUrl,
   children,
 }: {
   tenantType: TenantType;
   subtitle?: string;
   headerActions?: ReactNode;
+  logoUrl?: string | null;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -37,9 +39,13 @@ export function AppShell({
         }`}
       >
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 text-primary-foreground">
-            <GraduationCap className="h-4 w-4" />
-          </span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo da escola" className="h-7 w-7 rounded-lg object-cover" />
+          ) : (
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 text-primary-foreground">
+              <GraduationCap className="h-4 w-4" />
+            </span>
+          )}
           <span className="font-semibold">On Way Education</span>
           <button
             type="button"

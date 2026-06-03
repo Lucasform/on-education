@@ -210,6 +210,15 @@ export const submitQuizAttemptSchema = z.object({
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
 
+/** Personalização da escola (Fase 1A). */
+export const updateTenantSettingsSchema = z.object({
+  logoUrl: z.string().url().max(2000).optional().or(z.literal('')),
+  themeColor: z.string().max(40).optional(),
+  regimento: z.string().max(50_000).optional(),
+  docTemplates: z.string().max(50_000).optional(),
+});
+export type UpdateTenantSettingsInput = z.infer<typeof updateTenantSettingsSchema>;
+
 /** Mensagem interna para um responsável (Fase 1A.3). */
 export const createMessageSchema = z.object({
   guardianId: uuidSchema,
