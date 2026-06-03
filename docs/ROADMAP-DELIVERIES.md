@@ -210,7 +210,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 ### Acadêmico e rotina
 
 - [x] **6. Calendário escolar** (`/app/calendario`).
-- [ ] **7. Cronograma das turmas** (horários semanais, com alterações).
+- [x] **7. Cronograma das turmas** — `schedule_slots` (dia/horário/matéria) + `/app/cronograma` (grade semanal por turma, imprimível). Falta: alterações pontuais/exceções de data.
   - [ ] **7.1** Plano de aulas por turma/matéria, vínculo com diário e com o cronograma.
   - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
   - [ ] **7.3** Planejamento de avaliações e trabalhos.

@@ -589,6 +589,29 @@ export const attendance = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// schedule_slots — cronograma/horário semanal da turma (item 7). Um slot = aula de uma
+// matéria num dia da semana (weekday 1=segunda..7=domingo) com início/fim. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const scheduleSlots = oe.table(
+  'schedule_slots',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id'),
+    weekday: integer('weekday').notNull(), // 1=segunda ... 7=domingo
+    startTime: text('start_time').notNull(), // 'HH:MM'
+    endTime: text('end_time'),
+    note: text('note'),
+    ...auditCols,
+  },
+  (t) => [
+    index('schedule_slots_class_idx').on(t.classId),
+    tenantPolicy('schedule_slots_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // communications — comunicados (Comunicação). Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
 export const communications = oe.table(
@@ -805,6 +828,7 @@ export const schema = {
   lessons,
   grades,
   attendance,
+  scheduleSlots,
   communications,
   portfolioEntries,
   events,

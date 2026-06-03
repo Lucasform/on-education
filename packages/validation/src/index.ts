@@ -196,6 +196,21 @@ export const recordAttendanceSchema = z.object({
 });
 export type RecordAttendanceInput = z.infer<typeof recordAttendanceSchema>;
 
+/** Cronograma/horário semanal da turma (item 7). */
+export const createScheduleSlotSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  weekday: z.coerce.number().int().min(1).max(7),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Use o formato HH:MM'),
+  endTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, 'Use o formato HH:MM')
+    .optional()
+    .or(z.literal('')),
+  note: z.string().max(200).optional(),
+});
+export type CreateScheduleSlotInput = z.infer<typeof createScheduleSlotSchema>;
+
 /** Comunicação — comunicados. */
 export const createCommunicationSchema = z.object({
   title: z.string().min(1).max(200),

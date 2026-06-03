@@ -1,3 +1,5 @@
+export * from './schedule';
+
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { attendance, type DbClient, grades, lessons } from '@on-education/db';
 import { assertEntitled } from '@on-education/module-nucleo';

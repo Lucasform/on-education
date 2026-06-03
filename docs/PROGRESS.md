@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 15:05] — Cronograma das turmas (item 7) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** horário semanal por turma (item 7).
+- **Segmento:** 🏫👤
+- **O que foi feito:** tabela `schedule_slots` (classId, subjectId?, weekday 1-7, startTime/endTime, note) RLS; módulo `module-sala-de-aula/schedule.ts` (create/list/delete, checagem tripla); página `/app/cronograma` (grade semanal por turma em cartões por dia, dias úteis por padrão + fim de semana se houver, adicionar/remover slot, imprimível em PDF). Nav: item "Cronograma" no grupo Sala de aula (ambos os segmentos).
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0014_*.sql`, `packages/validation/src/index.ts`, `packages/modules/sala-de-aula/src/{schedule,index}.ts`, `apps/web/src/app/app/{actions.ts,cronograma/page.tsx}`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** `0014_foamy_cobalt_man` aplicada em prod (schedule_slots).
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** alterações pontuais/exceções de data e vínculo cronograma↔diário (7.1/7.2) seguem pendentes.
+- **Próximo passo sugerido:** quadro de funcionários + papel monitor (1); "Meu padrão" do professor (18.3); plano de aulas (7.1).
+- **Commit(s):** ver `feat: cronograma semanal das turmas`.
+
 ### [2026-06-03 14:40] — Notas: participação + anotações (item 9) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** completar o item 9 (notas formais + participação + anotações por aluno).

@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpen,
   Building2,
+  CalendarClock,
   CalendarDays,
   CalendarX,
   ClipboardList,
@@ -91,6 +92,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Turmas', href: '/app/turmas', icon: Users },
       { label: 'Alunos', href: '/app/alunos', icon: GraduationCap },
+      { label: 'Cronograma', href: '/app/cronograma', icon: CalendarClock },
       { label: 'Diário de classe', href: '/app/sala/diario', icon: NotebookPen },
       { label: 'Chamada', href: '/app/sala/chamada', icon: ClipboardList },
       { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },

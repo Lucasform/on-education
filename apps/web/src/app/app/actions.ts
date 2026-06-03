@@ -56,6 +56,8 @@ import {
 } from '@on-education/module-pedagogico';
 import {
   createLesson,
+  createScheduleSlot,
+  deleteScheduleSlot,
   recordAttendance,
   recordAttendanceBulk,
   recordGrade,
@@ -63,6 +65,7 @@ import {
 import {
   addQuizQuestionSchema,
   assignTeachingSchema,
+  createScheduleSlotSchema,
   linkClassSubjectSchema,
   linkGuardianSchema,
   updateClassSchema,
@@ -710,6 +713,28 @@ export async function unlinkClassSubjectAction(formData: FormData): Promise<void
   const ctx = await requireCtx();
   await unlinkClassSubject(db(), ctx, String(formData.get('id')));
   revalidatePath(`/app/turmas/${String(formData.get('classId'))}`, 'page');
+}
+
+// --- Cronograma / horário semanal (item 7) -----------------------------------
+
+export async function createScheduleSlotAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createScheduleSlotSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    weekday: formData.get('weekday'),
+    startTime: formData.get('startTime'),
+    endTime: (formData.get('endTime') as string) || undefined,
+    note: (formData.get('note') as string) || undefined,
+  });
+  await createScheduleSlot(db(), ctx, input);
+  revalidatePath('/app/cronograma', 'page');
+}
+
+export async function deleteScheduleSlotAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteScheduleSlot(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/cronograma', 'page');
 }
 
 // --- Vínculo aluno↔responsável (itens 4 / 5) ---------------------------------
