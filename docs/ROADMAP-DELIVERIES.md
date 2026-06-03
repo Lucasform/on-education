@@ -261,7 +261,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Plataforma
 
-- [~] **16. App mobile** com os assuntos centralizados e o melhor UI possível. Hoje: web responsivo (sidebar vira drawer no mobile) + **navegação inferior** no mobile (`BottomNav`: Início/Turmas/Alunos/EduON/Agenda). Evoluir: PWA (manifest + service worker) e/ou app nativo.
+- [~] **16. App mobile** com os assuntos centralizados e o melhor UI possível. Hoje: web responsivo + **navegação inferior** no mobile (`BottomNav`) + **PWA instalável** (`app/manifest.ts` + `public/sw.js` passthrough + registro via `PwaRegister`, abre em `/app` standalone). Evoluir: offline real (cache no SW) e/ou app nativo.
 
 ### Pendências transversais já mapeadas
 

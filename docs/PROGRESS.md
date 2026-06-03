@@ -7,11 +7,23 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · Vínculos do professor + faltas por matéria + relatórios PDF + import CSV + menu enxuto do individual · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** seguir o backlog "Escola — visão detalhada" — próximos: vínculo turma↔matéria (3.2) e material didático (3.1/3.3, depende de Storage), cronograma (7), "Meu padrão" do professor autônomo (18.3/18.6), BNCC. Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-03 16:25] — PWA instalável (item 16) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** tornar o app instalável (primeiro passo de app mobile, item 16).
+- **Segmento:** 🏫👤
+- **O que foi feito:** `app/manifest.ts` (nome, start_url `/app`, standalone, theme/background, ícone SVG), `public/sw.js` (service worker passthrough — sem cache agressivo p/ não servir versão velha), `components/pwa-register.tsx` (registra o SW no load), layout raiz com `appleWebApp` + `viewport.themeColor` + `<PwaRegister/>`. Agora o navegador oferece "Instalar app".
+- **Arquivos principais:** `apps/web/src/app/{manifest.ts,layout.tsx}`, `apps/web/public/sw.js`, `apps/web/src/components/pwa-register.tsx`.
+- **Migrations/RLS:** nenhuma.
+- **Testes:** typecheck/lint/build 14/14 verdes (rota `/manifest.webmanifest` gerada). Deploy: push p/ main.
+- **Pendências / bloqueios:** offline real (cache no SW) adiado de propósito.
+- **Próximo passo sugerido:** parei nos itens que dependem do Lucas (Storage/Stripe/WhatsApp/BNCC). Sem credencial ainda restam: plano de aulas (7.1), mural dos pais (12), banco coletivo (13).
+- **Commit(s):** ver `feat: pwa instalavel (manifest + service worker)`.
 
 ### [2026-06-03 16:10] — Painel geral + filtros/gráficos (itens 14/15) — STATUS: EM ANDAMENTO
 
