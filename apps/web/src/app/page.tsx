@@ -8,6 +8,7 @@ import {
   Users,
 } from 'lucide-react';
 
+import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 import { PricingCards } from '@/components/pricing-cards';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -191,7 +192,7 @@ export default function HomePage() {
               Planos para cada momento
             </h2>
             <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Comece com 14 dias grátis e evolua quando precisar.
+              Comece com 7 dias grátis e evolua quando precisar.
             </p>
           </div>
           <PricingCards />
@@ -203,25 +204,7 @@ export default function HomePage() {
           <p className="mx-auto mt-2 max-w-md text-white/80">
             Crie sua conta em minutos ou leve o On Way Education para a sua escola.
           </p>
-          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href="/signup">
-              <Button
-                size="lg"
-                className="rounded-full bg-white px-7 text-primary hover:bg-white/90"
-              >
-                Sou professor autônomo
-              </Button>
-            </a>
-            <a href="/signup/escola">
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full border-white/40 bg-transparent px-7 text-white hover:bg-white/10"
-              >
-                Tenho uma escola
-              </Button>
-            </a>
-          </div>
+          <AudienceButtons />
         </section>
       </main>
 
