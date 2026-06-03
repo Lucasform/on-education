@@ -281,11 +281,14 @@ export async function createLessonAction(formData: FormData): Promise<void> {
 
 export async function recordGradeAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
+  const rawValue = (formData.get('value') as string) || '';
   const input = recordGradeSchema.parse({
     studentId: formData.get('studentId'),
     classId: (formData.get('classId') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'formal',
     label: formData.get('label'),
-    value: formData.get('value'),
+    value: rawValue === '' ? undefined : rawValue,
+    note: (formData.get('note') as string) || undefined,
   });
   await recordGrade(db(), ctx, input);
   revalidatePath('/app', 'layout');

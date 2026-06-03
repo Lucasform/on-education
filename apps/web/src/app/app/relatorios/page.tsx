@@ -39,8 +39,9 @@ export default async function RelatoriosPage() {
     listQuizzes(client, ctx),
   ]);
 
-  // Indicadores gerais da escola.
-  const mediaGeral = avg(notas.map((n) => n.value));
+  // Indicadores gerais da escola (só notas com valor; anotações têm value nulo).
+  const comValor = notas.filter((n) => n.value !== null) as { studentId: string; value: number }[];
+  const mediaGeral = avg(comValor.map((n) => n.value));
   const presentes = presencas.filter((p) => p.present).length;
   const freqGeral = pct(presentes, presencas.length);
 
@@ -50,7 +51,7 @@ export default async function RelatoriosPage() {
     const ids = new Set(
       alunos.filter((a) => (t.id === '—' ? !a.classId : a.classId === t.id)).map((a) => a.id),
     );
-    const notasT = notas.filter((n) => ids.has(n.studentId)).map((n) => n.value);
+    const notasT = comValor.filter((n) => ids.has(n.studentId)).map((n) => n.value);
     const presT = presencas.filter((p) => ids.has(p.studentId));
     const presentesT = presT.filter((p) => p.present).length;
     return {

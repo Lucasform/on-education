@@ -166,14 +166,25 @@ export const createLessonSchema = z.object({
 });
 export type CreateLessonInput = z.infer<typeof createLessonSchema>;
 
-export const recordGradeSchema = z.object({
-  studentId: uuidSchema,
-  classId: uuidSchema.optional(),
-  subjectId: uuidSchema.optional(),
-  termId: uuidSchema.optional(),
-  label: z.string().min(1).max(120),
-  value: z.coerce.number().min(0).max(100),
-});
+export const gradeKindSchema = z.enum(['formal', 'participacao', 'anotacao']);
+export type GradeKind = z.infer<typeof gradeKindSchema>;
+
+export const recordGradeSchema = z
+  .object({
+    studentId: uuidSchema,
+    classId: uuidSchema.optional(),
+    subjectId: uuidSchema.optional(),
+    termId: uuidSchema.optional(),
+    kind: gradeKindSchema.default('formal'),
+    label: z.string().min(1).max(120),
+    /** Nulo para anotações (observação sem nota). */
+    value: z.coerce.number().min(0).max(100).optional(),
+    note: z.string().max(2000).optional(),
+  })
+  .refine((d) => d.kind === 'anotacao' || d.value !== undefined, {
+    message: 'Informe a nota para avaliação ou participação.',
+    path: ['value'],
+  });
 export type RecordGradeInput = z.infer<typeof recordGradeSchema>;
 
 export const recordAttendanceSchema = z.object({

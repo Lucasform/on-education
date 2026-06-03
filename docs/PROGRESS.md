@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 14:40] — Notas: participação + anotações (item 9) — STATUS: EM ANDAMENTO
+
+- **Tarefa:** completar o item 9 (notas formais + participação + anotações por aluno).
+- **Segmento:** 🏫👤
+- **O que foi feito:** `grades.kind` (formal/participacao/anotacao) + `grades.note`; `grades.value` virou NULLABLE (anotação não tem nota). `recordGrade` grava kind/note e zera value em anotação. Validação com refine (nota obrigatória só para formal/participação). Página `/app/sala/notas` com seletor de tipo + observação + valor opcional. Médias em Boletim, Relatórios e detalhe do aluno passam a ignorar `value` nulo (anotações não entram na média). Tags de tipo + observação exibidas nas listas.
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0013_*.sql`, `packages/validation/src/index.ts`, `packages/modules/sala-de-aula/src/index.ts`, `apps/web/src/app/app/{actions.ts,sala/notas/page.tsx,sala/boletim/page.tsx,relatorios/page.tsx,alunos/[id]/page.tsx}`.
+- **Migrations/RLS:** `0013_glorious_oracle` aplicada em prod (grades.value DROP NOT NULL + kind + note).
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** —
+- **Próximo passo sugerido:** cronograma das turmas (7); quadro de funcionários + papel monitor (1); "Meu padrão" do professor (18.3).
+- **Commit(s):** ver `feat: notas com participacao e anotacoes`.
+
 ### [2026-06-03 14:10] — Matérias da turma + série/idade + vínculo responsável + UI mobile — STATUS: EM ANDAMENTO
 
 - **Tarefa:** continuar o backlog "Escola — visão detalhada" (itens 3, 3.2, 4, 5) + melhorias de UI pedidas pelo Lucas.

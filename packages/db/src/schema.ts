@@ -556,7 +556,11 @@ export const grades = oe.table(
     subjectId: uuid('subject_id'),
     termId: uuid('term_id'),
     label: text('label').notNull(), // ex.: 'Prova 1'
-    value: real('value').notNull(), // 0..10 (ou outra escala)
+    // kind (item 9): 'formal' (avaliação), 'participacao' (nota de participação),
+    // 'anotacao' (observação qualitativa sem nota — value fica nulo).
+    kind: text('kind').notNull().default('formal'),
+    value: real('value'), // 0..10/100; nulo para anotações
+    note: text('note'), // texto da anotação/observação
     ...auditCols,
   },
   (t) => [index('grades_tenant_idx').on(t.tenantId), tenantPolicy('grades_tenant_isolation')],

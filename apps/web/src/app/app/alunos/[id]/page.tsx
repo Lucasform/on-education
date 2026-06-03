@@ -39,8 +39,9 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   const minhasNotas = notas.filter((n) => n.studentId === id);
   const minhasPresencas = presencas.filter((p) => p.studentId === id);
   const meuPortfolio = portfolio.filter((p) => p.studentId === id);
-  const media = minhasNotas.length
-    ? (minhasNotas.reduce((a, b) => a + b.value, 0) / minhasNotas.length).toFixed(1)
+  const notasComValor = minhasNotas.filter((n) => n.value !== null) as { value: number }[];
+  const media = notasComValor.length
+    ? (notasComValor.reduce((a, b) => a + b.value, 0) / notasComValor.length).toFixed(1)
     : '—';
   const freq = minhasPresencas.length
     ? `${Math.round((minhasPresencas.filter((p) => p.present).length / minhasPresencas.length) * 100)}%`
@@ -80,9 +81,19 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           ) : (
             <ul className="space-y-1 text-sm text-muted-foreground">
               {minhasNotas.map((n) => (
-                <li key={n.id} className="flex justify-between">
-                  <span>{n.label}</span>
-                  <span className="font-medium text-foreground">{n.value}</span>
+                <li key={n.id} className="flex justify-between gap-2">
+                  <span>
+                    {n.label}
+                    {n.kind !== 'formal' && (
+                      <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
+                        {n.kind === 'participacao' ? 'participação' : 'anotação'}
+                      </span>
+                    )}
+                    {n.note && <span className="block text-xs opacity-80">{n.note}</span>}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {n.value === null ? '—' : n.value}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -21,7 +21,9 @@ export default async function BoletimPage() {
   ]);
 
   const media = (sid: string) => {
-    const vs = notas.filter((n) => n.studentId === sid).map((n) => n.value);
+    const vs = notas
+      .filter((n) => n.studentId === sid && n.value !== null)
+      .map((n) => n.value as number);
     return vs.length ? (vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(1) : '—';
   };
   const presenca = (sid: string) => {

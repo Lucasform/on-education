@@ -55,8 +55,10 @@ export async function recordGrade(client: DbClient, ctx: AuthContext, input: Rec
         classId: input.classId ?? null,
         subjectId: input.subjectId ?? null,
         termId: input.termId ?? null,
+        kind: input.kind,
         label: input.label,
-        value: input.value,
+        value: input.kind === 'anotacao' ? null : (input.value ?? null),
+        note: input.note ?? null,
         createdBy: ctx.userId,
       })
       .returning();

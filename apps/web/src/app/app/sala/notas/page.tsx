@@ -22,30 +22,44 @@ export default async function NotasPage() {
     listClasses(client, ctx),
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
+  const KIND_LABEL: Record<string, string> = {
+    formal: 'avaliação',
+    participacao: 'participação',
+    anotacao: 'anotação',
+  };
 
   return (
     <>
-      <PageHeader title="Notas" description="Lance as notas das avaliações." />
+      <PageHeader
+        title="Notas"
+        description="Avaliações formais, notas de participação e anotações por aluno."
+      />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Lançamentos ({notas.length})</h2>
           {notas.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhuma nota lançada ainda.</p>
+            <p className="text-sm text-muted-foreground">Nenhum lançamento ainda.</p>
           ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
+            <ul className="space-y-1.5 text-sm text-muted-foreground">
               {notas.map((n) => (
                 <li key={n.id} className="flex justify-between gap-2">
                   <span>
                     {alunoNome.get(n.studentId) ?? 'Aluno'} · {n.label}
+                    <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
+                      {KIND_LABEL[n.kind] ?? n.kind}
+                    </span>
+                    {n.note && <span className="block text-xs opacity-80">{n.note}</span>}
                   </span>
-                  <span className="font-medium text-foreground">{n.value}</span>
+                  <span className="font-medium text-foreground">
+                    {n.value === null ? '—' : n.value}
+                  </span>
                 </li>
               ))}
             </ul>
           )}
         </div>
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Lançar nota</h2>
+          <h2 className="mb-3 text-sm font-medium">Novo lançamento</h2>
           <form action={recordGradeAction} className="flex flex-col gap-2">
             <select name="studentId" required className={fieldClass} defaultValue="">
               <option value="" disabled>
@@ -65,10 +79,15 @@ export default async function NotasPage() {
                 </option>
               ))}
             </select>
+            <select name="kind" className={fieldClass} defaultValue="formal">
+              <option value="formal">Avaliação (nota formal)</option>
+              <option value="participacao">Participação</option>
+              <option value="anotacao">Anotação (sem nota)</option>
+            </select>
             <input
               name="label"
               required
-              placeholder="Avaliação (ex.: Prova 1)"
+              placeholder="Título (ex.: Prova 1, Participação 1º bim.)"
               className={fieldClass}
             />
             <input
@@ -77,12 +96,12 @@ export default async function NotasPage() {
               step="0.1"
               min="0"
               max="100"
-              required
-              placeholder="Nota"
+              placeholder="Nota (deixe vazio para anotação)"
               className={fieldClass}
             />
+            <input name="note" placeholder="Observação (opcional)" className={fieldClass} />
             <Button type="submit" size="sm">
-              Lançar nota
+              Lançar
             </Button>
           </form>
           {alunos.length === 0 && (
