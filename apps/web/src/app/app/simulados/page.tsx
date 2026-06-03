@@ -75,12 +75,18 @@ export default async function SimuladosPage() {
                   placeholder="Tema (ex.: frações no 6º ano)"
                   className={fieldClass}
                 />
+                <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
                 <div className="flex gap-2">
-                  <input
-                    name="subject"
-                    placeholder="Disciplina (opcional)"
+                  <select
+                    name="level"
+                    defaultValue="Médio"
                     className={fieldClass}
-                  />
+                    aria-label="Dificuldade"
+                  >
+                    <option value="Fácil">Fácil</option>
+                    <option value="Médio">Médio</option>
+                    <option value="Difícil">Difícil</option>
+                  </select>
                   <input
                     name="count"
                     type="number"

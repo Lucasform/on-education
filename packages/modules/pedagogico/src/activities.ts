@@ -1,8 +1,15 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { activities, type DbClient } from '@on-education/db';
+import {
+  type AiProvider,
+  assertWithinQuota,
+  createAnthropicProvider,
+  recordUsage,
+} from '@on-education/module-ia';
 import { assertEntitled } from '@on-education/module-nucleo';
 import type {
   CreateActivityInput,
+  GenerateActivityInput,
   SearchActivitiesInput,
   UpdateActivityInput,
 } from '@on-education/validation';
@@ -36,6 +43,52 @@ export async function createActivity(
       .returning();
     return rows[0]!;
   });
+}
+
+/**
+ * Gera uma atividade pelo EduON (IA) e já salva no banco. Checagem tripla + cota;
+ * consumo medido por tenant. Provider injetável (testes).
+ */
+export async function generateActivityWithEduON(
+  client: DbClient,
+  ctx: AuthContext,
+  input: GenerateActivityInput,
+  provider?: AiProvider,
+) {
+  assertCan(ctx, 'create', 'activity');
+  const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
+  await assertWithinQuota(client, ctx.tenantId, planId);
+
+  const ai = provider ?? createAnthropicProvider('sonnet');
+  const system =
+    'Você é o EduON, um assistente pedagógico. Gere uma atividade pedagógica completa e pronta ' +
+    'para uso em português do Brasil (enunciado, questões/exercícios e, quando fizer sentido, ' +
+    'gabarito ao final). Responda apenas com o conteúdo da atividade, sem comentários.';
+  const prompt =
+    `Crie uma atividade sobre: ${input.topic}.` +
+    (input.subject ? ` Disciplina: ${input.subject}.` : '') +
+    (input.level ? ` Nível/ano: ${input.level}.` : '');
+
+  const result = await ai.generate({ prompt, system });
+
+  const atividade = await client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .insert(activities)
+      .values({
+        tenantId: ctx.tenantId,
+        title: input.topic.slice(0, 200),
+        subject: input.subject ?? null,
+        content: result.text,
+        tags: ['eduon'],
+        aiGenerated: true,
+        createdBy: ctx.userId,
+      })
+      .returning();
+    return rows[0]!;
+  });
+
+  await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
+  return atividade;
 }
 
 export async function updateActivity(

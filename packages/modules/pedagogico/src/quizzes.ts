@@ -106,7 +106,7 @@ export async function generateQuizWithEduON(
   const prompt =
     `Gere ${input.count} questões de múltipla escolha sobre: ${input.topic}.` +
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +
-    (input.level ? ` Nível/ano: ${input.level}.` : '');
+    (input.level ? ` Dificuldade/nível: ${input.level}.` : '');
 
   const result = await ai.generate({ prompt, system });
   const questoes = parseQuestoes(result.text);

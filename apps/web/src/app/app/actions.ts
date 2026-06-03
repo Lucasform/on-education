@@ -39,6 +39,7 @@ import {
   createQuiz,
   deleteActivity,
   deleteQuiz,
+  generateActivityWithEduON,
   generateQuizWithEduON,
   restoreActivity,
   submitQuizAttempt,
@@ -56,6 +57,7 @@ import {
   createClassSchema,
   createMessageSchema,
   createQuizSchema,
+  generateActivitySchema,
   generateQuizSchema,
   submitQuizAttemptSchema,
   createCommunicationSchema,
@@ -124,6 +126,18 @@ export async function createActivityAction(formData: FormData): Promise<void> {
     aiGenerated: false,
   });
   await createActivity(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+/** Gera uma atividade pelo EduON e salva direto no banco. */
+export async function generateActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateActivitySchema.parse({
+    topic: formData.get('topic'),
+    subject: (formData.get('subject') as string) || undefined,
+    level: (formData.get('level') as string) || undefined,
+  });
+  await generateActivityWithEduON(db(), ctx, input);
   revalidatePath('/app', 'layout');
 }
 

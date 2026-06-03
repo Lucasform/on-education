@@ -227,3 +227,11 @@ export const generateQuizSchema = z.object({
   count: z.number().int().min(1).max(15).default(5),
 });
 export type GenerateQuizInput = z.infer<typeof generateQuizSchema>;
+
+/** Geração de atividade pelo EduON (IA), direto no banco. */
+export const generateActivitySchema = z.object({
+  topic: z.string().min(2).max(300),
+  subject: z.string().max(120).optional(),
+  level: z.string().max(120).optional(),
+});
+export type GenerateActivityInput = z.infer<typeof generateActivitySchema>;
