@@ -4,13 +4,29 @@ import { Button } from '@on-education/ui';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 
-const PLANOS = [
+type Plano = {
+  nome: string;
+  resumo: string;
+  nota: string;
+  equiv?: string;
+  mensal?: string;
+  anual?: string;
+  perAluno?: string;
+  periodo?: string;
+  recursos: string[];
+  cta: string;
+  href: string;
+  badge: string;
+};
+
+const PLANOS: Plano[] = [
   {
     nome: 'Professor',
-    preco: 'R$ 19',
-    periodo: '/mês',
+    mensal: 'R$ 39',
+    anual: 'R$ 390',
+    equiv: 'equivale a R$ 32,50/mês',
     nota: '14 dias grátis para testar',
-    resumo: 'Para o professor autônomo organizar suas turmas.',
+    resumo: 'Para o professor autônomo organizar suas turmas com IA.',
     recursos: [
       'Turmas e alunos',
       'EduON pedagógico (cota mensal)',
@@ -23,8 +39,9 @@ const PLANOS = [
   },
   {
     nome: 'Professor Pro',
-    preco: 'R$ 39',
-    periodo: '/mês',
+    mensal: 'R$ 79',
+    anual: 'R$ 790',
+    equiv: 'equivale a R$ 65,80/mês',
     nota: '14 dias grátis para testar',
     resumo: 'Para quem quer o EduON sem limites e mais produtividade.',
     recursos: [
@@ -40,16 +57,16 @@ const PLANOS = [
   },
   {
     nome: 'Escola',
-    preco: 'Sob consulta',
-    periodo: '',
-    nota: 'Plano institucional',
-    resumo: 'Para colégios, com gestão e vários perfis de acesso.',
+    perAluno: 'R$ 9',
+    periodo: '/aluno · mês',
+    nota: 'Mínimo R$ 499/mês · anual com 2 meses grátis',
+    resumo: 'Para colégios, com gestão completa e vários perfis de acesso.',
     recursos: [
-      'Diretor, coordenação e professores',
-      'Unidades, ano letivo e disciplinas',
-      'Relatórios de direção',
+      'Diretor, coordenação, secretaria e professores',
+      'Turmas, disciplinas, diário e boletim',
+      'Relatórios de direção e ocorrências',
       'Responsáveis e comunicação',
-      'Onboarding e suporte',
+      'Onboarding e suporte dedicado',
     ],
     cta: 'Falar com a gente',
     href: '/signup/escola',
@@ -58,14 +75,39 @@ const PLANOS = [
 ];
 
 export function PricingCards() {
-  // Pro vem pré-selecionado; clicar em outro card muda a seleção (e a cor).
+  // Pro pré-selecionado; clicar muda a cor. Ciclo anual por padrão (melhor oferta).
   const [sel, setSel] = useState(1);
+  const [anual, setAnual] = useState(true);
 
   return (
     <>
-      <div className="mt-10 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8 flex justify-center">
+        <div className="inline-flex rounded-full border border-border bg-card p-1 text-sm">
+          <button
+            type="button"
+            onClick={() => setAnual(false)}
+            className={`rounded-full px-4 py-1.5 transition-colors ${
+              !anual ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            Mensal
+          </button>
+          <button
+            type="button"
+            onClick={() => setAnual(true)}
+            className={`rounded-full px-4 py-1.5 transition-colors ${
+              anual ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            Anual · 2 meses grátis
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
         {PLANOS.map((p, i) => {
           const ativo = i === sel;
+          const isEscola = Boolean(p.perAluno);
           return (
             <div
               key={p.nome}
@@ -93,10 +135,16 @@ export function PricingCards() {
               <h3 className="text-lg font-semibold">{p.nome}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{p.resumo}</p>
               <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-3xl font-bold">{p.preco}</span>
-                {p.periodo && <span className="text-sm text-muted-foreground">{p.periodo}</span>}
+                <span className="text-3xl font-bold">
+                  {isEscola ? p.perAluno : anual ? p.anual : p.mensal}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {isEscola ? p.periodo : anual ? '/ano' : '/mês'}
+                </span>
               </div>
-              <p className="mt-1 text-xs text-primary">{p.nota}</p>
+              <p className="mt-1 text-xs text-primary">
+                {isEscola ? p.nota : anual ? p.equiv : p.nota}
+              </p>
               <ul className="mt-6 flex-1 space-y-2 text-sm">
                 {p.recursos.map((r) => (
                   <li key={r} className="flex items-start gap-2">
@@ -115,7 +163,8 @@ export function PricingCards() {
         })}
       </div>
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Valores ilustrativos para validação. Sem fidelidade, cancele quando quiser.
+        Anual com 2 meses grátis. Escola a partir de R$ 9/aluno (mínimo R$ 499/mês). Sem fidelidade
+        no mensal.
       </p>
     </>
   );
