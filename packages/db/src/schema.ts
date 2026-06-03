@@ -37,6 +37,7 @@ export const roleEnum = oe.enum('role', [
   'director',
   'coordinator',
   'teacher',
+  'monitor',
   'staff_secretary',
   'staff_finance',
   'guardian',
@@ -616,6 +617,27 @@ export const scheduleSlots = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// schedule_exceptions — alterações pontuais do cronograma (item 7): numa data específica
+// a aula foi cancelada/alterada (ex.: feriado, prova, reposição). Não mexe na grade fixa.
+// Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const scheduleExceptions = oe.table(
+  'schedule_exceptions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    date: date('date').notNull(),
+    note: text('note').notNull(), // o que muda: "sem aula (feriado)", "prova de matemática"...
+    ...auditCols,
+  },
+  (t) => [
+    index('schedule_exceptions_class_idx').on(t.classId),
+    tenantPolicy('schedule_exceptions_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // grade_components — composição da média definida pela ESCOLA (pesos das atividades).
 // Ex.: Prova (peso 1), Trabalho (peso 2). A média final é ponderada por componente:
 // média das notas dentro do componente × peso, somado e dividido pela soma dos pesos.
@@ -862,6 +884,7 @@ export const schema = {
   gradeComponents,
   attendance,
   scheduleSlots,
+  scheduleExceptions,
   communications,
   portfolioEntries,
   events,

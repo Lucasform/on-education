@@ -127,6 +127,7 @@ export const NAV: NavGroup[] = [
     only: 'organization',
     items: [
       { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
+      { label: 'Mural dos pais', href: '/app/mural', icon: Megaphone },
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
       soon('WhatsApp', 'whatsapp', Phone),
     ],
@@ -164,9 +165,21 @@ export const NAV: NavGroup[] = [
  * pedagógico, EduON e agenda. A escola (`organization`) vê tudo.
  */
 export function navFor(tenantType: TenantType): NavGroup[] {
-  return NAV.filter((g) => !g.only || g.only === tenantType)
+  const groups = NAV.filter((g) => !g.only || g.only === tenantType)
     .map((g) => ({ ...g, items: g.items.filter((i) => !i.only || i.only === tenantType) }))
     .filter((g) => g.items.length > 0);
+
+  // Professor autônomo (item 18.8): navegação centrada no EduON. O EduON sobe logo após a
+  // visão geral; o resto (sala de aula, pedagógico) vem depois. A escola mantém a ordem.
+  if (tenantType === 'individual') {
+    const ordem = ['Visão geral', 'EduON', 'Pedagógico', 'Sala de aula'];
+    return [...groups].sort((a, b) => {
+      const ia = ordem.indexOf(a.label);
+      const ib = ordem.indexOf(b.label);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+  }
+  return groups;
 }
 
 /** Mapa slug -> rótulo para a página de "em construção". */

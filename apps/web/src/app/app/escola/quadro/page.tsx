@@ -14,6 +14,7 @@ const ROLE_ORDER = [
   'director',
   'coordinator',
   'teacher',
+  'monitor',
   'staff_secretary',
   'staff_finance',
 ] as const;
@@ -23,6 +24,7 @@ const ROLE_LABEL: Record<string, string> = {
   director: 'Diretores',
   coordinator: 'Coordenação',
   teacher: 'Professores',
+  monitor: 'Monitores',
   staff_secretary: 'Secretaria',
   staff_finance: 'Financeiro',
   guardian: 'Responsáveis',

@@ -58,7 +58,9 @@ import {
 } from '@on-education/module-pedagogico';
 import {
   createLesson,
+  createScheduleException,
   createScheduleSlot,
+  deleteScheduleException,
   deleteScheduleSlot,
   recordAttendance,
   recordAttendanceBulk,
@@ -68,6 +70,7 @@ import {
   addQuizQuestionSchema,
   assignTeachingSchema,
   createScheduleSlotSchema,
+  createScheduleExceptionSchema,
   createGradeComponentSchema,
   updateGradeScaleSchema,
   updateAiStandardSchema,
@@ -776,6 +779,23 @@ export async function createScheduleSlotAction(formData: FormData): Promise<void
 export async function deleteScheduleSlotAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteScheduleSlot(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/cronograma', 'page');
+}
+
+export async function createScheduleExceptionAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createScheduleExceptionSchema.parse({
+    classId: formData.get('classId'),
+    date: formData.get('date'),
+    note: formData.get('note'),
+  });
+  await createScheduleException(db(), ctx, input);
+  revalidatePath('/app/cronograma', 'page');
+}
+
+export async function deleteScheduleExceptionAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteScheduleException(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/cronograma', 'page');
 }
 

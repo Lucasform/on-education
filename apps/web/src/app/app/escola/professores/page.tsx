@@ -22,6 +22,7 @@ const ROLE_LABEL: Record<string, string> = {
   director: 'Diretor(a)',
   coordinator: 'Coordenador(a)',
   teacher: 'Professor(a)',
+  monitor: 'Monitor(a)',
   staff_secretary: 'Secretaria',
   staff_finance: 'Financeiro',
   guardian: 'Responsável',

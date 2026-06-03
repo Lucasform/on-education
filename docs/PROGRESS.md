@@ -13,6 +13,23 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 17:55] — Lista "a desenvolver" itens 1–5 — STATUS: EM ANDAMENTO
+
+- **Tarefa:** itens 1–5 da lista priorizada (todos 🟢 sem credencial).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **1 · Nav do professor autônomo centrada no EduON** (18.8): `navFor` reordena os grupos no `individual` (Visão geral → EduON → Pedagógico → Sala de aula). Escola mantém a ordem.
+  - **2 · Papel `monitor`**: adicionado em `ROLES` (core) + `roleEnum` (db, migration `ADD VALUE IF NOT EXISTS` aplicada em PG15 dentro da transação) + labels no quadro/professores. Aparece no select de convites; RBAC default = leitura.
+  - **3 · Boletim detalhado por componente**: colunas dinâmicas por componente (média do componente) + média final ponderada + frequência; dica quando não há componentes.
+  - **4 · Exceções de data no cronograma**: tabela `schedule_exceptions` (data + o que muda) + seção "Alterações pontuais" em `/app/cronograma` (criar/remover), sem mexer na grade fixa.
+  - **5 · Mural dos pais (interno)**: `/app/mural` lista comunicados publicados em ordem, imprimível; nav em Comunicação. Acesso externo dos pais depende do portal (futuro).
+- **Arquivos principais:** `packages/core/src/rbac.ts`, `packages/db/src/schema.ts` + `drizzle/0017_*.sql`, `packages/validation/src/index.ts`, `packages/modules/sala-de-aula/src/schedule.ts`, `apps/web/src/lib/nav.ts`, `apps/web/src/app/app/{actions.ts,cronograma/page.tsx,sala/boletim/page.tsx,mural/page.tsx,escola/{quadro,professores}/page.tsx}`.
+- **Migrations/RLS:** `0017_outgoing_doctor_octopus` aplicada em prod (role+=monitor, schedule_exceptions). Verificado: enum com monitor na posição certa, grants OK.
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** —
+- **Próximo passo sugerido:** itens 6–11 (plano de aulas, planejamento de avaliações, filtros do painel, visão semana/mês, PDF no padrão, perfis por papel) ou destravar Storage (12 da lista) / e-mail / WhatsApp / Stripe.
+- **Commit(s):** ver `feat: itens 1-5 (nav eduon, monitor, boletim por componente, excecoes cronograma, mural)`.
+
 ### [2026-06-03 17:10] — Notas com pesos definidos pela escola (item 9.2) + planos/landing — STATUS: EM ANDAMENTO
 
 - **Tarefa:** a escola define a composição/pesos da média e o sistema calcula sozinho; ajustes de preço/landing pedidos pelo Lucas.

@@ -195,7 +195,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Pessoas e estrutura
 
-- [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: **quadro** em `/app/escola/quadro` (equipe por função + nº de vínculos de aula), convites + papéis, vínculo funcionário↔turma via `/app/escola/professores`. Falta: papel `monitor` (exige `ALTER TYPE ... ADD VALUE`, fora de transação — fazer manual) e perfis de visualização por papel.
+- [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: **quadro** em `/app/escola/quadro`, convites + papéis (inclui **monitor**, no enum), vínculo funcionário↔turma via `/app/escola/professores`. Falta: perfis de visualização por papel (item 11 da lista).
 - [x] **2. Documentos: regimento + modelos gerais** (`/app/escola/personalizacao`). Evoluir: anexos de arquivo (Storage).
 - [x] **3. Turmas, séries, idades.** `classes.grade_level` + `classes.age_range`; detalhe da turma em `/app/turmas/[id]` (editar série/idade/descrição).
   - [ ] **3.1** Cadastro de material didático + vínculo com a turma. _(depende de Storage)_
@@ -210,7 +210,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 ### Acadêmico e rotina
 
 - [x] **6. Calendário escolar** (`/app/calendario`).
-- [x] **7. Cronograma das turmas** — `schedule_slots` (dia/horário/matéria) + `/app/cronograma` (grade semanal por turma, imprimível). Falta: alterações pontuais/exceções de data.
+- [x] **7. Cronograma das turmas** — `schedule_slots` (dia/horário/matéria) + `/app/cronograma` (grade semanal por turma, imprimível) + **alterações pontuais/exceções de data** (`schedule_exceptions`: data + o que muda).
   - [ ] **7.1** Plano de aulas por turma/matéria, vínculo com diário e com o cronograma.
   - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
   - [ ] **7.3** Planejamento de avaliações e trabalhos.
@@ -229,7 +229,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - **18.5 Comunicação leve:** falar só com os responsáveis dos próprios alunos (boletim/relatório simples), sem secretaria.
   - **18.6 Geração de documentos:** exportar atividade/prova/roteiro/boletim em PDF já no padrão do professor (com a identidade dele).
   - **18.7 Monetização do nicho:** Free (cota de IA) → Pro (cota maior, sem marca On Way, exportações ilimitadas). Depois: **marketplace** para vender o próprio conteúdo padronizado.
-  - **18.8 UI:** menu sem os grupos de Escola/Financeiro/Secretaria; navegação centrada em "Criar com EduON", "Minhas turmas/alunos", "Meu banco", "Meu padrão".
+  - [x] **18.8 UI:** menu sem os grupos institucionais e **navegação centrada no EduON** (no individual o grupo EduON sobe logo após a visão geral; `navFor` reordena por segmento).
 
 ### EduON (IA) ancorado no material da escola
 
@@ -243,7 +243,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ### Comunicação e acervo
 
-- [ ] **12. Mural informativo para os pais.**
+- [~] **12. Mural informativo para os pais.** Mural interno em `/app/mural` (comunicados publicados em ordem, imprimível). Falta: acesso externo dos pais (depende do portal do responsável).
 - [ ] **13. Banco de atividades coletivas** (padrão On Way, sem vínculo com a escola, por faixa etária).
 
 ### Secretaria (escola)

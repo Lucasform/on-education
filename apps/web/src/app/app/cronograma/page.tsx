@@ -1,15 +1,21 @@
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
-import { listScheduleSlots } from '@on-education/module-sala-de-aula';
+import { listScheduleExceptions, listScheduleSlots } from '@on-education/module-sala-de-aula';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
+import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createScheduleSlotAction, deleteScheduleSlotAction } from '../actions';
+import {
+  createScheduleExceptionAction,
+  createScheduleSlotAction,
+  deleteScheduleExceptionAction,
+  deleteScheduleSlotAction,
+} from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Cronograma · On Way Education' };
@@ -37,9 +43,10 @@ export default async function CronogramaPage({
 
   const turmas = await listClasses(client, ctx);
   const turmaId = classId || turmas[0]?.id || '';
-  const [slots, disciplinas] = await Promise.all([
+  const [slots, disciplinas, excecoes] = await Promise.all([
     turmaId ? listScheduleSlots(client, ctx, turmaId) : Promise.resolve([]),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
+    turmaId ? listScheduleExceptions(client, ctx, turmaId) : Promise.resolve([]),
   ]);
 
   // Só dias úteis por padrão; mostra sábado/domingo se houver slot neles.
@@ -163,6 +170,64 @@ export default async function CronogramaPage({
               </label>
               <Button type="submit" size="sm">
                 Adicionar
+              </Button>
+            </form>
+          </div>
+
+          <div className={cardClass}>
+            <h2 className="mb-1 text-sm font-medium">Alterações pontuais ({excecoes.length})</h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Exceções numa data específica (feriado, prova, reposição) sem mexer na grade fixa.
+            </p>
+            {excecoes.length > 0 && (
+              <ul className="mb-3 space-y-1.5 text-sm">
+                {excecoes.map((e) => (
+                  <li key={e.id} className="flex items-center justify-between gap-2">
+                    <span>
+                      <span className="font-medium">{e.date.split('-').reverse().join('/')}</span>
+                      <span className="text-muted-foreground"> · {e.note}</span>
+                    </span>
+                    <form action={deleteScheduleExceptionAction} className="print:hidden">
+                      <input type="hidden" name="id" value={e.id} />
+                      <ConfirmButton
+                        size="sm"
+                        variant="ghost"
+                        message="Remover esta alteração?"
+                        className="h-6 px-1.5 text-xs"
+                      >
+                        ✕
+                      </ConfirmButton>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form
+              action={createScheduleExceptionAction}
+              className="flex flex-wrap items-end gap-2 print:hidden"
+            >
+              <input type="hidden" name="classId" value={turmaId} />
+              <label className="flex flex-col gap-1 text-sm">
+                Data
+                <input
+                  name="date"
+                  type="date"
+                  required
+                  defaultValue={hojeISO()}
+                  className={fieldClass}
+                />
+              </label>
+              <label className="flex flex-1 flex-col gap-1 text-sm">
+                O que muda
+                <input
+                  name="note"
+                  required
+                  placeholder="ex.: sem aula (feriado), prova de matemática"
+                  className={fieldClass}
+                />
+              </label>
+              <Button type="submit" size="sm" variant="outline">
+                Registrar alteração
               </Button>
             </form>
           </div>

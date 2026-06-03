@@ -7,6 +7,7 @@ export const ROLES = [
   'director',
   'coordinator',
   'teacher',
+  'monitor',
   'staff_secretary',
   'staff_finance',
   'guardian',

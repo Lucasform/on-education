@@ -37,10 +37,22 @@ export default async function BoletimPage() {
     return `${Math.round((presentes / rs.length) * 100)}%`;
   };
 
+  // Média de um componente para o aluno (detalhamento do boletim por componente).
+  const mediaComponente = (sid: string, compId: string) => {
+    const vs = notas
+      .filter((n) => n.studentId === sid && n.componentId === compId && n.value !== null)
+      .map((n) => n.value as number);
+    return vs.length ? (vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(1) : '—';
+  };
+  const colspan = componentes.length + 3;
+
   return (
     <>
       <div className="flex items-start justify-between gap-3 print:hidden">
-        <PageHeader title="Boletim" description="Média das notas e frequência por aluno." />
+        <PageHeader
+          title="Boletim"
+          description="Média por componente, média final (ponderada) e frequência por aluno."
+        />
         <PrintButton />
       </div>
       <div className={`${cardClass} overflow-x-auto p-0`}>
@@ -48,14 +60,20 @@ export default async function BoletimPage() {
           <thead className="border-b border-border text-left text-xs text-muted-foreground">
             <tr>
               <th className="px-4 py-2 font-medium">Aluno</th>
-              <th className="px-4 py-2 font-medium">Média</th>
+              {componentes.map((c) => (
+                <th key={c.id} className="px-4 py-2 font-medium">
+                  {c.name}
+                  <span className="font-normal opacity-70"> (peso {c.weight})</span>
+                </th>
+              ))}
+              <th className="px-4 py-2 font-medium">Média final</th>
               <th className="px-4 py-2 font-medium">Frequência</th>
             </tr>
           </thead>
           <tbody>
             {alunos.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">
+                <td colSpan={colspan} className="px-4 py-6 text-center text-muted-foreground">
                   Cadastre alunos e lance notas para ver o boletim.
                 </td>
               </tr>
@@ -63,6 +81,11 @@ export default async function BoletimPage() {
             {alunos.map((a) => (
               <tr key={a.id} className="border-b border-border/60 last:border-0">
                 <td className="px-4 py-2">{a.fullName}</td>
+                {componentes.map((c) => (
+                  <td key={c.id} className="px-4 py-2 text-muted-foreground">
+                    {mediaComponente(a.id, c.id)}
+                  </td>
+                ))}
                 <td className="px-4 py-2 font-medium">{media(a.id)}</td>
                 <td className="px-4 py-2 text-muted-foreground">{presenca(a.id)}</td>
               </tr>
@@ -70,6 +93,12 @@ export default async function BoletimPage() {
           </tbody>
         </table>
       </div>
+      {componentes.length === 0 && isSchool && (
+        <p className="text-xs text-muted-foreground print:hidden">
+          Dica: defina componentes em Escola › Notas e pesos para detalhar o boletim por Prova,
+          Trabalho etc.
+        </p>
+      )}
     </>
   );
 }

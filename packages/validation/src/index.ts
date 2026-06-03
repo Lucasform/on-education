@@ -213,6 +213,14 @@ export const createScheduleSlotSchema = z.object({
 });
 export type CreateScheduleSlotInput = z.infer<typeof createScheduleSlotSchema>;
 
+/** Alteração pontual do cronograma numa data específica (item 7). */
+export const createScheduleExceptionSchema = z.object({
+  classId: uuidSchema,
+  date: z.string().date(),
+  note: z.string().min(1).max(200),
+});
+export type CreateScheduleExceptionInput = z.infer<typeof createScheduleExceptionSchema>;
+
 /** Comunicação — comunicados. */
 export const createCommunicationSchema = z.object({
   title: z.string().min(1).max(200),
