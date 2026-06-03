@@ -3,6 +3,7 @@ import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -54,7 +55,13 @@ export default async function ChamadaPage({
           <div className="mb-3 flex items-end justify-between gap-3">
             <label className="flex flex-col gap-1 text-sm">
               Data
-              <input name="date" type="date" required className={fieldClass} />
+              <input
+                name="date"
+                type="date"
+                required
+                defaultValue={hojeISO()}
+                className={fieldClass}
+              />
             </label>
             <Button type="submit" size="sm">
               Salvar chamada

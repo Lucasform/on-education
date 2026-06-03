@@ -7,6 +7,8 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { hojeISO } from '@/lib/date';
+
 import { createLessonAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +62,13 @@ export default async function DiarioPage() {
                 </option>
               ))}
             </select>
-            <input name="date" type="date" required className={fieldClass} />
+            <input
+              name="date"
+              type="date"
+              required
+              defaultValue={hojeISO()}
+              className={fieldClass}
+            />
             <input
               name="topic"
               required

@@ -225,16 +225,8 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 border-t border-border px-6 py-8 text-sm text-muted-foreground sm:flex-row">
-        <span>© 2026 On Way Education</span>
-        <div className="flex items-center gap-5">
-          <a href="/signup/escola" className="hover:text-foreground">
-            Para escolas
-          </a>
-          <a href="/login" className="hover:text-foreground">
-            Entrar
-          </a>
-        </div>
+      <footer className="mx-auto max-w-6xl border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
+        © 2026 On Way Education
       </footer>
     </div>
   );

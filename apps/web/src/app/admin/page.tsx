@@ -34,10 +34,19 @@ export default async function AdminPage({
   const { deleted } = await searchParams;
   const showDeleted = deleted === '1';
   const client = db();
+  // Blindagem: uma falha transitória de banco não pode derrubar o painel inteiro.
   const [adminEmail, stats, tenants] = await Promise.all([
     getSuperAdminEmail(),
-    getAppStats(client),
-    listAllTenants(client, { includeDeleted: showDeleted }),
+    getAppStats(client).catch(() => ({
+      tenants: 0,
+      organizations: 0,
+      individuals: 0,
+      users: 0,
+      students: 0,
+      classes: 0,
+      activities: 0,
+    })),
+    listAllTenants(client, { includeDeleted: showDeleted }).catch(() => []),
   ]);
   const lista = showDeleted ? tenants.filter((t) => t.deletedAt) : tenants;
 

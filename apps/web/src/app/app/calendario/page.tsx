@@ -9,6 +9,8 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { hojeISO } from '@/lib/date';
+
 import { createEventAction, deleteEventAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -223,7 +225,7 @@ export default async function CalendarioPage({
                 name="date"
                 type="date"
                 required
-                defaultValue={diaSel ?? undefined}
+                defaultValue={diaSel ?? hojeISO()}
                 className={fieldClass}
               />
               <input name="time" type="time" className={fieldClass} />
