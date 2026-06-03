@@ -160,11 +160,26 @@ export type LinkGuardianInput = z.infer<typeof linkGuardianSchema>;
 export const createLessonSchema = z.object({
   classId: uuidSchema,
   subjectId: uuidSchema.optional(),
+  lessonPlanId: uuidSchema.optional(),
   date: z.string().date(),
   topic: z.string().min(1).max(300),
   notes: z.string().max(5000).optional(),
 });
 export type CreateLessonInput = z.infer<typeof createLessonSchema>;
+
+/** Planejamento (itens 7.1/7.3): plano de aula, avaliação ou trabalho. */
+export const lessonPlanKindSchema = z.enum(['aula', 'avaliacao', 'trabalho']);
+export type LessonPlanKind = z.infer<typeof lessonPlanKindSchema>;
+
+export const createLessonPlanSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  kind: lessonPlanKindSchema.default('aula'),
+  title: z.string().min(1).max(300),
+  content: z.string().max(20_000).optional(),
+  date: z.string().date().optional(),
+});
+export type CreateLessonPlanInput = z.infer<typeof createLessonPlanSchema>;
 
 export const gradeKindSchema = z.enum(['formal', 'participacao', 'anotacao']);
 export type GradeKind = z.infer<typeof gradeKindSchema>;

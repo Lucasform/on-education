@@ -4,6 +4,7 @@ import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { inicioPeriodo, type Periodo } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -12,11 +13,16 @@ import { recordAttendanceAction } from '../../actions';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Faltas · On Way Education' };
 
-export default async function FaltasPage() {
+export default async function FaltasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ periodo?: Periodo }>;
+}) {
+  const { periodo = 'mes' } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [registros, alunos, turmas, disciplinas] = await Promise.all([
+  const [todosRegistros, alunos, turmas, disciplinas] = await Promise.all([
     listAttendance(client, ctx),
     listStudents(client, ctx),
     listClasses(client, ctx),
@@ -24,6 +30,8 @@ export default async function FaltasPage() {
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
   const subjNome = new Map(disciplinas.map((s) => [s.id, s.name]));
+  const desde = inicioPeriodo(periodo);
+  const registros = desde ? todosRegistros.filter((r) => r.date >= desde) : todosRegistros;
 
   return (
     <>
@@ -31,6 +39,20 @@ export default async function FaltasPage() {
         title="Faltas"
         description="Registre a presença por dia ou por matéria. Para o documento de faltas (PDF), use Relatório de faltas."
       />
+
+      <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
+        <label className="flex flex-col gap-1 text-sm">
+          Período
+          <select name="periodo" defaultValue={periodo} className={fieldClass}>
+            <option value="semana">Última semana</option>
+            <option value="mes">Último mês</option>
+            <option value="tudo">Tudo</option>
+          </select>
+        </label>
+        <Button type="submit" size="sm" variant="outline">
+          Aplicar
+        </Button>
+      </form>
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Registros ({registros.length})</h2>

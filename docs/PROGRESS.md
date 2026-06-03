@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 18:40] — Lista "a desenvolver" itens 6–10 — STATUS: EM ANDAMENTO
+
+- **Tarefa:** itens 6–10 da lista (todos 🟢 sem credencial).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **6/7 · Planejamento (7.1/7.2/7.3):** tabela `lesson_plans` (kind aula/avaliacao/trabalho + título/conteúdo/data por turma/matéria) + `/app/sala/planejamento`; `lessons.lesson_plan_id` liga o diário ao plano (seletor no diário + tag "plano: …"). Nav: "Planejamento" em Sala de aula.
+  - **8 · Painel filtros/visualização (15):** filtro por **série** (além de turma) + alternância **gráfico/tabela** no desempenho por turma de `/app/relatorios`.
+  - **9 · Período no diário/faltas:** filtro última semana/mês/tudo (`inicioPeriodo` em `lib/date`) no diário e nas faltas.
+  - **10 · Documentos em PDF (18.6/19.5):** `/app/documentos` gera declaração de matrícula/frequência, autorização e texto livre com a identidade da escola (logo), imprimível em PDF. Nav: "Documentos" em Pedagógico.
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0018_*.sql`, `packages/validation/src/index.ts`, `packages/modules/sala-de-aula/src/{lesson-plans,index}.ts`, `apps/web/src/lib/{date,nav}.ts`, `apps/web/src/app/app/{actions.ts,sala/{planejamento,diario,faltas}/page.tsx,relatorios/page.tsx,documentos/page.tsx}`.
+- **Migrations/RLS:** `0018_clever_sharon_carter` aplicada em prod (lesson_plans + lessons.lesson_plan_id). Verificado: grants/coluna OK.
+- **Testes:** typecheck/lint/build 14/14 verdes. Deploy: push p/ main.
+- **Pendências / bloqueios:** restam itens 11 (perfis por papel), 19 (BNCC), 20 (PWA offline) sem credencial; e 12–18 dependem de você (Storage/E-mail/WhatsApp/Stripe/decisão).
+- **Próximo passo sugerido:** item 11 (perfis por papel) ou destravar Storage (12).
+- **Commit(s):** ver `feat: itens 6-10 (planejamento, periodo, filtros painel, documentos pdf)`.
+
 ### [2026-06-03 17:55] — Lista "a desenvolver" itens 1–5 — STATUS: EM ANDAMENTO
 
 - **Tarefa:** itens 1–5 da lista priorizada (todos 🟢 sem credencial).

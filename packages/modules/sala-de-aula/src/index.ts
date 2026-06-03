@@ -1,4 +1,5 @@
 export * from './schedule';
+export * from './lesson-plans';
 
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { attendance, type DbClient, grades, lessons } from '@on-education/db';
@@ -27,6 +28,7 @@ export async function createLesson(client: DbClient, ctx: AuthContext, input: Cr
         tenantId: ctx.tenantId,
         classId: input.classId,
         subjectId: input.subjectId ?? null,
+        lessonPlanId: input.lessonPlanId ?? null,
         date: input.date,
         topic: input.topic,
         notes: input.notes ?? null,

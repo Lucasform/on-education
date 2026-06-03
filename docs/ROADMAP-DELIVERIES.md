@@ -211,9 +211,9 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 - [x] **6. Calendário escolar** (`/app/calendario`).
 - [x] **7. Cronograma das turmas** — `schedule_slots` (dia/horário/matéria) + `/app/cronograma` (grade semanal por turma, imprimível) + **alterações pontuais/exceções de data** (`schedule_exceptions`: data + o que muda).
-  - [ ] **7.1** Plano de aulas por turma/matéria, vínculo com diário e com o cronograma.
-  - [~] **7.2** Diário de classe vinculado ao planejamento (diário existe; falta o vínculo).
-  - [ ] **7.3** Planejamento de avaliações e trabalhos.
+  - [x] **7.1** Plano de aulas por turma/matéria — `lesson_plans` + `/app/sala/planejamento`.
+  - [x] **7.2** Diário vinculado ao planejamento — `lessons.lesson_plan_id` + seletor de plano no diário.
+  - [x] **7.3** Planejamento de avaliações e trabalhos — `lesson_plans.kind` (aula/avaliacao/trabalho).
 - [x] **8. Chamada vinculada aos alunos + relatórios** (chamada por dia/matéria; relatório de faltas em `/app/relatorios/faltas`).
   - [x] **8.1 Faltas por matéria** — `attendance.subject_id` (índice `NULLS NOT DISTINCT`); chamada e faltas com seletor de matéria (vazio = chamada do dia).
   - [x] **8.2 Geração de documento de faltas** — `/app/relatorios/faltas` (filtros turma/aluno/matéria, resumo por aluno + detalhamento), imprimível em PDF.
@@ -227,7 +227,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
   - [~] **18.3 "Meu padrão" (diferencial central):** o professor define UM padrão pessoal (estilo, cabeçalho/rodapé, fonte, formato de prova/lição de casa/roteiro/bilhete, nível de dificuldade preferido) e **todo conteúdo gerado pelo EduON sai nesse padrão**. FEITO: `tenant_settings.ai_standard` + página `/app/meu-padrao` + aplicado aos prompts do EduON (gerar conteúdo/redação/tutor/atividade/simulado via `applyAiStandard`). Falta: exportação em PDF no padrão (18.6).
   - **18.4 Núcleo enxuto:** turmas/alunos próprios, agenda pessoal, banco de atividades/provas, simulados, portfólio do aluno. Acompanhamento simples de desempenho (notas/frequência leves), sem a máquina institucional.
   - **18.5 Comunicação leve:** falar só com os responsáveis dos próprios alunos (boletim/relatório simples), sem secretaria.
-  - **18.6 Geração de documentos:** exportar atividade/prova/roteiro/boletim em PDF já no padrão do professor (com a identidade dele).
+  - [~] **18.6 Geração de documentos:** `/app/documentos` exporta declarações/autorizações/texto livre em PDF com a identidade (logo). Boletim/relatórios/faltas já imprimíveis. Falta: exportar atividade/prova/roteiro do EduON direto no padrão.
   - **18.7 Monetização do nicho:** Free (cota de IA) → Pro (cota maior, sem marca On Way, exportações ilimitadas). Depois: **marketplace** para vender o próprio conteúdo padronizado.
   - [x] **18.8 UI:** menu sem os grupos institucionais e **navegação centrada no EduON** (no individual o grupo EduON sobe logo após a visão geral; `navFor` reordena por segmento).
 
@@ -258,7 +258,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 ### Visão geral
 
 - [x] **14. Painel geral de acompanhamento** — `/app/relatorios` consolidado: KPIs (turmas/alunos/média/frequência/ocorrências/simulados), desempenho por turma com barras e **alunos em risco** (freq < 75% ou média < 6, com link). Evoluir: pendências e período.
-- [~] **15. Divisão e formato de visualização** — filtro por turma no painel + barras (gráfico CSS) por turma. Falta: filtro por série/período e alternância cartões/tabela/gráficos.
+- [x] **15. Divisão e formato de visualização** — painel com filtro por **turma e série** + alternância **gráfico/tabela**. (Cartões e filtro por período letivo podem evoluir depois.)
 
 ### Plataforma
 
@@ -267,7 +267,8 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 ### Pendências transversais já mapeadas
 
 - [x] Importação por planilha (CSV/Excel: baixar modelo → preencher → importar) para alunos/turmas/responsáveis — componente `CsvImport` + parser próprio em `lib/csv.ts` (auto-detecta `,`/`;`, aspas, BOM), modelos `.csv` com BOM para o Excel pt-BR.
-- [ ] Visualização por semana/mês/período no diário e na chamada.
+- [x] Visualização por semana/mês/período no diário e na chamada — filtro de período (última semana/mês/tudo) no diário e nas faltas.
+- [x] Geração de documentos padronizados em PDF — `/app/documentos` (declaração de matrícula/frequência, autorização, texto livre) com a identidade da escola, imprimível (itens 18.6 / 19.5 parcial).
 - [ ] Planejamento BNCC (banco de habilidades por disciplina/ano).
 
 ---

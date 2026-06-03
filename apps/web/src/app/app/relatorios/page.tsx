@@ -45,9 +45,9 @@ const pct = (part: number, total: number) => (total ? Math.round((part / total) 
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ classId?: string }>;
+  searchParams: Promise<{ classId?: string; grade?: string; view?: string }>;
 }) {
-  const { classId } = await searchParams;
+  const { classId, grade, view = 'graf' } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
@@ -74,10 +74,19 @@ export default async function RelatoriosPage({
   }
   const mediaAluno = (sid: string) => weightedAverage(notasByStudent.get(sid) ?? [], componentes);
 
-  // Filtro por turma (item 15): escopa alunos e, por consequência, notas/frequência.
-  const alunos = classId ? alunosAll.filter((a) => a.classId === classId) : alunosAll;
+  // Filtros (item 15): por turma e/ou por série (gradeLevel). Escopa alunos.
+  const seriesDisponiveis = [
+    ...new Set(turmas.map((t) => t.gradeLevel).filter(Boolean)),
+  ] as string[];
+  const turmasDaSerie = new Set(turmas.filter((t) => t.gradeLevel === grade).map((t) => t.id));
+  const alunos = alunosAll.filter((a) => {
+    if (classId) return a.classId === classId;
+    if (grade) return a.classId && turmasDaSerie.has(a.classId);
+    return true;
+  });
+  const filtrando = Boolean(classId || grade);
   const escopoIds = new Set(alunos.map((a) => a.id));
-  const inEscopo = (sid: string) => !classId || escopoIds.has(sid);
+  const inEscopo = (sid: string) => !filtrando || escopoIds.has(sid);
 
   // Indicadores gerais: média = média das médias (ponderadas) dos alunos do escopo.
   const mediasEscopo = alunos.map((a) => mediaAluno(a.id)).filter((m): m is number => m !== null);
@@ -125,7 +134,7 @@ export default async function RelatoriosPage({
 
       <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3 print:hidden`}>
         <label className="flex flex-col gap-1 text-sm">
-          Filtrar por turma
+          Turma
           <select name="classId" defaultValue={classId ?? ''} className={fieldClass}>
             <option value="">Toda a escola</option>
             {turmas.map((t) => (
@@ -133,6 +142,26 @@ export default async function RelatoriosPage({
                 {t.name}
               </option>
             ))}
+          </select>
+        </label>
+        {seriesDisponiveis.length > 0 && (
+          <label className="flex flex-col gap-1 text-sm">
+            Série
+            <select name="grade" defaultValue={grade ?? ''} className={fieldClass}>
+              <option value="">Todas</option>
+              {seriesDisponiveis.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <label className="flex flex-col gap-1 text-sm">
+          Visualização
+          <select name="view" defaultValue={view} className={fieldClass}>
+            <option value="graf">Gráfico</option>
+            <option value="tab">Tabela</option>
           </select>
         </label>
         <Button type="submit" size="sm" variant="outline">
@@ -176,6 +205,31 @@ export default async function RelatoriosPage({
             <p className="text-sm text-muted-foreground">
               Cadastre turmas e alunos e lance notas para ver os indicadores.
             </p>
+          ) : view === 'tab' ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                  <tr>
+                    <th className="py-1.5 pr-4 font-medium">Turma</th>
+                    <th className="py-1.5 pr-4 font-medium">Alunos</th>
+                    <th className="py-1.5 pr-4 font-medium">Média</th>
+                    <th className="py-1.5 font-medium">Frequência</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {linhas.map((g) => (
+                    <tr key={g.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-1.5 pr-4 font-medium">{g.name}</td>
+                      <td className="py-1.5 pr-4 text-muted-foreground">{g.alunos}</td>
+                      <td className="py-1.5 pr-4">{fmt(g.media)}</td>
+                      <td className="py-1.5 text-muted-foreground">
+                        {g.freq === null ? '—' : `${g.freq}%`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="space-y-4">
               {linhas.map((g) => (

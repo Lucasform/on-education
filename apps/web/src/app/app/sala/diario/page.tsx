@@ -1,5 +1,5 @@
 import { listClasses } from '@on-education/module-nucleo';
-import { listLessons } from '@on-education/module-sala-de-aula';
+import { listLessonPlans, listLessons } from '@on-education/module-sala-de-aula';
 import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
@@ -7,19 +7,37 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { hojeISO } from '@/lib/date';
+import { hojeISO, inicioPeriodo, type Periodo } from '@/lib/date';
 
 import { createLessonAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Diário de classe · On Way Education' };
 
-export default async function DiarioPage() {
+export default async function DiarioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ periodo?: Periodo }>;
+}) {
+  const { periodo = 'mes' } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [aulas, turmas] = await Promise.all([listLessons(client, ctx), listClasses(client, ctx)]);
+  const [todasAulas, turmas, planos] = await Promise.all([
+    listLessons(client, ctx),
+    listClasses(client, ctx),
+    listLessonPlans(client, ctx),
+  ]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
+  const planoTitulo = new Map(planos.map((p) => [p.id, p.title]));
+
+  const desde = inicioPeriodo(periodo);
+  const aulas = desde ? todasAulas.filter((a) => a.date >= desde) : todasAulas;
+  const periodoLabel: Record<Periodo, string> = {
+    semana: 'Última semana',
+    mes: 'Último mês',
+    tudo: 'Tudo',
+  };
 
   return (
     <>
@@ -27,6 +45,21 @@ export default async function DiarioPage() {
         title="Diário de classe"
         description="Registre os conteúdos dados em cada aula."
       />
+
+      <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
+        <label className="flex flex-col gap-1 text-sm">
+          Período
+          <select name="periodo" defaultValue={periodo} className={fieldClass}>
+            <option value="semana">Última semana</option>
+            <option value="mes">Último mês</option>
+            <option value="tudo">Tudo</option>
+          </select>
+        </label>
+        <Button type="submit" size="sm" variant="outline">
+          Aplicar
+        </Button>
+        <span className="text-xs text-muted-foreground">{periodoLabel[periodo]}</span>
+      </form>
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Aulas registradas ({aulas.length})</h2>
@@ -43,6 +76,12 @@ export default async function DiarioPage() {
                   <p className="text-xs text-muted-foreground">
                     {turmaNome.get(a.classId) ?? 'Turma'}
                     {a.notes ? ` · ${a.notes}` : ''}
+                    {a.lessonPlanId && planoTitulo.get(a.lessonPlanId) && (
+                      <span className="text-primary">
+                        {' '}
+                        · plano: {planoTitulo.get(a.lessonPlanId)}
+                      </span>
+                    )}
                   </p>
                 </li>
               ))}
@@ -75,6 +114,17 @@ export default async function DiarioPage() {
               placeholder="Conteúdo / tema da aula"
               className={fieldClass}
             />
+            {planos.length > 0 && (
+              <select name="lessonPlanId" className={fieldClass} defaultValue="">
+                <option value="">Vincular a um plano (opcional)</option>
+                {planos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                    {p.subjectName ? ` · ${p.subjectName}` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
             <textarea
               name="notes"
               placeholder="Observações (opcional)"

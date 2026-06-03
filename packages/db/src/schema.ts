@@ -539,12 +539,39 @@ export const lessons = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     classId: uuid('class_id').notNull(),
     subjectId: uuid('subject_id'),
+    // vínculo opcional com o planejamento (item 7.2): este registro de diário cumpre um plano.
+    lessonPlanId: uuid('lesson_plan_id'),
     date: date('date').notNull(),
     topic: text('topic').notNull(),
     notes: text('notes'),
     ...auditCols,
   },
   (t) => [index('lessons_tenant_idx').on(t.tenantId), tenantPolicy('lessons_tenant_isolation')],
+);
+
+// ---------------------------------------------------------------------------
+// lesson_plans — planejamento (itens 7.1/7.3): plano de aula, avaliação ou trabalho por
+// turma/matéria. `kind` separa aula/avaliacao/trabalho. O diário (lessons) pode apontar
+// para um plano. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const lessonPlans = oe.table(
+  'lesson_plans',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id'),
+    kind: text('kind').notNull().default('aula'), // aula | avaliacao | trabalho
+    title: text('title').notNull(),
+    content: text('content'),
+    date: date('date'), // data prevista (opcional)
+    ...auditCols,
+  },
+  (t) => [
+    index('lesson_plans_tenant_idx').on(t.tenantId),
+    index('lesson_plans_class_idx').on(t.classId),
+    tenantPolicy('lesson_plans_tenant_isolation'),
+  ],
 );
 
 export const grades = oe.table(
@@ -880,6 +907,7 @@ export const schema = {
   guardians,
   studentGuardians,
   lessons,
+  lessonPlans,
   grades,
   gradeComponents,
   attendance,

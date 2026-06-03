@@ -58,8 +58,10 @@ import {
 } from '@on-education/module-pedagogico';
 import {
   createLesson,
+  createLessonPlan,
   createScheduleException,
   createScheduleSlot,
+  deleteLessonPlan,
   deleteScheduleException,
   deleteScheduleSlot,
   recordAttendance,
@@ -71,6 +73,7 @@ import {
   assignTeachingSchema,
   createScheduleSlotSchema,
   createScheduleExceptionSchema,
+  createLessonPlanSchema,
   createGradeComponentSchema,
   updateGradeScaleSchema,
   updateAiStandardSchema,
@@ -282,6 +285,7 @@ export async function createLessonAction(formData: FormData): Promise<void> {
   const input = createLessonSchema.parse({
     classId: formData.get('classId'),
     subjectId: (formData.get('subjectId') as string) || undefined,
+    lessonPlanId: (formData.get('lessonPlanId') as string) || undefined,
     date: formData.get('date'),
     topic: formData.get('topic'),
     notes: (formData.get('notes') as string) || undefined,
@@ -758,6 +762,28 @@ export async function updateGradeScaleAction(formData: FormData): Promise<void> 
   const input = updateGradeScaleSchema.parse({ gradeScale: formData.get('gradeScale') });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app/escola/notas', 'page');
+}
+
+// --- Planejamento (planos de aula / avaliações / trabalhos — itens 7.1/7.3) --
+
+export async function createLessonPlanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createLessonPlanSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'aula',
+    title: formData.get('title'),
+    content: (formData.get('content') as string) || undefined,
+    date: (formData.get('date') as string) || undefined,
+  });
+  await createLessonPlan(db(), ctx, input);
+  revalidatePath('/app/sala/planejamento', 'page');
+}
+
+export async function deleteLessonPlanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteLessonPlan(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/sala/planejamento', 'page');
 }
 
 // --- Cronograma / horário semanal (item 7) -----------------------------------
