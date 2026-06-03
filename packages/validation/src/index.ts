@@ -352,5 +352,6 @@ export const generateActivitySchema = z.object({
   topic: z.string().min(2).max(300),
   subject: z.string().max(120).optional(),
   level: z.string().max(120).optional(),
+  kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),
 });
 export type GenerateActivityInput = z.infer<typeof generateActivitySchema>;

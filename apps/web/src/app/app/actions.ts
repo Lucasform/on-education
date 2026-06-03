@@ -170,6 +170,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     topic: formData.get('topic'),
     subject: (formData.get('subject') as string) || undefined,
     level: (formData.get('level') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'atividade',
   });
   await generateActivityWithEduON(db(), ctx, input);
   revalidatePath('/app', 'layout');

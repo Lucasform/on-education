@@ -49,6 +49,12 @@ export default async function AtividadesPage() {
             </p>
             {aiOn ? (
               <form action={generateActivityAction} className="flex flex-col gap-2">
+                <select name="kind" defaultValue="atividade" className={fieldClass}>
+                  <option value="atividade">Atividade</option>
+                  <option value="prova">Prova</option>
+                  <option value="trabalho">Trabalho</option>
+                  <option value="roteiro">Roteiro de estudo</option>
+                </select>
                 <input
                   name="topic"
                   required
@@ -64,7 +70,7 @@ export default async function AtividadesPage() {
                   <input name="level" placeholder="Nível/ano" className={fieldClass} />
                 </div>
                 <Button type="submit" size="sm">
-                  Gerar atividade
+                  Gerar com o EduON
                 </Button>
               </form>
             ) : (

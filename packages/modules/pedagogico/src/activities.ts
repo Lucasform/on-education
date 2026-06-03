@@ -61,14 +61,43 @@ export async function generateActivityWithEduON(
 
   const ai = provider ?? createAnthropicProvider('sonnet');
   const standard = await getAiStandard(client, ctx);
+
+  // Tipo de documento gerado (itens 11.1/11.2/11.3/11.4). Muda o foco do prompt e a etiqueta.
+  const TIPOS = {
+    atividade: {
+      sys: 'Gere uma atividade pedagógica completa e pronta para uso (enunciado, exercícios e gabarito ao final quando fizer sentido).',
+      verbo: 'Crie uma atividade sobre',
+      prefixo: '',
+      tag: 'atividade',
+    },
+    prova: {
+      sys: 'Gere uma PROVA/avaliação com questões variadas (múltipla escolha e dissertativas), pontuação por questão e GABARITO ao final.',
+      verbo: 'Crie uma prova sobre',
+      prefixo: 'Prova: ',
+      tag: 'prova',
+    },
+    trabalho: {
+      sys: 'Gere um TRABALHO/projeto com objetivo, orientações, etapas, formato de entrega e critérios de avaliação.',
+      verbo: 'Crie um trabalho sobre',
+      prefixo: 'Trabalho: ',
+      tag: 'trabalho',
+    },
+    roteiro: {
+      sys: 'Gere um ROTEIRO DE ESTUDO com resumo do conteúdo, passos de estudo, pontos-chave e exercícios de fixação.',
+      verbo: 'Crie um roteiro de estudo sobre',
+      prefixo: 'Roteiro: ',
+      tag: 'roteiro',
+    },
+  } as const;
+  const tipo = TIPOS[input.kind] ?? TIPOS.atividade;
+
   const system = applyAiStandard(
-    'Você é o EduON, um assistente pedagógico. Gere uma atividade pedagógica completa e pronta ' +
-      'para uso em português do Brasil (enunciado, questões/exercícios e, quando fizer sentido, ' +
-      'gabarito ao final). Responda apenas com o conteúdo da atividade, sem comentários.',
+    `Você é o EduON, um assistente pedagógico. ${tipo.sys} Responda em português do Brasil, ` +
+      'apenas com o conteúdo, sem comentários.',
     standard,
   );
   const prompt =
-    `Crie uma atividade sobre: ${input.topic}.` +
+    `${tipo.verbo}: ${input.topic}.` +
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +
     (input.level ? ` Nível/ano: ${input.level}.` : '');
 
@@ -79,10 +108,10 @@ export async function generateActivityWithEduON(
       .insert(activities)
       .values({
         tenantId: ctx.tenantId,
-        title: input.topic.slice(0, 200),
+        title: `${tipo.prefixo}${input.topic}`.slice(0, 200),
         subject: input.subject ?? null,
         content: result.text,
-        tags: ['eduon'],
+        tags: ['eduon', tipo.tag],
         aiGenerated: true,
         createdBy: ctx.userId,
       })
