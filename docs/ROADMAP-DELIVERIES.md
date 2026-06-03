@@ -220,10 +220,19 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [~] **9. Notas: participação, formais e anotações por aluno** (notas formais ok; falta participação + anotações).
 - [ ] **9.1 Relatórios com geração de doc fácil** (faltas, atividades, notas, ocorrências) — exportar/imprimir em PDF.
 - [ ] **17. Vínculos do professor** (membership ↔ matéria ↔ turma): cada professor leciona matérias específicas em turmas específicas. Base para diário/notas/faltas por professor.
-- [ ] **18. Formato simplificado do professor autônomo (👤):** o individual NÃO usa tudo da escola. Definir um subconjunto enxuto (turmas/alunos, EduON, banco, simulados, agenda) e esconder gestão institucional. Aprimorar caso a caso.
+- [~] **18. Professor autônomo (👤) — nicho focado em IA + padronização.** Produto enxuto e diferente da escola: o individual NÃO usa gestão institucional (secretaria, financeiro institucional, unidades, multi-perfil, NFS-e). Mapa do que importa:
+  - **18.1 Posicionamento:** "o professor que ensina com IA e entrega tudo no SEU padrão". Os dois pilares são **EduON (IA)** e **padronização pessoal**.
+  - **18.2 EduON como centro (o app gira em torno disso):** gerar plano de aula, atividade, **prova**, **trabalho**, **roteiro de estudo**, lista de exercícios; corrigir redação; tutor do aluno. Tudo human-in-the-loop, com cota por plano.
+  - **18.3 "Meu padrão" (diferencial central):** o professor define UM padrão pessoal (estilo, cabeçalho/rodapé, fonte, formato de prova/lição de casa/roteiro/bilhete, nível de dificuldade preferido) e **todo conteúdo gerado pelo EduON sai nesse padrão**. Reaproveita `tenant_settings` (logo/identidade pessoal) + um "perfil de padrão" aplicado aos prompts e à exportação em PDF.
+  - **18.4 Núcleo enxuto:** turmas/alunos próprios, agenda pessoal, banco de atividades/provas, simulados, portfólio do aluno. Acompanhamento simples de desempenho (notas/frequência leves), sem a máquina institucional.
+  - **18.5 Comunicação leve:** falar só com os responsáveis dos próprios alunos (boletim/relatório simples), sem secretaria.
+  - **18.6 Geração de documentos:** exportar atividade/prova/roteiro/boletim em PDF já no padrão do professor (com a identidade dele).
+  - **18.7 Monetização do nicho:** Free (cota de IA) → Pro (cota maior, sem marca On Way, exportações ilimitadas). Depois: **marketplace** para vender o próprio conteúdo padronizado.
+  - **18.8 UI:** menu sem os grupos de Escola/Financeiro/Secretaria; navegação centrada em "Criar com EduON", "Minhas turmas/alunos", "Meu banco", "Meu padrão".
 
 ### EduON (IA) ancorado no material da escola
 
+- [~] **11.0 Criação de aulas pelo agente (ambos os segmentos 🏫👤).** O EduON gera a **aula/plano de aula** completo, tanto no fluxo da escola (vinculado a turma/matéria/diário, item 7.1) quanto no do professor autônomo (item 18.2), sempre no padrão definido (da escola ou "meu padrão"). Hoje há geração de plano em `/app/ia`; falta o vínculo direto turma↔matéria↔diário e a aplicação do padrão.
 - [~] **11. Atividades por IA com base no material didático.** EduON gera por tema; falta ancorar no material anexado (RAG).
   - [x] **11.1** Criação de atividade por descrição/solicitação do professor (`/app/atividades`).
   - [ ] **11.2** Provas com base no material anexado.
