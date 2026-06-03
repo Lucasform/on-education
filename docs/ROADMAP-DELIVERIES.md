@@ -113,6 +113,17 @@ Workspace pessoal do professor autônomo, freemium. Tenant `individual` com um �
 - [ ] NFS-e automática ao confirmar pagamento; webhooks idempotentes e assinados.
 - [ ] `[V2]` bolsas/descontos, loja, split (rede). PCI: nunca armazenar cartão.
 
+### 2.F — Cobrança ponta a ponta (FASE FINAL do projeto)
+
+> Bloco a ser feito **bem no final**, depois que escola/acadêmico estiverem maduros. Exige credenciais de PSP e prefeitura. Tudo idempotente; webhooks assinados; nunca armazenar cartão.
+
+- [ ] **Emissão de boletos via API** (PSP: Asaas/Iugu) — gerar boleto/PIX por mensalidade, com linha digitável/QR.
+- [ ] **Emissão de notas (NFS-e)** integrada à prefeitura/PSP.
+- [ ] **Confirmação de pagamento** automática via webhook do PSP (baixa no extrato do responsável, item 5.1.1).
+- [ ] **Envio automático do comprovante e da nota** ao responsável (e-mail/WhatsApp) ao confirmar o pagamento.
+- [ ] Conciliação e relatórios financeiros; régua de inadimplência automática.
+- **Credenciais necessárias (no momento):** chave do PSP (Asaas/Iugu), credenciais de NFS-e (prefeitura), e-mail (Resend) e/ou WhatsApp Cloud API.
+
 ## Fase 3 — Gestão & Analytics 🏫 `[V1]`
 
 - [x] Relatórios de direção (MVP): `/app/relatorios` com KPIs da escola (turmas, alunos, média geral, frequência, atividades, simulados) e desempenho por turma. Falta multi-unidade/rede e dashboards avançados.
