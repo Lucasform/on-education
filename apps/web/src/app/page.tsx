@@ -111,18 +111,7 @@ export default function HomePage() {
                 A plataforma completa para professores e escolas. O <EduON /> planeja, corrige e
                 organiza ao seu lado, e você cuida do resto num só lugar.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a href="/signup">
-                  <Button size="lg" className="rounded-full px-7">
-                    Sou professor
-                  </Button>
-                </a>
-                <a href="/signup/escola">
-                  <Button size="lg" variant="outline" className="rounded-full px-7">
-                    Sou escola
-                  </Button>
-                </a>
-              </div>
+              <AudienceButtons variant="surface" />
             </div>
 
             {/* mock visual flutuante */}
