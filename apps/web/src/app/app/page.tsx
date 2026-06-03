@@ -1,11 +1,19 @@
 import { listDrafts } from '@on-education/module-ia';
-import { listClasses, listStudents, listUpcomingEvents } from '@on-education/module-nucleo';
+import {
+  listClasses,
+  listGuardians,
+  listStudents,
+  listSubjects,
+  listUpcomingEvents,
+} from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import {
-  BarChart3,
   CalendarDays,
+  CheckCircle2,
+  Circle,
   FolderOpen,
   GraduationCap,
+  Rocket,
   Sparkles,
   Users,
   type LucideIcon,
@@ -51,15 +59,42 @@ export default async function OverviewPage() {
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
   const hoje = new Date().toISOString().slice(0, 10);
-  const [turmas, alunos, atividades, rascunhos, proximosEventos] = await Promise.all([
-    listClasses(client, ctx),
-    listStudents(client, ctx),
-    listActivities(client, ctx, {}),
-    listDrafts(client, ctx),
-    listUpcomingEvents(client, ctx, hoje),
-  ]);
+  const [turmas, alunos, atividades, rascunhos, proximosEventos, disciplinas, responsaveis] =
+    await Promise.all([
+      listClasses(client, ctx),
+      listStudents(client, ctx),
+      listActivities(client, ctx, {}),
+      listDrafts(client, ctx),
+      listUpcomingEvents(client, ctx, hoje),
+      isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
+      isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
+    ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
   const impersonating = await isImpersonating();
+
+  // Checklist de onboarding: o usuário vai alimentando o sistema sem ficar travado.
+  const passos = [
+    { label: 'Criar a primeira turma', href: '/app/turmas', done: turmas.length > 0 },
+    { label: 'Cadastrar alunos', href: '/app/alunos', done: alunos.length > 0 },
+    ...(isSchool
+      ? [
+          {
+            label: 'Cadastrar disciplinas',
+            href: '/app/escola/disciplinas',
+            done: disciplinas.length > 0,
+          },
+          {
+            label: 'Cadastrar responsáveis',
+            href: '/app/escola/responsaveis',
+            done: responsaveis.length > 0,
+          },
+          { label: 'Convidar professores e equipe', href: '/app/escola/convites', done: false },
+        ]
+      : []),
+    { label: 'Montar o banco de atividades', href: '/app/atividades', done: atividades.length > 0 },
+    { label: 'Gerar conteúdo com o EduON', href: '/app/ia', done: rascunhos.length > 0 },
+  ];
+  const feitos = passos.filter((p) => p.done).length;
 
   return (
     <>
@@ -117,42 +152,49 @@ export default async function OverviewPage() {
         </section>
       )}
 
-      <section className={cardClass}>
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-medium">Comece por aqui</h2>
-        </div>
-        <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-          <li>
-            <Link className="text-primary underline-offset-4 hover:underline" href="/app/ia">
-              Gerar um plano de aula com IA
-            </Link>
-          </li>
-          <li>
-            <Link className="text-primary underline-offset-4 hover:underline" href="/app/turmas">
-              Criar sua primeira turma
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="text-primary underline-offset-4 hover:underline"
-              href="/app/atividades"
-            >
-              Montar o banco de atividades
-            </Link>
-          </li>
-          {isSchool && (
-            <li>
-              <Link
-                className="text-primary underline-offset-4 hover:underline"
-                href="/app/escola/convites"
-              >
-                Convidar professores e equipe
-              </Link>
-            </li>
-          )}
-        </ul>
-      </section>
+      {feitos < passos.length && (
+        <section className={cardClass}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Rocket className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-medium">Primeiros passos</h2>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {feitos} de {passos.length}
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-primary to-fuchsia-500 transition-all"
+              style={{ width: `${Math.round((feitos / passos.length) * 100)}%` }}
+            />
+          </div>
+          <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+            {passos.map((p) => (
+              <li key={p.label}>
+                <Link
+                  href={p.href}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent ${
+                    p.done ? 'text-muted-foreground' : 'text-foreground'
+                  }`}
+                >
+                  {p.done ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                  ) : (
+                    <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  )}
+                  <span className={p.done ? 'line-through decoration-muted-foreground/40' : ''}>
+                    {p.label}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Preencha no seu ritmo. Você pode deixar itens para depois sem travar o sistema.
+          </p>
+        </section>
+      )}
     </>
   );
 }
