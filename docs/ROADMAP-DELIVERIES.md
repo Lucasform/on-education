@@ -212,6 +212,15 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [ ] **12. Mural informativo para os pais.**
 - [ ] **13. Banco de atividades coletivas** (padrão On Way, sem vínculo com a escola, por faixa etária).
 
+### Secretaria (escola)
+
+- [ ] **19. Módulo Secretaria:**
+  - [ ] **19.1** Envio de informativos. **Por e-mail para todos os responsáveis** (em massa) e **informativos internos** (mural/app). Depende de SMTP/serviço de e-mail (Resend).
+  - [ ] **19.2** Solicitações (pais/responsáveis pedem documentos; secretaria atende e marca status).
+  - [ ] **19.3** Gestão de documentações necessárias por aluno (checklist do que falta entregar).
+  - [ ] **19.4** Histórico escolar (registro acadêmico do aluno; geração de documento padronizado).
+  - [ ] **19.5** Anexos e **criação de arquivo padronizado** (declarações, históricos, autorizações) a partir de modelos da escola → exportar PDF.
+
 ### Visão geral
 
 - [~] **14. Painel geral de acompanhamento** (visão consolidada da escola: turmas, alunos, frequência, notas, ocorrências, pendências). Hoje: `/app` (início) + `/app/relatorios`. Evoluir para um painel único e rico.
