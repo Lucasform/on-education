@@ -5,9 +5,21 @@ import { Field, fieldClass } from '@/components/form';
 
 import { signupSchoolAction } from './actions';
 
+export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Criar escola · On Way Education' };
 
-export default function SchoolSignupPage() {
+const ERROS: Record<string, string> = {
+  existe: 'Este e-mail já tem conta. Faça login ou use outro e-mail.',
+  senha: 'A senha precisa ter ao menos 8 caracteres.',
+  falha: 'Não foi possível criar a escola agora. Tente novamente em instantes.',
+};
+
+export default async function SchoolSignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erro?: string }>;
+}) {
+  const { erro } = await searchParams;
   return (
     <AuthShell
       title="Cadastrar sua escola"
@@ -21,6 +33,11 @@ export default function SchoolSignupPage() {
         </>
       }
     >
+      {erro && (
+        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+          {ERROS[erro] ?? ERROS.falha}
+        </p>
+      )}
       <form action={signupSchoolAction} className="flex flex-col gap-4">
         <Field label="Nome da escola">
           <input name="schoolName" required minLength={2} className={fieldClass} />

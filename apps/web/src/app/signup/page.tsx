@@ -5,9 +5,21 @@ import { Field, fieldClass } from '@/components/form';
 
 import { signupAction } from './actions';
 
+export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Criar conta · On Way Education' };
 
-export default function SignupPage() {
+const ERROS: Record<string, string> = {
+  existe: 'Este e-mail já tem conta. Faça login ou use outro e-mail.',
+  senha: 'A senha precisa ter ao menos 8 caracteres.',
+  falha: 'Não foi possível criar a conta agora. Tente novamente em instantes.',
+};
+
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erro?: string }>;
+}) {
+  const { erro } = await searchParams;
   return (
     <AuthShell
       title="Criar sua conta de professor"
@@ -28,6 +40,11 @@ export default function SignupPage() {
         </>
       }
     >
+      {erro && (
+        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+          {ERROS[erro] ?? ERROS.falha}
+        </p>
+      )}
       <form action={signupAction} className="flex flex-col gap-4">
         <Field label="Seu nome">
           <input name="ownerName" required minLength={2} className={fieldClass} />

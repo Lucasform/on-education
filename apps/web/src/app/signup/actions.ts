@@ -19,7 +19,7 @@ export async function signupAction(formData: FormData): Promise<void> {
     workspaceName: (formData.get('workspaceName') as string) || undefined,
   });
   const password = String(formData.get('password') ?? '');
-  if (password.length < 8) throw new Error('A senha precisa ter ao menos 8 caracteres.');
+  if (password.length < 8) redirect('/signup?erro=senha');
 
   const admin = createSupabaseAdmin();
   const { data, error } = await admin.auth.admin.createUser({
@@ -28,18 +28,24 @@ export async function signupAction(formData: FormData): Promise<void> {
     email_confirm: true,
     user_metadata: { full_name: input.ownerName },
   });
+  // Nunca derrubar a página com 500: erro vira mensagem amigável no formulário.
   if (error || !data.user) {
-    throw new Error(`Não foi possível criar a conta: ${error?.message ?? 'erro desconhecido'}`);
+    const existe = /registered|already|exists/i.test(error?.message ?? '');
+    redirect(`/signup?erro=${existe ? 'existe' : 'falha'}`);
   }
 
-  await provisionIndividualTenant(db(), data.user.id, input);
+  try {
+    await provisionIndividualTenant(db(), data.user.id, input);
+  } catch {
+    redirect('/signup?erro=falha');
+  }
 
   const supabase = await createSupabaseServerClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: input.ownerEmail,
     password,
   });
-  if (signInError) throw new Error(`Conta criada, mas falha ao entrar: ${signInError.message}`);
+  if (signInError) redirect('/login');
 
   redirect('/app');
 }
