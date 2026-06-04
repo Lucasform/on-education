@@ -12,3 +12,4 @@ export * from './admin';
 export * from './events';
 export * from './settings';
 export * from './occurrences';
+export * from './finance';

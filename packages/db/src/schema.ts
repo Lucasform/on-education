@@ -885,6 +885,29 @@ export const occurrenceStudents = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Financeiro 2.a (item 5.1): controle interno de cobranças/mensalidades por aluno,
+// vinculadas ao responsável pagador. Valor em centavos (integer) para evitar float.
+// "vencido" é derivado (aberto + due_date < hoje). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const invoices = oe.table(
+  'invoices',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id'),
+    guardianId: uuid('guardian_id'),
+    competencia: text('competencia').notNull(), // 'YYYY-MM'
+    description: text('description').notNull(),
+    amountCents: integer('amount_cents').notNull().default(0),
+    dueDate: date('due_date').notNull(),
+    status: text('status').notNull().default('aberto'), // aberto | pago | cancelado
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [index('invoices_tenant_idx').on(t.tenantId), tenantPolicy('invoices_tenant_isolation')],
+);
+
 export const schema = {
   tenants,
   users,
@@ -924,4 +947,5 @@ export const schema = {
   tenantSettings,
   occurrences,
   occurrenceStudents,
+  invoices,
 };

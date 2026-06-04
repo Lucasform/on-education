@@ -149,7 +149,7 @@ export const NAV: NavGroup[] = [
     label: 'Financeiro',
     only: 'organization',
     items: [
-      soon('Mensalidades', 'mensalidades', Wallet),
+      { label: 'Mensalidades', href: '/app/financeiro', icon: Wallet },
       soon('Inadimplência', 'inadimplencia', AlertCircle),
       soon('NFS-e', 'nfse', Receipt),
     ],

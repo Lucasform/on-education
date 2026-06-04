@@ -21,6 +21,7 @@ import {
   deleteGradeComponent,
   createGuardian,
   createGuardiansBulk,
+  createInvoice,
   createOccurrence,
   createStudent,
   createStudentsBulk,
@@ -30,9 +31,12 @@ import {
   createUnit,
   deleteClass,
   deleteEvent,
+  deleteInvoice,
   deleteOccurrence,
   deleteStudent,
   inviteMember,
+  markInvoicePaid,
+  reopenInvoice,
   linkClassSubject,
   linkGuardian,
   removeTeachingAssignment,
@@ -93,6 +97,7 @@ import {
   createCommunicationSchema,
   createEventSchema,
   createGuardianSchema,
+  createInvoiceSchema,
   createLessonSchema,
   createPortfolioEntrySchema,
   createStudentSchema,
@@ -532,6 +537,40 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+// --- Financeiro (cobranças / mensalidades) -----------------------------------
+
+export async function createInvoiceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createInvoiceSchema.parse({
+    guardianId: (formData.get('guardianId') as string) || undefined,
+    studentId: (formData.get('studentId') as string) || undefined,
+    competencia: formData.get('competencia'),
+    description: formData.get('description'),
+    amount: formData.get('amount'),
+    dueDate: formData.get('dueDate'),
+  });
+  await createInvoice(db(), ctx, input);
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function markInvoicePaidAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await markInvoicePaid(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function reopenInvoiceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await reopenInvoice(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function deleteInvoiceAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteInvoice(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/financeiro', 'page');
 }
 
 // --- Ocorrências -------------------------------------------------------------

@@ -290,6 +290,17 @@ export const submitQuizAttemptSchema = z.object({
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
 
+/** Financeiro 2.a (item 5.1) — cobrança/mensalidade. `amount` em reais (vira centavos). */
+export const createInvoiceSchema = z.object({
+  guardianId: uuidSchema.optional(),
+  studentId: uuidSchema.optional(),
+  competencia: z.string().regex(/^\d{4}-\d{2}$/, 'Use o formato AAAA-MM'),
+  description: z.string().min(1).max(200),
+  amount: z.coerce.number().min(0).max(1_000_000),
+  dueDate: z.string().date(),
+});
+export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
+
 /** Ocorrências do aluno (Fase 1A) — vinculável a 1 ou vários alunos. */
 export const createOccurrenceSchema = z.object({
   title: z.string().min(1).max(200),
