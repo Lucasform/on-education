@@ -28,22 +28,30 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
     const cookieStore = await cookies();
     const impersonated = cookieStore.get(IMPERSONATION_COOKIE)?.value;
     if (impersonated) {
-      // Cookie no formato `tenantId|tenantType`: monta o contexto SEM tocar no banco,
-      // pra navegação na impersonação não cair por soluço transitório de DB.
-      const [tenantId, tenantType] = impersonated.split('|');
-      if (tenantId && (tenantType === 'organization' || tenantType === 'individual')) {
-        return adminTenantContext(tenantId, tenantType);
+      // SEGURANÇA: a impersonação só vale se a sessão REAL for super-admin. Sem isso,
+      // qualquer um poderia forjar o cookie e ver qualquer escola. (getSuperAdminEmail é
+      // cacheado e não toca no banco.)
+      const adminEmail = await getSuperAdminEmail();
+      if (adminEmail) {
+        // Cookie `tenantId|tenantType`: monta o contexto SEM tocar no banco.
+        const [tenantId, tenantType] = impersonated.split('|');
+        if (tenantId && (tenantType === 'organization' || tenantType === 'individual')) {
+          return adminTenantContext(tenantId, tenantType);
+        }
+        // Cookie antigo (só o id): resolve pelo banco como fallback.
+        return await resolveContextForTenant(getDbClient(), tenantId || impersonated);
       }
-      // Cookie antigo (só o id): resolve pelo banco como fallback.
-      return await resolveContextForTenant(getDbClient(), tenantId || impersonated);
+      // Cookie presente mas a sessão não é admin: ignora e segue como usuário normal.
     }
 
+    // getSession lê o JWT local (sem ida à rede); o middleware mantém a sessão fresca.
     const supabase = await createSupabaseServerClient();
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return null;
-    return await resolveContextForUser(getDbClient(), user.id);
+      data: { session },
+    } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return null;
+    return await resolveContextForUser(getDbClient(), userId);
   } catch {
     // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página.
     return null;
@@ -73,9 +81,9 @@ export const getSuperAdminEmail = cache(async (): Promise<string | null> => {
     if (allow.length === 0) return null;
     const supabase = await createSupabaseServerClient();
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    const email = user?.email?.toLowerCase();
+      data: { session },
+    } = await supabase.auth.getSession();
+    const email = session?.user?.email?.toLowerCase();
     if (!email) return null;
     return allow.includes(email) ? email : null;
   } catch {

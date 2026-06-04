@@ -13,6 +13,16 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 21:10] — Segurança (impersonação) + performance de navegação — STATUS: CONCLUÍDO
+
+- **🔴 Falha de segurança corrigida:** o cookie `oe_admin_tenant` era confiado SEM verificar se a sessão real é super-admin — qualquer um podia forjá-lo e ver/editar qualquer escola (quebra do isolamento multi-tenant/LGPD). Agora `getAuthContext` só honra a impersonação se `getSuperAdminEmail()` (allowlist) confirmar; senão ignora o cookie. Testado: cookie sem sessão admin → 307 /login (antes: 200).
+- **⚡ Performance:** a app fazia 2 validações de auth na REDE por navegação (middleware + página). (1) `getAuthContext`/`getSuperAdminEmail` trocaram `getUser()` (rede) por `getSession()` (lê o JWT local; o middleware mantém a sessão fresca). (2) Middleware pula o `getUser()` quando não há cookie de sessão (anônimo/landing/prefetch). Menos ida à rede por clique.
+- **Contexto:** Lucas comparou com o OnWay Condomínio (SPA Vite, navegação no cliente = instantânea); este é Next SSR com `force-dynamic` + Supabase free, daí a diferença. Cortamos round-trips; SPA-like total exigiria mudança de arquitetura.
+- **Arquivos:** `apps/web/src/server/session.ts`, `apps/web/src/middleware.ts`.
+- **Testes:** `tsc` + `next build` verdes; smoke com `next start`: impersonação forjada bloqueada, landing 200.
+- **Pendências (pedidas pelo Lucas, nesta ordem):** Storage Fatia 2 (materiais) "faça"; nome do agente personalizável "aplique"; "melhorar os recursos" (definir escopo).
+- **Commit(s):** ver `fix: gate de super-admin na impersonacao + reduz auth na rede por navegacao`.
+
 ### [2026-06-04 20:40] — Rebrand: plataforma "Edu On Way" + agente "WayOn" — STATUS: CONCLUÍDO
 
 - **Decisão do Lucas:** plataforma "On Way Education" → **Edu On Way**; agente "EduON" → **WayOn** (Way + On, amarra com On Way). Nome do agente personalizável por escola/prof segue no backlog.

@@ -13,6 +13,11 @@ export async function middleware(request: NextRequest) {
   const anon = process.env.SUPABASE_ANON_KEY;
   if (!url || !anon) return response;
 
+  // Sem cookie de sessão do Supabase (visitante anônimo, prefetch, landing) não há o que
+  // renovar — pula a ida à rede do getUser() e responde na hora.
+  const hasSession = request.cookies.getAll().some((c) => c.name.startsWith('sb-'));
+  if (!hasSession) return response;
+
   const supabase = createServerClient(url, anon, {
     cookies: {
       getAll: () => request.cookies.getAll(),
