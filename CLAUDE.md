@@ -20,7 +20,7 @@
 - **Segurança e LGPD primeiro:** dados de menores = proteção máxima. Default mais restritivo. Em dúvida sobre expor dado, NÃO exponha e sinalize.
 - **Nada de segredo no código.** Sem PII em log.
 - **Idempotência** em cobrança, envio de mensagem e geração de documento.
-- **WhatsApp só via API Oficial (Cloud API).** Nunca biblioteca não oficial.
+- **WhatsApp via Evolution API** (decisão do Lucas, ADR 0006): escola/professor conecta o próprio número por QR, reusando o blueprint do OnWay Condomínio. _(Override consciente da regra original "só Cloud API oficial"; risco de ToS/ban da Meta aceito e registrado no ADR.)_
 - **IA com human-in-the-loop:** parecer/correção/feedback são rascunhos que o humano aprova. Cotas por plano.
 - **Tipos e validação primeiro:** Zod / tipos / migration antes da lógica.
 - **API-first, modular:** módulos só conversam via `packages/*` públicos (serviços/eventos), nunca importando internos de outro módulo.

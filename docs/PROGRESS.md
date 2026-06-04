@@ -13,6 +13,24 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 23:30] — WhatsApp Fase 1: conexão (Evolution API, QR self-service) — STATUS: CONCLUÍDO
+
+- **Tarefa:** "coisa grande" — escola/professor conecta o próprio WhatsApp e usa pra comunicação. Decisão do Lucas: **Evolution API** (igual OnWay Condomínio), usando as edge functions do Condomínio como base, adaptadas pro Next.js.
+- **Governança:** **ADR 0006** + regra do `CLAUDE.md` atualizada (override consciente do "só Cloud API oficial"; risco de ToS/ban aceito).
+- **O que foi feito (Fase 1 = CONECTAR):**
+  - Tabela **`whatsapp_connections`** (migration `0023`, RLS por tenant, 1 linha/tenant) — `instance_id`, `provider`, `webhook_secret`, `phone`, `active`. **Aplicada em prod.**
+  - **Módulo** `module-nucleo/whatsapp.ts` (get/upsert/setState, RBAC `tenant_settings`).
+  - **Helper Evolution** server-only `server/whatsapp.ts` (ensureInstance/setWebhook/connect/state/logout/sendText, instância `edu_<tenant>`, normalizePhone) — endpoints idênticos ao Condomínio.
+  - **Rotas** `app/api/whatsapp/{connect,status,logout}` (connect cria instância + webhook + devolve QR; status p/ polling; logout).
+  - **UI** `<WhatsappConnect>` (QR + polling 4s até abrir, mostra número, Desconectar) na página `/app/whatsapp`; item de nav real (era "em breve").
+  - **Env:** `EVOLUTION_API_URL`/`EVOLUTION_API_KEY` (servidor compartilhado com o Condomínio) no `.env.local` + `.env.example`.
+- **Arquivos:** `packages/db/src/schema.ts` (+`drizzle/0023_whatsapp_connections.sql`), `packages/modules/nucleo/src/{whatsapp.ts,index.ts}`, `apps/web/src/server/whatsapp.ts`, `apps/web/src/app/api/whatsapp/*`, `apps/web/src/components/whatsapp-connect.tsx`, `apps/web/src/app/app/whatsapp/page.tsx`, `apps/web/src/lib/nav.ts`, `CLAUDE.md`, `docs/adr/0006-whatsapp-evolution.md`.
+- **Migrations/RLS:** `0023_whatsapp_connections` — aplicada em prod.
+- **Testes:** `tsc` + `eslint` + `next build` verdes.
+- **Pendências / bloqueios:** **`EVOLUTION_API_URL`/`EVOLUTION_API_KEY` precisam ir pro Vercel** (senão a conexão não funciona em prod). Webhook (Fase 3) ainda não implementado. Conexão via professor (individual) só pela URL por enquanto (nav é org).
+- **Próximo passo sugerido:** **Fase 2 — enviar** (comunicados/mensagens → WhatsApp do responsável); depois **Fase 3 — inbox** (webhook + conversas).
+- **Commit(s):** ver `feat: whatsapp fase 1 (conexao via evolution + qr)`.
+
 ### [2026-06-04 22:30] — Storage Fatia 2: materiais didáticos por turma — STATUS: CONCLUÍDO
 
 - **Tarefa:** upload/listagem/download de materiais por turma (itens 3.1/3.3), no bucket PRIVADO. Destrava (junto da Fatia 3) o WayOn ler o material da escola.

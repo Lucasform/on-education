@@ -13,3 +13,4 @@ export * from './events';
 export * from './settings';
 export * from './occurrences';
 export * from './finance';
+export * from './whatsapp';

@@ -968,6 +968,28 @@ export const sharedActivities = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// whatsapp_connections — conexão WhatsApp (Evolution API) por tenant (ADR 0006).
+// Uma linha por tenant; instância nomeada `edu_<tenant_id>` no servidor Evolution único.
+// ---------------------------------------------------------------------------
+export const whatsappConnections = oe.table(
+  'whatsapp_connections',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    provider: text('provider').notNull().default('evolution'),
+    instanceId: text('instance_id').notNull(),
+    webhookSecret: text('webhook_secret'),
+    phone: text('phone'),
+    active: boolean('active').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('whatsapp_connections_tenant_uq').on(t.tenantId),
+    tenantPolicy('whatsapp_connections_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1010,4 +1032,5 @@ export const schema = {
   occurrenceStudents,
   invoices,
   sharedActivities,
+  whatsappConnections,
 };

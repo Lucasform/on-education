@@ -133,7 +133,7 @@ export const NAV: NavGroup[] = [
       { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
       { label: 'Mural dos pais', href: '/app/mural', icon: Megaphone },
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
-      soon('WhatsApp', 'whatsapp', Phone),
+      { label: 'WhatsApp', href: '/app/whatsapp', icon: Phone },
     ],
   },
   {
