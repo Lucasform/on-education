@@ -13,6 +13,20 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 18:00] — Identidade visual: roxo + baunilha quente (sai o rosa) — STATUS: CONCLUÍDO
+
+- **Tarefa:** Lucas pediu nova identidade (paleta "Criatividade — roxo + baunilha quente") e sair do rosa; confirmou que o dark é bom mas pedia melhorias. Também perguntou se cada escola muda a paleta (resposta: sim, troca o destaque/--primary em `/app/escola/personalizacao`, presets em `tenant_settings.themeColor`).
+- **O que foi feito:**
+  - **Tokens** em `apps/web/src/app/globals.css`: **light** revamp = fundo baunilha (#F7F5FF) + cartões brancos + acento creme (#FBF3D0) + roxo profundo (#4C2C92); **dark** melhorado = charcoal arroxeado (no lugar do azul-slate), mais quente/coeso, primary roxo vibrante.
+  - **`--brand-2`** (dourado #F5C842, "baunilha quente") virou token + cor Tailwind (`brand-2`); **substituiu o `fuchsia-500/600`** em 8 arquivos (gradientes/realces da marca). Sai o rosa.
+  - Cor do PWA/barra do navegador alinhada ao novo dark (`#130f1f`) em `layout.tsx` + `manifest.ts`.
+  - Destaque por escola intacto (sobrescreve só --primary/--ring).
+- **Arquivos:** `app/globals.css`, `tailwind.config.ts`, `app/layout.tsx`, `app/manifest.ts`, `app/page.tsx`, `app/app/page.tsx`, `app/app/atividades/[id]/page.tsx`, `app/mural/[tenant]/page.tsx`, `components/{admin-shell,app-shell,auth-shell,pricing-cards}.tsx`.
+- **Testes:** `tsc` + `next build` verdes.
+- **Pendências:** ajuste fino dos tons depois de ver em prod (subjetivo). **Storage Fatia 2 segue PAUSADA** (tabela `materials` já no `schema.ts`, NÃO comitada/migrada).
+- **Próximo passo sugerido:** ver em prod e calibrar; depois retomar Storage Fatia 2.
+- **Commit(s):** ver `feat: identidade roxo + baunilha (remove fuchsia, melhora dark)`.
+
 ### [2026-06-04 17:20] — Admin: console (overview + sidebar + contas + detalhe por escola) — STATUS: CONCLUÍDO
 
 - **Tarefa:** o `/admin` era uma página só (stats + tabela). Lucas pediu overview no início, acesso a todas as funcionalidades do app e logar nas escolas vendo os itens específicos. Escopo escolhido: **via "Entrar como"** (impersonação), sem visões globais cross-tenant.

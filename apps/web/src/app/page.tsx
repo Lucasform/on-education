@@ -47,7 +47,7 @@ function EduON() {
   return (
     <span className="font-semibold">
       Edu
-      <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">
+      <span className="bg-gradient-to-r from-primary to-brand-2 bg-clip-text text-transparent">
         ON
       </span>
     </span>
@@ -58,14 +58,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* barra de anúncio */}
-      <div className="bg-gradient-to-r from-primary to-fuchsia-600 px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
+      <div className="bg-gradient-to-r from-primary to-brand-2 px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
         ✨ Conheça o EduON, o agente que planeja, corrige e organiza com você.
       </div>
 
       {/* cabeçalho */}
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <a href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-brand-2 text-white">
             <GraduationCap className="h-5 w-5" />
           </span>
           <span className="text-lg font-bold tracking-tight">On Way Education</span>
@@ -90,8 +90,8 @@ export default function HomePage() {
 
       {/* hero */}
       <main className="mx-auto max-w-6xl px-6 pb-20">
-        <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-primary/5 to-fuchsia-500/10 p-8 sm:p-12 lg:p-16">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" />
+        <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-primary/5 to-brand-2/10 p-8 sm:p-12 lg:p-16">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-2/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
 
           <div className="relative grid items-center gap-10 lg:grid-cols-2">
@@ -103,7 +103,7 @@ export default function HomePage() {
               <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Ensine com inteligência.
                 <br />
-                <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary to-brand-2 bg-clip-text text-transparent">
                   Do plano de aula ao boletim.
                 </span>
               </h1>
@@ -118,7 +118,7 @@ export default function HomePage() {
             <div className="relative hidden lg:block">
               <div className="rounded-2xl border border-border bg-card/80 p-5 shadow-xl backdrop-blur">
                 <div className="mb-4 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 text-white">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-2 text-white">
                     <GraduationCap className="h-4 w-4" />
                   </span>
                   <span className="text-sm font-semibold">Painel da turma</span>
@@ -145,7 +145,7 @@ export default function HomePage() {
                 Reunião de pais · 19h
               </div>
               <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
-                <Sparkles className="h-4 w-4 text-fuchsia-500" />
+                <Sparkles className="h-4 w-4 text-brand-2" />
                 Atividade feita pelo EduON
               </div>
             </div>
@@ -188,7 +188,7 @@ export default function HomePage() {
         </section>
 
         {/* cta final */}
-        <section className="mt-16 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-fuchsia-600 px-8 py-12 text-center text-white sm:py-16">
+        <section className="mt-16 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-brand-2 px-8 py-12 text-center text-white sm:py-16">
           <h2 className="text-2xl font-bold sm:text-3xl">Comece hoje, sem complicação.</h2>
           <p className="mx-auto mt-2 max-w-md text-white/80">
             Crie sua conta em minutos ou leve o On Way Education para a sua escola.

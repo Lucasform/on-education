@@ -3,41 +3,45 @@
 @tailwind utilities;
 
 /*
- * Design tokens — tema ESCURO por padrão (:root) e CLARO via .light (next-themes).
- * Paleta moderna de app educacional: base slate + acento índigo/violeta.
+ * Design tokens — identidade "Criatividade: roxo + baunilha quente".
+ * Tema ESCURO por padrão (:root, charcoal arroxeado) e CLARO via .light (baunilha + roxo).
+ * `--brand-2` é o dourado/baunilha quente, usado nos gradientes/realces da marca.
+ * O destaque por escola sobrescreve apenas --primary/--ring (ver app/layout.tsx).
  */
 @layer base {
   :root {
-    --background: 224 47% 7%;
-    --foreground: 210 40% 96%;
-    --card: 222 44% 11%;
-    --card-foreground: 210 40% 96%;
-    --muted: 223 35% 16%;
-    --muted-foreground: 215 20% 65%;
-    --primary: 252 87% 67%;
+    --background: 257 35% 9%;
+    --foreground: 250 30% 96%;
+    --card: 257 32% 13%;
+    --card-foreground: 250 30% 96%;
+    --muted: 256 26% 18%;
+    --muted-foreground: 252 16% 66%;
+    --primary: 256 78% 70%;
     --primary-foreground: 0 0% 100%;
-    --accent: 223 35% 18%;
-    --accent-foreground: 210 40% 96%;
-    --border: 222 30% 20%;
-    --input: 222 30% 22%;
-    --ring: 252 87% 67%;
+    --accent: 256 26% 20%;
+    --accent-foreground: 250 30% 96%;
+    --border: 255 22% 22%;
+    --input: 255 22% 24%;
+    --ring: 256 78% 70%;
+    --brand-2: 45 90% 61%;
     --radius: 0.75rem;
   }
 
   .light {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 252 100% 98%;
+    --foreground: 258 42% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
-    --primary: 252 83% 58%;
+    --card-foreground: 258 42% 14%;
+    --muted: 254 45% 95%;
+    --muted-foreground: 256 14% 46%;
+    --primary: 258 53% 42%;
     --primary-foreground: 0 0% 100%;
-    --accent: 210 40% 92%;
-    --accent-foreground: 222 47% 11%;
-    --border: 214 25% 88%;
-    --input: 214 25% 86%;
-    --ring: 252 83% 58%;
+    --accent: 48 86% 90%;
+    --accent-foreground: 258 45% 26%;
+    --border: 255 32% 90%;
+    --input: 255 32% 87%;
+    --ring: 256 58% 60%;
+    --brand-2: 42 88% 52%;
     --radius: 0.75rem;
   }
 

@@ -43,7 +43,7 @@ export function AppShell({
           {logoUrl ? (
             <img src={logoUrl} alt="Logo da escola" className="h-7 w-7 rounded-lg object-cover" />
           ) : (
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 text-primary-foreground">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-2 text-primary-foreground">
               <GraduationCap className="h-4 w-4" />
             </span>
           )}

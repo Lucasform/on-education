@@ -12,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Ensine com inteligência, do plano de aula ao boletim, com o agente EduON.',
     start_url: '/app',
     display: 'standalone',
-    background_color: '#0a0a0a',
-    theme_color: '#0a0a0a',
+    background_color: '#130f1f',
+    theme_color: '#130f1f',
     lang: 'pt-BR',
     icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
   };

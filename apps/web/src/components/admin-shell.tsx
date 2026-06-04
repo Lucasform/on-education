@@ -38,7 +38,7 @@ export function AdminShell({
         }`}
       >
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-fuchsia-500 text-primary-foreground">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-2 text-primary-foreground">
             <Shield className="h-4 w-4" />
           </span>
           <span className="font-semibold">Admin</span>
