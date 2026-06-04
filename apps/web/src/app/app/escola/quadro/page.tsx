@@ -106,24 +106,25 @@ export default async function QuadroPage() {
                 {g.pessoas.map((p) => {
                   const aulas = porMembership.get(p.membershipId) ?? 0;
                   return (
-                    <li
-                      key={p.membershipId}
-                      className="flex items-center justify-between gap-2 py-2"
-                    >
-                      <span>
-                        <span className="font-medium">{p.fullName || p.email}</span>
-                        {p.fullName && (
-                          <span className="block text-xs text-muted-foreground">{p.email}</span>
-                        )}
-                      </span>
-                      {g.role === 'teacher' && (
-                        <Link
-                          href="/app/escola/professores"
-                          className="shrink-0 text-xs text-primary underline-offset-4 hover:underline"
-                        >
-                          {aulas > 0 ? `${aulas} vínculo(s)` : 'definir vínculos'}
-                        </Link>
-                      )}
+                    <li key={p.membershipId}>
+                      <Link
+                        href={`/app/escola/quadro/${p.membershipId}`}
+                        className="-mx-2 flex items-center justify-between gap-2 rounded-md px-2 py-2 transition-colors hover:bg-accent"
+                      >
+                        <span>
+                          <span className="font-medium">{p.fullName || p.email}</span>
+                          {p.fullName && (
+                            <span className="block text-xs text-muted-foreground">{p.email}</span>
+                          )}
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                          {g.role === 'teacher' &&
+                            (aulas > 0 ? `${aulas} vínculo(s)` : 'sem vínculos')}
+                          <span aria-hidden className="text-base leading-none">
+                            ›
+                          </span>
+                        </span>
+                      </Link>
                     </li>
                   );
                 })}
