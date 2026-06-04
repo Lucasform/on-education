@@ -163,6 +163,14 @@ export async function listDeletedActivities(client: DbClient, ctx: AuthContext) 
   );
 }
 
+export async function getActivity(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'read', 'activity');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx.select().from(activities).where(eq(activities.id, id));
+    return rows[0] ?? null;
+  });
+}
+
 export async function listActivities(
   client: DbClient,
   ctx: AuthContext,

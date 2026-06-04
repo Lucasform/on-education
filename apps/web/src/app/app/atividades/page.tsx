@@ -2,6 +2,7 @@ import { isAiConfigured } from '@on-education/module-ia';
 import { listActivities } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
 import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -28,11 +29,18 @@ export default async function AtividadesPage() {
           {atividades.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma atividade ainda.</p>
           ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
+            <ul className="space-y-1 text-sm">
               {atividades.map((a) => (
                 <li key={a.id}>
-                  {a.title}
-                  {a.tags.length > 0 && <span className="opacity-60"> · {a.tags.join(', ')}</span>}
+                  <Link
+                    href={`/app/atividades/${a.id}`}
+                    className="text-foreground underline-offset-4 hover:text-primary hover:underline"
+                  >
+                    {a.title}
+                  </Link>
+                  {a.tags.length > 0 && (
+                    <span className="text-muted-foreground"> · {a.tags.join(', ')}</span>
+                  )}
                 </li>
               ))}
             </ul>
