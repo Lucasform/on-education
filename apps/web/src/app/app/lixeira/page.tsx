@@ -40,7 +40,7 @@ function Secao({
         {titulo} ({itens.length})
       </h2>
       {itens.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Vazio.</p>
+        <p className="text-sm text-muted-foreground">Nada na lixeira.</p>
       ) : (
         <ul className="space-y-1 text-sm">
           {itens.map((i) => (

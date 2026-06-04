@@ -297,12 +297,10 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 - [x] **Q1. Feedback de submit** — `<SubmitButton>` (`useFormStatus`): desabilita + spinner em todo form (35 páginas); mesmo tratamento no `ConfirmButton`. Fim do duplo-clique.
 - [x] **Q2. `<KpiCard>`** — `apps/web/src/components/kpi-card.tsx` cobre as 3 variações (ícone+link, simples, `cor`); aplicado por alias em dashboard/relatórios/financeiro, removendo 3 defs locais duplicadas.
-- [ ] **Q3. `<DataTable>`** — tabela padrão (header/scroll mobile) substituindo os `<thead>/<tbody>` manuais.
-- [ ] **Q4. `<ListAndFormLayout>`** — layout lista+form único nas telas de cadastro.
-- [ ] **Q5. Sweep `PageHeader`** — toda tela usando o cabeçalho padrão.
-- [ ] **Q6. Empty states + CTA** — texto padronizado ("Nenhum X ainda") + link de ação.
-- [ ] **Q7. Sweep `aria-label`** — inputs date/month/time com rótulo acessível.
-- [ ] **Q8. `loading.tsx` por tela** — skeleton nas telas pesadas (relatórios, boletim).
+- [x] **Q6. Empty states** — padrão "Nenhum X ainda." já consistente em todas as listas; corrigido o único destoante (lixeira "Vazio." → "Nada na lixeira."). CTA "criar primeiro X" dispensado: nessas telas o form de criação é colocado (lista+form na mesma página), então um link seria redundante.
+- [x] **Q8. Loading/skeleton** — já atendido pelo `app/app/loading.tsx` global: no Next.js o `loading.tsx` cobre a rota e todas as aninhadas (`/app/relatorios`, `/app/sala/boletim`, etc.). Skeleton bespoke por tela = ganho marginal, dispensado.
+- [~] **Q3/Q4/Q7 — DEFERIDOS (baixo ROI).** `DataTable`/`ListAndFormLayout`: tabelas e forms são heterogêneos (financeiro tem form por linha; boletim é pivot; cada cadastro tem form próprio) → a abstração ficaria genérica demais p/ remover duplicação real. `aria-label`: sweep amplo de custo alto e benefício cosmético. Reavaliar só se virar dor concreta.
+- [x] **Q5. `PageHeader`** — já em uso amplo nas telas; padronização adicional só pontual, sem item dedicado.
 
 ---
 

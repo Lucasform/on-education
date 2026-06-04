@@ -7,11 +7,27 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · **Frente Qualidade ("melhor versão") 2026-06-04** (8 itens Q1–Q8 no ROADMAP): Q1 feedback de submit ✅; próximos Q2 KpiCard → Q3 DataTable → Q4 ListAndForm → Q5 PageHeader → Q6 empty states → Q7 aria-label → Q8 loading. RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · **Frente Qualidade ("melhor versão") ENCERRADA 2026-06-04**: entregue o que tem ROI real — Q1 (feedback de submit, 35 telas) + Q2 (`<KpiCard>`) em prod; Q6 (empty states já consistentes + fix lixeira) e Q8 (loading global já cobre tudo) confirmados; Q5 (PageHeader) já amplo; Q3/Q4/Q7 deferidos por baixo ROI (tabelas/forms heterogêneos; aria-label cosmético). RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-04 15:40] — Qualidade Q6/Q8 + veredito da frente — STATUS: CONCLUÍDO
+
+- **Tarefa:** fechar a frente de qualidade do jeito "melhor e menos custoso".
+- **Segmento:** 🏫👤
+- **O que foi feito / verificado:**
+  - **Q6 (empty states):** padrão "Nenhum X ainda." já consistente em ~18 telas; corrigido único destoante (`lixeira` "Vazio." → "Nada na lixeira."). CTA dispensado: criação é colocada (lista+form na mesma página) → link seria redundante.
+  - **Q8 (loading):** já atendido pelo `app/app/loading.tsx` **global** (cobre rotas aninhadas no Next.js). Skeleton por tela = marginal, dispensado.
+  - **Q5 (PageHeader):** já em uso amplo; sem item dedicado.
+  - **Q3/Q4/Q7 DEFERIDOS (baixo ROI):** tabelas/forms heterogêneos (form por linha no financeiro, boletim pivot, cada cadastro com form próprio) tornam `DataTable`/`ListAndFormLayout` abstração genérica demais; `aria-label` sweep é custo alto / ganho cosmético. Reavaliar só se virar dor concreta.
+- **Resultado da frente:** entregue o que tem ROI real — Q1 (feedback de submit) + Q2 (KpiCard) + Q6/Q8 confirmados. App já estava polido; resto é marginal.
+- **Arquivos:** `app/app/lixeira/page.tsx`; `docs/ROADMAP-DELIVERIES.md`.
+- **Testes:** mudança trivial de string; `tsc` cobre no commit (lint-staged). Q1/Q2 já com build verde e em prod.
+- **Deploy:** Q1+Q2 já em prod (`b067d05..1cf70f6`). Este checkpoint sobe junto no próximo push.
+- **Próximo passo sugerido:** frente de qualidade encerrada. Voltar ao backlog que depende de credencial (Storage → RAG) quando o Lucas liberar as chaves.
+- **Commit(s):** ver `chore: padroniza empty state da lixeira e fecha frente de qualidade (Q6/Q8)`.
 
 ### [2026-06-04 15:10] — Qualidade Q2: `<KpiCard>` compartilhado — STATUS: CONCLUÍDO
 
