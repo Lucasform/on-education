@@ -310,6 +310,15 @@ export const createInvoiceSchema = z.object({
 });
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
 
+/** Recorrência — gerar mensalidades da competência em lote. */
+export const generateMonthlyInvoicesSchema = z.object({
+  competencia: z.string().regex(/^\d{4}-\d{2}$/, 'Use o formato AAAA-MM'),
+  amount: z.coerce.number().min(0).max(1_000_000),
+  dueDate: z.string().date(),
+  description: z.string().max(200).optional(),
+});
+export type GenerateMonthlyInvoicesInput = z.infer<typeof generateMonthlyInvoicesSchema>;
+
 /** Ocorrências do aluno (Fase 1A) — vinculável a 1 ou vários alunos. */
 export const createOccurrenceSchema = z.object({
   title: z.string().min(1).max(200),

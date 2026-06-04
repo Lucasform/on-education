@@ -8,9 +8,12 @@ import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import Link from 'next/link';
+
 import {
   createInvoiceAction,
   deleteInvoiceAction,
+  generateMonthlyInvoicesAction,
   markInvoicePaidAction,
   reopenInvoiceAction,
 } from '../actions';
@@ -30,13 +33,18 @@ function Kpi({ label, value, cor }: { label: string; value: string; cor?: string
   );
 }
 
-export default async function FinanceiroPage() {
+export default async function FinanceiroPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ resp?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
 
+  const { resp } = await searchParams;
   const client = db();
-  const [cobrancas, responsaveis, alunos] = await Promise.all([
+  const [todas, responsaveis, alunos] = await Promise.all([
     listInvoices(client, ctx),
     listGuardians(client, ctx),
     listStudents(client, ctx),
@@ -44,6 +52,9 @@ export default async function FinanceiroPage() {
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));
   const hoje = hojeISO();
+
+  // Extrato por responsável (item 5.1.1): filtra as cobranças do responsável escolhido.
+  const cobrancas = resp ? todas.filter((c) => c.guardianId === resp) : todas;
 
   // Totais: aberto (a receber), vencido (aberto + venc < hoje), pago.
   const aReceber = cobrancas
@@ -72,11 +83,38 @@ export default async function FinanceiroPage() {
       />
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Kpi label="A receber" value={reais(aReceber)} />
+        <Kpi label={resp ? 'A receber (resp.)' : 'A receber'} value={reais(aReceber)} />
         <Kpi label="Vencido" value={reais(vencido)} cor="text-red-500" />
         <Kpi label="Recebido" value={reais(recebido)} cor="text-emerald-500" />
         <Kpi label="Cobranças" value={String(cobrancas.length)} />
       </section>
+
+      {responsaveis.length > 0 && (
+        <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs text-muted-foreground">Extrato por responsável</span>
+            <select name="resp" defaultValue={resp ?? ''} className={`${fieldClass} sm:w-64`}>
+              <option value="">Todos os responsáveis</option>
+              {responsaveis.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.fullName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button type="submit" size="sm" variant="outline">
+            Ver extrato
+          </Button>
+          {resp && (
+            <Link
+              href="/app/financeiro"
+              className="text-xs text-primary underline-offset-4 hover:underline"
+            >
+              limpar
+            </Link>
+          )}
+        </form>
+      )}
 
       {responsaveis.length === 0 ? (
         <div className={cardClass}>
@@ -165,64 +203,111 @@ export default async function FinanceiroPage() {
             </table>
           </div>
 
-          <div className={cardClass}>
-            <h2 className="mb-3 text-sm font-medium">Nova cobrança</h2>
-            <form action={createInvoiceAction} className="flex flex-col gap-2">
-              <select name="guardianId" required className={fieldClass} defaultValue="">
-                <option value="" disabled>
-                  Responsável (pagador)
-                </option>
-                {responsaveis.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.fullName}
-                  </option>
-                ))}
-              </select>
-              <select name="studentId" className={fieldClass} defaultValue="">
-                <option value="">Aluno (opcional)</option>
-                {alunos.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.fullName}
-                  </option>
-                ))}
-              </select>
-              <input
-                name="description"
-                required
-                placeholder="Descrição (ex.: Mensalidade)"
-                className={fieldClass}
-              />
-              <div className="flex gap-2">
+          <div className="flex flex-col gap-5">
+            <div className={cardClass}>
+              <h2 className="mb-1 text-sm font-medium">Gerar mensalidades do mês</h2>
+              <p className="mb-2 text-xs text-muted-foreground">
+                Cria uma cobrança para cada aluno (no responsável financeiro), pulando quem já tem
+                na competência.
+              </p>
+              <form action={generateMonthlyInvoicesAction} className="flex flex-col gap-2">
                 <input
-                  name="competencia"
-                  type="month"
-                  required
-                  defaultValue={hoje.slice(0, 7)}
-                  className={fieldClass}
-                  aria-label="Competência"
-                />
-                <input
-                  name="amount"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  placeholder="Valor R$"
+                  name="description"
+                  placeholder="Descrição (padrão: Mensalidade)"
                   className={fieldClass}
                 />
-              </div>
-              <input
-                name="dueDate"
-                type="date"
-                required
-                defaultValue={hoje}
-                className={fieldClass}
-                aria-label="Vencimento"
-              />
-              <Button type="submit" size="sm">
-                Lançar cobrança
-              </Button>
-            </form>
+                <div className="flex gap-2">
+                  <input
+                    name="competencia"
+                    type="month"
+                    required
+                    defaultValue={hoje.slice(0, 7)}
+                    className={fieldClass}
+                    aria-label="Competência"
+                  />
+                  <input
+                    name="amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    placeholder="Valor R$"
+                    className={fieldClass}
+                  />
+                </div>
+                <input
+                  name="dueDate"
+                  type="date"
+                  required
+                  defaultValue={hoje}
+                  className={fieldClass}
+                  aria-label="Vencimento"
+                />
+                <Button type="submit" size="sm" variant="outline">
+                  Gerar em lote
+                </Button>
+              </form>
+            </div>
+
+            <div className={cardClass}>
+              <h2 className="mb-3 text-sm font-medium">Nova cobrança</h2>
+              <form action={createInvoiceAction} className="flex flex-col gap-2">
+                <select name="guardianId" required className={fieldClass} defaultValue="">
+                  <option value="" disabled>
+                    Responsável (pagador)
+                  </option>
+                  {responsaveis.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.fullName}
+                    </option>
+                  ))}
+                </select>
+                <select name="studentId" className={fieldClass} defaultValue="">
+                  <option value="">Aluno (opcional)</option>
+                  {alunos.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.fullName}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  name="description"
+                  required
+                  placeholder="Descrição (ex.: Mensalidade)"
+                  className={fieldClass}
+                />
+                <div className="flex gap-2">
+                  <input
+                    name="competencia"
+                    type="month"
+                    required
+                    defaultValue={hoje.slice(0, 7)}
+                    className={fieldClass}
+                    aria-label="Competência"
+                  />
+                  <input
+                    name="amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    placeholder="Valor R$"
+                    className={fieldClass}
+                  />
+                </div>
+                <input
+                  name="dueDate"
+                  type="date"
+                  required
+                  defaultValue={hoje}
+                  className={fieldClass}
+                  aria-label="Vencimento"
+                />
+                <Button type="submit" size="sm">
+                  Lançar cobrança
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       )}

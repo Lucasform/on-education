@@ -1,7 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { type DbClient, invoices } from '@on-education/db';
-import type { CreateInvoiceInput } from '@on-education/validation';
-import { asc, desc, eq, isNull } from 'drizzle-orm';
+import { type DbClient, invoices, studentGuardians, students } from '@on-education/db';
+import type { CreateInvoiceInput, GenerateMonthlyInvoicesInput } from '@on-education/validation';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 
 /**
  * Financeiro 2.a (item 5.1): controle interno de cobranças por aluno/responsável.
@@ -25,6 +25,49 @@ export async function createInvoice(client: DbClient, ctx: AuthContext, input: C
       })
       .returning();
     return rows[0]!;
+  });
+}
+
+/**
+ * Recorrência: gera uma cobrança da competência para cada aluso ativo (vinculada ao
+ * responsável financeiro, se houver), pulando quem já tem cobrança naquela competência.
+ * Idempotente por (aluno, competência). Retorna quantas foram criadas.
+ */
+export async function generateMonthlyInvoices(
+  client: DbClient,
+  ctx: AuthContext,
+  input: GenerateMonthlyInvoicesInput,
+) {
+  assertCan(ctx, 'create', 'invoice');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const [alunos, vinculos, existentes] = await Promise.all([
+      tx.select({ id: students.id }).from(students).where(isNull(students.deletedAt)),
+      tx
+        .select({ studentId: studentGuardians.studentId, guardianId: studentGuardians.guardianId })
+        .from(studentGuardians)
+        .where(eq(studentGuardians.isFinancial, true)),
+      tx
+        .select({ studentId: invoices.studentId })
+        .from(invoices)
+        .where(and(eq(invoices.competencia, input.competencia), isNull(invoices.deletedAt))),
+    ]);
+    const financeiroDe = new Map(vinculos.map((v) => [v.studentId, v.guardianId]));
+    const jaCobrado = new Set(existentes.map((e) => e.studentId).filter(Boolean));
+    const novos = alunos
+      .filter((a) => !jaCobrado.has(a.id))
+      .map((a) => ({
+        tenantId: ctx.tenantId,
+        studentId: a.id,
+        guardianId: financeiroDe.get(a.id) ?? null,
+        competencia: input.competencia,
+        description: input.description || 'Mensalidade',
+        amountCents: Math.round(input.amount * 100),
+        dueDate: input.dueDate,
+        createdBy: ctx.userId,
+      }));
+    if (novos.length === 0) return 0;
+    await tx.insert(invoices).values(novos);
+    return novos.length;
   });
 }
 

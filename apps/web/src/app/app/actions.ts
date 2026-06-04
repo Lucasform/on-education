@@ -34,6 +34,7 @@ import {
   deleteInvoice,
   deleteOccurrence,
   deleteStudent,
+  generateMonthlyInvoices,
   inviteMember,
   markInvoicePaid,
   reopenInvoice,
@@ -101,6 +102,7 @@ import {
   createGuardianSchema,
   createInvoiceSchema,
   createLessonSchema,
+  generateMonthlyInvoicesSchema,
   shareCollectiveSchema,
   createPortfolioEntrySchema,
   createStudentSchema,
@@ -573,6 +575,18 @@ export async function createInvoiceAction(formData: FormData): Promise<void> {
     dueDate: formData.get('dueDate'),
   });
   await createInvoice(db(), ctx, input);
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function generateMonthlyInvoicesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateMonthlyInvoicesSchema.parse({
+    competencia: formData.get('competencia'),
+    amount: formData.get('amount'),
+    dueDate: formData.get('dueDate'),
+    description: (formData.get('description') as string) || undefined,
+  });
+  await generateMonthlyInvoices(db(), ctx, input);
   revalidatePath('/app/financeiro', 'page');
 }
 
