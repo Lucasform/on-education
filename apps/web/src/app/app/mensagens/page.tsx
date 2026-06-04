@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listMessages } from '@on-education/module-comunicacao';
 import { listGuardians, listStudents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -99,9 +99,9 @@ export default async function MensagensPage() {
               </select>
               <input name="subject" required placeholder="Assunto" className={fieldClass} />
               <textarea name="body" rows={4} placeholder="Mensagem" className={fieldClass} />
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Registrar mensagem
-              </Button>
+              </SubmitButton>
             </form>
             <p className="mt-2 text-xs text-muted-foreground">
               Por enquanto fica registrado no sistema. O envio por e-mail/WhatsApp entra depois.

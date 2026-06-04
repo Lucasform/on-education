@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
 import { listAttendance } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -49,9 +49,9 @@ export default async function FaltasPage({
             <option value="tudo">Tudo</option>
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Aplicar
-        </Button>
+        </SubmitButton>
       </form>
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
@@ -112,9 +112,9 @@ export default async function FaltasPage({
               <input name="present" type="checkbox" defaultChecked />
               Presente
             </label>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Registrar
-            </Button>
+            </SubmitButton>
           </form>
           {(alunos.length === 0 || turmas.length === 0) && (
             <p className="mt-2 text-xs text-muted-foreground">

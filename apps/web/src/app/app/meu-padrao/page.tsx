@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getTenantSettings } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -45,9 +45,9 @@ export default async function MeuPadraoPage() {
             nível de dificuldade preferido. O EduON segue essas instruções em toda geração.
           </p>
           <div>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Salvar padrão
-            </Button>
+            </SubmitButton>
           </div>
         </form>
       </div>

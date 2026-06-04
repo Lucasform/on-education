@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listGuardians, listInvoices, listStudents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -102,9 +102,9 @@ export default async function FinanceiroPage({
               ))}
             </select>
           </label>
-          <Button type="submit" size="sm" variant="outline">
+          <SubmitButton type="submit" size="sm" variant="outline">
             Ver extrato
-          </Button>
+          </SubmitButton>
           {resp && (
             <Link
               href="/app/financeiro"
@@ -172,16 +172,16 @@ export default async function FinanceiroPage({
                           {c.status === 'pago' ? (
                             <form action={reopenInvoiceAction}>
                               <input type="hidden" name="id" value={c.id} />
-                              <Button type="submit" size="sm" variant="ghost">
+                              <SubmitButton type="submit" size="sm" variant="ghost">
                                 Reabrir
-                              </Button>
+                              </SubmitButton>
                             </form>
                           ) : (
                             <form action={markInvoicePaidAction}>
                               <input type="hidden" name="id" value={c.id} />
-                              <Button type="submit" size="sm">
+                              <SubmitButton type="submit" size="sm">
                                 Dar baixa
-                              </Button>
+                              </SubmitButton>
                             </form>
                           )}
                           <form action={deleteInvoiceAction}>
@@ -243,9 +243,9 @@ export default async function FinanceiroPage({
                   className={fieldClass}
                   aria-label="Vencimento"
                 />
-                <Button type="submit" size="sm" variant="outline">
+                <SubmitButton type="submit" size="sm" variant="outline">
                   Gerar em lote
-                </Button>
+                </SubmitButton>
               </form>
             </div>
 
@@ -303,9 +303,9 @@ export default async function FinanceiroPage({
                   className={fieldClass}
                   aria-label="Vencimento"
                 />
-                <Button type="submit" size="sm">
+                <SubmitButton type="submit" size="sm">
                   Lançar cobrança
-                </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>

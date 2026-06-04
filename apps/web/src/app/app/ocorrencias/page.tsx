@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listOccurrenceLinks, listOccurrences, listStudents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -128,9 +128,9 @@ export default async function OcorrenciasPage() {
                   </label>
                 ))}
               </div>
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Registrar ocorrência
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </div>

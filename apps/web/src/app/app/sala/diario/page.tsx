@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses } from '@on-education/module-nucleo';
 import { listLessonPlans, listLessons } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -55,9 +55,9 @@ export default async function DiarioPage({
             <option value="tudo">Tudo</option>
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Aplicar
-        </Button>
+        </SubmitButton>
         <span className="text-xs text-muted-foreground">{periodoLabel[periodo]}</span>
       </form>
       <div className="grid gap-5 md:grid-cols-2">
@@ -131,9 +131,9 @@ export default async function DiarioPage({
               rows={2}
               className={fieldClass}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Registrar
-            </Button>
+            </SubmitButton>
           </form>
           {turmas.length === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">

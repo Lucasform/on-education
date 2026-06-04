@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
 import { listActivities } from '@on-education/module-pedagogico';
-import { Button } from '@on-education/ui';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -77,9 +77,9 @@ export default async function AtividadesPage() {
                   />
                   <input name="level" placeholder="Nível/ano" className={fieldClass} />
                 </div>
-                <Button type="submit" size="sm">
+                <SubmitButton type="submit" size="sm">
                   Gerar com o EduON
-                </Button>
+                </SubmitButton>
               </form>
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
@@ -100,9 +100,9 @@ export default async function AtividadesPage() {
               <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
               <textarea name="content" placeholder="Conteúdo" rows={4} className={fieldClass} />
               <input name="tags" placeholder="Tags separadas por vírgula" className={fieldClass} />
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Salvar atividade
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </div>

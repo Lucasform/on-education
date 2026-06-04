@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -70,9 +70,9 @@ export default async function TurmasPage() {
                 <input name="ageRange" placeholder="Faixa etária" className={fieldClass} />
               </div>
               <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Adicionar turma
-              </Button>
+              </SubmitButton>
             </form>
           </div>
           <div className={cardClass}>
@@ -85,9 +85,9 @@ export default async function TurmasPage() {
                 placeholder={'6º A\n6º B\n7º A'}
                 className={fieldClass}
               />
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Importar turmas
-              </Button>
+              </SubmitButton>
             </form>
           </div>
           <div className={cardClass}>

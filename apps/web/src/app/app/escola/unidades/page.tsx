@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listUnits } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -33,9 +33,9 @@ export default async function UnidadesPage() {
           <h2 className="mb-3 text-sm font-medium">Nova unidade</h2>
           <form action={createUnitAction} className="flex flex-col gap-2">
             <input name="name" required placeholder="Nome da unidade" className={fieldClass} />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Adicionar unidade
-            </Button>
+            </SubmitButton>
           </form>
         </div>
       </div>

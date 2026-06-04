@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listGradeComponents, listStudents } from '@on-education/module-nucleo';
 import { listGrades } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -118,9 +118,9 @@ export default async function NotasPage() {
               className={fieldClass}
             />
             <input name="note" placeholder="Observação (opcional)" className={fieldClass} />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Lançar
-            </Button>
+            </SubmitButton>
           </form>
           {alunos.length === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">

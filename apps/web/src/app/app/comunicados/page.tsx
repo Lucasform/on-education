@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
 import { listCommunications } from '@on-education/module-comunicacao';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -39,9 +39,9 @@ export default async function ComunicadosPage() {
               placeholder="Texto do comunicado"
               className={fieldClass}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Salvar rascunho
-            </Button>
+            </SubmitButton>
           </form>
         </div>
 
@@ -56,9 +56,9 @@ export default async function ComunicadosPage() {
                 placeholder="Descreva o comunicado (ex.: reunião de pais dia 20/06 às 19h no auditório)"
                 className={fieldClass}
               />
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Gerar rascunho
-              </Button>
+              </SubmitButton>
             </form>
           ) : (
             <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
@@ -88,9 +88,9 @@ export default async function ComunicadosPage() {
                     {c.status !== 'published' && (
                       <form action={publishCommunicationAction}>
                         <input type="hidden" name="id" value={c.id} />
-                        <Button type="submit" size="sm">
+                        <SubmitButton type="submit" size="sm">
                           Publicar
-                        </Button>
+                        </SubmitButton>
                       </form>
                     )}
                     <form action={deleteCommunicationAction}>

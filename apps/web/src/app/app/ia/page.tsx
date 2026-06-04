@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured, listDrafts } from '@on-education/module-ia';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -44,9 +44,9 @@ export default async function IaPage() {
               placeholder="Ex.: plano de aula sobre frações para o 6º ano"
               className={fieldClass}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Gerar rascunho
-            </Button>
+            </SubmitButton>
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
@@ -72,22 +72,22 @@ export default async function IaPage() {
                       {(d.kind === 'activity' || d.kind === 'lesson_plan') && (
                         <form action={approveDraftToBankAction}>
                           <input type="hidden" name="id" value={d.id} />
-                          <Button type="submit" size="sm">
+                          <SubmitButton type="submit" size="sm">
                             Aprovar e salvar no banco
-                          </Button>
+                          </SubmitButton>
                         </form>
                       )}
                       <form action={approveDraftAction}>
                         <input type="hidden" name="id" value={d.id} />
-                        <Button type="submit" size="sm" variant="outline">
+                        <SubmitButton type="submit" size="sm" variant="outline">
                           Só aprovar
-                        </Button>
+                        </SubmitButton>
                       </form>
                       <form action={discardDraftAction}>
                         <input type="hidden" name="id" value={d.id} />
-                        <Button type="submit" size="sm" variant="ghost">
+                        <SubmitButton type="submit" size="sm" variant="ghost">
                           Descartar
-                        </Button>
+                        </SubmitButton>
                       </form>
                     </span>
                   )}

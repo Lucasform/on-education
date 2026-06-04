@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import {
   listClasses,
   listGradeComponents,
@@ -12,7 +13,6 @@ import Link from 'next/link';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
-import { Button } from '@on-education/ui';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -164,9 +164,9 @@ export default async function RelatoriosPage({
             <option value="tab">Tabela</option>
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Aplicar
-        </Button>
+        </SubmitButton>
       </form>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">

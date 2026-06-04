@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getTenantSettings, listStudents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -96,9 +96,9 @@ export default async function DocumentosPage({
             className={fieldClass}
           />
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Atualizar
-        </Button>
+        </SubmitButton>
       </form>
 
       {/* Documento imprimível com a identidade da escola */}

@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listLessonPlans } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -59,9 +59,9 @@ export default async function PlanejamentoPage({
                 ))}
               </select>
             </label>
-            <Button type="submit" size="sm" variant="outline">
+            <SubmitButton type="submit" size="sm" variant="outline">
               Ver turma
-            </Button>
+            </SubmitButton>
           </form>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -135,9 +135,9 @@ export default async function PlanejamentoPage({
                   placeholder="Objetivos, conteúdo, instruções…"
                   className={fieldClass}
                 />
-                <Button type="submit" size="sm">
+                <SubmitButton type="submit" size="sm">
                   Adicionar ao planejamento
-                </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>

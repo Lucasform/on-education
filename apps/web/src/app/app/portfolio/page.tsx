@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listStudents } from '@on-education/module-nucleo';
 import { listPortfolioEntries } from '@on-education/module-pedagogico';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -69,9 +69,9 @@ export default async function PortfolioPage() {
               placeholder="Descrição (opcional)"
               className={fieldClass}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Adicionar
-            </Button>
+            </SubmitButton>
           </form>
           {alunos.length === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">Cadastre alunos antes.</p>

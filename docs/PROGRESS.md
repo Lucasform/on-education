@@ -7,11 +7,29 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · **Frente Qualidade ("melhor versão") 2026-06-04** (8 itens Q1–Q8 no ROADMAP): Q1 feedback de submit ✅; próximos Q2 KpiCard → Q3 DataTable → Q4 ListAndForm → Q5 PageHeader → Q6 empty states → Q7 aria-label → Q8 loading. RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-04 14:30] — Qualidade Q1: feedback de submit (`<SubmitButton>`) — STATUS: CONCLUÍDO
+
+- **Tarefa:** auditoria "melhor versão" → backlog Q1–Q8 no ROADMAP; executar Q1 (feedback de submit em todos os forms).
+- **Segmento:** 🏫👤
+- **Achado da auditoria (corrige nota anterior):** o RBAC NÃO estava faltando. `assertCan` está aplicado na camada de serviço de todos os módulos de domínio (`finance.ts` protege `invoice` só p/ gestão, `settings.ts`/`grade-components.ts` `tenant_settings`, etc.). O `actions.ts` é fino e delega. Era falso positivo da varredura (só olhei `actions.ts`).
+- **O que foi feito:**
+  - Novo `<SubmitButton>` client (`useFormStatus`): desabilita + spinner inline enquanto a server action roda (evita duplo-clique, dá feedback). Preserva o rótulo (serve p/ Salvar/Gerar/Importar/Adicionar). `Spinner` exportado.
+  - `ConfirmButton` ganhou o mesmo (pending + spinner) reusando `Spinner`.
+  - Swap em lote: `<Button type="submit">` → `<SubmitButton>` em **35 páginas** de `app/app/**`; import de `Button` removido quando ficou sem uso; `SubmitButton` importado.
+- **Arquivos principais:** `apps/web/src/components/submit-button.tsx` (novo), `apps/web/src/components/confirm-button.tsx`, 35× `apps/web/src/app/app/**/page.tsx` + `layout.tsx`.
+- **Migrations/RLS:** não.
+- **Testes:** `tsc --noEmit` (web) verde; `eslint` nos arquivos tocados verde; `next build` verde (EXIT 0). (turbo falha por spawn no Windows; rodei direto no app.)
+- **Decisões (ADR?):** não.
+- **Pendências / bloqueios:** Q2–Q8 do backlog de qualidade.
+- **Credenciais/segredos necessários:** nenhum.
+- **Próximo passo sugerido:** Q2 — `<KpiCard>` compartilhado (dashboard/relatórios/financeiro).
+- **Commit(s):** ver `feat: feedback de submit (SubmitButton + spinner) em todos os forms (Q1)`.
 
 ### [2026-06-04 11:00] — Itens sem credencial: EduON tipos, financeiro, coletivo, 18.6, mural público, recorrência — STATUS: EM ANDAMENTO
 

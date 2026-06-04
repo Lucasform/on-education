@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listEvents } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -244,9 +245,9 @@ export default async function CalendarioPage({
               placeholder="Descrição (opcional)"
               className={fieldClass}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Agendar
-            </Button>
+            </SubmitButton>
           </form>
         </section>
       </div>

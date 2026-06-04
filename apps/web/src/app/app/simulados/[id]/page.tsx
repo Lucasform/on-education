@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getQuiz, listQuizAttempts } from '@on-education/module-pedagogico';
-import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
@@ -91,9 +91,9 @@ export default async function SimuladoDetailPage({ params }: { params: Promise<{
               defaultValue={1}
               className={`${fieldClass} w-24`}
             />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Adicionar questão
-            </Button>
+            </SubmitButton>
           </form>
         </section>
 
@@ -122,9 +122,9 @@ export default async function SimuladoDetailPage({ params }: { params: Promise<{
                   </div>
                 </fieldset>
               ))}
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Enviar respostas
-              </Button>
+              </SubmitButton>
             </form>
           </section>
         )}

@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listStudents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -42,9 +42,9 @@ export default async function AlunosPage() {
                   </Link>
                   <form action={deleteStudentAction}>
                     <input type="hidden" name="id" value={a.id} />
-                    <Button type="submit" size="sm" variant="ghost">
+                    <SubmitButton type="submit" size="sm" variant="ghost">
                       Excluir
-                    </Button>
+                    </SubmitButton>
                   </form>
                 </li>
               ))}
@@ -68,9 +68,9 @@ export default async function AlunosPage() {
                 Nascimento (opcional)
                 <input name="birthDate" type="date" className={fieldClass} />
               </label>
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Adicionar aluno
-              </Button>
+              </SubmitButton>
             </form>
           </div>
           <div className={cardClass}>
@@ -85,9 +85,9 @@ export default async function AlunosPage() {
                 placeholder={'Ana Souza; 6º A\nBruno Lima; 6º A\nCarla Dias'}
                 className={fieldClass}
               />
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Importar alunos
-              </Button>
+              </SubmitButton>
             </form>
           </div>
           <div className={cardClass}>

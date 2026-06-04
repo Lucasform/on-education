@@ -1,10 +1,10 @@
+import { SubmitButton } from '@/components/submit-button';
 import {
   getClass,
   listClassSubjects,
   listStudents,
   listSubjects,
 } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -101,9 +101,9 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
                 className={fieldClass}
               />
             </label>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Salvar dados
-            </Button>
+            </SubmitButton>
           </form>
         </div>
 
@@ -169,9 +169,9 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
                   </option>
                 ))}
               </select>
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Adicionar matéria
-              </Button>
+              </SubmitButton>
             </form>
           ) : (
             <p className="text-xs text-muted-foreground">

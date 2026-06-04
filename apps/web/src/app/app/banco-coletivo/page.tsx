@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listActivities, listCollective } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
 import Link from 'next/link';
@@ -81,9 +82,9 @@ export default async function BancoColetivoPage({
                 </span>
                 <form action={copyCollectiveAction}>
                   <input type="hidden" name="id" value={c.id} />
-                  <Button type="submit" size="sm" variant="outline">
+                  <SubmitButton type="submit" size="sm" variant="outline">
                     Copiar para meu banco
-                  </Button>
+                  </SubmitButton>
                 </form>
               </li>
             ))}
@@ -116,9 +117,9 @@ export default async function BancoColetivoPage({
                 </option>
               ))}
             </select>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Compartilhar
-            </Button>
+            </SubmitButton>
           </form>
         )}
         <p className="mt-2 text-xs text-muted-foreground">

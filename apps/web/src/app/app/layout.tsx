@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getTenantSettings } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -21,15 +21,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   const headerActions = impersonating ? (
     <form action={exitImpersonationAction}>
-      <Button type="submit" variant="outline" size="sm">
+      <SubmitButton type="submit" variant="outline" size="sm">
         Sair do modo admin
-      </Button>
+      </SubmitButton>
     </form>
   ) : (
     <form action={logoutAction}>
-      <Button type="submit" variant="outline" size="sm">
+      <SubmitButton type="submit" variant="outline" size="sm">
         Sair
-      </Button>
+      </SubmitButton>
     </form>
   );
 

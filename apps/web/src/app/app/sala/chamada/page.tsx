@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -57,9 +57,9 @@ export default async function ChamadaPage({
             ))}
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Aplicar
-        </Button>
+        </SubmitButton>
       </form>
 
       {turmas.length === 0 ? (
@@ -80,9 +80,9 @@ export default async function ChamadaPage({
                 className={fieldClass}
               />
             </label>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Salvar chamada
-            </Button>
+            </SubmitButton>
           </div>
           {daTurma.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum aluno nesta turma.</p>

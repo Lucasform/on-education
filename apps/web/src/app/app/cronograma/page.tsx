@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listScheduleExceptions, listScheduleSlots } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -75,9 +75,9 @@ export default async function CronogramaPage({
             ))}
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Ver turma
-        </Button>
+        </SubmitButton>
       </form>
 
       {turmas.length === 0 ? (
@@ -168,9 +168,9 @@ export default async function CronogramaPage({
                 Observação
                 <input name="note" placeholder="ex.: sala 3" className={fieldClass} />
               </label>
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Adicionar
-              </Button>
+              </SubmitButton>
             </form>
           </div>
 
@@ -226,9 +226,9 @@ export default async function CronogramaPage({
                   className={fieldClass}
                 />
               </label>
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Registrar alteração
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </>

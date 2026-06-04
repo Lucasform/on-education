@@ -291,4 +291,19 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 ---
 
+## Qualidade — "melhor versão / melhor formato" (sem credencial)
+
+> Polimento de qualidade/UX e redução de tech debt. Sem features novas. Auditoria de 2026-06-04.
+
+- [x] **Q1. Feedback de submit** — `<SubmitButton>` (`useFormStatus`): desabilita + spinner em todo form (35 páginas); mesmo tratamento no `ConfirmButton`. Fim do duplo-clique.
+- [ ] **Q2. `<KpiCard>`** — card de KPI único aplicado em dashboard/relatórios/financeiro.
+- [ ] **Q3. `<DataTable>`** — tabela padrão (header/scroll mobile) substituindo os `<thead>/<tbody>` manuais.
+- [ ] **Q4. `<ListAndFormLayout>`** — layout lista+form único nas telas de cadastro.
+- [ ] **Q5. Sweep `PageHeader`** — toda tela usando o cabeçalho padrão.
+- [ ] **Q6. Empty states + CTA** — texto padronizado ("Nenhum X ainda") + link de ação.
+- [ ] **Q7. Sweep `aria-label`** — inputs date/month/time com rótulo acessível.
+- [ ] **Q8. `loading.tsx` por tela** — skeleton nas telas pesadas (relatórios, boletim).
+
+---
+
 _Fim do roadmap. Marcar `[x]` a cada delivery concluído no checkpoint (CLAUDE.md §5)._

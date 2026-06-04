@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import {
   listDeletedClasses,
   listDeletedEvents,
@@ -5,7 +6,6 @@ import {
 } from '@on-education/module-nucleo';
 import { listDeletedCommunications } from '@on-education/module-comunicacao';
 import { listDeletedActivities } from '@on-education/module-pedagogico';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
@@ -48,9 +48,9 @@ function Secao({
               <span>{i.label}</span>
               <form action={action}>
                 <input type="hidden" name="id" value={i.id} />
-                <Button type="submit" size="sm" variant="outline">
+                <SubmitButton type="submit" size="sm" variant="outline">
                   Restaurar
-                </Button>
+                </SubmitButton>
               </form>
             </li>
           ))}

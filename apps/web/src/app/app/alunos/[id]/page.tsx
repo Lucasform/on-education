@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import {
   listGradeComponents,
   listGuardians,
@@ -7,7 +8,6 @@ import {
 } from '@on-education/module-nucleo';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { listPortfolioEntries } from '@on-education/module-pedagogico';
-import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -179,9 +179,9 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
                   <input type="checkbox" name="isEmergency" /> emergência
                 </label>
               </div>
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Vincular
-              </Button>
+              </SubmitButton>
               {responsaveis.length === 0 && (
                 <p className="text-xs text-muted-foreground">
                   Cadastre responsáveis em Escola › Responsáveis primeiro.

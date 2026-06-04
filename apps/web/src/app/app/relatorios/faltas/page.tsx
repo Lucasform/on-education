@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
 import { listAttendance } from '@on-education/module-sala-de-aula';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -101,9 +101,9 @@ export default async function RelatorioFaltasPage({
             ))}
           </select>
         </label>
-        <Button type="submit" size="sm" variant="outline">
+        <SubmitButton type="submit" size="sm" variant="outline">
           Aplicar filtros
-        </Button>
+        </SubmitButton>
       </form>
 
       {/* Documento imprimível */}

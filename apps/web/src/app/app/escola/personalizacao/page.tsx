@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getTenantSettings } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -93,7 +93,7 @@ export default async function PersonalizacaoPage() {
         </div>
 
         <div>
-          <Button type="submit">Salvar personalização</Button>
+          <SubmitButton type="submit">Salvar personalização</SubmitButton>
         </div>
       </form>
     </>

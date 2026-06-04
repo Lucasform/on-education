@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { getTenantSettings, listGradeComponents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -51,9 +51,9 @@ export default async function NotasConfigPage() {
                 className={fieldClass}
               />
             </label>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Salvar
-            </Button>
+            </SubmitButton>
           </form>
           <p className="mt-2 text-xs text-muted-foreground">
             As notas vão de 0 a {escala}. Ex.: 10 (0–10) ou 100 (0–100).
@@ -122,9 +122,9 @@ export default async function NotasConfigPage() {
               className={fieldClass}
             />
           </label>
-          <Button type="submit" size="sm">
+          <SubmitButton type="submit" size="sm">
             Adicionar componente
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </>

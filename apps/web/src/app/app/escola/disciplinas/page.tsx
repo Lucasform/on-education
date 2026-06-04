@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listSubjects } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -34,9 +34,9 @@ export default async function DisciplinasPage() {
             <h2 className="mb-3 text-sm font-medium">Nova disciplina</h2>
             <form action={createSubjectAction} className="flex flex-col gap-2">
               <input name="name" required placeholder="Ex.: Matemática" className={fieldClass} />
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Adicionar disciplina
-              </Button>
+              </SubmitButton>
             </form>
           </div>
           <div className={cardClass}>
@@ -49,9 +49,9 @@ export default async function DisciplinasPage() {
                 placeholder={'Matemática\nPortuguês\nCiências'}
                 className={fieldClass}
               />
-              <Button type="submit" size="sm" variant="outline">
+              <SubmitButton type="submit" size="sm" variant="outline">
                 Importar disciplinas
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </div>

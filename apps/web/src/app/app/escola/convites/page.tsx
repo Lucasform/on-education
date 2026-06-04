@@ -1,6 +1,6 @@
+import { SubmitButton } from '@/components/submit-button';
 import { ROLES } from '@on-education/core';
 import { listInvitations } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -56,9 +56,9 @@ export default async function ConvitesPage() {
                 </option>
               ))}
             </select>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Convidar
-            </Button>
+            </SubmitButton>
           </form>
         </div>
       </div>

@@ -1,10 +1,10 @@
+import { SubmitButton } from '@/components/submit-button';
 import {
   listClasses,
   listSubjects,
   listTeachers,
   listTeachingAssignments,
 } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -81,9 +81,9 @@ export default async function ProfessoresPage() {
                 </option>
               ))}
             </select>
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Vincular
-            </Button>
+            </SubmitButton>
           </form>
           {(professores.length === 0 || turmas.length === 0) && (
             <p className="mt-2 text-xs text-muted-foreground">

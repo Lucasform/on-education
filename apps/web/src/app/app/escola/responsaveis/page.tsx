@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listGuardians } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -49,9 +49,9 @@ export default async function ResponsaveisPage() {
           <input name="email" type="email" placeholder="E-mail (opcional)" className={fieldClass} />
           <input name="phone" placeholder="Telefone (opcional)" className={fieldClass} />
           <div className="sm:col-span-3">
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Adicionar responsável
-            </Button>
+            </SubmitButton>
           </div>
         </form>
       </div>
@@ -69,9 +69,9 @@ export default async function ResponsaveisPage() {
             placeholder={'Maria Souza; maria@email.com; 11999990000\nJoão Lima'}
             className={fieldClass}
           />
-          <Button type="submit" size="sm" variant="outline">
+          <SubmitButton type="submit" size="sm" variant="outline">
             Importar responsáveis
-          </Button>
+          </SubmitButton>
         </form>
       </div>
 

@@ -1,5 +1,5 @@
+import { SubmitButton } from '@/components/submit-button';
 import { listAcademicYears, listTerms } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -34,9 +34,9 @@ export default async function AnoLetivoPage() {
           </ul>
           <form action={createAcademicYearAction} className="flex flex-col gap-2">
             <input name="name" required placeholder="Ex.: 2026" className={fieldClass} />
-            <Button type="submit" size="sm">
+            <SubmitButton type="submit" size="sm">
               Adicionar ano letivo
-            </Button>
+            </SubmitButton>
           </form>
         </div>
         <div className={cardClass}>
@@ -56,9 +56,9 @@ export default async function AnoLetivoPage() {
                 ))}
               </select>
               <input name="name" required placeholder="Ex.: 1º bimestre" className={fieldClass} />
-              <Button type="submit" size="sm">
+              <SubmitButton type="submit" size="sm">
                 Adicionar período
-              </Button>
+              </SubmitButton>
             </form>
           ) : (
             <p className="text-xs text-muted-foreground">
