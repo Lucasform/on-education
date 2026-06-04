@@ -1,10 +1,14 @@
 import { Button } from '@on-education/ui';
 import {
+  BarChart3,
   CalendarDays,
   ClipboardCheck,
   FolderOpen,
   GraduationCap,
+  MessageSquare,
+  School,
   Sparkles,
+  UserRound,
   Users,
 } from 'lucide-react';
 
@@ -15,6 +19,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV = [
   { label: 'Recursos', href: '#recursos' },
+  { label: 'Como funciona', href: '#como-funciona' },
   { label: 'Planos', href: '#planos' },
   { label: 'Para escolas', href: '/signup/escola' },
 ];
@@ -23,12 +28,12 @@ const DESTAQUES = [
   {
     icon: Sparkles,
     titulo: 'EduON, seu agente',
-    texto: 'Planos de aula, atividades e correções em segundos.',
+    texto: 'Planos de aula, atividades, provas e correções em segundos.',
   },
   {
     icon: Users,
     titulo: 'Turmas e alunos',
-    texto: 'Cadastro, importação em lote e ficha completa.',
+    texto: 'Cadastro, importação em lote por planilha e ficha completa.',
   },
   {
     icon: ClipboardCheck,
@@ -37,12 +42,59 @@ const DESTAQUES = [
   },
   {
     icon: FolderOpen,
-    titulo: 'Simulados',
-    texto: 'Questões de múltipla escolha com correção automática.',
+    titulo: 'Banco e simulados',
+    texto: 'Atividades reutilizáveis e provas com correção automática.',
+  },
+  {
+    icon: MessageSquare,
+    titulo: 'Comunicação',
+    texto: 'Comunicados, mensagens e mural para os pais.',
+  },
+  {
+    icon: BarChart3,
+    titulo: 'Relatórios',
+    texto: 'Painel da escola, alunos em risco e documentos em PDF.',
   },
 ];
 
-/** Nome do agente de ensino, com o "ON" em destaque no gradiente da marca. */
+const PASSOS = [
+  {
+    n: '1',
+    titulo: 'Crie sua conta',
+    texto: 'Professor em um minuto; escola com onboarding guiado e perfis de acesso.',
+  },
+  {
+    n: '2',
+    titulo: 'Cadastre turmas e alunos',
+    texto: 'Crie na hora ou importe em lote por planilha (CSV/Excel).',
+  },
+  {
+    n: '3',
+    titulo: 'Deixe o EduON trabalhar',
+    texto: 'Planeje, corrija e acompanhe tudo num só lugar, no seu padrão.',
+  },
+];
+
+const FAQ = [
+  {
+    q: 'Preciso de cartão para testar?',
+    a: 'Não. Os planos de professor têm 7 dias grátis e sem fidelidade no mensal.',
+  },
+  {
+    q: 'O EduON substitui o professor?',
+    a: 'Não. Ele gera rascunhos (plano, atividade, correção) que você revisa e aprova. Você no controle, sempre.',
+  },
+  {
+    q: 'Funciona para a escola inteira?',
+    a: 'Sim. A escola tem diretor, coordenação, secretaria e professores, com gestão, relatórios e comunicação com os responsáveis.',
+  },
+  {
+    q: 'Meus dados estão seguros?',
+    a: 'Sim. Cada escola fica isolada das demais e tratamos os dados seguindo a LGPD, com proteção reforçada para menores.',
+  },
+];
+
+/** Nome do agente de ensino, com o "ON" em destaque na cor da marca. */
 function EduON() {
   return (
     <span className="font-semibold">
@@ -86,8 +138,8 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* hero */}
       <main className="mx-auto max-w-6xl px-6 pb-20">
+        {/* hero */}
         <section className="relative overflow-hidden rounded-3xl border border-border bg-primary/10 p-8 sm:p-12 lg:p-16">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
@@ -148,31 +200,113 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* faixa de destaques */}
-        <section id="recursos" className="mt-12">
-          <div className="grid gap-6 md:grid-cols-[1.2fr_2fr] md:items-center">
+        {/* recursos */}
+        <section id="recursos" className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Tudo o que a sala de aula precisa, num lugar só.
             </h2>
-            <div className="grid gap-5 sm:grid-cols-2">
-              {DESTAQUES.map((d) => (
-                <div key={d.titulo} className="flex gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <d.icon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <div className="font-semibold">{d.titulo}</div>
-                    <p className="text-sm text-muted-foreground">{d.texto}</p>
-                  </div>
-                </div>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              Do planejamento à comunicação com os pais, com o EduON acelerando cada etapa.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {DESTAQUES.map((d) => (
+              <div
+                key={d.titulo}
+                className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <d.icon className="h-5 w-5" />
+                </span>
+                <div className="mt-4 font-semibold">{d.titulo}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* como funciona */}
+        <section id="como-funciona" className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Como funciona</h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              Do cadastro ao dia a dia em três passos.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {PASSOS.map((p) => (
+              <div key={p.n} className="rounded-2xl border border-border bg-card p-6">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                  {p.n}
+                </span>
+                <div className="mt-4 font-semibold">{p.titulo}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{p.texto}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* para quem */}
+        <section className="mt-20 grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col rounded-3xl border border-border bg-card p-8">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <UserRound className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-xl font-bold">Para professores</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Seu espaço pessoal para organizar turmas e ganhar tempo com IA.
+            </p>
+            <ul className="mt-5 flex-1 space-y-2 text-sm">
+              {[
+                'EduON: planos, atividades, provas e correção',
+                'Banco de atividades e portfólio',
+                'Diário, chamada, notas e boletim',
+                'Comece grátis, evolua quando quiser',
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <span>{t}</span>
+                </li>
               ))}
-            </div>
+            </ul>
+            <a href="/signup" className="mt-6">
+              <Button className="w-full rounded-full">Testar grátis</Button>
+            </a>
+          </div>
+
+          <div className="flex flex-col rounded-3xl border border-border bg-card p-8">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <School className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-xl font-bold">Para escolas</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Gestão completa, com perfis de acesso e visão de direção.
+            </p>
+            <ul className="mt-5 flex-1 space-y-2 text-sm">
+              {[
+                'Diretor, coordenação, secretaria e professores',
+                'Turmas, disciplinas, diário e boletim',
+                'Relatórios de direção, ocorrências e responsáveis',
+                'Onboarding e suporte dedicado',
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="/signup/escola" className="mt-6">
+              <Button variant="outline" className="w-full rounded-full">
+                Falar com a gente
+              </Button>
+            </a>
           </div>
         </section>
 
         {/* planos */}
         <section id="planos" className="mt-20">
-          <div className="text-center">
+          <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Planos para cada momento
             </h2>
@@ -183,8 +317,28 @@ export default function HomePage() {
           <PricingCards />
         </section>
 
+        {/* faq */}
+        <section className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Perguntas frequentes</h2>
+          </div>
+          <div className="mx-auto mt-8 max-w-3xl divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+            {FAQ.map((f) => (
+              <details key={f.q} className="group p-5 [&_summary]:cursor-pointer">
+                <summary className="flex items-center justify-between gap-3 font-medium marker:content-['']">
+                  {f.q}
+                  <span className="text-muted-foreground transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* cta final */}
-        <section className="mt-16 overflow-hidden rounded-3xl bg-primary px-8 py-12 text-center text-white sm:py-16">
+        <section className="mt-20 overflow-hidden rounded-3xl bg-primary px-8 py-12 text-center text-white sm:py-16">
           <h2 className="text-2xl font-bold sm:text-3xl">Comece hoje, sem complicação.</h2>
           <p className="mx-auto mt-2 max-w-md text-white/80">
             Crie sua conta em minutos ou leve o On Way Education para a sua escola.

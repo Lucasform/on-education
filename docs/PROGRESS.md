@@ -13,6 +13,19 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 18:45] — Paleta Índigo+menta + landing no estilo edtech — STATUS: CONCLUÍDO
+
+- **Tarefa:** Lucas não curtiu o degradê roxo→dourado e mandou referências (Plurall/SAE/Eduall/EAD), pedindo "cores mais legais e úteis + refazer o UI" e que gosta de como elas mostram benefícios/planos. Escolheu a direção **Índigo + menta**.
+- **O que foi feito (3 commits):**
+  - **Tirou o degradê:** todos os `from-primary to-brand-2` viraram cor sólida (`bg-primary`/`text-primary`); selos, banners, badges e realces (`refactor: remove degrade`).
+  - **Paleta Índigo + menta:** tokens light/dark refeitos (índigo primary, neutros frios slate) + **cores semânticas** `--success/--warning/--danger/--info` (tokens + cores Tailwind), úteis para padronizar estados; removido o token `brand-2`.
+  - **Landing reforçada** (estilo edtech, sem inventar número falso pois somos novos): recursos em **grid de 6 cards**, seção **"Como funciona" (3 passos)**, seção **Para professores / Para escolas**, **FAQ** (4 perguntas com `<details>`). Planos (PricingCards) mantidos.
+- **Arquivos:** `app/globals.css`, `tailwind.config.ts`, `app/page.tsx`, e os 8 arquivos do de-gradê (admin/app/auth shells, pricing, landing, mural, app/page, atividades).
+- **Testes:** `tsc` + `eslint` + `next build` verdes em cada etapa.
+- **Pendências:** cores semânticas ainda não aplicadas nas telas (hoje usam emerald/amber/red inline; dá pra trocar por `text-success` etc. depois). Calibração fina é subjetiva (ver em prod). **Storage Fatia 2 ainda PAUSADA** (`schema.ts` com `materials`, não comitado).
+- **Próximo passo sugerido:** ver em prod e calibrar; depois retomar Storage Fatia 2 ou trocar os estados inline pelas cores semânticas.
+- **Commit(s):** `refactor: remove degrade...`, `feat: paleta indigo + menta...`, `feat: landing estilo edtech...`.
+
 ### [2026-06-04 18:00] — Identidade visual: roxo + baunilha quente (sai o rosa) — STATUS: CONCLUÍDO
 
 - **Tarefa:** Lucas pediu nova identidade (paleta "Criatividade — roxo + baunilha quente") e sair do rosa; confirmou que o dark é bom mas pedia melhorias. Também perguntou se cada escola muda a paleta (resposta: sim, troca o destaque/--primary em `/app/escola/personalizacao`, presets em `tenant_settings.themeColor`).
