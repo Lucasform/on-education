@@ -197,6 +197,9 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 
 - [~] **1. Quadro e cadastro de funcionários** (diretor, coordenador, secretário, monitor, professor). Hoje: **quadro** em `/app/escola/quadro`, convites + papéis (inclui **monitor**, no enum), vínculo funcionário↔turma via `/app/escola/professores`. Falta: perfis de visualização por papel (item 11 da lista).
 - [x] **2. Documentos: regimento + modelos gerais** (`/app/escola/personalizacao`). Evoluir: anexos de arquivo (Storage).
+
+> **Storage ativo (2026-06-04, ADR 0005):** 2 buckets no Supabase — `public-assets` (público, branding) e `tenant-files` (privado, materiais por signed URL). Upload via service role no servidor (`apps/web/src/server/storage.ts`). **Fatia 1 entregue:** upload da logo da escola em `/app/escola/personalizacao` (`uploadLogoAction` + `<LogoUpload>`). **Falta no Vercel:** `SUPABASE_SERVICE_ROLE_KEY` no ambiente de produção. Próximas fatias: 3.1/3.3 (materiais) e RAG no EduON.
+
 - [x] **3. Turmas, séries, idades.** `classes.grade_level` + `classes.age_range`; detalhe da turma em `/app/turmas/[id]` (editar série/idade/descrição).
   - [ ] **3.1** Cadastro de material didático + vínculo com a turma. _(depende de Storage)_
   - [x] **3.2** Matérias da turma — tabela `class_subjects` (N:N turma↔disciplina) + grade na tela de detalhe da turma.

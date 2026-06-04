@@ -121,6 +121,7 @@ import { revalidatePath } from 'next/cache';
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
+import { uploadPublicLogo } from '@/server/storage';
 
 export async function logoutAction(): Promise<void> {
   await signOut();
@@ -641,6 +642,19 @@ export async function updateTenantSettingsAction(formData: FormData): Promise<vo
     docTemplates: (formData.get('docTemplates') as string) || undefined,
   });
   await upsertTenantSettings(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
+/**
+ * Upload da logo da escola: sobe o arquivo no bucket público e salva a URL na personalização.
+ * Isolado do form grande de personalização. RBAC vem do `upsertTenantSettings` (gestão da escola).
+ */
+export async function uploadLogoAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const file = formData.get('file');
+  if (!(file instanceof File) || file.size === 0) return;
+  const logoUrl = await uploadPublicLogo(ctx.tenantId, file);
+  await upsertTenantSettings(db(), ctx, { logoUrl });
   revalidatePath('/app', 'layout');
 }
 

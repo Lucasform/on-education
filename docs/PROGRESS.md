@@ -7,11 +7,29 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · **Frente Qualidade ("melhor versão") ENCERRADA 2026-06-04**: entregue o que tem ROI real — Q1 (feedback de submit, 35 telas) + Q2 (`<KpiCard>`) em prod; Q6 (empty states já consistentes + fix lixeira) e Q8 (loading global já cobre tudo) confirmados; Q5 (PageHeader) já amplo; Q3/Q4/Q7 deferidos por baixo ROI (tabelas/forms heterogêneos; aria-label cosmético). RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · **Storage ATIVADO 2026-06-04** (ADR 0005, 2 buckets): Fatia 1 = upload da logo entregue; falta `SUPABASE_SERVICE_ROLE_KEY` no Vercel; próximo = Fatia 2 materiais (3.1/3.3) → depois RAG no EduON. · **Frente Qualidade ("melhor versão") ENCERRADA 2026-06-04**: entregue o que tem ROI real — Q1 (feedback de submit, 35 telas) + Q2 (`<KpiCard>`) em prod; Q6 (empty states já consistentes + fix lixeira) e Q8 (loading global já cobre tudo) confirmados; Q5 (PageHeader) já amplo; Q3/Q4/Q7 deferidos por baixo ROI (tabelas/forms heterogêneos; aria-label cosmético). RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-04 16:30] — Storage Fatia 1: upload da logo da escola — STATUS: CONCLUÍDO
+
+- **Tarefa:** ativar o Supabase Storage (a `SUPABASE_SERVICE_ROLE_KEY` já estava no `.env.local`, então NÃO dependia do Lucas) e entregar a primeira fatia: upload da logo.
+- **Segmento:** 🏫
+- **Decisão de arquitetura (ADR 0005):** 2 buckets — `public-assets` (público, branding) + `tenant-files` (privado, materiais por signed URL). Escrita/leitura sempre pelo servidor via service role (bypassa RLS de Storage); buckets sem policy = anon/authenticated não acessam direto. Path por `<tenant_id>/`.
+- **O que foi feito:**
+  - Buckets criados no Supabase (script pontual idempotente, já removido): `public-assets` (público, limite 2MB, mimes de imagem) e `tenant-files` (privado, 25MB).
+  - `apps/web/src/server/storage.ts` (`server-only`): client service-role lazy + `uploadPublicLogo(tenantId, file)` (valida tipo/tamanho, path `<tenant_id>/logo-<ts>.<ext>`, retorna URL pública).
+  - `uploadLogoAction` em `actions.ts`: lê o arquivo, sobe e salva em `tenant_settings.logoUrl` via `upsertTenantSettings` (RBAC `assertCan(update, tenant_settings)` reusado).
+  - `<LogoUpload>` (client): preview + file input que **auto-envia ao escolher** + `SubmitButton` de fallback. Ligado em `/app/escola/personalizacao` como card próprio (fora do form grande p/ não aninhar `<form>`); input de URL manual vira fallback.
+- **Arquivos:** `server/storage.ts` (novo), `components/logo-upload.tsx` (novo), `app/app/actions.ts`, `app/app/escola/personalizacao/page.tsx`, `docs/adr/0005-storage-buckets.md` (novo).
+- **Migrations/RLS:** não (Storage sem policy by design; logoUrl já existia no schema).
+- **Testes:** `tsc` + `eslint` + `next build` verdes. **Smoke test real** contra o Supabase: upload de PNG 1x1 → URL pública **HTTP 200 image/png** → cleanup ok.
+- **Pendências / bloqueios:** **`SUPABASE_SERVICE_ROLE_KEY` precisa estar no ambiente do Vercel** senão o upload falha em prod (o resto do app segue). Sem isso, o upload dá erro claro.
+- **Credenciais/segredos necessários:** `SUPABASE_SERVICE_ROLE_KEY` no Vercel (produção). Já presente no `.env.local`.
+- **Próximo passo sugerido:** Fatia 2 — materiais didáticos por turma/matéria (3.1/3.3) no bucket `tenant-files` (privado + signed URL + migration da tabela de materiais).
+- **Commit(s):** ver `feat: storage + upload da logo da escola (fatia 1)`.
 
 ### [2026-06-04 15:40] — Qualidade Q6/Q8 + veredito da frente — STATUS: CONCLUÍDO
 

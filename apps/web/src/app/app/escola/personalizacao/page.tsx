@@ -3,6 +3,7 @@ import { getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { LogoUpload } from '@/components/logo-upload';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -34,10 +35,18 @@ export default async function PersonalizacaoPage() {
         title="Personalização da escola"
         description="Identidade visual e documentos. Aplica em todo o sistema da sua escola."
       />
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Logo da escola</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Aparece no topo do sistema, nos documentos e no mural dos pais.
+        </p>
+        <LogoUpload currentUrl={settings?.logoUrl ?? null} />
+      </div>
+
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Identidade visual</h2>
-          <label className="text-xs text-muted-foreground">Logo (URL da imagem)</label>
+          <label className="text-xs text-muted-foreground">Logo (URL da imagem, opcional)</label>
           <input
             name="logoUrl"
             type="url"
