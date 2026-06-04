@@ -43,7 +43,7 @@ export default async function AtividadeDetalhePage({
           {settings?.logoUrl ? (
             <img src={settings.logoUrl} alt="Logo" className="h-12 w-12 rounded-lg object-cover" />
           ) : (
-            <span className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-2" />
+            <span className="h-12 w-12 rounded-lg bg-primary" />
           )}
           <div>
             <h1 className="text-xl font-bold leading-tight">{atividade.title}</h1>

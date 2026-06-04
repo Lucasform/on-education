@@ -214,7 +214,7 @@ export default async function OverviewPage() {
           </div>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-brand-2 transition-all"
+              className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${Math.round((feitos / passos.length) * 100)}%` }}
             />
           </div>

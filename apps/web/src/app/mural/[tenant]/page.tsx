@@ -39,7 +39,7 @@ export default async function MuralPublicoPage({
           {brand.logoUrl ? (
             <img src={brand.logoUrl} alt="Logo" className="h-10 w-10 rounded-lg object-cover" />
           ) : (
-            <span className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-brand-2" />
+            <span className="h-10 w-10 rounded-lg bg-primary" />
           )}
           <div>
             <h1 className="text-lg font-bold leading-none">{brand.name}</h1>

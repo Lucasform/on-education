@@ -125,7 +125,7 @@ export function PricingCards() {
               }`}
             >
               {p.badge && (
-                <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-primary to-brand-2 px-3 py-0.5 text-xs font-medium text-white">
+                <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-0.5 text-xs font-medium text-white">
                   {p.badge}
                 </span>
               )}
