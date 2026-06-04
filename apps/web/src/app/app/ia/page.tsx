@@ -3,6 +3,7 @@ import { isAiConfigured, listDrafts } from '@on-education/module-ia';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { MarkdownView } from '@/components/markdown-view';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -93,7 +94,9 @@ export default async function IaPage() {
                   )}
                 </div>
                 {d.output && (
-                  <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{d.output}</p>
+                  <div className="mt-3 rounded-lg border border-border bg-background/50 p-4">
+                    <MarkdownView>{d.output}</MarkdownView>
+                  </div>
                 )}
               </li>
             ))}

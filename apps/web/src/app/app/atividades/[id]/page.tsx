@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 
 import { PrintButton } from '@/components/print-button';
 import { cardClass } from '@/components/form';
+import { MarkdownView } from '@/components/markdown-view';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -67,9 +68,11 @@ export default async function AtividadeDetalhePage({
           </div>
         )}
 
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">
-          {atividade.content || 'Sem conteúdo.'}
-        </div>
+        {atividade.content ? (
+          <MarkdownView>{atividade.content}</MarkdownView>
+        ) : (
+          <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
+        )}
       </article>
     </>
   );
