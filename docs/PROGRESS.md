@@ -13,6 +13,16 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 21:30] — Melhorar recursos (telas internas): drill-down no Quadro — STATUS: CONCLUÍDO (1ª tela)
+
+- **Tarefa:** "melhorar os recursos" = telas internas com drill-down (contagem → lista → membro → detalhe). Lucas apontou o Quadro de funcionários (membros apareciam mas não abriam).
+- **O que foi feito:** cada membro do quadro virou link (com chevron "›") para `/app/escola/quadro/[id]`; nova página de detalhe do membro (função, e-mail, vínculos de aula por turma/matéria, atalho p/ gerenciar). Padrão a replicar em outras telas conforme o Lucas apontar.
+- **Arquivos:** `app/app/escola/quadro/page.tsx`, `app/app/escola/quadro/[id]/page.tsx` (novo).
+- **Migrations/RLS:** não. **Testes:** `tsc`/`eslint`/`build` verdes.
+- **Decisão de ordem:** a tabela `materials` (Storage Fatia 2) está solta no `schema.ts`; pra não gerar migration meia-boca, a ordem passa a ser **Fatia 2 primeiro** (fecha `materials`) → depois **nome do agente personalizável** (migration limpa).
+- **Pendências:** Storage Fatia 2 (próxima), nome do agente personalizável, replicar drill-down em mais telas.
+- **Commit(s):** `feat: drill-down no quadro de funcionarios`.
+
 ### [2026-06-04 21:10] — Segurança (impersonação) + performance de navegação — STATUS: CONCLUÍDO
 
 - **🔴 Falha de segurança corrigida:** o cookie `oe_admin_tenant` era confiado SEM verificar se a sessão real é super-admin — qualquer um podia forjá-lo e ver/editar qualquer escola (quebra do isolamento multi-tenant/LGPD). Agora `getAuthContext` só honra a impersonação se `getSuperAdminEmail()` (allowlist) confirmar; senão ignora o cookie. Testado: cookie sem sessão admin → 307 /login (antes: 200).
