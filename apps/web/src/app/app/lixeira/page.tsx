@@ -64,12 +64,13 @@ export default async function LixeiraPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
+  // Blindagem: uma query que falhe (soluço de DB / dado) não pode derrubar a página inteira.
   const [turmas, alunos, atividades, comunicados, eventos] = await Promise.all([
-    listDeletedClasses(client, ctx),
-    listDeletedStudents(client, ctx),
-    listDeletedActivities(client, ctx),
-    listDeletedCommunications(client, ctx),
-    listDeletedEvents(client, ctx),
+    listDeletedClasses(client, ctx).catch(() => []),
+    listDeletedStudents(client, ctx).catch(() => []),
+    listDeletedActivities(client, ctx).catch(() => []),
+    listDeletedCommunications(client, ctx).catch(() => []),
+    listDeletedEvents(client, ctx).catch(() => []),
   ]);
 
   return (
