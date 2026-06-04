@@ -3,7 +3,7 @@ import { aiDrafts, type DbClient } from '@on-education/db';
 import type { Feature } from '@on-education/entitlements';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
-import { eq } from 'drizzle-orm';
+import { desc, eq, ne } from 'drizzle-orm';
 
 import { type AiProvider, createAnthropicProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
@@ -77,9 +77,16 @@ export async function generateDraft(
   return draft;
 }
 
+/** Lista os rascunhos do tenant, escondendo os descartados (mais recentes primeiro). */
 export async function listDrafts(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'ai_draft');
-  return client.withTenant(ctx.tenantId, (tx) => tx.select().from(aiDrafts));
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(aiDrafts)
+      .where(ne(aiDrafts.status, 'discarded'))
+      .orderBy(desc(aiDrafts.createdAt)),
+  );
 }
 
 async function setStatus(client: DbClient, ctx: AuthContext, id: string, status: string) {
