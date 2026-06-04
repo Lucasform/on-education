@@ -13,6 +13,17 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 15:10] — Qualidade Q2: `<KpiCard>` compartilhado — STATUS: CONCLUÍDO
+
+- **Tarefa:** unificar os cards de KPI (havia 3 defs locais duplicadas).
+- **Segmento:** 🏫👤
+- **O que foi feito:** novo `apps/web/src/components/kpi-card.tsx` cobrindo as 3 variações (ícone+link do dashboard, simples de relatórios, `cor` do financeiro). Aplicado por **alias de import** (`KpiCard as StatCard`/`as Kpi`) → zero edição de call site; removidas as 3 funções locais e o tipo `LucideIcon` órfão no dashboard.
+- **Arquivos:** `components/kpi-card.tsx` (novo); `app/app/{page,relatorios/page,financeiro/page}.tsx`.
+- **Testes:** `tsc` + `eslint` (arquivos tocados) + `next build` verdes (EXIT 0).
+- **Pendências:** Q3–Q8. **Nota de ROI:** Q3 (`DataTable`) e Q4 (`ListAndFormLayout`) são heterogêneos (tabela do financeiro tem form por linha; boletim é pivot; cada cadastro tem form próprio) → abstração de baixo retorno. Recomendado repriorizar p/ Q6 (empty states) + Q8 (loading), que são baratos e sentidos.
+- **Próximo passo sugerido:** decisão do Lucas sobre Q3/Q4 vs Q6/Q8.
+- **Commit(s):** ver `feat: KpiCard compartilhado (Q2)`.
+
 ### [2026-06-04 14:30] — Qualidade Q1: feedback de submit (`<SubmitButton>`) — STATUS: CONCLUÍDO
 
 - **Tarefa:** auditoria "melhor versão" → backlog Q1–Q8 no ROADMAP; executar Q1 (feedback de submit em todos os forms).

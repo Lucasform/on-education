@@ -1,3 +1,4 @@
+import { KpiCard as Kpi } from '@/components/kpi-card';
 import { SubmitButton } from '@/components/submit-button';
 import {
   listClasses,
@@ -18,15 +19,6 @@ import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Relatórios · On Way Education' };
-
-function Kpi({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className={cardClass}>
-      <div className="text-2xl font-semibold">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
-  );
-}
 
 /** Barra horizontal simples (sem lib de gráfico): 0..max → largura %. */
 function Bar({ value, max, tone }: { value: number | null; max: number; tone: string }) {

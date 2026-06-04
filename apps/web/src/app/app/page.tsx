@@ -17,37 +17,17 @@ import {
   Rocket,
   Sparkles,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { KpiCard as StatCard } from '@/components/kpi-card';
 import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail, isImpersonating } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Início · On Way Education' };
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  href,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: number;
-  href: string;
-}) {
-  return (
-    <Link href={href} className={`${cardClass} transition-colors hover:border-primary/50`}>
-      <Icon className="h-5 w-5 text-primary" />
-      <div className="mt-3 text-2xl font-semibold">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-    </Link>
-  );
-}
 
 export default async function OverviewPage() {
   const ctx = await getAuthContext();

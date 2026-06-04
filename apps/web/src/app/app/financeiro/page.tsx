@@ -1,3 +1,4 @@
+import { KpiCard as Kpi } from '@/components/kpi-card';
 import { SubmitButton } from '@/components/submit-button';
 import { listGuardians, listInvoices, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
@@ -23,15 +24,6 @@ export const metadata = { title: 'Financeiro · On Way Education' };
 
 const reais = (cents: number) =>
   (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-function Kpi({ label, value, cor }: { label: string; value: string; cor?: string }) {
-  return (
-    <div className={cardClass}>
-      <div className={`text-2xl font-semibold ${cor ?? ''}`}>{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
-  );
-}
 
 export default async function FinanceiroPage({
   searchParams,

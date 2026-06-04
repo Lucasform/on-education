@@ -296,7 +296,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 > Polimento de qualidade/UX e redução de tech debt. Sem features novas. Auditoria de 2026-06-04.
 
 - [x] **Q1. Feedback de submit** — `<SubmitButton>` (`useFormStatus`): desabilita + spinner em todo form (35 páginas); mesmo tratamento no `ConfirmButton`. Fim do duplo-clique.
-- [ ] **Q2. `<KpiCard>`** — card de KPI único aplicado em dashboard/relatórios/financeiro.
+- [x] **Q2. `<KpiCard>`** — `apps/web/src/components/kpi-card.tsx` cobre as 3 variações (ícone+link, simples, `cor`); aplicado por alias em dashboard/relatórios/financeiro, removendo 3 defs locais duplicadas.
 - [ ] **Q3. `<DataTable>`** — tabela padrão (header/scroll mobile) substituindo os `<thead>/<tbody>` manuais.
 - [ ] **Q4. `<ListAndFormLayout>`** — layout lista+form único nas telas de cadastro.
 - [ ] **Q5. Sweep `PageHeader`** — toda tela usando o cabeçalho padrão.
