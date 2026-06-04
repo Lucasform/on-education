@@ -13,7 +13,31 @@ import type {
   CreateCommunicationInput,
   GenerateCommunicationInput,
 } from '@on-education/validation';
-import { desc, eq, isNotNull, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
+
+/**
+ * Mural PÚBLICO dos pais (item 12): comunicados publicados de um tenant, lidos pela conexão
+ * dona (sem sessão de usuário, fora do RLS). Só `published` e não deletados; nenhum rascunho.
+ * Acesso por link com o id do tenant (UUID não enumerável). Portal autenticado virá depois.
+ */
+export async function listPublicMural(client: DbClient, tenantId: string) {
+  return client.db
+    .select({
+      id: communications.id,
+      title: communications.title,
+      body: communications.body,
+      createdAt: communications.createdAt,
+    })
+    .from(communications)
+    .where(
+      and(
+        eq(communications.tenantId, tenantId),
+        eq(communications.status, 'published'),
+        isNull(communications.deletedAt),
+      ),
+    )
+    .orderBy(desc(communications.createdAt));
+}
 
 /**
  * Comunicados (Comunicação). Checagem tripla (RBAC + entitlement + RLS). Gate em

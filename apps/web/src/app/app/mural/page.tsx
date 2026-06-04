@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 import { cardClass, PageHeader } from '@/components/form';
+import { CopyLink } from '@/components/copy-link';
 import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -28,6 +29,15 @@ export default async function MuralPage() {
           description="Avisos publicados, em ordem do mais recente. Imprima ou salve em PDF para divulgar."
         />
         <PrintButton />
+      </div>
+
+      <div className={`${cardClass} print:hidden`}>
+        <h2 className="mb-1 text-sm font-medium">Link público para os pais</h2>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Compartilhe este link (ou QR) com os responsáveis. Eles veem só os avisos publicados, sem
+          precisar de login.
+        </p>
+        <CopyLink path={`/mural/${ctx.tenantId}`} />
       </div>
 
       {publicados.length === 0 ? (

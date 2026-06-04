@@ -1,7 +1,25 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { type DbClient, tenantSettings } from '@on-education/db';
+import { type DbClient, tenants, tenantSettings } from '@on-education/db';
 import type { UpdateTenantSettingsInput } from '@on-education/validation';
 import { eq } from 'drizzle-orm';
+
+/**
+ * Identidade pública de um tenant (nome + logo + cor), lida pela conexão dona — para páginas
+ * SEM sessão (ex.: mural público dos pais, item 12). Retorna null se o tenant não existir.
+ */
+export async function getPublicTenantBrand(client: DbClient, tenantId: string) {
+  const t = (
+    await client.db.select({ name: tenants.name }).from(tenants).where(eq(tenants.id, tenantId))
+  )[0];
+  if (!t) return null;
+  const s = (
+    await client.db
+      .select({ logoUrl: tenantSettings.logoUrl, themeColor: tenantSettings.themeColor })
+      .from(tenantSettings)
+      .where(eq(tenantSettings.tenantId, tenantId))
+  )[0];
+  return { name: t.name, logoUrl: s?.logoUrl ?? null, themeColor: s?.themeColor ?? null };
+}
 
 /**
  * Personalização da escola (identidade visual + documentos). Uma linha por tenant.
