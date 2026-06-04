@@ -53,9 +53,11 @@ import {
   addQuizQuestion,
   copyFromCollective,
   createActivity,
+  createMaterial,
   createPortfolioEntry,
   createQuiz,
   deleteActivity,
+  deleteMaterial,
   deleteQuiz,
   generateActivityWithWayOn,
   generateQuizWithWayOn,
@@ -121,7 +123,7 @@ import { revalidatePath } from 'next/cache';
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
-import { uploadPublicLogo } from '@/server/storage';
+import { removeTenantFile, uploadPublicLogo, uploadTenantFile } from '@/server/storage';
 
 export async function logoutAction(): Promise<void> {
   await signOut();
@@ -655,6 +657,36 @@ export async function uploadLogoAction(formData: FormData): Promise<void> {
   if (!(file instanceof File) || file.size === 0) return;
   const logoUrl = await uploadPublicLogo(ctx.tenantId, file);
   await upsertTenantSettings(db(), ctx, { logoUrl });
+  revalidatePath('/app', 'layout');
+}
+
+/** Sobe um material didático pra turma (bucket privado) e salva os metadados. */
+export async function uploadMaterialAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '');
+  const file = formData.get('file');
+  if (!classId || !(file instanceof File) || file.size === 0) return;
+  const title = String(formData.get('title') ?? '').trim() || file.name;
+  const subject = (formData.get('subject') as string)?.trim() || undefined;
+  const up = await uploadTenantFile(ctx.tenantId, classId, file);
+  await createMaterial(db(), ctx, {
+    classId,
+    title,
+    subject,
+    storagePath: up.path,
+    fileName: up.fileName,
+    mimeType: up.mimeType ?? undefined,
+    sizeBytes: up.sizeBytes,
+  });
+  revalidatePath('/app', 'layout');
+}
+
+export async function deleteMaterialAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const path = await deleteMaterial(db(), ctx, id);
+  if (path) await removeTenantFile(path);
   revalidatePath('/app', 'layout');
 }
 

@@ -201,9 +201,9 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 > **Storage ativo (2026-06-04, ADR 0005):** 2 buckets no Supabase — `public-assets` (público, branding) e `tenant-files` (privado, materiais por signed URL). Upload via service role no servidor (`apps/web/src/server/storage.ts`). **Fatia 1 entregue:** upload da logo da escola em `/app/escola/personalizacao` (`uploadLogoAction` + `<LogoUpload>`). **Falta no Vercel:** `SUPABASE_SERVICE_ROLE_KEY` no ambiente de produção. Próximas fatias: 3.1/3.3 (materiais) e RAG no EduON.
 
 - [x] **3. Turmas, séries, idades.** `classes.grade_level` + `classes.age_range`; detalhe da turma em `/app/turmas/[id]` (editar série/idade/descrição).
-  - [ ] **3.1** Cadastro de material didático + vínculo com a turma. _(depende de Storage)_
+  - [x] **3.1 / 3.3** Materiais didáticos por turma (upload + listagem + download) — bucket privado `tenant-files` + signed URL, tabela `materials` (migration `0022`, RLS), módulo `module-pedagogico/materials`, seção "Materiais da turma" em `/app/turmas/[id]`. Falta: WayOn ler o material (RAG, Fatia 3).
   - [x] **3.2** Matérias da turma — tabela `class_subjects` (N:N turma↔disciplina) + grade na tela de detalhe da turma.
-  - [ ] **3.3** Anexo de materiais didáticos por turma e por matéria (Storage). _(depende de Storage)_
+  - [x] **3.3** (ver 3.1 acima) — materiais por turma com campo opcional de matéria.
 - [x] **4. Responsáveis + vínculo com aluno.** UI de vínculo no detalhe do aluno (`/app/alunos/[id]`): vincular/desvincular responsável com parentesco + financeiro/busca/emergência.
   - [ ] **4.1 / 10. Ocorrências dos alunos** (1 ou múltiplos alunos). **← em construção agora.**
 - [x] **5. Alunos + vínculo responsável/turma.** Aluno↔turma ok; vínculo aluno↔responsável com UI no detalhe do aluno.

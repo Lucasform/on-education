@@ -13,6 +13,25 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 22:30] — Storage Fatia 2: materiais didáticos por turma — STATUS: CONCLUÍDO
+
+- **Tarefa:** upload/listagem/download de materiais por turma (itens 3.1/3.3), no bucket PRIVADO. Destrava (junto da Fatia 3) o WayOn ler o material da escola.
+- **Segmento:** 🏫👤 (turma serve escola e professor).
+- **O que foi feito:**
+  - **Tabela `materials`** (migration `0022`, RLS + policy de tenant + índices) — `class_id`, `subject?`, `title`, `storage_path`, `file_name`, `mime_type?`, `size_bytes?`. **Migration aplicada em prod.**
+  - **RBAC:** recurso `material` em `TEACHING_RESOURCES` (professor e gestão criam/excluem).
+  - **Módulo** `module-pedagogico/materials.ts`: `createMaterial`/`listMaterials`/`deleteMaterial` (withTenant + assertCan; delete devolve o path p/ remover o arquivo).
+  - **Storage** (`server/storage.ts`): `uploadTenantFile` (bucket privado `tenant-files`, path `<tenant>/<turma>/<ts>-<nome>`, máx 25MB), `signedUrlForTenantFile` (URL temporária 1h), `removeTenantFile`.
+  - **Actions:** `uploadMaterialAction` (sobe + grava metadados), `deleteMaterialAction` (apaga linha + arquivo).
+  - **UI:** seção "Materiais da turma" em `/app/turmas/[id]` — lista com download por **signed URL** (link expira), tamanho/matéria, excluir; form de upload (título/matéria opcionais + arquivo).
+- **Arquivos:** `packages/db/src/schema.ts` (+`drizzle/0022_materials.sql`), `packages/auth/src/rbac.ts`, `packages/modules/pedagogico/src/{materials.ts,index.ts}`, `apps/web/src/server/storage.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/turmas/[id]/page.tsx`.
+- **Migrations/RLS:** `0022_materials` (RLS + policy de tenant) — **aplicada em prod**.
+- **Decisões (ADR?):** segue ADR 0005 (2 buckets); materiais no privado `tenant-files`.
+- **Testes:** `tsc` + `eslint` + `next build` verdes. (Upload real em prod a validar pelo Lucas; depende da `SUPABASE_SERVICE_ROLE_KEY` certa no Vercel.)
+- **Pendências:** **Fatia 3 — WayOn ler o material (RAG)**; e gerar Word/seguir template de PDF da escola.
+- **Próximo passo sugerido:** a "coisa grande e importante" que o Lucas mencionou; depois Fatia 3.
+- **Commit(s):** ver `feat: storage fatia 2 (materiais por turma)`.
+
 ### [2026-06-04 21:30] — Melhorar recursos (telas internas): drill-down no Quadro — STATUS: CONCLUÍDO (1ª tela)
 
 - **Tarefa:** "melhorar os recursos" = telas internas com drill-down (contagem → lista → membro → detalhe). Lucas apontou o Quadro de funcionários (membros apareciam mas não abriam).

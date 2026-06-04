@@ -319,6 +319,37 @@ export const activities = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// materials — materiais didáticos por turma (e opcionalmente por matéria). O arquivo vive no
+// bucket PRIVADO `tenant-files` (ADR 0005); aqui guardamos só os metadados + o storage_path.
+// ---------------------------------------------------------------------------
+export const materials = oe.table(
+  'materials',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subject: text('subject'),
+    title: text('title').notNull(),
+    storagePath: text('storage_path').notNull(),
+    fileName: text('file_name').notNull(),
+    mimeType: text('mime_type'),
+    sizeBytes: integer('size_bytes'),
+    ...auditCols,
+  },
+  (t) => [
+    index('materials_tenant_idx').on(t.tenantId),
+    index('materials_class_idx').on(t.classId),
+    pgPolicy('materials_tenant_isolation', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: tenantPredicate,
+      withCheck: tenantPredicate,
+    }),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // ai_drafts — saídas de IA como RASCUNHO (Fase 1B.2, human-in-the-loop, Master Spec §9.3):
 // o humano revisa e aprova antes de virar conteúdo oficial. Guarda consumo de tokens.
 // Tenant-scoped + RLS.
@@ -838,7 +869,7 @@ export const tenantSettings = oe.table(
     // Escala da nota (0..gradeScale); padrão 10. Definida pela escola.
     gradeScale: integer('grade_scale').notNull().default(10),
     // "Meu padrão" / padrão da escola (itens 18.3 / 11.5): estilo, cabeçalho/rodapé,
-    // formato e nível de dificuldade aplicados a TODO conteúdo gerado pelo EduON.
+    // formato e nível de dificuldade aplicados a TODO conteúdo gerado pelo WayOn.
     aiStandard: text('ai_standard'),
     ...auditCols,
   },
@@ -949,6 +980,7 @@ export const schema = {
   classes,
   students,
   activities,
+  materials,
   aiDrafts,
   units,
   invitations,

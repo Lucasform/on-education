@@ -5,6 +5,7 @@ import {
   listStudents,
   listSubjects,
 } from '@on-education/module-nucleo';
+import { listMaterials } from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -12,12 +13,22 @@ import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+import { signedUrlForTenantFile } from '@/server/storage';
 
 import {
+  deleteMaterialAction,
   linkClassSubjectAction,
   unlinkClassSubjectAction,
   updateClassDetailsAction,
+  uploadMaterialAction,
 } from '../../actions';
+
+/** Formata bytes em KB/MB para a UI. */
+function formatBytes(n: number | null): string {
+  if (!n) return '';
+  if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Turma · Edu On Way' };
@@ -29,17 +40,23 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const [turma, alunos, materias, disciplinas] = await Promise.all([
+  const [turma, alunos, materias, disciplinas, materiais] = await Promise.all([
     getClass(client, ctx, id),
     listStudents(client, ctx),
     listClassSubjects(client, ctx, id),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
+    listMaterials(client, ctx, id).catch(() => []),
   ]);
   if (!turma) redirect('/app/turmas');
 
   const daTurma = alunos.filter((a) => a.classId === id);
   const jaVinculadas = new Set(materias.map((m) => m.subjectId));
   const disponiveis = disciplinas.filter((s) => !jaVinculadas.has(s.id));
+
+  // Link de download temporário (signed URL) por material — gerado no servidor.
+  const materiaisComLink = await Promise.all(
+    materiais.map(async (m) => ({ ...m, url: await signedUrlForTenantFile(m.storagePath) })),
+  );
 
   return (
     <>
@@ -182,6 +199,76 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
           )}
         </div>
       )}
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Materiais da turma ({materiaisComLink.length})</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Arquivos privados da turma (PDF, slides, imagens). O link de download expira por
+          segurança. Em breve o WayOn usa esses materiais para gerar conteúdo.
+        </p>
+
+        {materiaisComLink.length > 0 && (
+          <ul className="mb-4 divide-y divide-border/60 text-sm">
+            {materiaisComLink.map((m) => (
+              <li key={m.id} className="flex items-center justify-between gap-2 py-2">
+                <span className="min-w-0">
+                  {m.url ? (
+                    <a
+                      href={m.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    >
+                      {m.title}
+                    </a>
+                  ) : (
+                    <span className="font-medium">{m.title}</span>
+                  )}
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {m.fileName}
+                    {m.subject ? ` · ${m.subject}` : ''}
+                    {m.sizeBytes ? ` · ${formatBytes(m.sizeBytes)}` : ''}
+                  </span>
+                </span>
+                <form action={deleteMaterialAction}>
+                  <input type="hidden" name="id" value={m.id} />
+                  <ConfirmButton
+                    size="sm"
+                    variant="ghost"
+                    message={`Excluir o material "${m.title}"? O arquivo é removido.`}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Excluir
+                  </ConfirmButton>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form action={uploadMaterialAction} className="flex flex-col gap-2">
+          <input type="hidden" name="classId" value={turma.id} />
+          <input
+            name="title"
+            placeholder="Título (opcional; usa o nome do arquivo)"
+            className={fieldClass}
+          />
+          <input name="subject" placeholder="Matéria (opcional)" className={fieldClass} />
+          <input
+            type="file"
+            name="file"
+            required
+            aria-label="Arquivo do material"
+            className="text-xs file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs"
+          />
+          <span className="text-[11px] text-muted-foreground">Até 25 MB por arquivo.</span>
+          <div>
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Enviar material
+            </SubmitButton>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

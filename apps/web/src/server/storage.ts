@@ -48,3 +48,53 @@ export async function uploadPublicLogo(tenantId: string, file: File): Promise<st
   if (error) throw new Error(`Falha no upload: ${error.message}`);
   return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
 }
+
+const MATERIAL_MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
+export interface UploadedFile {
+  path: string;
+  fileName: string;
+  mimeType: string | null;
+  sizeBytes: number;
+}
+
+/**
+ * Sobe um material no bucket PRIVADO `tenant-files`, em `<tenant>/<turma>/<ts>-<nome>`.
+ * Nada público: o acesso é só por signed URL gerada no servidor. Devolve os metadados.
+ */
+export async function uploadTenantFile(
+  tenantId: string,
+  classId: string,
+  file: File,
+): Promise<UploadedFile> {
+  if (file.size === 0) throw new Error('Arquivo vazio.');
+  if (file.size > MATERIAL_MAX_BYTES) throw new Error('Arquivo muito grande (máx. 25 MB).');
+  const safe = (file.name.split('/').pop() ?? 'arquivo')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .slice(-80);
+  const path = `${tenantId}/${classId}/${Date.now()}-${safe || 'arquivo'}`;
+  const sb = serviceClient();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { error } = await sb.storage.from('tenant-files').upload(path, bytes, {
+    contentType: file.type || 'application/octet-stream',
+    upsert: false,
+  });
+  if (error) throw new Error(`Falha no upload: ${error.message}`);
+  return { path, fileName: file.name, mimeType: file.type || null, sizeBytes: file.size };
+}
+
+/** Gera uma URL temporária (default 1h) para baixar um arquivo do bucket privado. */
+export async function signedUrlForTenantFile(
+  path: string,
+  expiresInSec = 3600,
+): Promise<string | null> {
+  const { data, error } = await serviceClient()
+    .storage.from('tenant-files')
+    .createSignedUrl(path, expiresInSec);
+  return error ? null : data.signedUrl;
+}
+
+/** Remove o arquivo do bucket privado (ao excluir o material). */
+export async function removeTenantFile(path: string): Promise<void> {
+  await serviceClient().storage.from('tenant-files').remove([path]);
+}
