@@ -212,11 +212,11 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
       - `payments` — baixa: data, valor, método (dinheiro/pix/cartão/boleto), referência externa (PSP), `invoice_id`.
       - `payment_events` — auditoria (entra na 2.F com webhooks do PSP).
     - **Funcionalidades (faseadas):**
-      - [~] **2.a (sem banco/PSP, já agrega valor) — FEITO (parcial):** `/app/financeiro` (tabela `invoices`, migration `0020`, RLS+grant): lançar cobrança por responsável/aluno, **baixa manual** (dar baixa/reabrir), excluir, **totais** (a receber/vencido/recebido); "vencido" derivado. Falta: mensalidade recorrente por turma (gerar em lote) e tela de extrato dedicada por responsável.
+      - [x] **2.a (sem banco/PSP) — FEITO:** `/app/financeiro` (tabela `invoices`, migration `0020`): lançar cobrança, **gerar mensalidades do mês em lote** (`generateMonthlyInvoices`, por aluno→responsável financeiro, idempotente por aluno/competência), **baixa manual** (dar baixa/reabrir), excluir, **totais** + **extrato por responsável** (`?resp=`). "vencido" derivado.
       - **2.F (com PSP):** boleto/PIX via API, **confirmação por webhook**, NFS-e, **comprovante/nota automáticos** (ver bloco 2.F).
     - **Segurança/LGPD:** dado financeiro sensível; RBAC restrito a gestão/financeiro (papéis `director`/`coordinator`/`staff_finance`); o responsável só enxerga o **próprio** extrato (via portal do responsável, futuro). Idempotência em geração de cobrança e baixa.
     - **Não-objetivos agora:** não processa cartão, não emite boleto (isso é 2.F); sem integração externa.
-    - [ ] **5.1.1 Histórico de pagamento do responsável** (extrato: mensalidades pagas/em aberto/vencidas por responsável, com vínculo ao(s) aluno(s) e status). É a tela-âncora da 2.a e base da régua de cobrança.
+    - [x] **5.1.1 Histórico de pagamento do responsável** — extrato por responsável em `/app/financeiro?resp=<id>` (KPIs viram o extrato dele: a receber/vencido/recebido + lista). Falta só o portal autenticado do responsável (ver depois).
 
 ### Acadêmico e rotina
 

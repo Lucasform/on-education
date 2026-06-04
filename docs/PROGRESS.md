@@ -13,6 +13,23 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 11:00] — Itens sem credencial: EduON tipos, financeiro, coletivo, 18.6, mural público, recorrência — STATUS: EM ANDAMENTO
+
+- **Tarefa:** finalizar o backlog que NÃO depende de credencial (sessão paralela; commits só dos arquivos tocados).
+- **Segmento:** 🏫👤
+- **O que foi feito (todos em prod):**
+  - **EduON tipos (11.2–11.4 por tema):** Atividade/Prova/Trabalho/Roteiro em `/app/atividades`, seguindo o "Meu Padrão" (`83c1ffd`).
+  - **Financeiro 2.a + recorrência + extrato (5.1/5.1.1):** `invoices` (migration `0020`); lançar, **gerar mensalidades em lote**, baixa/reabrir, excluir, totais e **extrato por responsável** (`?resp=`) (`5cbc71c`, `407207b`).
+  - **Banco coletivo (13):** tabela global `shared_activities` (migration `0021`, ADR 0004), `/app/banco-coletivo` (`b2bb8e1`).
+  - **18.6 PDF no padrão:** `/app/atividades/[id]` imprimível com a identidade da escola (`47c5b90`). Fecha o item 18.
+  - **12 Mural público:** `/mural/[tenant]` (link sem login p/ os pais) + CopyLink na tela interna (`47de58c`).
+- **Migrations/RLS:** `0020` (invoices) e `0021` (shared_activities) aplicadas em prod + grants (4 cada).
+- **Testes:** `tsc` + `next build` verdes em cada batch; deploys READY, prod 200.
+- **Decisões (ADR):** `0004` (banco coletivo global).
+- **Pendências / bloqueios:** restam só itens 🔒 (Storage/Resend/Stripe/PSP/WhatsApp) e 🟡 pesados (11.5 padrão por turma/tipo; 16 nativo/offline). Hardening: restringir leitura do financeiro a papéis de gestão.
+- **Próximo passo sugerido:** ativar Storage (materiais + RAG) ou Resend (secretaria); ou 11.5 (precisa migration).
+- **Commit(s):** `83c1ffd`, `5cbc71c`, `b2bb8e1`, `47c5b90`, `47de58c`, `407207b`.
+
 ### [2026-06-03 16:00] — EduON tipos + Financeiro 2.a + Banco coletivo — STATUS: EM ANDAMENTO
 
 - **Tarefa:** finalizar itens do backlog que NÃO dependem de credencial (sessão paralela ao outro agente; commits só dos arquivos tocados para evitar colisão).
