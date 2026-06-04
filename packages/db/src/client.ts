@@ -28,6 +28,9 @@ export function createDbClient(
   // SQL não-qualificado (scripts/limpeza de teste) resolva no nosso schema, nunca no public.
   const sqlClient = postgres(connectionString, {
     connection: { search_path: 'on_education, public' },
+    // Pooler do Supabase + serverless (Vercel): prepared statements quebram transações no
+    // modo transaction do pgbouncer. `prepare: false` usa o protocolo simples e é seguro.
+    prepare: false,
     ...options,
   });
   const db = drizzle(sqlClient, { schema });

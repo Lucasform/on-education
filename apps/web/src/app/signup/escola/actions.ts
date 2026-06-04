@@ -31,7 +31,7 @@ export async function signupSchoolAction(formData: FormData): Promise<void> {
   // Nunca derrubar a página com 500: erro vira mensagem amigável no formulário.
   if (error || !data.user) {
     const existe = /registered|already|exists/i.test(error?.message ?? '');
-    redirect(`/signup/escola?erro=${existe ? 'existe' : 'falha'}`);
+    redirect(`/signup/escola?erro=${existe ? 'existe' : 'config'}`);
   }
 
   try {

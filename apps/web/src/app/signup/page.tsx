@@ -11,6 +11,7 @@ export const metadata = { title: 'Criar conta · Edu On Way' };
 const ERROS: Record<string, string> = {
   existe: 'Este e-mail já tem conta. Faça login ou use outro e-mail.',
   senha: 'A senha precisa ter ao menos 8 caracteres.',
+  config: 'Não foi possível criar o acesso (configuração do servidor). Já estamos verificando.',
   falha: 'Não foi possível criar a conta agora. Tente novamente em instantes.',
 };
 
