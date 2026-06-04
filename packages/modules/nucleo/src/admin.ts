@@ -99,6 +99,56 @@ export async function getAppStats(client: DbClient): Promise<AppStats> {
   };
 }
 
+export interface TenantDetail extends TenantOverview {
+  classes: number;
+  activities: number;
+  roles: { role: string; count: number }[];
+}
+
+/** Detalhe de um único tenant (escola/professor) para a tela de detalhe do admin. */
+export async function getTenantDetail(
+  client: DbClient,
+  tenantId: string,
+): Promise<TenantDetail | null> {
+  const t = (
+    await client.db
+      .select({
+        id: tenants.id,
+        name: tenants.name,
+        tenantType: tenants.tenantType,
+        createdAt: tenants.createdAt,
+        deletedAt: tenants.deletedAt,
+      })
+      .from(tenants)
+      .where(eq(tenants.id, tenantId))
+  )[0];
+  if (!t) return null;
+
+  const [members, studentsTotal, classesTotal, activitiesTotal, rolesRows] = await Promise.all([
+    client.db
+      .select({ c: countDistinct(memberships.userId) })
+      .from(memberships)
+      .where(eq(memberships.tenantId, tenantId)),
+    client.db.select({ c: count() }).from(students).where(eq(students.tenantId, tenantId)),
+    client.db.select({ c: count() }).from(classes).where(eq(classes.tenantId, tenantId)),
+    client.db.select({ c: count() }).from(activities).where(eq(activities.tenantId, tenantId)),
+    client.db
+      .select({ role: memberships.role, c: count() })
+      .from(memberships)
+      .where(eq(memberships.tenantId, tenantId))
+      .groupBy(memberships.role),
+  ]);
+
+  return {
+    ...t,
+    members: Number(members[0]?.c ?? 0),
+    students: Number(studentsTotal[0]?.c ?? 0),
+    classes: Number(classesTotal[0]?.c ?? 0),
+    activities: Number(activitiesTotal[0]?.c ?? 0),
+    roles: rolesRows.map((r) => ({ role: String(r.role), count: Number(r.c) })),
+  };
+}
+
 /** Tabelas tenant-scoped que devem ser purgadas ao apagar uma escola definitivamente. */
 const TENANT_TABLES = [
   'memberships',

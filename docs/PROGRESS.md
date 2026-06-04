@@ -7,11 +7,29 @@
 
 > Atualize esta linha a cada checkpoint.
 
-**Fase atual:** 🚀 EM PRODUÇÃO · **Storage ATIVADO 2026-06-04** (ADR 0005, 2 buckets): Fatia 1 = upload da logo entregue; falta `SUPABASE_SERVICE_ROLE_KEY` no Vercel; próximo = Fatia 2 materiais (3.1/3.3) → depois RAG no EduON. · **Frente Qualidade ("melhor versão") ENCERRADA 2026-06-04**: entregue o que tem ROI real — Q1 (feedback de submit, 35 telas) + Q2 (`<KpiCard>`) em prod; Q6 (empty states já consistentes + fix lixeira) e Q8 (loading global já cobre tudo) confirmados; Q5 (PageHeader) já amplo; Q3/Q4/Q7 deferidos por baixo ROI (tabelas/forms heterogêneos; aria-label cosmético). RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
+**Fase atual:** 🚀 EM PRODUÇÃO · **Console de admin redesenhado 2026-06-04** (overview + sidebar + /admin/contas + detalhe por escola; acesso ao app via "Entrar como"). · **Storage ATIVADO 2026-06-04** (ADR 0005, 2 buckets): Fatia 1 = upload da logo entregue; falta `SUPABASE_SERVICE_ROLE_KEY` no Vercel; próximo = Fatia 2 materiais (3.1/3.3) → depois RAG no EduON. · **Frente Qualidade ("melhor versão") ENCERRADA 2026-06-04**: entregue o que tem ROI real — Q1 (feedback de submit, 35 telas) + Q2 (`<KpiCard>`) em prod; Q6 (empty states já consistentes + fix lixeira) e Q8 (loading global já cobre tudo) confirmados; Q5 (PageHeader) já amplo; Q3/Q4/Q7 deferidos por baixo ROI (tabelas/forms heterogêneos; aria-label cosmético). RBAC já estava plugado (assertCan na camada de serviço — falso positivo da auditoria). · Sequência autônoma 2026-06-03: vínculos prof. (17), faltas/matéria + doc PDF (8/8.1/8.2/9.1), import CSV, menu enxuto (18 parcial), matérias da turma + série/idade (3/3.2), vínculo responsável (4/5), notas participação/anotação (9), cronograma (7), quadro de funcionários (1 parcial), Meu padrão EduON (18.3), painel da escola + gráficos (14/15 parcial), PWA + nav mobile (16). · **Status:** EM ANDAMENTO · **Próximo passo (nova sessão):** itens que dependem do Lucas — Storage (materiais 3.1/3.3 + RAG 11.2-11.4), Stripe (billing), WhatsApp Cloud API; e BNCC (dados). Restantes sem credencial: plano de aulas (7.1), mural dos pais (12), banco coletivo (13). Prod: https://on-education-seven.vercel.app
 
 ---
 
 ## Log de checkpoints
+
+### [2026-06-04 17:20] — Admin: console (overview + sidebar + contas + detalhe por escola) — STATUS: CONCLUÍDO
+
+- **Tarefa:** o `/admin` era uma página só (stats + tabela). Lucas pediu overview no início, acesso a todas as funcionalidades do app e logar nas escolas vendo os itens específicos. Escopo escolhido: **via "Entrar como"** (impersonação), sem visões globais cross-tenant.
+- **Segmento:** super-admin do SaaS.
+- **O que foi feito:**
+  - **`AdminShell`** (`components/admin-shell.tsx`, client): sidebar (Visão geral / Contas) com item ativo + drawer mobile, header com e-mail do admin + ThemeToggle + Sair. `admin/layout.tsx` agora envolve tudo nele.
+  - **Overview** (`/admin`): KPIs globais + "Últimas contas" (6) com "Entrar como" + atalhos (+Escola/+Professor/ver contas).
+  - **Contas** (`/admin/contas`): tabela completa de gestão (entrar/excluir/restaurar/purge, toggle ativas/excluídas), movida da página antiga; nomes linkam pro detalhe.
+  - **Detalhe da escola** (`/admin/contas/[id]`): KPIs específicos (membros/alunos/turmas/atividades) + equipe por papel + "Entrar como"/excluir/restaurar. Nova `getTenantDetail` em `module-nucleo/admin.ts`.
+  - Impersonação já existia (cookie + `resolveContextForTenant`); ao entrar, o `/app` mostra "Sair do modo admin". Botões renomeados p/ "Entrar como" (mais claro).
+- **Arquivos:** `components/admin-shell.tsx` (novo), `app/admin/{layout,page,loading}.tsx`, `app/admin/contas/page.tsx` (novo), `app/admin/contas/[id]/page.tsx` (novo), `packages/modules/nucleo/src/admin.ts` (getTenantDetail).
+- **Migrations/RLS:** não (só leitura cross-tenant na conexão admin, como já era).
+- **Testes:** `tsc` + `eslint` + `next build` verdes (rotas /admin, /admin/contas, /admin/contas/[id] geradas).
+- **Pendências / bloqueios:** detalhe ainda não mostra plano/assinatura nem e-mails dos membros (auth é Supabase compartilhado) — dá pra enriquecer depois se quiser.
+- **Credenciais/segredos necessários:** nenhum novo (admin já usa `SUPER_ADMIN_EMAILS`).
+- **Próximo passo sugerido:** validar visualmente em prod; depois Storage Fatia 2 (materiais) ou enriquecer o detalhe (plano/membros).
+- **Commit(s):** ver `feat: console de admin (overview + sidebar + contas + detalhe por escola)`.
 
 ### [2026-06-04 16:30] — Storage Fatia 1: upload da logo da escola — STATUS: CONCLUÍDO
 

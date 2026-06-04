@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation';
 
+import { logoutAction } from '@/app/app/actions';
+import { AdminShell } from '@/components/admin-shell';
+import { SubmitButton } from '@/components/submit-button';
 import { getSuperAdminEmail } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
@@ -11,5 +14,18 @@ export const dynamic = 'force-dynamic';
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const email = await getSuperAdminEmail();
   if (!email) redirect('/login');
-  return <>{children}</>;
+  return (
+    <AdminShell
+      email={email}
+      headerActions={
+        <form action={logoutAction}>
+          <SubmitButton type="submit" variant="outline" size="sm">
+            Sair
+          </SubmitButton>
+        </form>
+      }
+    >
+      {children}
+    </AdminShell>
+  );
 }
