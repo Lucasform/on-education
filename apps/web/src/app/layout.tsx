@@ -7,10 +7,10 @@ import { ThemeProvider } from './theme-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'On Way Education',
+  title: 'Edu On Way',
   description:
-    'Ensine com inteligência, do plano de aula ao boletim. A plataforma completa para professores e escolas, com o agente EduON ao seu lado.',
-  appleWebApp: { capable: true, title: 'On Way Edu', statusBarStyle: 'black-translucent' },
+    'Ensine com inteligência, do plano de aula ao boletim. A plataforma completa para professores e escolas, com o agente WayOn ao seu lado.',
+  appleWebApp: { capable: true, title: 'Edu On Way', statusBarStyle: 'black-translucent' },
 };
 
 export const viewport: Viewport = {

@@ -14,7 +14,7 @@ import {
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Notas e pesos · On Way Education' };
+export const metadata = { title: 'Notas e pesos · Edu On Way' };
 
 export default async function NotasConfigPage() {
   const ctx = await getAuthContext();

@@ -14,7 +14,7 @@ import {
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Responsáveis · On Way Education' };
+export const metadata = { title: 'Responsáveis · Edu On Way' };
 
 export default async function ResponsaveisPage() {
   const ctx = await getAuthContext();

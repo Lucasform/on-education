@@ -49,15 +49,15 @@ function parseQuestoes(text: string): GeradaQuestao[] {
     .trim();
   const ini = limpo.indexOf('{');
   const fim = limpo.lastIndexOf('}');
-  if (ini === -1 || fim === -1) throw new Error('O EduON não retornou um simulado válido.');
+  if (ini === -1 || fim === -1) throw new Error('O WayOn não retornou um simulado válido.');
   let dados: unknown;
   try {
     dados = JSON.parse(limpo.slice(ini, fim + 1));
   } catch {
-    throw new Error('O EduON não retornou um simulado válido. Tente de novo.');
+    throw new Error('O WayOn não retornou um simulado válido. Tente de novo.');
   }
   const lista = (dados as { questions?: unknown }).questions;
-  if (!Array.isArray(lista)) throw new Error('O EduON não retornou questões. Tente de novo.');
+  if (!Array.isArray(lista)) throw new Error('O WayOn não retornou questões. Tente de novo.');
   const questoes: GeradaQuestao[] = [];
   for (const q of lista) {
     const prompt = String((q as GeradaQuestao)?.prompt ?? '').trim();
@@ -79,15 +79,15 @@ function parseQuestoes(text: string): GeradaQuestao[] {
     }
   }
   if (questoes.length === 0)
-    throw new Error('O EduON não conseguiu gerar questões. Tente de novo.');
+    throw new Error('O WayOn não conseguiu gerar questões. Tente de novo.');
   return questoes;
 }
 
 /**
- * Gera um simulado completo com o EduON (IA): cria o quiz e as questões de múltipla escolha
+ * Gera um simulado completo com o WayOn (IA): cria o quiz e as questões de múltipla escolha
  * já corrigíveis. Checagem tripla + cota; consumo medido por tenant. Provider injetável.
  */
-export async function generateQuizWithEduON(
+export async function generateQuizWithWayOn(
   client: DbClient,
   ctx: AuthContext,
   input: GenerateQuizInput,
@@ -100,7 +100,7 @@ export async function generateQuizWithEduON(
   const ai = provider ?? createAnthropicProvider('sonnet');
   const standard = await getAiStandard(client, ctx);
   const system = applyAiStandard(
-    'Você é o EduON, um assistente pedagógico. Gere questões de múltipla escolha em português ' +
+    'Você é o WayOn, um assistente pedagógico. Gere questões de múltipla escolha em português ' +
       'do Brasil. Responda APENAS com JSON válido, sem nenhum texto fora do JSON, no formato: ' +
       '{"questions":[{"prompt":"enunciado","options":["a","b","c","d"],"correctIndex":0}]}. ' +
       'Use 4 alternativas por questão e correctIndex é o índice (0-based) da correta.',
@@ -120,7 +120,7 @@ export async function generateQuizWithEduON(
       .values({
         tenantId: ctx.tenantId,
         title: input.topic.slice(0, 120),
-        description: 'Gerado pelo EduON',
+        description: 'Gerado pelo WayOn',
         subject: input.subject ?? null,
         createdBy: ctx.userId,
       })

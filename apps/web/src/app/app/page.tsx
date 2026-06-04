@@ -27,7 +27,7 @@ import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Início · On Way Education' };
+export const metadata = { title: 'Início · Edu On Way' };
 
 export default async function OverviewPage() {
   const ctx = await getAuthContext();
@@ -85,7 +85,7 @@ export default async function OverviewPage() {
         ]
       : []),
     { label: 'Montar o banco de atividades', href: '/app/atividades', done: atividades.length > 0 },
-    { label: 'Gerar conteúdo com o EduON', href: '/app/ia', done: rascunhos.length > 0 },
+    { label: 'Gerar conteúdo com o WayOn', href: '/app/ia', done: rascunhos.length > 0 },
   ];
   const feitos = passos.filter((p) => p.done).length;
 
@@ -126,7 +126,7 @@ export default async function OverviewPage() {
             { label: '+ Nova turma', href: '/app/turmas' },
             { label: '+ Novo aluno', href: '/app/alunos' },
             { label: 'Fazer chamada', href: '/app/sala/chamada' },
-            { label: 'Gerar com EduON', href: '/app/ia' },
+            { label: 'Gerar com WayOn', href: '/app/ia' },
             ...(isSchool
               ? [
                   { label: 'Novo comunicado', href: '/app/comunicados' },

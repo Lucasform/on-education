@@ -108,7 +108,7 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Para ver e operar tudo desta escola (turmas, diário, financeiro, EduON), use “Entrar
+          Para ver e operar tudo desta escola (turmas, diário, financeiro, WayOn), use “Entrar
           como”.
         </p>
       </section>

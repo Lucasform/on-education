@@ -11,7 +11,7 @@ import { getAuthContext } from '@/server/session';
 import { createMessageAction, deleteMessageAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Mensagens · On Way Education' };
+export const metadata = { title: 'Mensagens · Edu On Way' };
 
 export default async function MensagensPage() {
   const ctx = await getAuthContext();

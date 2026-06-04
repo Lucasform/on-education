@@ -11,7 +11,7 @@ import { getAuthContext } from '@/server/session';
 import { createLessonPlanAction, deleteLessonPlanAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Planejamento · On Way Education' };
+export const metadata = { title: 'Planejamento · Edu On Way' };
 
 const KIND_LABEL: Record<string, string> = {
   aula: 'Aula',

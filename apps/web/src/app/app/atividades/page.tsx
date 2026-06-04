@@ -12,7 +12,7 @@ import { getAuthContext } from '@/server/session';
 import { createActivityAction, generateActivityAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Banco de atividades · On Way Education' };
+export const metadata = { title: 'Banco de atividades · Edu On Way' };
 
 export default async function AtividadesPage() {
   const ctx = await getAuthContext();
@@ -50,7 +50,7 @@ export default async function AtividadesPage() {
           <div className={cardClass}>
             <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
-              Gerar com o EduON
+              Gerar com o WayOn
             </h2>
             <p className="mb-2 text-xs text-muted-foreground">
               O agente cria a atividade e salva no banco. Você edita se quiser.
@@ -78,12 +78,12 @@ export default async function AtividadesPage() {
                   <input name="level" placeholder="Nível/ano" className={fieldClass} />
                 </div>
                 <SubmitButton type="submit" size="sm">
-                  Gerar com o EduON
+                  Gerar com o WayOn
                 </SubmitButton>
               </form>
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                EduON indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar atividades.
+                WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar atividades.
               </p>
             )}
           </div>

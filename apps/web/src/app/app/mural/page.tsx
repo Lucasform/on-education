@@ -9,7 +9,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Mural dos pais · On Way Education' };
+export const metadata = { title: 'Mural dos pais · Edu On Way' };
 
 export default async function MuralPage() {
   const ctx = await getAuthContext();
@@ -70,7 +70,7 @@ export default async function MuralPage() {
               )}
               {c.aiGenerated && (
                 <span className="mt-3 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                  gerado com EduON
+                  gerado com WayOn
                 </span>
               )}
             </article>

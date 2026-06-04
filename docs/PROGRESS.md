@@ -13,6 +13,15 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 20:40] — Rebrand: plataforma "Edu On Way" + agente "WayOn" — STATUS: CONCLUÍDO
+
+- **Decisão do Lucas:** plataforma "On Way Education" → **Edu On Way**; agente "EduON" → **WayOn** (Way + On, amarra com On Way). Nome do agente personalizável por escola/prof segue no backlog.
+- **O que foi feito:** replace global `EduON`→`WayOn` (texto + componente + nomes de função `generate*WithWayOn`, defs e imports juntos; 20 arquivos) e `On Way Education`/`On Way Edu`→`Edu On Way` (51 arquivos: títulos, metadata, manifest, marca na landing/shells/auth). Componente da marca renderiza `Way` + `On` (On em destaque).
+- **NÃO mexido (interno, de propósito):** scope npm `@on-education/*` e schema Postgres `on_education` (não aparecem pro usuário; renomear = churn/risco sem ganho).
+- **Testes:** `tsc` + `next build` verdes.
+- **Pendências:** "melhorar os recursos"; Storage Fatia 2 (PAUSADA — `materials` no `schema.ts`, fora do commit).
+- **Commit(s):** ver `chore: rebrand para Edu On Way + agente WayOn`.
+
 ### [2026-06-04 20:10] — Fix: impersonação não cai mais pro /admin a cada clique — STATUS: CONCLUÍDO
 
 - **Bug:** logado como escola (admin), qualquer clique voltava pro /admin (ou /login). Reproduzido rodando o build local: com `DATABASE_URL` ausente/instável, `getAuthContext` (que consultava o banco a CADA navegação para descobrir o tipo do tenant) caía no `catch → null`, e o dashboard/layout então redirecionava.

@@ -11,7 +11,7 @@ import { getAuthContext } from '@/server/session';
 import { createOccurrenceAction, deleteOccurrenceAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Ocorrências · On Way Education' };
+export const metadata = { title: 'Ocorrências · Edu On Way' };
 
 const COR: Record<string, string> = {
   leve: 'bg-emerald-500/10 text-emerald-500',

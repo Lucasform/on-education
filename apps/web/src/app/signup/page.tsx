@@ -6,7 +6,7 @@ import { Field, fieldClass } from '@/components/form';
 import { signupAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Criar conta · On Way Education' };
+export const metadata = { title: 'Criar conta · Edu On Way' };
 
 const ERROS: Record<string, string> = {
   existe: 'Este e-mail já tem conta. Faça login ou use outro e-mail.',

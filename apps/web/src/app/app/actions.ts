@@ -57,8 +57,8 @@ import {
   createQuiz,
   deleteActivity,
   deleteQuiz,
-  generateActivityWithEduON,
-  generateQuizWithEduON,
+  generateActivityWithWayOn,
+  generateQuizWithWayOn,
   restoreActivity,
   shareToCollective,
   submitQuizAttempt,
@@ -174,7 +174,7 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
-/** Gera uma atividade pelo EduON e salva direto no banco. */
+/** Gera uma atividade pelo WayOn e salva direto no banco. */
 export async function generateActivityAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = generateActivitySchema.parse({
@@ -183,7 +183,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     level: (formData.get('level') as string) || undefined,
     kind: (formData.get('kind') as string) || 'atividade',
   });
-  await generateActivityWithEduON(db(), ctx, input);
+  await generateActivityWithWayOn(db(), ctx, input);
   revalidatePath('/app', 'layout');
 }
 
@@ -658,7 +658,7 @@ export async function uploadLogoAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
-// --- Meu padrão / padrão do EduON (item 18.3) --------------------------------
+// --- Meu padrão / padrão do WayOn (item 18.3) --------------------------------
 
 export async function updateAiStandardAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
@@ -689,7 +689,7 @@ export async function deleteMessageAction(formData: FormData): Promise<void> {
   revalidatePath('/app/mensagens', 'page');
 }
 
-/** Gera um simulado completo pelo EduON e abre o resultado para revisão. */
+/** Gera um simulado completo pelo WayOn e abre o resultado para revisão. */
 export async function generateQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = generateQuizSchema.parse({
@@ -698,7 +698,7 @@ export async function generateQuizAction(formData: FormData): Promise<void> {
     level: (formData.get('level') as string) || undefined,
     count: Number(formData.get('count') ?? 5),
   });
-  const quiz = await generateQuizWithEduON(db(), ctx, input);
+  const quiz = await generateQuizWithWayOn(db(), ctx, input);
   redirect(`/app/simulados/${quiz.id}`);
 }
 

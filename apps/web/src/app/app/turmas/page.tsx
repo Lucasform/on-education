@@ -18,7 +18,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Turmas · On Way Education' };
+export const metadata = { title: 'Turmas · Edu On Way' };
 
 export default async function TurmasPage() {
   const ctx = await getAuthContext();

@@ -9,7 +9,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Relatório de faltas · On Way Education' };
+export const metadata = { title: 'Relatório de faltas · Edu On Way' };
 
 export default async function RelatorioFaltasPage({
   searchParams,

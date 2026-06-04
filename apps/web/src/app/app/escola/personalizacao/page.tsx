@@ -10,7 +10,7 @@ import { getAuthContext } from '@/server/session';
 import { updateTenantSettingsAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Personalização · On Way Education' };
+export const metadata = { title: 'Personalização · Edu On Way' };
 
 // Presets de cor (triplo HSL aplicado como --primary). Evita lidar com hex/HSL na mão.
 const CORES = [

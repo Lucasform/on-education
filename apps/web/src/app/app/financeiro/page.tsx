@@ -20,7 +20,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Financeiro · On Way Education' };
+export const metadata = { title: 'Financeiro · Edu On Way' };
 
 const reais = (cents: number) =>
   (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

@@ -49,7 +49,7 @@ export default async function AtividadeDetalhePage({
             <h1 className="text-xl font-bold leading-tight">{atividade.title}</h1>
             <p className="text-xs text-muted-foreground">
               {atividade.subject ? `${atividade.subject} · ` : ''}
-              {atividade.aiGenerated ? 'Gerado pelo EduON' : 'Atividade'}
+              {atividade.aiGenerated ? 'Gerado pelo WayOn' : 'Atividade'}
             </p>
           </div>
         </header>

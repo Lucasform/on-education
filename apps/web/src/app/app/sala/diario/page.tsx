@@ -12,7 +12,7 @@ import { hojeISO, inicioPeriodo, type Periodo } from '@/lib/date';
 import { createLessonAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Diário de classe · On Way Education' };
+export const metadata = { title: 'Diário de classe · Edu On Way' };
 
 export default async function DiarioPage({
   searchParams,

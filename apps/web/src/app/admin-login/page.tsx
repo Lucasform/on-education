@@ -9,7 +9,7 @@ import { getSuperAdminEmail } from '@/server/session';
 import { adminLoginAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Acesso administrativo · On Way Education' };
+export const metadata = { title: 'Acesso administrativo · Edu On Way' };
 
 export default async function AdminLoginPage({
   searchParams,
@@ -22,7 +22,7 @@ export default async function AdminLoginPage({
   return (
     <AuthShell
       title="Acesso administrativo"
-      subtitle="Painel do produto. Restrito à equipe On Way Education."
+      subtitle="Painel do produto. Restrito à equipe Edu On Way."
     >
       <div className="mb-5 flex justify-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">

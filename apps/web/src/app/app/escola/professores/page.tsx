@@ -15,7 +15,7 @@ import { getAuthContext } from '@/server/session';
 import { assignTeachingAction, removeTeachingAssignmentAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Professores e vínculos · On Way Education' };
+export const metadata = { title: 'Professores e vínculos · Edu On Way' };
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'Responsável',

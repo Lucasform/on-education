@@ -11,7 +11,7 @@ import { getAuthContext } from '@/server/session';
 import { copyCollectiveAction, shareCollectiveAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Banco coletivo · On Way Education' };
+export const metadata = { title: 'Banco coletivo · Edu On Way' };
 
 const FAIXAS = [
   { v: '', label: 'Todas' },

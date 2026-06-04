@@ -6,7 +6,7 @@ import { Field, fieldClass } from '@/components/form';
 import { requestResetAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Recuperar senha · On Way Education' };
+export const metadata = { title: 'Recuperar senha · Edu On Way' };
 
 export default async function EsqueciSenhaPage({
   searchParams,

@@ -9,7 +9,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Documentos · On Way Education' };
+export const metadata = { title: 'Documentos · Edu On Way' };
 
 const MODELOS: Record<string, { label: string; corpo: (aluno: string) => string }> = {
   declaracao_matricula: {

@@ -13,7 +13,7 @@ import { getAuthContext } from '@/server/session';
 import { createQuizAction, deleteQuizAction, generateQuizAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Simulados · On Way Education' };
+export const metadata = { title: 'Simulados · Edu On Way' };
 
 export default async function SimuladosPage() {
   const ctx = await getAuthContext();
@@ -62,7 +62,7 @@ export default async function SimuladosPage() {
           <div className={cardClass}>
             <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
-              Gerar com o EduON
+              Gerar com o WayOn
             </h2>
             <p className="mb-2 text-xs text-muted-foreground">
               O agente cria as questões. Você revisa e ajusta o gabarito.
@@ -103,7 +103,7 @@ export default async function SimuladosPage() {
               </form>
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                EduON indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar simulados.
+                WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar simulados.
               </p>
             )}
           </div>

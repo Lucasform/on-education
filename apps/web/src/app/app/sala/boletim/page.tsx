@@ -8,7 +8,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Boletim · On Way Education' };
+export const metadata = { title: 'Boletim · Edu On Way' };
 
 export default async function BoletimPage() {
   const ctx = await getAuthContext();

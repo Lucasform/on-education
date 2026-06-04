@@ -7,7 +7,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Quadro de funcionários · On Way Education' };
+export const metadata = { title: 'Quadro de funcionários · Edu On Way' };
 
 const ROLE_ORDER = [
   'owner',

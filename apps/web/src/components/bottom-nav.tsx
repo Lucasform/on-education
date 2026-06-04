@@ -13,7 +13,7 @@ const ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
   { label: 'Início', href: '/app', icon: Home },
   { label: 'Turmas', href: '/app/turmas', icon: Users },
   { label: 'Alunos', href: '/app/alunos', icon: GraduationCap },
-  { label: 'EduON', href: '/app/ia', icon: Sparkles },
+  { label: 'WayOn', href: '/app/ia', icon: Sparkles },
   { label: 'Agenda', href: '/app/calendario', icon: CalendarDays },
 ];
 

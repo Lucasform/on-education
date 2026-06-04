@@ -74,7 +74,7 @@ export async function upsertTenantSettings(
 }
 
 /**
- * Padrão do EduON do tenant ("Meu padrão"/padrão da escola), ou null. Usado pelos
+ * Padrão do WayOn do tenant ("Meu padrão"/padrão da escola), ou null. Usado pelos
  * geradores de IA para padronizar o estilo/formato do conteúdo (itens 18.3 / 11.5).
  */
 export async function getAiStandard(client: DbClient, ctx: AuthContext): Promise<string | null> {
@@ -82,7 +82,7 @@ export async function getAiStandard(client: DbClient, ctx: AuthContext): Promise
   return settings?.aiStandard ?? null;
 }
 
-/** Acrescenta o padrão do educador ao prompt de sistema do EduON (no-op se vazio). */
+/** Acrescenta o padrão do educador ao prompt de sistema do WayOn (no-op se vazio). */
 export function applyAiStandard(system: string, standard?: string | null): string {
   const s = standard?.trim();
   if (!s) return system;

@@ -20,7 +20,7 @@ import {
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Turma · On Way Education' };
+export const metadata = { title: 'Turma · Edu On Way' };
 
 export default async function TurmaDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

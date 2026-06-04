@@ -18,7 +18,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Relatórios · On Way Education' };
+export const metadata = { title: 'Relatórios · Edu On Way' };
 
 /** Barra horizontal simples (sem lib de gráfico): 0..max → largura %. */
 function Bar({ value, max, tone }: { value: number | null; max: number; tone: string }) {

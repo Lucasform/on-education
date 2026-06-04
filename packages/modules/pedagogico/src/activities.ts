@@ -46,10 +46,10 @@ export async function createActivity(
 }
 
 /**
- * Gera uma atividade pelo EduON (IA) e já salva no banco. Checagem tripla + cota;
+ * Gera uma atividade pelo WayOn (IA) e já salva no banco. Checagem tripla + cota;
  * consumo medido por tenant. Provider injetável (testes).
  */
-export async function generateActivityWithEduON(
+export async function generateActivityWithWayOn(
   client: DbClient,
   ctx: AuthContext,
   input: GenerateActivityInput,
@@ -92,7 +92,7 @@ export async function generateActivityWithEduON(
   const tipo = TIPOS[input.kind] ?? TIPOS.atividade;
 
   const system = applyAiStandard(
-    `Você é o EduON, um assistente pedagógico. ${tipo.sys} Responda em português do Brasil, ` +
+    `Você é o WayOn, um assistente pedagógico. ${tipo.sys} Responda em português do Brasil, ` +
       'apenas com o conteúdo, sem comentários.',
     standard,
   );

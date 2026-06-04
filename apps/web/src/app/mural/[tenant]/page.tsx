@@ -71,7 +71,7 @@ export default async function MuralPublicoPage({
           </ul>
         )}
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          Mural de {brand.name} · On Way Education
+          Mural de {brand.name} · Edu On Way
         </p>
       </main>
     </div>

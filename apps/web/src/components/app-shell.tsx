@@ -47,7 +47,7 @@ export function AppShell({
               <GraduationCap className="h-4 w-4" />
             </span>
           )}
-          <span className="font-semibold">On Way Education</span>
+          <span className="font-semibold">Edu On Way</span>
           <button
             type="button"
             aria-label="Fechar menu"

@@ -15,7 +15,7 @@ import { hojeISO } from '@/lib/date';
 import { createEventAction, deleteEventAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Calendário · On Way Education' };
+export const metadata = { title: 'Calendário · Edu On Way' };
 
 const MESES = [
   'Janeiro',

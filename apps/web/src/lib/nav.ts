@@ -118,7 +118,7 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
-    label: 'EduON',
+    label: 'WayOn',
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
@@ -166,17 +166,17 @@ export const NAV: NavGroup[] = [
  * Menu por segmento. O professor autônomo (`individual`) recebe um formato simplificado
  * (item 18): some a gestão institucional (Escola, Comunicação, Gestão, Financeiro,
  * Integrações e itens marcados `only`), sobrando o essencial: turmas/alunos, sala de aula,
- * pedagógico, EduON e agenda. A escola (`organization`) vê tudo.
+ * pedagógico, WayOn e agenda. A escola (`organization`) vê tudo.
  */
 export function navFor(tenantType: TenantType): NavGroup[] {
   const groups = NAV.filter((g) => !g.only || g.only === tenantType)
     .map((g) => ({ ...g, items: g.items.filter((i) => !i.only || i.only === tenantType) }))
     .filter((g) => g.items.length > 0);
 
-  // Professor autônomo (item 18.8): navegação centrada no EduON. O EduON sobe logo após a
+  // Professor autônomo (item 18.8): navegação centrada no WayOn. O WayOn sobe logo após a
   // visão geral; o resto (sala de aula, pedagógico) vem depois. A escola mantém a ordem.
   if (tenantType === 'individual') {
-    const ordem = ['Visão geral', 'EduON', 'Pedagógico', 'Sala de aula'];
+    const ordem = ['Visão geral', 'WayOn', 'Pedagógico', 'Sala de aula'];
     return [...groups].sort((a, b) => {
       const ia = ordem.indexOf(a.label);
       const ib = ordem.indexOf(b.label);

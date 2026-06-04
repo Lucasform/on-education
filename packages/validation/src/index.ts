@@ -351,7 +351,7 @@ export const updateGradeScaleSchema = z.object({
 });
 export type UpdateGradeScaleInput = z.infer<typeof updateGradeScaleSchema>;
 
-/** "Meu padrão" do EduON (item 18.3) — só o campo do padrão. */
+/** "Meu padrão" do WayOn (item 18.3) — só o campo do padrão. */
 export const updateAiStandardSchema = z.object({
   aiStandard: z.string().max(10_000).optional(),
 });
@@ -367,7 +367,7 @@ export const createMessageSchema = z.object({
 });
 export type CreateMessageInput = z.infer<typeof createMessageSchema>;
 
-/** Geração de simulado pelo EduON (IA). */
+/** Geração de simulado pelo WayOn (IA). */
 export const generateQuizSchema = z.object({
   topic: z.string().min(2).max(300),
   subject: z.string().max(120).optional(),
@@ -376,7 +376,7 @@ export const generateQuizSchema = z.object({
 });
 export type GenerateQuizInput = z.infer<typeof generateQuizSchema>;
 
-/** Geração de atividade pelo EduON (IA), direto no banco. */
+/** Geração de atividade pelo WayOn (IA), direto no banco. */
 export const generateActivitySchema = z.object({
   topic: z.string().min(2).max(300),
   subject: z.string().max(120).optional(),

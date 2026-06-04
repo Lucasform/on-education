@@ -27,7 +27,7 @@ const NAV = [
 const DESTAQUES = [
   {
     icon: Sparkles,
-    titulo: 'EduON, seu agente',
+    titulo: 'WayOn, seu agente',
     texto: 'Planos de aula, atividades, provas e correções em segundos.',
   },
   {
@@ -70,7 +70,7 @@ const PASSOS = [
   },
   {
     n: '3',
-    titulo: 'Deixe o EduON trabalhar',
+    titulo: 'Deixe o WayOn trabalhar',
     texto: 'Planeje, corrija e acompanhe tudo num só lugar, no seu padrão.',
   },
 ];
@@ -81,7 +81,7 @@ const FAQ = [
     a: 'Não. Os planos de professor têm 7 dias grátis e sem fidelidade no mensal.',
   },
   {
-    q: 'O EduON substitui o professor?',
+    q: 'O WayOn substitui o professor?',
     a: 'Não. Ele gera rascunhos (plano, atividade, correção) que você revisa e aprova. Você no controle, sempre.',
   },
   {
@@ -94,12 +94,12 @@ const FAQ = [
   },
 ];
 
-/** Nome do agente de ensino, com o "ON" em destaque na cor da marca. */
-function EduON() {
+/** Nome do agente de ensino, com o "On" em destaque na cor da marca (amarra com On Way). */
+function WayOn() {
   return (
     <span className="font-semibold">
-      Edu
-      <span className="text-primary">ON</span>
+      Way
+      <span className="text-primary">On</span>
     </span>
   );
 }
@@ -109,7 +109,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       {/* barra de anúncio */}
       <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
-        ✨ Conheça o EduON, o agente que planeja, corrige e organiza com você.
+        ✨ Conheça o WayOn, o agente que planeja, corrige e organiza com você.
       </div>
 
       {/* cabeçalho */}
@@ -118,7 +118,7 @@ export default function HomePage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white">
             <GraduationCap className="h-5 w-5" />
           </span>
-          <span className="text-lg font-bold tracking-tight">On Way Education</span>
+          <span className="text-lg font-bold tracking-tight">Edu On Way</span>
         </a>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
           {NAV.map((n) => (
@@ -148,7 +148,7 @@ export default function HomePage() {
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Conheça o <EduON />
+                Conheça o <WayOn />
               </span>
               <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Ensine com inteligência.
@@ -156,7 +156,7 @@ export default function HomePage() {
                 <span className="text-primary">Do plano de aula ao boletim.</span>
               </h1>
               <p className="mt-5 max-w-md text-balance text-muted-foreground">
-                A plataforma completa para professores e escolas. O <EduON /> planeja, corrige e
+                A plataforma completa para professores e escolas. O <WayOn /> planeja, corrige e
                 organiza ao seu lado, e você cuida do resto num só lugar.
               </p>
               <AudienceButtons variant="surface" />
@@ -173,7 +173,7 @@ export default function HomePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { rotulo: 'Plano de aula', valor: 'EduON' },
+                    { rotulo: 'Plano de aula', valor: 'WayOn' },
                     { rotulo: 'Frequência', valor: '94%' },
                     { rotulo: 'Média geral', valor: '8,3' },
                     { rotulo: 'Simulados', valor: '12' },
@@ -194,7 +194,7 @@ export default function HomePage() {
               </div>
               <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
                 <Sparkles className="h-4 w-4 text-primary" />
-                Atividade feita pelo EduON
+                Atividade feita pelo WayOn
               </div>
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function HomePage() {
               Tudo o que a sala de aula precisa, num lugar só.
             </h2>
             <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Do planejamento à comunicação com os pais, com o EduON acelerando cada etapa.
+              Do planejamento à comunicação com os pais, com o WayOn acelerando cada etapa.
             </p>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -259,7 +259,7 @@ export default function HomePage() {
             </p>
             <ul className="mt-5 flex-1 space-y-2 text-sm">
               {[
-                'EduON: planos, atividades, provas e correção',
+                'WayOn: planos, atividades, provas e correção',
                 'Banco de atividades e portfólio',
                 'Diário, chamada, notas e boletim',
                 'Comece grátis, evolua quando quiser',
@@ -341,14 +341,14 @@ export default function HomePage() {
         <section className="mt-20 overflow-hidden rounded-3xl bg-primary px-8 py-12 text-center text-white sm:py-16">
           <h2 className="text-2xl font-bold sm:text-3xl">Comece hoje, sem complicação.</h2>
           <p className="mx-auto mt-2 max-w-md text-white/80">
-            Crie sua conta em minutos ou leve o On Way Education para a sua escola.
+            Crie sua conta em minutos ou leve o Edu On Way para a sua escola.
           </p>
           <AudienceButtons />
         </section>
       </main>
 
       <footer className="mx-auto max-w-6xl border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
-        © 2026 On Way Education
+        © 2026 Edu On Way
       </footer>
     </div>
   );

@@ -18,7 +18,7 @@ import {
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Cronograma · On Way Education' };
+export const metadata = { title: 'Cronograma · Edu On Way' };
 
 const DIAS = [
   { n: 1, label: 'Segunda' },

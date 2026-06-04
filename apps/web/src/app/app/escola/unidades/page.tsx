@@ -9,7 +9,7 @@ import { getAuthContext } from '@/server/session';
 import { createUnitAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Unidades · On Way Education' };
+export const metadata = { title: 'Unidades · Edu On Way' };
 
 export default async function UnidadesPage() {
   const ctx = await getAuthContext();

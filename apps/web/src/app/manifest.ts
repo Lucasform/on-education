@@ -7,9 +7,9 @@ import type { MetadataRoute } from 'next';
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'On Way Education',
-    short_name: 'On Way Edu',
-    description: 'Ensine com inteligência, do plano de aula ao boletim, com o agente EduON.',
+    name: 'Edu On Way',
+    short_name: 'Edu On Way',
+    description: 'Ensine com inteligência, do plano de aula ao boletim, com o agente WayOn.',
     start_url: '/app',
     display: 'standalone',
     background_color: '#130f1f',
