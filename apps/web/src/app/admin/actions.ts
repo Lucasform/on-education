@@ -8,11 +8,19 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/server/db';
 import { IMPERSONATION_COOKIE } from '@/server/session';
 
-/** Super-admin "entra como" um tenant (view-as). TEMPORÁRIO: admin ainda sem auth. */
+/**
+ * Super-admin "entra como" um tenant (view-as). Guarda `tenantId|tenantType` no cookie para
+ * que a sessão de impersonação seja montada sem consultar o banco a cada navegação.
+ */
 export async function enterTenantAction(formData: FormData): Promise<void> {
   const tenantId = String(formData.get('tenantId') ?? '');
+  const tenantType = String(formData.get('tenantType') ?? '');
   if (!tenantId) return;
-  (await cookies()).set(IMPERSONATION_COOKIE, tenantId, {
+  const value =
+    tenantType === 'organization' || tenantType === 'individual'
+      ? `${tenantId}|${tenantType}`
+      : tenantId;
+  (await cookies()).set(IMPERSONATION_COOKIE, value, {
     httpOnly: true,
     sameSite: 'lax',
     secure: true,

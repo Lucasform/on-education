@@ -5,7 +5,11 @@ import { cache } from 'react';
 import type { AuthContext } from '@on-education/auth';
 import { loadEnv } from '@on-education/config';
 import { getDbClient } from '@on-education/db';
-import { resolveContextForTenant, resolveContextForUser } from '@on-education/module-nucleo';
+import {
+  adminTenantContext,
+  resolveContextForTenant,
+  resolveContextForUser,
+} from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 
 import { createSupabaseServerClient } from './supabase';
@@ -24,7 +28,14 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
     const cookieStore = await cookies();
     const impersonated = cookieStore.get(IMPERSONATION_COOKIE)?.value;
     if (impersonated) {
-      return await resolveContextForTenant(getDbClient(), impersonated);
+      // Cookie no formato `tenantId|tenantType`: monta o contexto SEM tocar no banco,
+      // pra navegação na impersonação não cair por soluço transitório de DB.
+      const [tenantId, tenantType] = impersonated.split('|');
+      if (tenantId && (tenantType === 'organization' || tenantType === 'individual')) {
+        return adminTenantContext(tenantId, tenantType);
+      }
+      // Cookie antigo (só o id): resolve pelo banco como fallback.
+      return await resolveContextForTenant(getDbClient(), tenantId || impersonated);
     }
 
     const supabase = await createSupabaseServerClient();

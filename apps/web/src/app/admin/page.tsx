@@ -108,6 +108,7 @@ export default async function AdminOverviewPage() {
                   <td className="px-4 py-2 text-right">
                     <form action={enterTenantAction}>
                       <input type="hidden" name="tenantId" value={t.id} />
+                      <input type="hidden" name="tenantType" value={t.tenantType} />
                       <Button type="submit" size="sm">
                         Entrar como
                       </Button>

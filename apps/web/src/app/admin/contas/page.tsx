@@ -125,6 +125,7 @@ export default async function ContasPage({
                     <div className="flex justify-end gap-2">
                       <form action={enterTenantAction}>
                         <input type="hidden" name="tenantId" value={t.id} />
+                        <input type="hidden" name="tenantType" value={t.tenantType} />
                         <SubmitButton type="submit" size="sm">
                           Entrar como
                         </SubmitButton>

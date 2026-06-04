@@ -1,4 +1,5 @@
 import type { AuthContext } from '@on-education/auth';
+import type { TenantType } from '@on-education/core';
 import { type DbClient, memberships, tenants } from '@on-education/db';
 import { eq } from 'drizzle-orm';
 
@@ -6,7 +7,15 @@ import { eq } from 'drizzle-orm';
 export const ADMIN_USER_ID = '00000000-0000-0000-0000-0000000000ad';
 
 /**
- * Contexto de view-as: o super-admin "entra" num tenant e opera com acesso total.
+ * Monta o contexto de view-as do super-admin SEM ir ao banco (o tipo do tenant já é
+ * conhecido, vindo do cookie de impersonação). Mantém a navegação imune a soluços de DB.
+ */
+export function adminTenantContext(tenantId: string, tenantType: TenantType): AuthContext {
+  return { userId: ADMIN_USER_ID, tenantId, tenantType, roles: ['owner', 'director', 'teacher'] };
+}
+
+/**
+ * Contexto de view-as resolvido pelo banco (fallback p/ cookies antigos sem o tipo).
  * Retorna null se o tenant não existir.
  */
 export async function resolveContextForTenant(
@@ -18,12 +27,7 @@ export async function resolveContextForTenant(
     .from(tenants)
     .where(eq(tenants.id, tenantId));
   if (t.length === 0) return null;
-  return {
-    userId: ADMIN_USER_ID,
-    tenantId,
-    tenantType: t[0]!.tenantType,
-    roles: ['owner', 'director', 'teacher'],
-  };
+  return adminTenantContext(tenantId, t[0]!.tenantType);
 }
 
 /**

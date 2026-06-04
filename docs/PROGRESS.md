@@ -13,6 +13,16 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 20:10] — Fix: impersonação não cai mais pro /admin a cada clique — STATUS: CONCLUÍDO
+
+- **Bug:** logado como escola (admin), qualquer clique voltava pro /admin (ou /login). Reproduzido rodando o build local: com `DATABASE_URL` ausente/instável, `getAuthContext` (que consultava o banco a CADA navegação para descobrir o tipo do tenant) caía no `catch → null`, e o dashboard/layout então redirecionava.
+- **Causa raiz:** a impersonação dependia de uma query ao banco por requisição (`resolveContextForTenant`). Qualquer soluço transitório do Supabase derrubava o contexto e expulsava o admin.
+- **Fix (determinístico):** o cookie de view-as passa a guardar `tenantId|tenantType`; `getAuthContext` monta o contexto com `adminTenantContext(...)` **sem ir ao banco**. Fallback p/ cookies antigos (só id) via `resolveContextForTenant`. Verificado local: todas as rotas do app retornam 200 com o cookie novo (e a auth nem depende mais de DB).
+- **Arquivos:** `packages/modules/nucleo/src/context.ts` (novo `adminTenantContext`), `apps/web/src/server/session.ts`, `app/admin/actions.ts` (grava `id|tipo`), `app/admin/{page,contas/page,contas/[id]/page}.tsx` (hidden `tenantType` no form Entrar como).
+- **Testes:** `tsc` + `next build` verdes; teste de fumaça com `next start` local (cookie novo → 200 em /app, /app/turmas, /app/alunos, /app/escola/personalizacao).
+- **Pendências:** naming do projeto/agente (Lucas vai escolher); "melhorar os recursos"; Storage Fatia 2 (PAUSADA).
+- **Commit(s):** ver `fix: impersonacao sem consulta ao banco (cookie guarda tipo)`.
+
 ### [2026-06-04 19:20] — Login exclusivo de admin + aviso global de impersonação — STATUS: CONCLUÍDO
 
 - **Tarefa:** Lucas pediu página de login exclusiva pro admin; ao logar, poder "entrar como" uma escola (já existia) e ver/editar como ela; e que fique claro em TODA tela que está em modo admin.
