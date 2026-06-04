@@ -110,6 +110,7 @@ export const NAV: NavGroup[] = [
     label: 'Pedagógico',
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
+      { label: 'Banco coletivo', href: '/app/banco-coletivo', icon: Library },
       { label: 'Simulados e quizzes', href: '/app/simulados', icon: ClipboardList },
       { label: 'Portfólio', href: '/app/portfolio', icon: BookOpen },
       { label: 'Documentos', href: '/app/documentos', icon: FileSignature },

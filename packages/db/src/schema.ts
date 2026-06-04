@@ -908,6 +908,35 @@ export const invoices = oe.table(
   (t) => [index('invoices_tenant_idx').on(t.tenantId), tenantPolicy('invoices_tenant_isolation')],
 );
 
+// ---------------------------------------------------------------------------
+// Banco de atividades coletivas (item 13): biblioteca GLOBAL (sem tenant_id) por faixa
+// etária. Conteúdo pedagógico não sensível, compartilhado entre todos. Leitura pública
+// (policy `true`); acesso pela app é via conexão dona (bypassa RLS). Ver ADR 0004.
+// ---------------------------------------------------------------------------
+export const sharedActivities = oe.table(
+  'shared_activities',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    title: text('title').notNull(),
+    subject: text('subject'),
+    content: text('content').notNull().default(''),
+    ageRange: text('age_range'), // EI | EF1 | EF2 | EM | outro
+    tags: text('tags').array().notNull().default([]),
+    createdBy: uuid('created_by'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index('shared_activities_age_idx').on(t.ageRange),
+    pgPolicy('shared_activities_public', {
+      as: 'permissive',
+      for: 'all',
+      to: 'public',
+      using: sql`true`,
+      withCheck: sql`true`,
+    }),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -948,4 +977,5 @@ export const schema = {
   occurrences,
   occurrenceStudents,
   invoices,
+  sharedActivities,
 };

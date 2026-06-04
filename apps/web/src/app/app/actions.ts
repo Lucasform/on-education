@@ -50,6 +50,7 @@ import {
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
+  copyFromCollective,
   createActivity,
   createPortfolioEntry,
   createQuiz,
@@ -58,6 +59,7 @@ import {
   generateActivityWithEduON,
   generateQuizWithEduON,
   restoreActivity,
+  shareToCollective,
   submitQuizAttempt,
 } from '@on-education/module-pedagogico';
 import {
@@ -99,6 +101,7 @@ import {
   createGuardianSchema,
   createInvoiceSchema,
   createLessonSchema,
+  shareCollectiveSchema,
   createPortfolioEntrySchema,
   createStudentSchema,
   createSubjectSchema,
@@ -537,6 +540,24 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+// --- Banco de atividades coletivas (item 13) ---------------------------------
+
+export async function shareCollectiveAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = shareCollectiveSchema.parse({
+    activityId: formData.get('activityId'),
+    ageRange: formData.get('ageRange'),
+  });
+  await shareToCollective(db(), ctx, input);
+  revalidatePath('/app/banco-coletivo', 'page');
+}
+
+export async function copyCollectiveAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await copyFromCollective(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app', 'layout');
 }
 
 // --- Financeiro (cobranças / mensalidades) -----------------------------------

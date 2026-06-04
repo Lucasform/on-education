@@ -212,7 +212,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
       - `payments` — baixa: data, valor, método (dinheiro/pix/cartão/boleto), referência externa (PSP), `invoice_id`.
       - `payment_events` — auditoria (entra na 2.F com webhooks do PSP).
     - **Funcionalidades (faseadas):**
-      - **2.a (sem banco/PSP, já agrega valor):** cadastrar mensalidade por aluno/turma; **gerar cobranças do mês** (em lote por competência); **baixa manual** de pagamento; **extrato por responsável** (5.1.1); **dashboard financeiro** da escola (a receber, recebido no mês, inadimplência).
+      - [~] **2.a (sem banco/PSP, já agrega valor) — FEITO (parcial):** `/app/financeiro` (tabela `invoices`, migration `0020`, RLS+grant): lançar cobrança por responsável/aluno, **baixa manual** (dar baixa/reabrir), excluir, **totais** (a receber/vencido/recebido); "vencido" derivado. Falta: mensalidade recorrente por turma (gerar em lote) e tela de extrato dedicada por responsável.
       - **2.F (com PSP):** boleto/PIX via API, **confirmação por webhook**, NFS-e, **comprovante/nota automáticos** (ver bloco 2.F).
     - **Segurança/LGPD:** dado financeiro sensível; RBAC restrito a gestão/financeiro (papéis `director`/`coordinator`/`staff_finance`); o responsável só enxerga o **próprio** extrato (via portal do responsável, futuro). Idempotência em geração de cobrança e baixa.
     - **Não-objetivos agora:** não processa cartão, não emite boleto (isso é 2.F); sem integração externa.

@@ -148,6 +148,13 @@
       "when": 1780533442226,
       "tag": "0020_worried_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1780533946144,
+      "tag": "0021_rich_blade",
+      "breakpoints": true
     }
   ]
 }

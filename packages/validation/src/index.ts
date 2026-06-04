@@ -290,6 +290,15 @@ export const submitQuizAttemptSchema = z.object({
 });
 export type SubmitQuizAttemptInput = z.infer<typeof submitQuizAttemptSchema>;
 
+/** Banco de atividades coletivas (item 13) — compartilhar atividade por faixa etária. */
+export const ageRangeSchema = z.enum(['EI', 'EF1', 'EF2', 'EM', 'outro']);
+export type AgeRange = z.infer<typeof ageRangeSchema>;
+export const shareCollectiveSchema = z.object({
+  activityId: uuidSchema,
+  ageRange: ageRangeSchema.default('outro'),
+});
+export type ShareCollectiveInput = z.infer<typeof shareCollectiveSchema>;
+
 /** Financeiro 2.a (item 5.1) — cobrança/mensalidade. `amount` em reais (vira centavos). */
 export const createInvoiceSchema = z.object({
   guardianId: uuidSchema.optional(),
