@@ -256,7 +256,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 ### Comunicação e acervo
 
 - [~] **12. Mural informativo para os pais.** Mural interno em `/app/mural` (comunicados publicados em ordem, imprimível). Falta: acesso externo dos pais (depende do portal do responsável).
-- [ ] **13. Banco de atividades coletivas** (padrão On Way, sem vínculo com a escola, por faixa etária).
+- [x] **13. Banco de atividades coletivas** (padrão On Way, sem vínculo com a escola, por faixa etária) — tabela global `shared_activities` (migration `0021`, ADR 0004), `/app/banco-coletivo`: filtrar por faixa, copiar para o próprio banco, compartilhar uma atividade. Só conteúdo, sem PII/tenant. Evoluir: moderação e ownership por linha.
 
 ### Secretaria (escola)
 

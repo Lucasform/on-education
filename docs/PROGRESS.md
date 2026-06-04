@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-03 16:00] — EduON tipos + Financeiro 2.a + Banco coletivo — STATUS: EM ANDAMENTO
+
+- **Tarefa:** finalizar itens do backlog que NÃO dependem de credencial (sessão paralela ao outro agente; commits só dos arquivos tocados para evitar colisão).
+- **Segmento:** 🏫👤
+- **O que foi feito:**
+  - **EduON gera tipos (11.2/11.3/11.4 por tema):** seletor Atividade/Prova/Trabalho/Roteiro em `/app/atividades`; `generateActivityWithEduON` ganhou `kind` (system prompt + título + etiqueta por tipo), aplicando `applyAiStandard` (o "Meu Padrão"). Falta a versão ancorada no material (RAG, depende de Storage).
+  - **Financeiro 2.a (item 5.1):** tabela `invoices` (migration `0020`, RLS+grant), `module-nucleo/finance`; `/app/financeiro` (só escola): lançar cobrança por responsável/aluno, dar baixa/reabrir, excluir, totais (a receber/vencido/recebido), "vencido" derivado. Nav Mensalidades real. Sem PSP (controle interno).
+  - **Banco coletivo (item 13):** tabela GLOBAL `shared_activities` (migration `0021`, policy permissiva, ADR 0004); `module-pedagogico/collective` (list/share/copy via `client.db`, fora do RLS de tenant); `/app/banco-coletivo` (filtra por faixa etária, copia p/ o banco, compartilha atividade). Só conteúdo, sem PII/tenant.
+- **Arquivos principais:** `packages/db/src/schema.ts` + `drizzle/0020_*`,`0021_*`; `packages/validation/src/index.ts`; `packages/modules/nucleo/src/finance.ts`; `packages/modules/pedagogico/src/{activities,collective}.ts`; `apps/web/src/app/app/{atividades,financeiro,banco-coletivo}/page.tsx`; `apps/web/src/app/app/actions.ts`; `apps/web/src/lib/nav.ts`; `docs/adr/0004-banco-coletivo-global.md`.
+- **Migrations/RLS:** `0020` (invoices, RLS+grant) e `0021` (shared_activities, policy `true`+grant) aplicadas em prod (verificado: 4 privilégios cada).
+- **Testes:** `tsc` (db/validation/nucleo/pedagogico/web) + `next build` verdes. Deploys `83c1ffd`, `5cbc71c`, `b2bb8e1` READY, prod 200.
+- **Decisões (ADR):** `docs/adr/0004-banco-coletivo-global.md` (primeira tabela global, conteúdo não sensível, acesso pela conexão dona).
+- **Pendências / bloqueios:** financeiro sem recorrência (gerar mensalidades em lote) nem extrato dedicado; coletivo sem moderação/ownership por linha; finance read não restrito a papéis de gestão (hardening TODO). Itens que dependem do Lucas: Storage, Resend, Stripe, PSP, WhatsApp.
+- **Próximo passo sugerido:** recorrência de mensalidade + extrato por responsável (5.1.1 dedicado); depois itens com credencial.
+- **Commit(s):** `83c1ffd` (eduon tipos), `a7a76a5` (doc), `5cbc71c` (financeiro), `b2bb8e1` (coletivo).
+
 ### [2026-06-03 19:10] — Aniversariantes do mês (inspiração externa, nosso padrão) — STATUS: EM ANDAMENTO
 
 - **Tarefa:** o Lucas mandou prints de outro sistema (dashboard + financeiro). Decisão dele: "usar de referência onde encaixa; financeiro depois". Encaixe imediato e sem credencial = aniversariantes do mês.
