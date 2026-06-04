@@ -13,6 +13,21 @@
 
 ## Log de checkpoints
 
+### [2026-06-04 19:20] — Login exclusivo de admin + aviso global de impersonação — STATUS: CONCLUÍDO
+
+- **Tarefa:** Lucas pediu página de login exclusiva pro admin; ao logar, poder "entrar como" uma escola (já existia) e ver/editar como ela; e que fique claro em TODA tela que está em modo admin.
+- **O que foi feito:**
+  - **`/admin-login`** (novo, fora do guard do /admin): login exclusivo do super-admin (AuthShell + ícone Shield). `adminLoginAction` checa a allowlist `SUPER_ADMIN_EMAILS` ANTES de autenticar e só então entra; e-mail fora da lista → `?erro=naoadmin`. Sem signup.
+  - Guard do `/admin` agora manda quem não é admin para `/admin-login` (antes ia pro `/login`).
+  - **Banner global de impersonação** no `app/app/layout.tsx`: em todas as telas do app, quando o admin está "entrando como", mostra uma faixa (cor `warning`) "Modo admin. Você está vendo e editando como <Escola>" + botão Sair do modo admin. Nome do tenant via `getPublicTenantBrand`.
+  - Removido o banner duplicado que só aparecia no dashboard (`app/app/page.tsx`).
+  - Impersonação em si (entrar/editar/sair) já existia e segue: `enterTenantAction` (cookie) + `exitImpersonationAction`.
+- **Arquivos:** `app/admin-login/{page,actions}.ts(x)` (novos), `app/app/layout.tsx`, `app/app/page.tsx`, `app/admin/layout.tsx`.
+- **Testes:** `tsc` + `eslint` + `next build` verdes (rota `/admin-login` gerada).
+- **Pendências:** "melhorar os recursos" (pedido do Lucas) ainda em aberto — aguardando ele dizer se é a seção Recursos da landing ou outra coisa. **Storage Fatia 2 ainda PAUSADA**.
+- **Próximo passo sugerido:** esclarecer "recursos" e melhorar; depois retomar Fatia 2.
+- **Commit(s):** ver `feat: login exclusivo de admin + aviso global de modo admin`.
+
 ### [2026-06-04 18:45] — Paleta Índigo+menta + landing no estilo edtech — STATUS: CONCLUÍDO
 
 - **Tarefa:** Lucas não curtiu o degradê roxo→dourado e mandou referências (Plurall/SAE/Eduall/EAD), pedindo "cores mais legais e úteis + refazer o UI" e que gosta de como elas mostram benefícios/planos. Escolheu a direção **Índigo + menta**.

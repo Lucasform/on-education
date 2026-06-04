@@ -24,7 +24,7 @@ import { redirect } from 'next/navigation';
 import { KpiCard as StatCard } from '@/components/kpi-card';
 import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
-import { getAuthContext, getSuperAdminEmail, isImpersonating } from '@/server/session';
+import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Início · On Way Education' };
@@ -51,7 +51,6 @@ export default async function OverviewPage() {
       isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
-  const impersonating = await isImpersonating();
 
   // Aniversariantes do mês (inspirado em painéis de gestão escolar, no nosso padrão).
   const mesAtual = hoje.slice(5, 7);
@@ -96,12 +95,6 @@ export default async function OverviewPage() {
         title={isSchool ? 'Painel da escola' : 'Início'}
         description="Tudo o que você precisa para ensinar, em um só lugar."
       />
-
-      {impersonating && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-500">
-          Modo admin ativo. Você está vendo este tenant como super-admin.
-        </div>
-      )}
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Turmas" value={turmas.length} href="/app/turmas" />

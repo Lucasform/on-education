@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const email = await getSuperAdminEmail();
-  if (!email) redirect('/login');
+  if (!email) redirect('/admin-login');
   return (
     <AdminShell
       email={email}

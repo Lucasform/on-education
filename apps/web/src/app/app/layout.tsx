@@ -1,10 +1,10 @@
-import { SubmitButton } from '@/components/submit-button';
-import { getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
 import { exitImpersonationAction } from '@/app/admin/actions';
 import { AppShell } from '@/components/app-shell';
+import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext, isImpersonating } from '@/server/session';
 
@@ -16,6 +16,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const impersonating = await isImpersonating();
+  // Nome do tenant só é necessário no banner de impersonação (conexão admin).
+  const brand = impersonating
+    ? await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null)
+    : null;
   // Personalização da escola (logo + cor do tema). Falha não pode derrubar o app.
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
 
@@ -47,6 +51,24 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         logoUrl={settings?.logoUrl ?? null}
         headerActions={headerActions}
       >
+        {impersonating && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/40 bg-warning/10 px-4 py-2 text-sm">
+            <span className="text-warning">
+              <strong className="font-semibold">Modo admin.</strong> Você está vendo e editando como{' '}
+              <strong className="font-semibold">{brand?.name ?? 'esta escola'}</strong>.
+            </span>
+            <form action={exitImpersonationAction}>
+              <SubmitButton
+                type="submit"
+                size="sm"
+                variant="outline"
+                className="h-7 border-warning/40 px-2 text-xs"
+              >
+                Sair do modo admin
+              </SubmitButton>
+            </form>
+          </div>
+        )}
         {children}
       </AppShell>
     </>
