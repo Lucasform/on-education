@@ -3,45 +3,51 @@
 @tailwind utilities;
 
 /*
- * Design tokens — identidade "Criatividade: roxo + baunilha quente".
- * Tema ESCURO por padrão (:root, charcoal arroxeado) e CLARO via .light (baunilha + roxo).
- * `--brand-2` é o dourado/baunilha quente, usado nos gradientes/realces da marca.
+ * Design tokens — identidade "Índigo + menta" (edtech confiável e moderno).
+ * Tema ESCURO por padrão (:root, slate profundo) e CLARO via .light (next-themes).
+ * Cores semânticas (--success/--warning/--danger/--info) padronizam estados em todo o app.
  * O destaque por escola sobrescreve apenas --primary/--ring (ver app/layout.tsx).
  */
 @layer base {
   :root {
-    --background: 257 35% 9%;
-    --foreground: 250 30% 96%;
-    --card: 257 32% 13%;
-    --card-foreground: 250 30% 96%;
-    --muted: 256 26% 18%;
-    --muted-foreground: 252 16% 66%;
-    --primary: 256 78% 70%;
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 41% 11%;
+    --card-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --primary: 243 80% 70%;
     --primary-foreground: 0 0% 100%;
-    --accent: 256 26% 20%;
-    --accent-foreground: 250 30% 96%;
-    --border: 255 22% 22%;
-    --input: 255 22% 24%;
-    --ring: 256 78% 70%;
-    --brand-2: 45 90% 61%;
+    --accent: 217 33% 18%;
+    --accent-foreground: 210 40% 96%;
+    --border: 217 30% 22%;
+    --input: 217 30% 24%;
+    --ring: 243 80% 70%;
+    --success: 158 64% 52%;
+    --warning: 38 92% 55%;
+    --danger: 0 72% 60%;
+    --info: 213 94% 68%;
     --radius: 0.75rem;
   }
 
   .light {
-    --background: 252 100% 98%;
-    --foreground: 258 42% 14%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 258 42% 14%;
-    --muted: 254 45% 95%;
-    --muted-foreground: 256 14% 46%;
-    --primary: 258 53% 42%;
+    --card-foreground: 222 47% 11%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 16% 47%;
+    --primary: 243 75% 59%;
     --primary-foreground: 0 0% 100%;
-    --accent: 48 86% 90%;
-    --accent-foreground: 258 45% 26%;
-    --border: 255 32% 90%;
-    --input: 255 32% 87%;
-    --ring: 256 58% 60%;
-    --brand-2: 42 88% 52%;
+    --accent: 226 100% 97%;
+    --accent-foreground: 243 55% 42%;
+    --border: 214 32% 91%;
+    --input: 214 32% 88%;
+    --ring: 243 75% 59%;
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --danger: 0 84% 60%;
+    --info: 217 91% 60%;
     --radius: 0.75rem;
   }
 
