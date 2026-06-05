@@ -234,8 +234,17 @@ export async function generateImageAction(formData: FormData): Promise<void> {
   const input = generateImageSchema.parse({
     prompt: formData.get('prompt'),
     quality: (formData.get('quality') as string) || 'low',
+    size: (formData.get('size') as string) || 'quadrado',
+    frame: (formData.get('frame') as string) || 'padrao',
   });
-  const { b64 } = await generateTenantImage(db(), ctx, input.prompt, input.quality);
+  const { b64 } = await generateTenantImage(
+    db(),
+    ctx,
+    input.prompt,
+    input.quality,
+    input.size,
+    input.frame,
+  );
   const url = await uploadPublicImagePng(ctx.tenantId, b64);
   await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });
   await recordImages(db(), ctx.tenantId, 1);
@@ -895,6 +904,7 @@ export async function updateAiStandardAction(formData: FormData): Promise<void> 
   const ctx = await requireCtx();
   const input = updateAiStandardSchema.parse({
     aiStandard: (formData.get('aiStandard') as string) ?? '',
+    imageStyle: (formData.get('imageStyle') as string) ?? '',
   });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app/meu-padrao', 'page');

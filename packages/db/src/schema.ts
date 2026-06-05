@@ -878,6 +878,7 @@ export const tenantSettings = oe.table(
     // "Meu padrão" / padrão da escola (itens 18.3 / 11.5): estilo, cabeçalho/rodapé,
     // formato e nível de dificuldade aplicados a TODO conteúdo gerado pelo WayOn.
     aiStandard: text('ai_standard'),
+    imageStyle: text('image_style'),
     // Nome do agente de IA escolhido pela escola/professor (padrão: WayOn).
     agentName: text('agent_name'),
     ...auditCols,

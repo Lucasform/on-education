@@ -59,8 +59,18 @@ export default async function ImagemPage() {
                   placeholder="Descreva a imagem (ex.: ilustração simples de um vulcão em corte, estilo livro didático, com rótulos)"
                   className={fieldClass}
                 />
-                <div className="flex items-center gap-2">
-                  <select name="quality" defaultValue="low" className={`${fieldClass} w-40`}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select name="size" defaultValue="quadrado" className={`${fieldClass} w-36`}>
+                    <option value="quadrado">Quadrado</option>
+                    <option value="horizontal">Horizontal</option>
+                    <option value="vertical">Vertical (A4)</option>
+                  </select>
+                  <select name="frame" defaultValue="padrao" className={`${fieldClass} w-40`}>
+                    <option value="padrao">Enquadramento padrão</option>
+                    <option value="centralizado">Centralizado</option>
+                    <option value="preenchido">Preenchido</option>
+                  </select>
+                  <select name="quality" defaultValue="low" className={`${fieldClass} w-36`}>
                     <option value="low">Econômica</option>
                     <option value="medium">Média</option>
                     <option value="high">Alta</option>
@@ -90,15 +100,22 @@ export default async function ImagemPage() {
               />
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{img.prompt}</p>
               <div className="mt-1 flex items-center justify-between">
-                <a
-                  href={img.url}
-                  download
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-primary hover:underline"
-                >
-                  Baixar
-                </a>
+                <span className="flex gap-3">
+                  <a
+                    href={`/app/ia/imagem/${img.id}/baixar`}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Baixar
+                  </a>
+                  <a
+                    href={img.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Visualizar
+                  </a>
+                </span>
                 <form action={deleteGeneratedImageAction}>
                   <input type="hidden" name="id" value={img.id} />
                   <ConfirmButton size="sm" variant="ghost" message="Excluir esta imagem?">

@@ -77,6 +77,8 @@ export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 export const generateImageSchema = z.object({
   prompt: z.string().min(3).max(1000),
   quality: z.enum(['low', 'medium', 'high']).default('low'),
+  size: z.enum(['quadrado', 'horizontal', 'vertical']).default('quadrado'),
+  frame: z.enum(['padrao', 'centralizado', 'preenchido']).default('padrao'),
 });
 export type GenerateImageInput = z.infer<typeof generateImageSchema>;
 
@@ -357,6 +359,7 @@ export const updateTenantSettingsSchema = z.object({
   regimento: z.string().max(50_000).optional(),
   docTemplates: z.string().max(50_000).optional(),
   aiStandard: z.string().max(10_000).optional(),
+  imageStyle: z.string().max(2000).optional(),
   agentName: z.string().max(40).optional(),
   gradeScale: z.coerce.number().int().min(1).max(1000).optional(),
 });
@@ -376,6 +379,7 @@ export type UpdateGradeScaleInput = z.infer<typeof updateGradeScaleSchema>;
 /** "Meu padrão" do WayOn (item 18.3) — só o campo do padrão. */
 export const updateAiStandardSchema = z.object({
   aiStandard: z.string().max(10_000).optional(),
+  imageStyle: z.string().max(2000).optional(),
 });
 export type UpdateAiStandardInput = z.infer<typeof updateAiStandardSchema>;
 export type UpdateTenantSettingsInput = z.infer<typeof updateTenantSettingsSchema>;

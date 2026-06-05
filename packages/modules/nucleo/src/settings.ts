@@ -50,6 +50,7 @@ export async function upsertTenantSettings(
   if (input.regimento !== undefined) patch.regimento = input.regimento || null;
   if (input.docTemplates !== undefined) patch.docTemplates = input.docTemplates || null;
   if (input.aiStandard !== undefined) patch.aiStandard = input.aiStandard || null;
+  if (input.imageStyle !== undefined) patch.imageStyle = input.imageStyle || null;
   if (input.agentName !== undefined) patch.agentName = input.agentName || null;
   if (input.gradeScale !== undefined) patch.gradeScale = input.gradeScale;
 
@@ -106,6 +107,12 @@ export async function getAiStandard(client: DbClient, ctx: AuthContext): Promise
 
   const composto = `${base}${exemplos}`.trim();
   return composto || null;
+}
+
+/** Estilo visual padrão do tenant para imagens (prefixo aplicado a todo prompt de imagem). */
+export async function getImageStyle(client: DbClient, ctx: AuthContext): Promise<string | null> {
+  const settings = await getTenantSettings(client, ctx);
+  return settings?.imageStyle?.trim() || null;
 }
 
 /** Lista os modelos de referência ("Meu padrão") do tenant. RBAC de gestão. */

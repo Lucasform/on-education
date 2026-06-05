@@ -1,12 +1,26 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { loadEnv, requireEnv } from '@on-education/config';
 import { type DbClient, generatedImages } from '@on-education/db';
-import { assertEntitled } from '@on-education/module-nucleo';
+import { assertEntitled, getImageStyle } from '@on-education/module-nucleo';
 import { desc, eq } from 'drizzle-orm';
 
 import { assertImageQuota, imagesRemaining } from './quota';
 
 export type ImageQuality = 'low' | 'medium' | 'high';
+export type ImageSize = 'quadrado' | 'horizontal' | 'vertical';
+export type ImageFrame = 'padrao' | 'centralizado' | 'preenchido';
+
+const SIZE_MAP: Record<ImageSize, string> = {
+  quadrado: '1024x1024',
+  horizontal: '1536x1024',
+  vertical: '1024x1536', // proporção tipo A4/retrato
+};
+
+const FRAME_HINT: Record<ImageFrame, string> = {
+  padrao: '',
+  centralizado: ' Composição centralizada, com o tema bem no centro.',
+  preenchido: ' A imagem deve PREENCHER todo o quadro, sem bordas nem espaços vazios.',
+};
 
 /** A geração de imagem está configurada? (sem OPENAI_API_KEY, fica off.) */
 export function isImageConfigured(): boolean {
@@ -17,12 +31,13 @@ export function isImageConfigured(): boolean {
 export async function generateImageB64(
   prompt: string,
   quality: ImageQuality = 'low',
+  size: ImageSize = 'quadrado',
 ): Promise<string> {
   const apiKey = requireEnv('OPENAI_API_KEY');
   const res = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: 'gpt-image-1', prompt, n: 1, size: '1024x1024', quality }),
+    body: JSON.stringify({ model: 'gpt-image-1', prompt, n: 1, size: SIZE_MAP[size], quality }),
   });
   if (!res.ok) throw new Error(`OpenAI imagem erro ${res.status}: ${await res.text()}`);
   const data = (await res.json()) as { data?: { b64_json?: string }[] };
@@ -41,11 +56,16 @@ export async function generateTenantImage(
   ctx: AuthContext,
   prompt: string,
   quality: ImageQuality = 'low',
+  size: ImageSize = 'quadrado',
+  frame: ImageFrame = 'padrao',
 ): Promise<{ b64: string }> {
   assertCan(ctx, 'create', 'activity');
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.images');
   await assertImageQuota(client, ctx.tenantId, planId);
-  const b64 = await generateImageB64(prompt, quality);
+  // Estilo padrão do tenant ("treino" do visual) + enquadramento entram no prompt.
+  const style = await getImageStyle(client, ctx).catch(() => null);
+  const finalPrompt = `${style ? `Estilo: ${style}. ` : ''}${prompt}${FRAME_HINT[frame]}`;
+  const b64 = await generateImageB64(finalPrompt, quality, size);
   return { b64 };
 }
 
@@ -81,6 +101,14 @@ export async function listGeneratedImages(client: DbClient, ctx: AuthContext) {
   return client.withTenant(ctx.tenantId, (tx) =>
     tx.select().from(generatedImages).orderBy(desc(generatedImages.createdAt)),
   );
+}
+
+export async function getGeneratedImage(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'read', 'activity');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx.select().from(generatedImages).where(eq(generatedImages.id, id));
+    return rows[0] ?? null;
+  });
 }
 
 export async function deleteGeneratedImage(client: DbClient, ctx: AuthContext, id: string) {

@@ -50,6 +50,22 @@ export default async function MeuPadraoPage() {
             Dica: descreva estilo, cabeçalho/rodapé, formato de prova/lição/roteiro/bilhete e o
             nível de dificuldade preferido. O WayOn segue essas instruções em toda geração.
           </p>
+
+          <label className="flex flex-col gap-1.5 text-sm font-medium">
+            Estilo das imagens (aplicado a toda imagem gerada)
+            <textarea
+              name="imageStyle"
+              rows={3}
+              defaultValue={settings?.imageStyle ?? ''}
+              placeholder="Ex.: ilustração flat, traço simples, cores suaves/pastel, estilo livro infantil, fundo branco, sem texto na imagem."
+              className={fieldClass}
+            />
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Não dá para &quot;treinar&quot; o gerador de imagem, mas esse estilo é colado em todo
+            prompt, deixando as figuras com a mesma cara.
+          </p>
+
           <div>
             <SubmitButton type="submit" size="sm">
               Salvar padrão
