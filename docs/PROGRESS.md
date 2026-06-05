@@ -13,6 +13,29 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 07:30] — Geração de IMAGEM (OpenAI gpt-image-1) com travas de custo — STATUS: CONCLUÍDO
+
+- **Tarefa:** WayOn gerar imagem (ilustração) além do texto; controlar custo com muitos professores.
+- **Decisão:** texto = Anthropic (Claude); **imagem = OpenAI gpt-image-1** (melhor texto-na-imagem + nível "econômico" barato). Pay-as-you-go. Key validada (gerou imagem real).
+- **O que foi feito:**
+  - Provider OpenAI (`module-ia/images.ts`: `generateImageB64`, `generateTenantImage`, `isImageConfigured`).
+  - Entitlement **`ai.images`** + cota **`imagesPerMonth`** por plano (free 5 / pro 100 / school 300 / full 1000) + **teto global** `IMAGE_MONTHLY_GLOBAL_CAP`. Medidor `images` no `usage_meters` (`assertImageQuota`/`recordImages`/`getGlobalImages`).
+  - Imagem no bucket público (`uploadPublicImagePng`); histórico `generated_images` (mig. `0033`, RLS).
+  - UI `/app/ia/imagem`: gerar (econômica/média/alta), galeria baixar/excluir, "restantes este mês"; gate por entitlement + config. Nav: link em WayOn.
+  - Env: `OPENAI_API_KEY` + `IMAGE_MONTHLY_GLOBAL_CAP`.
+- **Pendências / do Lucas:** pôr as 2 envs no Vercel; afinar cotas pelos planos depois.
+- **Commit(s):** `feat: geracao de imagem (OpenAI gpt-image-1)...`.
+
+### [2026-06-05 07:00] — Flashcards + Gerar conteúdo (Flashcards/Outro) + Trabalho (grupo/materiais) + IA→WayOn — STATUS: CONCLUÍDO
+
+- **O que foi feito:**
+  - **Flashcards** pelo WayOn (frente/verso) — `flashcard_decks` (mig. `0032`, jsonb), `/app/ia/flashcards` (gerar/listar/excluir) + `/[id]` estudo com flip. Segue o "Meu padrão".
+  - **Gerar conteúdo** (`/app/ia`): dropdown ganhou **Flashcards** (abre o deck) e **Outro** (rascunho); `generateContentAction` roteia. Kind `outro` no enum.
+  - **Trabalho** na geração: **individual ou em grupo** (+ nº de alunos) e **materiais que os alunos devem usar** (form virou client `gerar-atividade-form.tsx`).
+  - **Textos "IA" → "WayOn"** na UI visível (landing, planos, comunicados, redação, gerador, personalização).
+- **Migrations:** `0032`. **Testes:** `tsc` + `build` verdes.
+- **Commit(s):** flashcards, gerar conteudo dispatcher, trabalho fields, IA→WayOn.
+
 ### [2026-06-05 06:30] — Pacote pedagógico: vínculo aluno, Meu padrão com modelos, classificação, export/import — STATUS: CONCLUÍDO
 
 - **Segmento:** ambos.
