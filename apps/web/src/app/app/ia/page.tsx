@@ -17,6 +17,18 @@ import {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'WayOn · Edu On Way' };
 
+const KIND_LABEL: Record<string, string> = {
+  lesson_plan: 'Plano de aula',
+  activity: 'Atividade',
+  essay: 'Redação',
+  tutor: 'Tutor',
+};
+const STATUS_LABEL: Record<string, string> = {
+  draft: 'rascunho',
+  approved: 'aprovado',
+  discarded: 'descartado',
+};
+
 export default async function IaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
@@ -66,7 +78,10 @@ export default async function IaPage() {
               <li key={d.id} className="rounded-md border border-border p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">
-                    {d.kind} <span className="text-muted-foreground">· {d.status}</span>
+                    {KIND_LABEL[d.kind] ?? d.kind}{' '}
+                    <span className="text-muted-foreground">
+                      · {STATUS_LABEL[d.status] ?? d.status}
+                    </span>
                   </span>
                   {d.status === 'draft' && (
                     <span className="flex flex-wrap gap-2">
