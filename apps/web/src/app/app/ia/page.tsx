@@ -1,9 +1,10 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured, listDrafts } from '@on-education/module-ia';
-import { getTenantSettings } from '@on-education/module-nucleo';
+import { getTenantSettings, listClasses } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
 import { MarkdownView } from '@/components/markdown-view';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -34,9 +35,10 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function IaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const [rascunhos, settings] = await Promise.all([
+  const [rascunhos, settings, turmas] = await Promise.all([
     listDrafts(db(), ctx),
     getTenantSettings(db(), ctx).catch(() => null),
+    listClasses(db(), ctx).catch(() => []),
   ]);
   const aiOn = isAiConfigured();
   const agente = settings?.agentName?.trim() || 'WayOn';
@@ -54,7 +56,6 @@ export default async function IaPage() {
           <form action={generateContentAction} className="flex flex-col gap-2">
             <select name="kind" className={fieldClass} defaultValue="lesson_plan">
               <option value="lesson_plan">Plano de aula</option>
-              <option value="activity">Atividade</option>
               <option value="flashcards">Flashcards</option>
               <option value="outro">Outro</option>
             </select>
@@ -75,6 +76,21 @@ export default async function IaPage() {
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
             WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar.
+          </p>
+        )}
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Criar atividade, prova, trabalho ou roteiro</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Gera o material já no banco, classificado. Em <strong>Trabalho</strong>, escolha
+          individual ou em grupo (nº de alunos) e os materiais que os alunos devem usar.
+        </p>
+        {aiOn ? (
+          <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
+        ) : (
+          <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code>.
           </p>
         )}
       </div>
