@@ -70,6 +70,8 @@ import {
   deleteMaterial,
   deleteQuiz,
   generateActivityWithWayOn,
+  generateFlashcardsWithWayOn,
+  deleteFlashcardDeck,
   generateQuizWithWayOn,
   listMaterials,
   restoreActivity,
@@ -107,6 +109,7 @@ import {
   createOccurrenceSchema,
   createQuizSchema,
   generateActivitySchema,
+  generateFlashcardsSchema,
   generateQuizSchema,
   submitQuizAttemptSchema,
   updateTenantSettingsSchema,
@@ -211,6 +214,28 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   });
   await createActivity(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+/** Gera um baralho de flashcards pelo WayOn e abre a tela de estudo. */
+export async function generateFlashcardsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateFlashcardsSchema.parse({
+    topic: formData.get('topic'),
+    subject: (formData.get('subject') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageBand: (formData.get('ageBand') as string) || undefined,
+    count: (formData.get('count') as string) || 10,
+  });
+  const deck = await generateFlashcardsWithWayOn(db(), ctx, input);
+  revalidatePath('/app/ia/flashcards', 'page');
+  redirect(`/app/ia/flashcards/${deck.id}`);
+}
+
+export async function deleteFlashcardDeckAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (id) await deleteFlashcardDeck(db(), ctx, id);
+  revalidatePath('/app/ia/flashcards', 'page');
 }
 
 /** Importa uma atividade de um arquivo (PDF/texto): extrai o conteúdo e salva no banco. */

@@ -1058,6 +1058,27 @@ export const aiStandardSamples = oe.table(
   ],
 );
 
+// flashcard_decks — baralhos de flashcards (frente/verso) gerados pelo WayOn ou manuais.
+// Cards guardados em jsonb (simples; o estudo é só leitura/flip).
+export const flashcardDecks = oe.table(
+  'flashcard_decks',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    subject: text('subject'),
+    gradeLevel: text('grade_level'),
+    ageBand: text('age_band'),
+    cards: jsonb('cards').$type<{ front: string; back: string }[]>().notNull().default([]),
+    aiGenerated: boolean('ai_generated').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    index('flashcard_decks_tenant_idx').on(t.tenantId),
+    tenantPolicy('flashcard_decks_tenant_isolation'),
+  ],
+);
+
 // api_keys — chaves de API por tenant (API aberta). Guarda só o HASH (sha256); o valor é
 // mostrado uma vez na criação. `token_prefix` é os 1os caracteres, só para exibir na lista.
 export const apiKeys = oe.table(
@@ -1125,4 +1146,5 @@ export const schema = {
   whatsappMessages,
   apiKeys,
   aiStandardSamples,
+  flashcardDecks,
 };

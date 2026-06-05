@@ -74,6 +74,15 @@ export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 export const updateActivitySchema = createActivitySchema.partial();
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 
+export const generateFlashcardsSchema = z.object({
+  topic: z.string().min(2).max(300),
+  subject: z.string().max(120).optional(),
+  gradeLevel: z.string().max(60).optional(),
+  ageBand: z.string().max(20).optional(),
+  count: z.coerce.number().int().min(3).max(30).default(10),
+});
+export type GenerateFlashcardsInput = z.infer<typeof generateFlashcardsSchema>;
+
 export const searchActivitiesSchema = z.object({
   q: z.string().max(300).optional(),
   tag: z.string().max(40).optional(),
