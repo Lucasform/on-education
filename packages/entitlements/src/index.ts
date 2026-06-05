@@ -11,6 +11,7 @@ export const FEATURES = [
   'ai.lessonPlan',
   'ai.activities',
   'ai.essayGrading',
+  'ai.images',
   'activities.bank',
   'marketplace',
   'classes.manage',
@@ -43,8 +44,15 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
   teacher_free: plan(
     'teacher_free',
     'individual',
-    ['ai.lessonPlan', 'ai.activities', 'activities.bank', 'classes.manage', 'communication.light'],
-    { aiTokensPerMonth: 50_000, students: 30 },
+    [
+      'ai.lessonPlan',
+      'ai.activities',
+      'ai.images',
+      'activities.bank',
+      'classes.manage',
+      'communication.light',
+    ],
+    { aiTokensPerMonth: 50_000, students: 30, imagesPerMonth: 5 },
   ),
   teacher_pro: plan(
     'teacher_pro',
@@ -53,12 +61,13 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
       'ai.lessonPlan',
       'ai.activities',
       'ai.essayGrading',
+      'ai.images',
       'activities.bank',
       'marketplace',
       'classes.manage',
       'communication.light',
     ],
-    { aiTokensPerMonth: 1_000_000, students: -1 },
+    { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 100 },
   ),
   school_starter: plan(
     'school_starter',
@@ -66,16 +75,18 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     [
       'ai.lessonPlan',
       'ai.activities',
+      'ai.images',
       'activities.bank',
       'classes.manage',
       'communication.light',
       'communication.mass',
     ],
-    { aiTokensPerMonth: 2_000_000, students: -1 },
+    { aiTokensPerMonth: 2_000_000, students: -1, imagesPerMonth: 300 },
   ),
   school_full: plan('school_full', 'organization', [...FEATURES], {
     aiTokensPerMonth: 10_000_000,
     students: -1,
+    imagesPerMonth: 1000,
   }),
 };
 

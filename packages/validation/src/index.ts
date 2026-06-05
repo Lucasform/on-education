@@ -74,6 +74,12 @@ export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 export const updateActivitySchema = createActivitySchema.partial();
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 
+export const generateImageSchema = z.object({
+  prompt: z.string().min(3).max(1000),
+  quality: z.enum(['low', 'medium', 'high']).default('low'),
+});
+export type GenerateImageInput = z.infer<typeof generateImageSchema>;
+
 export const generateFlashcardsSchema = z.object({
   topic: z.string().min(2).max(300),
   subject: z.string().max(120).optional(),

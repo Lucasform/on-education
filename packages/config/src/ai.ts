@@ -19,7 +19,7 @@ const DEFAULT_MODELS = {
 export type AiTier = keyof typeof DEFAULT_MODELS;
 
 export function modelFor(tier: AiTier): string {
-  const env = loadEnv() as Record<string, string | undefined>;
+  const env = loadEnv() as unknown as Record<string, string | undefined>;
   const override = env[`ANTHROPIC_MODEL_${tier.toUpperCase()}`];
   return override ?? DEFAULT_MODELS[tier];
 }

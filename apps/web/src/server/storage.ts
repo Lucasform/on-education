@@ -26,6 +26,18 @@ const LOGO_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
  * URL pública. Valida tipo e tamanho. A logo é branding, não dado sensível — por isso bucket
  * público; materiais de aluno irão para o bucket privado `tenant-files` com signed URL.
  */
+/** Sobe uma imagem gerada (PNG, base64) no bucket público e devolve a URL. */
+export async function uploadPublicImagePng(tenantId: string, b64: string): Promise<string> {
+  const bytes = Buffer.from(b64, 'base64');
+  const path = `${tenantId}/img-${Date.now()}.png`;
+  const sb = serviceClient();
+  const { error } = await sb.storage
+    .from('public-assets')
+    .upload(path, bytes, { contentType: 'image/png', upsert: true });
+  if (error) throw new Error(`Falha no upload da imagem: ${error.message}`);
+  return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
+}
+
 export async function uploadPublicLogo(tenantId: string, file: File): Promise<string> {
   if (!LOGO_TYPES.includes(file.type)) {
     throw new Error('Formato inválido. Use PNG, JPG, SVG ou WEBP.');

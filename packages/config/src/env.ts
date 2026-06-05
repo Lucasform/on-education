@@ -20,6 +20,10 @@ const envSchema = z.object({
 
   // IA — exigido a partir das fases de IA.
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
+  // Geração de imagem (OpenAI gpt-image-1) — opcional; sem ela, a função de imagem fica off.
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  // Teto GLOBAL de imagens por mês na plataforma inteira (kill-switch de custo). Default 2000.
+  IMAGE_MONTHLY_GLOBAL_CAP: z.coerce.number().int().positive().optional(),
 
   // Observabilidade — opcional.
   SENTRY_DSN: z.string().url().optional(),

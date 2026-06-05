@@ -1079,6 +1079,23 @@ export const flashcardDecks = oe.table(
   ],
 );
 
+// generated_images — imagens geradas pelo WayOn (OpenAI gpt-image-1), por tenant.
+export const generatedImages = oe.table(
+  'generated_images',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    prompt: text('prompt').notNull(),
+    url: text('url').notNull(),
+    quality: text('quality'),
+    ...auditCols,
+  },
+  (t) => [
+    index('generated_images_tenant_idx').on(t.tenantId),
+    tenantPolicy('generated_images_tenant_isolation'),
+  ],
+);
+
 // api_keys — chaves de API por tenant (API aberta). Guarda só o HASH (sha256); o valor é
 // mostrado uma vez na criação. `token_prefix` é os 1os caracteres, só para exibir na lista.
 export const apiKeys = oe.table(
@@ -1147,4 +1164,5 @@ export const schema = {
   apiKeys,
   aiStandardSamples,
   flashcardDecks,
+  generatedImages,
 };

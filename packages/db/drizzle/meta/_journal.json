@@ -232,6 +232,13 @@
       "when": 1780678513219,
       "tag": "0032_flashcard_decks",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1780682508731,
+      "tag": "0033_generated_images",
+      "breakpoints": true
     }
   ]
 }

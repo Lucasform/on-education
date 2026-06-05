@@ -10,7 +10,15 @@ import {
   restoreCommunication,
   setCommunicationStatus,
 } from '@on-education/module-comunicacao';
-import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
+import {
+  approveDraft,
+  deleteGeneratedImage,
+  discardDraft,
+  generateDraft,
+  generateTenantImage,
+  recordImages,
+  saveGeneratedImage,
+} from '@on-education/module-ia';
 import {
   assignTeaching,
   createApiKey,
@@ -110,6 +118,7 @@ import {
   createQuizSchema,
   generateActivitySchema,
   generateFlashcardsSchema,
+  generateImageSchema,
   generateQuizSchema,
   submitQuizAttemptSchema,
   updateTenantSettingsSchema,
@@ -142,6 +151,7 @@ import { getAuthContext, signOut } from '@/server/session';
 import {
   extractMaterialText,
   removeTenantFile,
+  uploadPublicImagePng,
   uploadPublicLogo,
   uploadTenantFile,
 } from '@/server/storage';
@@ -214,6 +224,27 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   });
   await createActivity(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+/** Gera uma imagem pelo WayOn (gpt-image-1): checa cota, sobe pro storage e salva. */
+export async function generateImageAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateImageSchema.parse({
+    prompt: formData.get('prompt'),
+    quality: (formData.get('quality') as string) || 'low',
+  });
+  const { b64 } = await generateTenantImage(db(), ctx, input.prompt, input.quality);
+  const url = await uploadPublicImagePng(ctx.tenantId, b64);
+  await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });
+  await recordImages(db(), ctx.tenantId, 1);
+  revalidatePath('/app/ia/imagem', 'page');
+}
+
+export async function deleteGeneratedImageAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (id) await deleteGeneratedImage(db(), ctx, id);
+  revalidatePath('/app/ia/imagem', 'page');
 }
 
 /** Gera um baralho de flashcards pelo WayOn e abre a tela de estudo. */
