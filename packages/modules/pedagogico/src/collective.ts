@@ -53,9 +53,11 @@ export async function copyFromCollective(client: DbClient, ctx: AuthContext, sha
   if (!shared) throw new Error('Atividade coletiva não encontrada.');
   return createActivity(client, ctx, {
     title: shared.title,
+    kind: 'atividade',
     subject: shared.subject ?? undefined,
     content: shared.content,
     tags: [...new Set([...(shared.tags ?? []), 'coletivo'])],
     aiGenerated: false,
+    approved: true,
   });
 }

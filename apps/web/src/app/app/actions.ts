@@ -69,6 +69,7 @@ import {
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
+  approveActivity,
   copyFromCollective,
   createActivity,
   createMaterial,
@@ -77,6 +78,9 @@ import {
   deleteActivity,
   deleteMaterial,
   deleteQuiz,
+  getActivity,
+  setActivitySchedule,
+  updateActivity,
   generateActivityWithWayOn,
   generateFlashcardsWithWayOn,
   deleteFlashcardDeck,
@@ -114,6 +118,7 @@ import {
   updateClassSchema,
   createAcademicYearSchema,
   createActivitySchema,
+  updateActivitySchema,
   createClassSchema,
   createMessageSchema,
   createOccurrenceSchema,
@@ -215,17 +220,73 @@ export async function createActivityAction(formData: FormData): Promise<void> {
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean);
+  const applyDate = (formData.get('applyDate') as string) || undefined;
   const input = createActivitySchema.parse({
     title: formData.get('title'),
     subject: (formData.get('subject') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'atividade',
     gradeLevel: (formData.get('gradeLevel') as string) || undefined,
     ageBand: (formData.get('ageBand') as string) || undefined,
+    applyDate,
     content: (formData.get('content') as string) || '',
     tags,
     aiGenerated: false,
+    approved: true,
   });
-  await createActivity(db(), ctx, input);
-  revalidatePath('/app', 'layout');
+  const act = await createActivity(db(), ctx, input);
+  if (applyDate) await syncActivitySchedule(ctx, act.id, act.title, null, applyDate);
+  revalidatePath('/app/atividades', 'page');
+}
+
+/** Cria/atualiza/remove o evento de calendário vinculado a uma atividade conforme a data. */
+async function syncActivitySchedule(
+  ctx: AuthContext,
+  activityId: string,
+  title: string,
+  oldEventId: string | null,
+  applyDate: string | null,
+): Promise<void> {
+  if (oldEventId) await deleteEvent(db(), ctx, oldEventId).catch(() => {});
+  let eventId: string | null = null;
+  if (applyDate) {
+    const ev = await createEvent(db(), ctx, {
+      title: title.slice(0, 200),
+      date: applyDate,
+      description: 'Aplicação agendada (WayOn)',
+    });
+    eventId = ev.id;
+  }
+  await setActivitySchedule(db(), ctx, activityId, applyDate, eventId);
+}
+
+/** Aprova o rascunho de atividade do WayOn (vai pro banco) e agenda no calendário se tiver data. */
+export async function approveActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const act = await approveActivity(db(), ctx, id);
+  if (act?.applyDate) await syncActivitySchedule(ctx, id, act.title, act.eventId, act.applyDate);
+  revalidatePath('/app/atividades', 'page');
+}
+
+/** Edita uma atividade (título, matéria, classificação, conteúdo) + data de aplicação. */
+export async function updateActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const applyDate = (formData.get('applyDate') as string) || null;
+  const input = updateActivitySchema.parse({
+    title: (formData.get('title') as string) || undefined,
+    subject: (formData.get('subject') as string) || undefined,
+    kind: (formData.get('kind') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageBand: (formData.get('ageBand') as string) || undefined,
+    content: (formData.get('content') as string) ?? undefined,
+  });
+  await updateActivity(db(), ctx, id, input);
+  const act = await getActivity(db(), ctx, id);
+  if (act) await syncActivitySchedule(ctx, id, act.title, act.eventId, applyDate);
+  revalidatePath(`/app/atividades/${id}`, 'page');
 }
 
 /** Gera uma imagem pelo WayOn (gpt-image-1): checa cota, sobe pro storage e salva. */
@@ -309,11 +370,13 @@ export async function importActivityFileAction(formData: FormData): Promise<void
   const input = createActivitySchema.parse({
     title: (String(formData.get('title') ?? '').trim() || file.name).slice(0, 300),
     subject: (formData.get('subject') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'atividade',
     gradeLevel: (formData.get('gradeLevel') as string) || undefined,
     ageBand: (formData.get('ageBand') as string) || undefined,
     content: content.slice(0, 50_000),
     tags: ['importado'],
     aiGenerated: false,
+    approved: true,
   });
   await createActivity(db(), ctx, input);
   revalidatePath('/app/atividades', 'page');
@@ -342,6 +405,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     workMode: (formData.get('workMode') as string) || undefined,
     groupSize: (formData.get('groupSize') as string) || undefined,
     suggestedMaterials: (formData.get('suggestedMaterials') as string) || undefined,
+    applyDate: (formData.get('applyDate') as string) || undefined,
     context,
   });
   await generateActivityWithWayOn(db(), ctx, input);
@@ -399,9 +463,11 @@ export async function approveDraftToBankAction(formData: FormData): Promise<void
       (draft.prompt ?? 'Atividade gerada pelo WayOn').trim().slice(0, 120) || 'Atividade';
     await createActivity(db(), ctx, {
       title,
+      kind: 'atividade',
       content: draft.output,
       tags: ['ia', draft.kind],
       aiGenerated: true,
+      approved: true,
     });
   }
   revalidatePath('/app', 'layout');
@@ -577,8 +643,12 @@ export async function deleteStudentAction(formData: FormData): Promise<void> {
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await deleteActivity(db(), ctx, String(formData.get('id')));
-  revalidatePath('/app', 'layout');
+  const id = String(formData.get('id'));
+  const act = await getActivity(db(), ctx, id).catch(() => null);
+  if (act?.eventId) await deleteEvent(db(), ctx, act.eventId).catch(() => {});
+  await deleteActivity(db(), ctx, id);
+  revalidatePath('/app/atividades', 'page');
+  redirect('/app/atividades');
 }
 
 // --- Importação em lote ------------------------------------------------------

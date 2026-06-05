@@ -35,16 +35,49 @@ export async function createActivity(
         tenantId: ctx.tenantId,
         title: input.title,
         subject: input.subject ?? null,
+        kind: input.kind,
         gradeLevel: input.gradeLevel ?? null,
         ageBand: input.ageBand ?? null,
+        applyDate: input.applyDate ?? null,
         content: input.content,
         tags: input.tags,
         aiGenerated: input.aiGenerated,
+        approved: input.approved,
         createdBy: ctx.userId,
       })
       .returning();
     return rows[0]!;
   });
+}
+
+/** Aprova um rascunho de atividade (gerado pelo WayOn) — passa a aparecer no banco. */
+export async function approveActivity(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'update', 'activity');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .update(activities)
+      .set({ approved: true, updatedAt: new Date() })
+      .where(eq(activities.id, id))
+      .returning();
+    return rows[0] ?? null;
+  });
+}
+
+/** Define a data de aplicação e o evento de calendário vinculado da atividade. */
+export async function setActivitySchedule(
+  client: DbClient,
+  ctx: AuthContext,
+  id: string,
+  applyDate: string | null,
+  eventId: string | null,
+) {
+  assertCan(ctx, 'update', 'activity');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(activities)
+      .set({ applyDate, eventId, updatedAt: new Date() })
+      .where(eq(activities.id, id)),
+  );
 }
 
 /**
@@ -131,11 +164,14 @@ export async function generateActivityWithWayOn(
         tenantId: ctx.tenantId,
         title: `${tipo.prefixo}${input.topic}`.slice(0, 200),
         subject: input.subject ?? null,
+        kind: input.kind,
         gradeLevel: input.gradeLevel ?? input.level ?? null,
         ageBand: input.ageBand ?? null,
+        applyDate: input.applyDate ?? null,
         content: result.text,
         tags: ['eduon', tipo.tag],
         aiGenerated: true,
+        approved: false, // nasce como RASCUNHO; vai pro banco só após o professor aprovar
         createdBy: ctx.userId,
       })
       .returning();
@@ -205,8 +241,10 @@ export async function listActivities(
     if (search.tag) filters.push(arrayContains(activities.tags, [search.tag]));
     if (search.q) filters.push(ilike(activities.title, `%${search.q}%`));
     if (search.subject) filters.push(eq(activities.subject, search.subject));
+    if (search.kind) filters.push(eq(activities.kind, search.kind));
     if (search.gradeLevel) filters.push(eq(activities.gradeLevel, search.gradeLevel));
     if (search.ageBand) filters.push(eq(activities.ageBand, search.ageBand));
+    if (search.approved !== undefined) filters.push(eq(activities.approved, search.approved));
     return tx
       .select()
       .from(activities)

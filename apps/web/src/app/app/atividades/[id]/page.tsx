@@ -3,11 +3,23 @@ import { getActivity } from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
-import { PrintButton } from '@/components/print-button';
-import { cardClass } from '@/components/form';
+import { ConfirmButton } from '@/components/confirm-button';
+import { cardClass, fieldClass } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
+import { PrintButton } from '@/components/print-button';
+import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
+import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+
+import { approveActivityAction, deleteActivityAction, updateActivityAction } from '../../actions';
+
+const KINDS = [
+  { value: 'atividade', label: 'Atividade' },
+  { value: 'prova', label: 'Prova' },
+  { value: 'trabalho', label: 'Trabalho' },
+  { value: 'roteiro', label: 'Roteiro' },
+];
 
 export const dynamic = 'force-dynamic';
 
@@ -82,6 +94,80 @@ export default async function AtividadeDetalhePage({
           <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
         )}
       </article>
+
+      {!atividade.approved && (
+        <div
+          className={`${cardClass} flex items-center justify-between gap-2 border-warning/40 print:hidden`}
+        >
+          <p className="text-sm text-warning">
+            Este é um rascunho do WayOn. Revise e dê OK para ir ao banco.
+          </p>
+          <form action={approveActivityAction}>
+            <input type="hidden" name="id" value={atividade.id} />
+            <SubmitButton type="submit" size="sm">
+              OK, salvar no banco
+            </SubmitButton>
+          </form>
+        </div>
+      )}
+
+      {/* edição da atividade (não aparece na impressão) */}
+      <details className={`${cardClass} print:hidden`}>
+        <summary className="cursor-pointer text-sm font-medium">Editar</summary>
+        <form action={updateActivityAction} className="mt-3 flex flex-col gap-2">
+          <input type="hidden" name="id" value={atividade.id} />
+          <input
+            name="title"
+            defaultValue={atividade.title}
+            required
+            placeholder="Título"
+            className={fieldClass}
+          />
+          <div className="flex gap-2">
+            <select name="kind" defaultValue={atividade.kind} className={`${fieldClass} w-36`}>
+              {KINDS.map((k) => (
+                <option key={k.value} value={k.value}>
+                  {k.label}
+                </option>
+              ))}
+            </select>
+            <input
+              name="subject"
+              defaultValue={atividade.subject ?? ''}
+              placeholder="Disciplina"
+              className={fieldClass}
+            />
+          </div>
+          <SerieFaixaPicker
+            defaultSerie={atividade.gradeLevel ?? ''}
+            defaultFaixa={atividade.ageBand ?? ''}
+          />
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            Aplicar em (opcional, vai pro calendário)
+            <input
+              name="applyDate"
+              type="date"
+              defaultValue={atividade.applyDate ?? ''}
+              className={fieldClass}
+            />
+          </label>
+          <textarea
+            name="content"
+            defaultValue={atividade.content}
+            rows={10}
+            className={`${fieldClass} font-mono text-xs`}
+          />
+          <SubmitButton type="submit" size="sm">
+            Salvar alterações
+          </SubmitButton>
+        </form>
+        <form action={deleteActivityAction} className="mt-2 border-t border-border pt-2">
+          <input type="hidden" name="id" value={atividade.id} />
+          <ConfirmButton size="sm" variant="ghost" message="Excluir esta atividade do banco?">
+            Excluir do banco
+          </ConfirmButton>
+        </form>
+      </details>
     </>
   );
 }

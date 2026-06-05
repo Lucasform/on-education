@@ -301,9 +301,16 @@ export const activities = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     title: text('title').notNull(),
     subject: text('subject'),
+    // Tipo do material no banco: 'atividade' | 'prova' | 'trabalho' | 'roteiro'.
+    kind: text('kind').notNull().default('atividade'),
     // Classificação para filtrar no banco: série/ano e faixa etária (faixa derivada da série).
     gradeLevel: text('grade_level'),
     ageBand: text('age_band'),
+    // Data de aplicação (opcional) + evento de calendário vinculado (criado automaticamente).
+    applyDate: date('apply_date'),
+    eventId: uuid('event_id'),
+    // Rascunho vs banco: conteúdo gerado pelo WayOn nasce `false` (rascunho); ao aprovar vira true.
+    approved: boolean('approved').notNull().default(true),
     content: text('content').notNull().default(''),
     tags: text('tags').array().notNull().default([]),
     aiGenerated: boolean('ai_generated').notNull().default(false),

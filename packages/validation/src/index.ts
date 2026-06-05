@@ -60,14 +60,19 @@ export const createStudentSchema = z.object({
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 
 /** Banco de atividades (Fase 1B.3). */
+export const activityKindSchema = z.enum(['atividade', 'prova', 'trabalho', 'roteiro']);
+
 export const createActivitySchema = z.object({
   title: z.string().min(1).max(300),
   subject: z.string().max(120).optional(),
+  kind: activityKindSchema.default('atividade'),
   gradeLevel: z.string().max(60).optional(),
   ageBand: z.string().max(20).optional(),
+  applyDate: z.string().date().optional(),
   content: z.string().max(50_000).default(''),
   tags: z.array(z.string().min(1).max(40)).max(30).default([]),
   aiGenerated: z.boolean().default(false),
+  approved: z.boolean().default(true),
 });
 export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 
@@ -95,8 +100,10 @@ export const searchActivitiesSchema = z.object({
   q: z.string().max(300).optional(),
   tag: z.string().max(40).optional(),
   subject: z.string().max(120).optional(),
+  kind: z.string().max(20).optional(),
   gradeLevel: z.string().max(60).optional(),
   ageBand: z.string().max(20).optional(),
+  approved: z.boolean().optional(),
 });
 export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;
 
@@ -414,6 +421,7 @@ export const generateActivitySchema = z.object({
   workMode: z.enum(['individual', 'grupo']).optional(),
   groupSize: z.coerce.number().int().min(2).max(20).optional(),
   suggestedMaterials: z.string().max(2000).optional(),
+  applyDate: z.string().date().optional(),
   // Texto dos materiais da turma para o WayOn se basear (RAG-lite).
   context: z.string().max(60_000).optional(),
 });
