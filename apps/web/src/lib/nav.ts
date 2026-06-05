@@ -139,7 +139,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
-      soon('Dashboards avançados', 'dashboards', BarChart3),
+      { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3 },
     ],
   },
   {
