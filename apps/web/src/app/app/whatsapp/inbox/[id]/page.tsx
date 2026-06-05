@@ -6,6 +6,7 @@ import {
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { AutoRefresh } from '@/components/auto-refresh';
 import { cardClass, fieldClass } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
@@ -28,6 +29,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
 
   return (
     <>
+      <AutoRefresh seconds={8} />
       <Link
         href="/app/whatsapp/inbox"
         className="text-xs text-primary underline-offset-4 hover:underline"

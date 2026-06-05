@@ -2,6 +2,7 @@ import { listConversations } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AutoRefresh } from '@/components/auto-refresh';
 import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -16,6 +17,7 @@ export default async function InboxPage() {
 
   return (
     <>
+      <AutoRefresh seconds={12} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
           title="Inbox do WhatsApp"
