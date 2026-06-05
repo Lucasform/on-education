@@ -63,7 +63,7 @@ export interface UploadedFile {
  * Extrai texto do arquivo para o WayOn usar como contexto (RAG-lite). PDF via `unpdf`
  * (import dinâmico), texto puro direto. Outros formatos → null. Nunca lança.
  */
-async function extractMaterialText(
+export async function extractMaterialText(
   bytes: Uint8Array,
   mimeType: string | null,
   fileName: string,

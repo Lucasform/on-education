@@ -35,7 +35,15 @@ export default async function AtividadeDetalhePage({
         >
           ← Voltar ao banco
         </Link>
-        <PrintButton label="Imprimir / PDF" />
+        <div className="flex items-center gap-2">
+          <a
+            href={`/app/atividades/${id}/word`}
+            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Baixar Word
+          </a>
+          <PrintButton label="Imprimir / PDF" />
+        </div>
       </div>
 
       {/* documento imprimível, no padrão da escola/professor (identidade no cabeçalho) */}

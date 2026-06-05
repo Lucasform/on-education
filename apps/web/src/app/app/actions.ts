@@ -136,7 +136,12 @@ import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
-import { removeTenantFile, uploadPublicLogo, uploadTenantFile } from '@/server/storage';
+import {
+  extractMaterialText,
+  removeTenantFile,
+  uploadPublicLogo,
+  uploadTenantFile,
+} from '@/server/storage';
 import { evoSendText, normalizePhone, whatsappConfigured } from '@/server/whatsapp';
 
 export async function logoutAction(): Promise<void> {
@@ -206,6 +211,26 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   });
   await createActivity(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+/** Importa uma atividade de um arquivo (PDF/texto): extrai o conteúdo e salva no banco. */
+export async function importActivityFileAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const file = formData.get('file');
+  if (!(file instanceof File) || file.size === 0) return;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const content = (await extractMaterialText(bytes, file.type || null, file.name)) ?? '';
+  const input = createActivitySchema.parse({
+    title: (String(formData.get('title') ?? '').trim() || file.name).slice(0, 300),
+    subject: (formData.get('subject') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageBand: (formData.get('ageBand') as string) || undefined,
+    content: content.slice(0, 50_000),
+    tags: ['importado'],
+    aiGenerated: false,
+  });
+  await createActivity(db(), ctx, input);
+  revalidatePath('/app/atividades', 'page');
 }
 
 /** Gera uma atividade pelo WayOn e salva direto no banco. Pode se basear nos materiais da turma. */

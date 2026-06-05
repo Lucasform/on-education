@@ -12,7 +12,7 @@ import { FAIXAS, SERIES } from '@/lib/series';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createActivityAction, generateActivityAction } from '../actions';
+import { createActivityAction, generateActivityAction, importActivityFileAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Banco de atividades · Edu On Way' };
@@ -169,6 +169,28 @@ export default async function AtividadesPage({
               <input name="tags" placeholder="Tags separadas por vírgula" className={fieldClass} />
               <SubmitButton type="submit" size="sm" variant="outline">
                 Salvar atividade
+              </SubmitButton>
+            </form>
+          </div>
+
+          <div className={cardClass}>
+            <h2 className="mb-1 text-sm font-medium">Importar de arquivo</h2>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Suba um PDF ou texto e nós extraímos o conteúdo pro banco.
+            </p>
+            <form action={importActivityFileAction} className="flex flex-col gap-2">
+              <input name="title" placeholder="Título (opcional)" className={fieldClass} />
+              <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
+              <SerieFaixaPicker />
+              <input
+                type="file"
+                name="file"
+                accept=".pdf,.txt,.md"
+                required
+                className={`${fieldClass} cursor-pointer`}
+              />
+              <SubmitButton type="submit" size="sm" variant="outline">
+                Importar pro banco
               </SubmitButton>
             </form>
           </div>
