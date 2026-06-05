@@ -31,20 +31,28 @@ export function createDbClient(
     // Pooler do Supabase + serverless (Vercel): prepared statements quebram transações no
     // modo transaction do pgbouncer. `prepare: false` usa o protocolo simples e é seguro.
     prepare: false,
+    // Tuning serverless: fecha conexões ociosas e não pendura em conexão lenta.
+    idle_timeout: 20,
+    connect_timeout: 15,
     ...options,
   });
   const db = drizzle(sqlClient, { schema });
 
-  const withTenant = async <T>(tenantId: string, fn: (tx: Database) => Promise<T>): Promise<T> =>
-    db.transaction(async (tx) => {
-      // Rodamos como `authenticated` (papel SEM bypass de RLS) para que o RLS realmente
-      // isole por tenant — o usuário de conexão (`postgres`/service role) bypassaria o RLS.
-      // O caminho administrativo (provisionamento) usa `db` direto e permanece como postgres.
-      await tx.execute(sql`set local role authenticated`);
-      // set_config(_, _, true) => escopo local à transação.
-      await tx.execute(sql`select set_config('app.tenant_id', ${tenantId}, true)`);
+  // tenantId vem SEMPRE da sessão (UUID). Validamos o formato porque ele é interpolado
+  // no SET abaixo (combina os dois SETs num round-trip só, reduzindo latência por query).
+  const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+  const withTenant = async <T>(tenantId: string, fn: (tx: Database) => Promise<T>): Promise<T> => {
+    if (!UUID_RE.test(tenantId)) throw new Error('tenantId inválido (esperado UUID).');
+    return db.transaction(async (tx) => {
+      // `authenticated` (papel SEM bypass de RLS) + tenant da sessão, ambos LOCAIS à transação,
+      // num único statement (protocolo simples) → metade dos round-trips de antes.
+      await tx.execute(
+        sql.raw(`set local role authenticated; set local app.tenant_id = '${tenantId}'`),
+      );
       return fn(tx as unknown as Database);
     });
+  };
 
   return { db, sql: sqlClient, withTenant, close: () => sqlClient.end({ timeout: 5 }) };
 }
