@@ -84,7 +84,7 @@ export type AiDraftKind = z.infer<typeof aiDraftKindSchema>;
 
 export const generateDraftSchema = z.object({
   kind: aiDraftKindSchema,
-  prompt: z.string().min(1).max(10_000),
+  prompt: z.string().min(1).max(16_000),
 });
 export type GenerateDraftInput = z.infer<typeof generateDraftSchema>;
 

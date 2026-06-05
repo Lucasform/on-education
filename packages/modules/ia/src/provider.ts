@@ -4,9 +4,19 @@ import { type AiTier, loadEnv, modelFor, requireEnv } from '@on-education/config
  * Contrato do provedor de IA (Fase 1B.2). Abstrai a chamada ao modelo para que a lógica de
  * cota/rascunho não dependa de um provedor específico e seja testável com um fake.
  */
+/** Imagem para entrada multimodal (visão). `data` em base64; `mediaType` ex.: image/jpeg. */
+export interface AiImage {
+  data: string;
+  mediaType: string;
+}
+
 export interface AiGenerationRequest {
   prompt: string;
   system?: string;
+  /** Imagens para visão (ex.: foto da redação manuscrita). Opcional. */
+  images?: AiImage[];
+  /** Teto de tokens da resposta. Default 2048. */
+  maxTokens?: number;
 }
 
 export interface AiGenerationResult {
@@ -44,9 +54,22 @@ export function createAnthropicProvider(tier: AiTier = 'sonnet'): AiProvider {
         },
         body: JSON.stringify({
           model,
-          max_tokens: 2048,
+          max_tokens: req.maxTokens ?? 2048,
           system: req.system,
-          messages: [{ role: 'user', content: req.prompt }],
+          messages: [
+            {
+              role: 'user',
+              content: req.images?.length
+                ? [
+                    ...req.images.map((im) => ({
+                      type: 'image',
+                      source: { type: 'base64', media_type: im.mediaType, data: im.data },
+                    })),
+                    { type: 'text', text: req.prompt },
+                  ]
+                : req.prompt,
+            },
+          ],
         }),
       });
       if (!res.ok) {

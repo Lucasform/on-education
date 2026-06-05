@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 05:10] — Correção de redação por FOTO (visão + transcrição sem inventar) — STATUS: CONCLUÍDO
+
+- **Tarefa:** professor tira foto da folha → IA transcreve; o que não der pra ler NÃO é inventado, é marcado 〖?N〗 com linha+contexto pro professor preencher; depois corrige. Permite objetivo + comentários.
+- **Segmento:** ambos (🏫 + 👤).
+- **O que foi feito:**
+  - Provider Anthropic agora aceita **imagens** (visão) e `maxTokens` (`AiImage`, content multimodal).
+  - `transcribeEssay` (module-ia/transcribe.ts): system prompt rígido (transcreve fiel, não corrige, NÃO inventa ilegível → 〖?N〗 + lista `gaps`), parse JSON tolerante, RBAC+entitlement+cota+uso medido. Não persiste.
+  - Rota `POST /api/ia/redacao/transcrever`: recebe ≤4 fotos (≤6MB), base64 → transcribeEssay.
+  - Componente `redacao-foto.tsx`: câmera (`capture=environment`), downscale client→JPEG 1600px, transcreve, textarea editável, lista de "palavras não compreendidas" com input + "Aplicar na transcrição", campos objetivo/comentários, "Corrigir com IA" reusa `generateDraftAction` (essay).
+  - Página `/app/ia/redacao`: foto no topo + colar texto/lista de rascunhos embaixo. Prompt da correção leva objetivo + comentários + transcrição.
+- **Arquivos:** `packages/modules/ia/src/{provider,transcribe,index}.ts`, `packages/validation` (prompt max 16k), `apps/web/src/app/api/ia/redacao/transcrever/route.ts`, `apps/web/src/components/redacao-foto.tsx`, `apps/web/src/app/app/ia/redacao/page.tsx`.
+- **Migrations/RLS:** nenhuma (reusa `ai_drafts`).
+- **Testes:** `tsc` + `next build` verdes.
+- **Pendências:** transcrição não é persistida (só o draft final). HEIC raro pode falhar (downscale converte a maioria). Próximo: aplicar visão a "tutor"/atividades se quiser.
+- **Commit(s):** `feat: correcao de redacao por foto (visao + transcricao sem inventar)`.
+
 ### [2026-06-05 03:40] — Storage Fatia 3: RAG-lite (WayOn lê o material da turma) — STATUS: CONCLUÍDO
 
 - **Tarefa:** o WayOn gerar conteúdo baseado nos materiais da escola. Sem credencial nova (sem embeddings): extrai o TEXTO do material e inclui no prompt (a janela do Claude segura).
