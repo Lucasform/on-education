@@ -92,8 +92,8 @@ export function RedacaoFoto({ students = [] }: { students?: { id: string; fullNa
     <div className={cardClass}>
       <h2 className="mb-1 text-sm font-medium">Corrigir a partir de uma foto</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Tire a foto da folha (ou envie a imagem). A IA transcreve sem inventar: o que não der para
-        ler fica marcado para você completar antes de corrigir.
+        Tire a foto da folha (ou envie a imagem). O WayOn transcreve sem inventar: o que não der
+        para ler fica marcado para você completar antes de corrigir.
       </p>
 
       <input

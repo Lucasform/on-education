@@ -12,7 +12,7 @@ import {
   approveDraftAction,
   approveDraftToBankAction,
   discardDraftAction,
-  generateDraftAction,
+  generateContentAction,
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +23,7 @@ const KIND_LABEL: Record<string, string> = {
   activity: 'Atividade',
   essay: 'Redação',
   tutor: 'Tutor',
+  outro: 'Outro',
 };
 const STATUS_LABEL: Record<string, string> = {
   draft: 'rascunho',
@@ -50,10 +51,12 @@ export default async function IaPage() {
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Gerar conteúdo</h2>
         {aiOn ? (
-          <form action={generateDraftAction} className="flex flex-col gap-2">
+          <form action={generateContentAction} className="flex flex-col gap-2">
             <select name="kind" className={fieldClass} defaultValue="lesson_plan">
               <option value="lesson_plan">Plano de aula</option>
               <option value="activity">Atividade</option>
+              <option value="flashcards">Flashcards</option>
+              <option value="outro">Outro</option>
             </select>
             <textarea
               name="prompt"
@@ -63,12 +66,15 @@ export default async function IaPage() {
               className={fieldClass}
             />
             <SubmitButton type="submit" size="sm">
-              Gerar rascunho
+              Gerar com o WayOn
             </SubmitButton>
+            <p className="text-xs text-muted-foreground">
+              Flashcards abrem direto na tela de estudo. O resto vira rascunho para você revisar.
+            </p>
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            IA indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar rascunhos.
+            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar.
           </p>
         )}
       </div>

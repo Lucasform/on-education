@@ -19,6 +19,7 @@ const FEATURE_BY_KIND: Record<AiDraftKind, Feature> = {
   activity: 'ai.activities',
   essay: 'ai.activities',
   tutor: 'ai.activities',
+  outro: 'ai.activities',
 };
 
 const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
@@ -36,6 +37,9 @@ const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
     'Você é um tutor paciente para estudantes. Responda de forma clara e adequada à idade, ' +
     'explicando o raciocínio passo a passo. Não faça a tarefa pelo aluno: oriente para ele ' +
     'chegar à resposta. Conteúdo seguro e apropriado.',
+  outro:
+    'Você é o WayOn, um assistente pedagógico. Produza o conteúdo pedido em português do Brasil, ' +
+    'claro e pronto para uso. É um RASCUNHO para o professor revisar e ajustar.',
 };
 
 export async function generateDraft(

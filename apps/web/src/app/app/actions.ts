@@ -297,6 +297,24 @@ export async function generateDraftAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/**
+ * "Gerar conteúdo" do WayOn: roteia para o lugar certo conforme o tipo.
+ * Flashcards viram um baralho (abre o estudo); o resto vira rascunho human-in-the-loop.
+ */
+export async function generateContentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const kind = String(formData.get('kind') ?? 'lesson_plan');
+  const prompt = String(formData.get('prompt') ?? '');
+  if (kind === 'flashcards') {
+    const input = generateFlashcardsSchema.parse({ topic: prompt, count: 10 });
+    const deck = await generateFlashcardsWithWayOn(db(), ctx, input);
+    redirect(`/app/ia/flashcards/${deck.id}`);
+  }
+  const input = generateDraftSchema.parse({ kind, prompt });
+  await generateDraft(db(), ctx, input);
+  revalidatePath('/app/ia', 'page');
+}
+
 export async function approveDraftAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));

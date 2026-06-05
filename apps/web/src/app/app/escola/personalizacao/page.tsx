@@ -47,7 +47,7 @@ export default async function PersonalizacaoPage() {
         <div className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Nome do seu agente</h2>
           <p className="mb-2 text-xs text-muted-foreground">
-            Como o assistente de IA aparece para a sua escola. Padrão: WayOn.
+            Como o agente WayOn aparece para a sua escola. Padrão: WayOn.
           </p>
           <input
             name="agentName"

@@ -22,7 +22,7 @@ export default async function RedacaoPage() {
     <>
       <PageHeader
         title="Correção de redação"
-        description="Tire foto da folha ou cole o texto. A IA transcreve sem inventar e devolve uma correção por competências, como rascunho para você revisar."
+        description="Tire foto da folha ou cole o texto. O WayOn transcreve sem inventar e devolve uma correção por competências, como rascunho para você revisar."
       />
       {isAiConfigured() && <RedacaoFoto students={students} />}
       <IaGenerator

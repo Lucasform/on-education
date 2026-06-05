@@ -49,7 +49,7 @@ export default async function ComunicadosPage() {
         </div>
 
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Gerar com IA</h2>
+          <h2 className="mb-3 text-sm font-medium">Gerar com o WayOn</h2>
           {aiOn ? (
             <form action={generateCommunicationAction} className="flex flex-col gap-2">
               <textarea
@@ -65,7 +65,7 @@ export default async function ComunicadosPage() {
             </form>
           ) : (
             <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-              IA indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar comunicados.
+              WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar comunicados.
             </p>
           )}
         </div>

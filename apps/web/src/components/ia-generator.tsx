@@ -56,7 +56,7 @@ export async function IaGenerator({
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            IA indisponível. Configure <code>ANTHROPIC_API_KEY</code> para usar.
+            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para usar.
           </p>
         )}
       </div>

@@ -93,7 +93,7 @@ export const searchActivitiesSchema = z.object({
 export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;
 
 /** IA pedagógica (Fase 1B.2) — pedido de geração de rascunho. */
-export const aiDraftKindSchema = z.enum(['lesson_plan', 'activity', 'essay', 'tutor']);
+export const aiDraftKindSchema = z.enum(['lesson_plan', 'activity', 'essay', 'tutor', 'outro']);
 export type AiDraftKind = z.infer<typeof aiDraftKindSchema>;
 
 export const generateDraftSchema = z.object({
