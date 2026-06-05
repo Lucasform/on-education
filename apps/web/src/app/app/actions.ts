@@ -331,7 +331,8 @@ export async function approveDraftToBankAction(formData: FormData): Promise<void
   const id = String(formData.get('id'));
   const draft = await approveDraft(db(), ctx, id);
   if (draft && (draft.kind === 'activity' || draft.kind === 'lesson_plan') && draft.output) {
-    const title = (draft.prompt ?? 'Atividade gerada por IA').trim().slice(0, 120) || 'Atividade';
+    const title =
+      (draft.prompt ?? 'Atividade gerada pelo WayOn').trim().slice(0, 120) || 'Atividade';
     await createActivity(db(), ctx, {
       title,
       content: draft.output,

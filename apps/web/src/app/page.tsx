@@ -255,7 +255,7 @@ export default function HomePage() {
             </span>
             <h3 className="mt-4 text-xl font-bold">Para professores</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Seu espaço pessoal para organizar turmas e ganhar tempo com IA.
+              Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
             </p>
             <ul className="mt-5 flex-1 space-y-2 text-sm">
               {[

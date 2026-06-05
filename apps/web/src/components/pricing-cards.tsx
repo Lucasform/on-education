@@ -25,7 +25,7 @@ const PLANOS: Plano[] = [
     anual: 'R$ 390',
     equiv: 'equivale a R$ 32,50/mês',
     nota: '7 dias grátis para testar',
-    resumo: 'Para o professor autônomo organizar suas turmas com IA.',
+    resumo: 'Para o professor autônomo organizar suas turmas com o WayOn.',
     recursos: [
       'Turmas e alunos',
       'WayOn pedagógico (cota mensal)',

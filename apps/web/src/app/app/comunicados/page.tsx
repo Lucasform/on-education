@@ -84,7 +84,7 @@ export default async function ComunicadosPage() {
                     {c.title}{' '}
                     <span className="text-muted-foreground">
                       · {c.status === 'published' ? 'publicado' : 'rascunho'}
-                      {c.aiGenerated ? ' · IA' : ''}
+                      {c.aiGenerated ? ' · WayOn' : ''}
                     </span>
                   </span>
                   <span className="flex gap-2">
