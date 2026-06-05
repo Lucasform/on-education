@@ -13,6 +13,15 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 08:10] — Imagem: estilo padrão + formato/enquadramento + flashcards ilustrados — STATUS: CONCLUÍDO
+
+- **Estilo padrão de imagem** ("treino"): `tenant_settings.image_style` (mig. `0034`) + campo no Meu padrão; `getImageStyle` vira prefixo de todo prompt de imagem.
+- **Formato** (quadrado/horizontal/vertical-A4) + **enquadramento** (centralizado/preenchido) na tela Gerar imagem.
+- **Galeria**: Baixar (rota `/app/ia/imagem/[id]/baixar` força download) + Visualizar (abre).
+- **Flashcards ilustrados**: card ganha `image`; botão "Gerar imagem" por card; figura na frente no estudo.
+- **Pendência (Lucas):** Redeploy no Vercel com `OPENAI_API_KEY` (e opcional `IMAGE_MONTHLY_GLOBAL_CAP`) para imagem valer em prod; afinar cotas pelos planos.
+- **Commits:** flashcard imagens; estilo/formato/baixar.
+
 ### [2026-06-05 07:30] — Geração de IMAGEM (OpenAI gpt-image-1) com travas de custo — STATUS: CONCLUÍDO
 
 - **Tarefa:** WayOn gerar imagem (ilustração) além do texto; controlar custo com muitos professores.
