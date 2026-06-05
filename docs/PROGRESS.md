@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 06:30] — Pacote pedagógico: vínculo aluno, Meu padrão com modelos, classificação, export/import — STATUS: CONCLUÍDO
+
+- **Segmento:** ambos.
+- **O que foi feito (vários commits):**
+  - **Markdown do parecer** renderizado (redação e tutor) via `MarkdownView`; rótulo "Corrigir com o WayOn".
+  - **Vínculo da correção a um aluno:** `ai_drafts.student_id` (mig. `0028`); seletor de aluno na redação (foto e texto) + chip do nome.
+  - **Meu padrão com modelos:** `ai_standard_samples` (mig. `0029`) + **tipo** prova/atividade/outro (mig. `0031`); upload extrai texto e `getAiStandard` injeta como exemplo rotulado em TODA geração. UI em `/app/meu-padrao`.
+  - **Classificação de atividade:** `activities.grade_level` + `age_band` (mig. `0030`); picker Série→Faixa com auto-preenchimento (1a3…acima); grava na geração/manual/import; **filtro** por matéria/série/faixa no banco.
+  - **Export/Import:** baixar atividade em **Word** (`/app/atividades/[id]/word` via `marked`; PDF já existia por impressão) e **importar arquivo** (PDF/texto) pro banco extraindo o conteúdo.
+- **Arquivos:** `ia-generator.tsx`, `redacao-foto.tsx`, `serie-faixa-picker.tsx`, `lib/series.ts`, `atividades/page.tsx`, `atividades/[id]/{page,word/route}.tsx`, `meu-padrao/page.tsx`, `modules/{ia/drafts,nucleo/settings,pedagogico/activities}.ts`, `validation`, `schema.ts`, `server/storage.ts` (export `extractMaterialText`), `actions.ts`.
+- **Migrations/RLS:** `0028`–`0031` aplicadas em prod.
+- **Testes:** `tsc` + `next build` verdes em cada etapa.
+- **Pendências / backlog aberto:** geração de IMAGEM/flashcards (precisa provider extra, ex.: `GEMINI_API_KEY`); aplicar visão a prova/gabarito por foto; PDF "nativo" (hoje é impressão).
+- **Próximo passo sugerido:** decidir o provider de imagem (Gemini) para flashcards.
+- **Commit(s):** markdown/label, vinculo aluno, meu padrao, classificacao, word/import, sample kind.
+
 ### [2026-06-05 05:10] — Correção de redação por FOTO (visão + transcrição sem inventar) — STATUS: CONCLUÍDO
 
 - **Tarefa:** professor tira foto da folha → IA transcreve; o que não der pra ler NÃO é inventado, é marcado 〖?N〗 com linha+contexto pro professor preencher; depois corrige. Permite objetivo + comentários.
