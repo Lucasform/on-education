@@ -33,7 +33,7 @@ export default async function NovaSenhaPage({
   return (
     <AuthShell title="Definir nova senha" subtitle={`Conta: ${user.email}`}>
       {erro && MENSAGENS[erro] && (
-        <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-center text-sm text-danger">
           {MENSAGENS[erro]}
         </p>
       )}

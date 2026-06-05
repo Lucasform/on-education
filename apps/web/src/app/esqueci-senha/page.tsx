@@ -26,7 +26,7 @@ export default async function EsqueciSenhaPage({
       }
     >
       {status === 'enviado' ? (
-        <p className="rounded-md border border-border bg-muted px-3 py-3 text-sm text-muted-foreground">
+        <p className="rounded-md border border-border bg-muted px-3 py-3 text-center text-sm text-muted-foreground">
           Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha. Confira a
           caixa de entrada e o spam.
         </p>

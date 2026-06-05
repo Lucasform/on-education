@@ -36,7 +36,7 @@ export default async function LoginPage({
       }
     >
       {erro && (
-        <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-center text-sm text-danger">
           E-mail ou senha inválidos. Tente novamente.
         </p>
       )}
