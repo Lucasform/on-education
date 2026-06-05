@@ -13,6 +13,13 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 02:00] — Nome do agente personalizável por escola — STATUS: CONCLUÍDO
+
+- **O que foi feito:** `tenant_settings.agent_name` (migration `0025`, aplicada em prod); campo "Nome do seu agente" em `/app/escola/personalizacao`; header da home do agente (`/app/ia`) usa o nome com fallback **WayOn**.
+- **Arquivos:** `schema.ts` (+`0025_agent_name.sql`), `validation`, `nucleo/settings.ts`, `app/app/actions.ts`, `escola/personalizacao/page.tsx`, `app/app/ia/page.tsx`.
+- **Evoluir:** usar o nome também no nav/landing e no workspace do professor autônomo.
+- **Commit(s):** `feat: nome do agente personalizavel por escola`.
+
 ### [2026-06-05 01:40] — Responsividade (withTenant) + inbox quase-realtime — STATUS: CONCLUÍDO
 
 - **Responsividade (impacto amplo):** `withTenant` (núcleo de toda query com isolamento) passou a combinar `set local role authenticated` + `set local app.tenant_id` num **único statement** (protocolo simples) → metade dos round-trips por query. Guarda de UUID no tenantId. `postgres.js` com `idle_timeout`/`connect_timeout` p/ serverless. **Validado local via drizzle**: `current_user=authenticated`, `app.tenant_id` = UUID certo, RLS intacto.
