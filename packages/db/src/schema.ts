@@ -334,6 +334,8 @@ export const materials = oe.table(
     fileName: text('file_name').notNull(),
     mimeType: text('mime_type'),
     sizeBytes: integer('size_bytes'),
+    // Texto extraído do arquivo (PDF/txt) para o WayOn usar como contexto (RAG-lite).
+    extractedText: text('extracted_text'),
     ...auditCols,
   },
   (t) => [

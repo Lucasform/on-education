@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 03:40] — Storage Fatia 3: RAG-lite (WayOn lê o material da turma) — STATUS: CONCLUÍDO
+
+- **Tarefa:** o WayOn gerar conteúdo baseado nos materiais da escola. Sem credencial nova (sem embeddings): extrai o TEXTO do material e inclui no prompt (a janela do Claude segura).
+- **O que foi feito:**
+  - `unpdf` (extrai texto de PDF; serverless-friendly, import dinâmico). `materials.extracted_text` (migration `0027`).
+  - Extração no upload (`uploadTenantFile` → `extractMaterialText`: PDF/txt, máx 40k chars, nunca lança); salvo em `createMaterial`.
+  - `generateActivityWithWayOn` aceita `context` (texto dos materiais) → entra no system+prompt como REFERÊNCIA (não instrução, guardrail). `generateActivitySchema.context`.
+  - `generateActivityAction`: se uma turma é escolhida, junta o `extracted_text` dos materiais dela (≤55k) e passa como contexto.
+  - UI: select "Basear nos materiais de uma turma" no form Gerar do WayOn (`/app/atividades`).
+- **Arquivos:** `schema.ts` (+`0027_material_text.sql`), `server/storage.ts`, `pedagogico/{materials,activities}.ts`, `validation`, `actions.ts`, `atividades/page.tsx`, `package.json` (unpdf).
+- **Migrations/RLS:** `0027_material_text` aplicada em prod.
+- **Testes:** `tsc` + `next build` verdes. Extração graceful (falha → null → gera sem contexto).
+- **Pendências:** só PDFs/textos (imagens/docx não extraem); acervo grande pediria embeddings/pgvector (futuro). Depende do Lucas: nada novo (usa ANTHROPIC_API_KEY existente + Storage).
+- **Próximo passo sugerido:** estender RAG a prova/simulado/plano; ou v2 (NFS-e/Marketplace/BNCC/INEP).
+- **Commit(s):** `feat: rag-lite (wayon le o material da turma)`.
+
 ### [2026-06-05 03:00] — "Em breve" → reais: Inadimplência, Dashboards, Matrícula, API aberta — STATUS: CONCLUÍDO
 
 - **Decisão:** dos 8 itens "em breve", **NFS-e, Marketplace, BNCC e INEP** ficam pra **v2** (saíram do menu). Os outros 4 foram construídos (lean).

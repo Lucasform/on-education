@@ -383,5 +383,7 @@ export const generateActivitySchema = z.object({
   subject: z.string().max(120).optional(),
   level: z.string().max(120).optional(),
   kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),
+  // Texto dos materiais da turma para o WayOn se basear (RAG-lite).
+  context: z.string().max(60_000).optional(),
 });
 export type GenerateActivityInput = z.infer<typeof generateActivitySchema>;

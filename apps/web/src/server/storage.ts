@@ -56,6 +56,35 @@ export interface UploadedFile {
   fileName: string;
   mimeType: string | null;
   sizeBytes: number;
+  extractedText: string | null;
+}
+
+/**
+ * Extrai texto do arquivo para o WayOn usar como contexto (RAG-lite). PDF via `unpdf`
+ * (import dinâmico), texto puro direto. Outros formatos → null. Nunca lança.
+ */
+async function extractMaterialText(
+  bytes: Uint8Array,
+  mimeType: string | null,
+  fileName: string,
+): Promise<string | null> {
+  try {
+    const isPdf = mimeType === 'application/pdf' || /\.pdf$/i.test(fileName);
+    if (isPdf) {
+      const { extractText, getDocumentProxy } = await import('unpdf');
+      const pdf = await getDocumentProxy(bytes);
+      const { text } = await extractText(pdf, { mergePages: true });
+      const t = (Array.isArray(text) ? text.join('\n') : text).trim();
+      return t ? t.slice(0, 40_000) : null;
+    }
+    if (mimeType?.startsWith('text/') || /\.(txt|md|csv)$/i.test(fileName)) {
+      const t = new TextDecoder().decode(bytes).trim();
+      return t ? t.slice(0, 40_000) : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -80,7 +109,14 @@ export async function uploadTenantFile(
     upsert: false,
   });
   if (error) throw new Error(`Falha no upload: ${error.message}`);
-  return { path, fileName: file.name, mimeType: file.type || null, sizeBytes: file.size };
+  const extractedText = await extractMaterialText(bytes, file.type || null, file.name);
+  return {
+    path,
+    fileName: file.name,
+    mimeType: file.type || null,
+    sizeBytes: file.size,
+    extractedText,
+  };
 }
 
 /** Gera uma URL temporária (default 1h) para baixar um arquivo do bucket privado. */

@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."materials" ADD COLUMN "extracted_text" text;

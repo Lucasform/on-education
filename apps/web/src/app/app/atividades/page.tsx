@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
+import { listClasses } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -17,7 +18,10 @@ export const metadata = { title: 'Banco de atividades · Edu On Way' };
 export default async function AtividadesPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const atividades = await listActivities(db(), ctx, {});
+  const [atividades, turmas] = await Promise.all([
+    listActivities(db(), ctx, {}),
+    listClasses(db(), ctx).catch(() => []),
+  ]);
   const aiOn = isAiConfigured();
 
   return (
@@ -77,6 +81,19 @@ export default async function AtividadesPage() {
                   />
                   <input name="level" placeholder="Nível/ano" className={fieldClass} />
                 </div>
+                {turmas.length > 0 && (
+                  <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                    Basear nos materiais de uma turma (opcional)
+                    <select name="classId" defaultValue="" className={fieldClass}>
+                      <option value="">Sem material — gerar do zero</option>
+                      {turmas.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 <SubmitButton type="submit" size="sm">
                   Gerar com o WayOn
                 </SubmitButton>

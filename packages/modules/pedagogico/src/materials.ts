@@ -10,6 +10,7 @@ export interface CreateMaterialInput {
   fileName: string;
   mimeType?: string;
   sizeBytes?: number;
+  extractedText?: string | null;
 }
 
 /**
@@ -35,6 +36,7 @@ export async function createMaterial(
         fileName: input.fileName,
         mimeType: input.mimeType ?? null,
         sizeBytes: input.sizeBytes ?? null,
+        extractedText: input.extractedText ?? null,
         createdBy: ctx.userId,
       })
       .returning();

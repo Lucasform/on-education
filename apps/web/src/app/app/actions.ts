@@ -69,6 +69,7 @@ import {
   deleteQuiz,
   generateActivityWithWayOn,
   generateQuizWithWayOn,
+  listMaterials,
   restoreActivity,
   shareToCollective,
   submitQuizAttempt,
@@ -203,14 +204,25 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
-/** Gera uma atividade pelo WayOn e salva direto no banco. */
+/** Gera uma atividade pelo WayOn e salva direto no banco. Pode se basear nos materiais da turma. */
 export async function generateActivityAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
+  // RAG-lite: se uma turma foi escolhida, junta o texto extraído dos materiais dela.
+  const classId = (formData.get('classId') as string) || '';
+  let context: string | undefined;
+  if (classId) {
+    const textos = (await listMaterials(db(), ctx, classId))
+      .map((m) => m.extractedText)
+      .filter((t): t is string => Boolean(t));
+    const juntos = textos.join('\n\n').slice(0, 55_000);
+    if (juntos) context = juntos;
+  }
   const input = generateActivitySchema.parse({
     topic: formData.get('topic'),
     subject: (formData.get('subject') as string) || undefined,
     level: (formData.get('level') as string) || undefined,
     kind: (formData.get('kind') as string) || 'atividade',
+    context,
   });
   await generateActivityWithWayOn(db(), ctx, input);
   revalidatePath('/app', 'layout');
@@ -705,6 +717,7 @@ export async function uploadMaterialAction(formData: FormData): Promise<void> {
     fileName: up.fileName,
     mimeType: up.mimeType ?? undefined,
     sizeBytes: up.sizeBytes,
+    extractedText: up.extractedText,
   });
   revalidatePath('/app', 'layout');
 }
