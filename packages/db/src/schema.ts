@@ -1033,6 +1033,26 @@ export const whatsappMessages = oe.table(
   ],
 );
 
+// ai_standard_samples — modelos de referência do tenant ("Meu padrão"): provas/atividades
+// que o professor sobe para o WayOn imitar o formato/estilo. Arquivo no bucket privado; aqui
+// metadados + texto extraído (entra como referência nas gerações via getAiStandard).
+export const aiStandardSamples = oe.table(
+  'ai_standard_samples',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    fileName: text('file_name').notNull(),
+    storagePath: text('storage_path').notNull(),
+    extractedText: text('extracted_text'),
+    ...auditCols,
+  },
+  (t) => [
+    index('ai_standard_samples_tenant_idx').on(t.tenantId),
+    tenantPolicy('ai_standard_samples_tenant_isolation'),
+  ],
+);
+
 // api_keys — chaves de API por tenant (API aberta). Guarda só o HASH (sha256); o valor é
 // mostrado uma vez na criação. `token_prefix` é os 1os caracteres, só para exibir na lista.
 export const apiKeys = oe.table(
@@ -1099,4 +1119,5 @@ export const schema = {
   whatsappConversations,
   whatsappMessages,
   apiKeys,
+  aiStandardSamples,
 };

@@ -14,6 +14,8 @@ import { approveDraft, discardDraft, generateDraft } from '@on-education/module-
 import {
   assignTeaching,
   createApiKey,
+  createStandardSample,
+  deleteStandardSample,
   revokeApiKey,
   createAcademicYear,
   createClass,
@@ -730,6 +732,31 @@ export async function deleteMaterialAction(formData: FormData): Promise<void> {
   const path = await deleteMaterial(db(), ctx, id);
   if (path) await removeTenantFile(path);
   revalidatePath('/app', 'layout');
+}
+
+/** Sobe um MODELO de referência ("Meu padrão"): extrai o texto e salva no tenant. */
+export async function uploadStandardSampleAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const file = formData.get('file');
+  if (!(file instanceof File) || file.size === 0) return;
+  const title = (String(formData.get('title') ?? '').trim() || file.name).slice(0, 200);
+  const up = await uploadTenantFile(ctx.tenantId, '_padrao', file);
+  await createStandardSample(db(), ctx, {
+    title,
+    fileName: up.fileName,
+    storagePath: up.path,
+    extractedText: up.extractedText,
+  });
+  revalidatePath('/app/meu-padrao', 'page');
+}
+
+export async function deleteStandardSampleAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const path = await deleteStandardSample(db(), ctx, id);
+  if (path) await removeTenantFile(path).catch(() => {});
+  revalidatePath('/app/meu-padrao', 'page');
 }
 
 // --- Meu padrão / padrão do WayOn (item 18.3) --------------------------------

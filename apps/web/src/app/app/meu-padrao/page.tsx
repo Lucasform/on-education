@@ -1,12 +1,17 @@
-import { SubmitButton } from '@/components/submit-button';
-import { getTenantSettings } from '@on-education/module-nucleo';
+import { getTenantSettings, listStandardSamples } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
+import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { updateAiStandardAction } from '../actions';
+import {
+  deleteStandardSampleAction,
+  updateAiStandardAction,
+  uploadStandardSampleAction,
+} from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Meu padrão · Edu On Way' };
@@ -20,6 +25,7 @@ export default async function MeuPadraoPage() {
   if (!ctx) redirect('/login');
   const isSchool = ctx.tenantType === 'organization';
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  const modelos = await listStandardSamples(db(), ctx).catch(() => []);
 
   return (
     <>
@@ -50,6 +56,55 @@ export default async function MeuPadraoPage() {
             </SubmitButton>
           </div>
         </form>
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Modelos de referência (provas / atividades)</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Suba exemplos de prova ou atividade do seu jeito (PDF ou texto). O WayOn lê e passa a
+          imitar o FORMATO e o ESTILO deles em tudo que gerar.
+        </p>
+        <form action={uploadStandardSampleAction} className="flex flex-wrap items-end gap-2">
+          <input
+            name="title"
+            placeholder="Nome do modelo (ex.: Prova bimestral)"
+            className={fieldClass}
+          />
+          <input
+            type="file"
+            name="file"
+            accept=".pdf,.txt,.md,image/*"
+            required
+            className={`${fieldClass} cursor-pointer`}
+          />
+          <SubmitButton type="submit" size="sm">
+            Subir modelo
+          </SubmitButton>
+        </form>
+
+        {modelos.length > 0 && (
+          <ul className="mt-3 space-y-1 text-sm">
+            {modelos.map((m) => (
+              <li
+                key={m.id}
+                className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-1.5"
+              >
+                <span>
+                  {m.title}
+                  {!m.extractedText && (
+                    <span className="ml-2 text-xs text-warning">(texto não extraído)</span>
+                  )}
+                </span>
+                <form action={deleteStandardSampleAction}>
+                  <input type="hidden" name="id" value={m.id} />
+                  <ConfirmButton size="sm" variant="ghost" message={`Remover "${m.title}"?`}>
+                    Remover
+                  </ConfirmButton>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className={cardClass}>
