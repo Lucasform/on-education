@@ -278,6 +278,9 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     gradeLevel: (formData.get('gradeLevel') as string) || undefined,
     ageBand: (formData.get('ageBand') as string) || undefined,
     kind: (formData.get('kind') as string) || 'atividade',
+    workMode: (formData.get('workMode') as string) || undefined,
+    groupSize: (formData.get('groupSize') as string) || undefined,
+    suggestedMaterials: (formData.get('suggestedMaterials') as string) || undefined,
     context,
   });
   await generateActivityWithWayOn(db(), ctx, input);

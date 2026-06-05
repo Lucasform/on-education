@@ -7,12 +7,13 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
 import { FAIXAS, SERIES } from '@/lib/series';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createActivityAction, generateActivityAction, importActivityFileAction } from '../actions';
+import { createActivityAction, importActivityFileAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Banco de atividades · Edu On Way' };
@@ -115,38 +116,7 @@ export default async function AtividadesPage({
               O agente cria a atividade e salva no banco. Você edita se quiser.
             </p>
             {aiOn ? (
-              <form action={generateActivityAction} className="flex flex-col gap-2">
-                <select name="kind" defaultValue="atividade" className={fieldClass}>
-                  <option value="atividade">Atividade</option>
-                  <option value="prova">Prova</option>
-                  <option value="trabalho">Trabalho</option>
-                  <option value="roteiro">Roteiro de estudo</option>
-                </select>
-                <input
-                  name="topic"
-                  required
-                  placeholder="Tema (ex.: interpretação de texto, 5º ano)"
-                  className={fieldClass}
-                />
-                <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
-                <SerieFaixaPicker />
-                {turmas.length > 0 && (
-                  <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                    Basear nos materiais de uma turma (opcional)
-                    <select name="classId" defaultValue="" className={fieldClass}>
-                      <option value="">Sem material — gerar do zero</option>
-                      {turmas.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-                <SubmitButton type="submit" size="sm">
-                  Gerar com o WayOn
-                </SubmitButton>
-              </form>
+              <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
                 WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar atividades.

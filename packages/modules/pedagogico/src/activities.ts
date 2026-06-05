@@ -110,6 +110,14 @@ export async function generateActivityWithWayOn(
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +
     (input.gradeLevel || input.level ? ` Série/ano: ${input.gradeLevel ?? input.level}.` : '') +
     (input.ageBand ? ` Faixa etária: ${input.ageBand} anos.` : '') +
+    (input.kind === 'trabalho' && input.workMode === 'grupo'
+      ? ` Trabalho EM GRUPO de ${input.groupSize ?? 3} alunos: divida as tarefas/papéis entre os integrantes.`
+      : input.kind === 'trabalho' && input.workMode === 'individual'
+        ? ' Trabalho INDIVIDUAL.'
+        : '') +
+    (input.kind === 'trabalho' && input.suggestedMaterials
+      ? ` Sugira o uso destes materiais/recursos: ${input.suggestedMaterials}.`
+      : '') +
     (input.context
       ? `\n\n--- MATERIAIS DA TURMA (referência) ---\n${input.context}\n--- FIM DOS MATERIAIS ---`
       : '');

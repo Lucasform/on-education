@@ -400,6 +400,10 @@ export const generateActivitySchema = z.object({
   kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),
   gradeLevel: z.string().max(60).optional(),
   ageBand: z.string().max(20).optional(),
+  // Específicos de "trabalho": modo (individual/grupo), tamanho do grupo e materiais sugeridos.
+  workMode: z.enum(['individual', 'grupo']).optional(),
+  groupSize: z.coerce.number().int().min(2).max(20).optional(),
+  suggestedMaterials: z.string().max(2000).optional(),
   // Texto dos materiais da turma para o WayOn se basear (RAG-lite).
   context: z.string().max(60_000).optional(),
 });
