@@ -27,10 +27,8 @@ import {
   PenLine,
   Phone,
   Plug,
-  Receipt,
   School,
   Sparkles,
-  Store,
   Trash2,
   UserPlus,
   Users,
@@ -153,13 +151,12 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Mensalidades', href: '/app/financeiro', icon: Wallet },
       soon('Inadimplência', 'inadimplencia', AlertCircle),
-      soon('NFS-e', 'nfse', Receipt),
     ],
   },
   {
     label: 'Integrações',
     only: 'organization',
-    items: [soon('Marketplace', 'marketplace', Store), soon('API aberta', 'api', Plug)],
+    items: [soon('API aberta', 'api', Plug)],
   },
 ];
 
