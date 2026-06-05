@@ -291,7 +291,7 @@ Desenho completo do produto Escola pedido pelo Lucas. Status: `[x]` feito · `[~
 - [x] Visualização por semana/mês/período no diário e na chamada — filtro de período (última semana/mês/tudo) no diário e nas faltas.
 - [x] Geração de documentos padronizados em PDF — `/app/documentos` (declaração de matrícula/frequência, autorização, texto livre) com a identidade da escola, imprimível (itens 18.6 / 19.5 parcial).
 - [ ] Planejamento BNCC (banco de habilidades por disciplina/ano).
-- [ ] **Nome do agente personalizável** — cada escola escolhe o nome do seu agente (campo em `tenant_settings`, junto de logo/cor) e cada professor autônomo no próprio workspace; padrão (ex.: o nome de marca do agente) quando não personalizado. Acrescentar isso na tela de personalização ("Escolha o nome do seu agente") e usar o nome escolhido em todo o app/EduON. _(anotado 2026-06-04, a pedido do Lucas; fazer depois)_
+- [x] **Nome do agente personalizável** — `tenant_settings.agent_name` (migration `0025`); campo "Nome do seu agente" em `/app/escola/personalizacao`; usado no header da home do agente (`/app/ia`), com fallback "WayOn". _(Evoluir: nav/landing e professor autônomo.)_
 
 ---
 

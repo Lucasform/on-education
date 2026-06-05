@@ -664,6 +664,7 @@ export async function updateTenantSettingsAction(formData: FormData): Promise<vo
     themeColor: (formData.get('themeColor') as string) || undefined,
     regimento: (formData.get('regimento') as string) || undefined,
     docTemplates: (formData.get('docTemplates') as string) || undefined,
+    agentName: (formData.get('agentName') as string) || undefined,
   });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app', 'layout');

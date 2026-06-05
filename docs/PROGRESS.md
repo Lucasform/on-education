@@ -13,6 +13,15 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 01:40] — Responsividade (withTenant) + inbox quase-realtime — STATUS: CONCLUÍDO
+
+- **Responsividade (impacto amplo):** `withTenant` (núcleo de toda query com isolamento) passou a combinar `set local role authenticated` + `set local app.tenant_id` num **único statement** (protocolo simples) → metade dos round-trips por query. Guarda de UUID no tenantId. `postgres.js` com `idle_timeout`/`connect_timeout` p/ serverless. **Validado local via drizzle**: `current_user=authenticated`, `app.tenant_id` = UUID certo, RLS intacto.
+- **Inbox quase-realtime:** `<AutoRefresh>` (router.refresh) — thread a cada 8s, lista a cada 12s; mensagens novas aparecem sem recarregar.
+- **Arquivos:** `packages/db/src/client.ts`, `apps/web/src/components/auto-refresh.tsx` (novo), `app/app/whatsapp/inbox/{page,[id]/page}.tsx`.
+- **Testes:** `tsc` + `next build` verdes; validação read-only do mecanismo SQL contra o banco real.
+- **Pendências:** otimização mais profunda (streaming/Suspense nas telas pesadas) só se ainda parecer lento depois desta; **depende do Lucas:** `EVOLUTION_*` + `SUPABASE_SERVICE_ROLE_KEY` no Vercel.
+- **Commit(s):** `perf: withTenant combina os SET...`, `feat: inbox quase-realtime`.
+
 ### [2026-06-05 01:00] — WhatsApp Fase 3: inbox (webhook + receber/responder) — STATUS: CONCLUÍDO
 
 - **Tarefa:** receber e responder mensagens dentro do app (estilo Condomínio).

@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured, listDrafts } from '@on-education/module-ia';
+import { getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -32,13 +33,17 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function IaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const rascunhos = await listDrafts(db(), ctx);
+  const [rascunhos, settings] = await Promise.all([
+    listDrafts(db(), ctx),
+    getTenantSettings(db(), ctx).catch(() => null),
+  ]);
   const aiOn = isAiConfigured();
+  const agente = settings?.agentName?.trim() || 'WayOn';
 
   return (
     <>
       <PageHeader
-        title="WayOn"
+        title={agente}
         description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
       />
 

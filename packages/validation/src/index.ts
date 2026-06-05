@@ -336,6 +336,7 @@ export const updateTenantSettingsSchema = z.object({
   regimento: z.string().max(50_000).optional(),
   docTemplates: z.string().max(50_000).optional(),
   aiStandard: z.string().max(10_000).optional(),
+  agentName: z.string().max(40).optional(),
   gradeScale: z.coerce.number().int().min(1).max(1000).optional(),
 });
 

@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."tenant_settings" ADD COLUMN "agent_name" text;

@@ -45,6 +45,20 @@ export default async function PersonalizacaoPage() {
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         <div className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Nome do seu agente</h2>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Como o assistente de IA aparece para a sua escola. Padrão: WayOn.
+          </p>
+          <input
+            name="agentName"
+            maxLength={40}
+            defaultValue={settings?.agentName ?? ''}
+            placeholder="WayOn"
+            className={fieldClass}
+          />
+        </div>
+
+        <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Identidade visual</h2>
           <label className="text-xs text-muted-foreground">Logo (URL da imagem, opcional)</label>
           <input
