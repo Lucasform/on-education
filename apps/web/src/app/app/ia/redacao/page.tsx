@@ -24,7 +24,7 @@ export default async function RedacaoPage() {
         ctx={ctx}
         kind="essay"
         promptPlaceholder="Ou cole aqui o texto da redação do aluno..."
-        generateLabel="Corrigir com IA"
+        generateLabel="Corrigir com o WayOn"
       />
     </>
   );

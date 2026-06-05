@@ -204,7 +204,7 @@ export function RedacaoFoto() {
             <input type="hidden" name="kind" value="essay" />
             <input type="hidden" name="prompt" value={promptFinal} />
             <SubmitButton type="submit" size="sm">
-              Corrigir com IA
+              Corrigir com o WayOn
             </SubmitButton>
             <span className="ml-2 text-xs text-muted-foreground">
               A correção aparece na lista abaixo.

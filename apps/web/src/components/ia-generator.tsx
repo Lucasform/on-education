@@ -4,6 +4,7 @@ import { Button } from '@on-education/ui';
 
 import { approveDraftAction, discardDraftAction, generateDraftAction } from '@/app/app/actions';
 import { cardClass, fieldClass } from '@/components/form';
+import { MarkdownView } from '@/components/markdown-view';
 import { db } from '@/server/db';
 
 /** Gerador de IA reutilizável por tipo (essay, tutor, ...). Rascunho human-in-the-loop. */
@@ -73,10 +74,10 @@ export async function IaGenerator({
                     </span>
                   )}
                 </div>
-                {d.prompt && <p className="mt-1 text-xs text-muted-foreground">↳ {d.prompt}</p>}
-                {d.output && (
-                  <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{d.output}</p>
+                {d.prompt && (
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">↳ {d.prompt}</p>
                 )}
+                {d.output && <MarkdownView className="mt-2">{d.output}</MarkdownView>}
               </li>
             ))}
           </ul>
