@@ -80,6 +80,8 @@ import {
   generateActivityWithWayOn,
   generateFlashcardsWithWayOn,
   deleteFlashcardDeck,
+  getFlashcardDeck,
+  setFlashcardCardImage,
   generateQuizWithWayOn,
   listMaterials,
   restoreActivity,
@@ -260,6 +262,25 @@ export async function generateFlashcardsAction(formData: FormData): Promise<void
   const deck = await generateFlashcardsWithWayOn(db(), ctx, input);
   revalidatePath('/app/ia/flashcards', 'page');
   redirect(`/app/ia/flashcards/${deck.id}`);
+}
+
+/** Gera e anexa uma ilustração (gpt-image-1) a um card do baralho — para a criança ver. */
+export async function illustrateFlashcardCardAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const deckId = String(formData.get('deckId') ?? '');
+  const index = Number(formData.get('index') ?? -1);
+  if (!deckId || index < 0) return;
+  const deck = await getFlashcardDeck(db(), ctx, deckId);
+  const card = deck?.cards[index];
+  if (!card) return;
+  const prompt =
+    `Ilustração simples, colorida e amigável para criança, representando: ${card.front}. ` +
+    'Estilo de flashcard educativo, fundo branco, sem texto na imagem.';
+  const { b64 } = await generateTenantImage(db(), ctx, prompt, 'low');
+  const url = await uploadPublicImagePng(ctx.tenantId, b64);
+  await recordImages(db(), ctx.tenantId, 1);
+  await setFlashcardCardImage(db(), ctx, deckId, index, url);
+  revalidatePath(`/app/ia/flashcards/${deckId}`, 'page');
 }
 
 export async function deleteFlashcardDeckAction(formData: FormData): Promise<void> {

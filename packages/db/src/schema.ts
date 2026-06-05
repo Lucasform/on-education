@@ -1069,7 +1069,10 @@ export const flashcardDecks = oe.table(
     subject: text('subject'),
     gradeLevel: text('grade_level'),
     ageBand: text('age_band'),
-    cards: jsonb('cards').$type<{ front: string; back: string }[]>().notNull().default([]),
+    cards: jsonb('cards')
+      .$type<{ front: string; back: string; image?: string }[]>()
+      .notNull()
+      .default([]),
     aiGenerated: boolean('ai_generated').notNull().default(false),
     ...auditCols,
   },

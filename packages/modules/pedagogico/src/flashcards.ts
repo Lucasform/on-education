@@ -10,7 +10,7 @@ import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/mo
 import type { GenerateFlashcardsInput } from '@on-education/validation';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
-type Card = { front: string; back: string };
+type Card = { front: string; back: string; image?: string };
 
 /** Extrai os cards do JSON da IA (tolerante a cercas ```json e texto ao redor). */
 function parseCards(raw: string): Card[] {
@@ -102,6 +102,27 @@ export async function getFlashcardDeck(client: DbClient, ctx: AuthContext, id: s
       .from(flashcardDecks)
       .where(and(eq(flashcardDecks.id, id), isNull(flashcardDecks.deletedAt)));
     return rows[0] ?? null;
+  });
+}
+
+/** Define a URL da imagem de um card específico do baralho (após gerar/subir a imagem). */
+export async function setFlashcardCardImage(
+  client: DbClient,
+  ctx: AuthContext,
+  deckId: string,
+  index: number,
+  url: string,
+) {
+  assertCan(ctx, 'update', 'activity');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx.select().from(flashcardDecks).where(eq(flashcardDecks.id, deckId));
+    const deck = rows[0];
+    if (!deck) return;
+    const cards = deck.cards.map((c, i) => (i === index ? { ...c, image: url } : c));
+    await tx
+      .update(flashcardDecks)
+      .set({ cards, updatedAt: new Date() })
+      .where(eq(flashcardDecks.id, deckId));
   });
 }
 
