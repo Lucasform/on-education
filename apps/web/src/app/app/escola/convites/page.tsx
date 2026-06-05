@@ -1,9 +1,9 @@
 import { SubmitButton } from '@/components/submit-button';
-import { ROLES } from '@on-education/core';
 import { listInvitations } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { inviteStatusLabel, roleLabel, STAFF_ROLES } from '@/lib/roles';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -32,7 +32,7 @@ export default async function ConvitesPage() {
                 <li key={c.id}>
                   {c.email}{' '}
                   <span className="opacity-60">
-                    · {c.role} · {c.status}
+                    · {roleLabel(c.role)} · {inviteStatusLabel(c.status)}
                   </span>
                 </li>
               ))}
@@ -50,9 +50,9 @@ export default async function ConvitesPage() {
               className={fieldClass}
             />
             <select name="role" className={fieldClass} defaultValue="teacher">
-              {ROLES.map((r) => (
+              {STAFF_ROLES.map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {roleLabel(r)}
                 </option>
               ))}
             </select>

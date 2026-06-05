@@ -13,6 +13,20 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 00:10] — WhatsApp Fase 2: envio + ajustes de texto — STATUS: CONCLUÍDO
+
+- **Tarefa:** enviar pelo WhatsApp. Regra do Lucas: **individual ok; lote só com alerta de ban**.
+- **O que foi feito:**
+  - **Envio individual** (sem risco): em **Mensagens**, checkbox "Enviar também no WhatsApp do responsável" (só aparece se o canal está conectado) → manda a mensagem pro telefone do responsável.
+  - **Envio em lote** (com alerta): em **Comunicados**, botão "WhatsApp a todos" nos publicados, atrás de `ConfirmButton` que **avisa do risco de ban da Meta**. Envio **sequencial** (sem paralelizar) pra reduzir risco.
+  - Helper `sendWhatsappText` em `actions.ts` (checa canal ativo + `evoSendText`); `broadcastComunicadoWhatsappAction` (lote sequencial).
+  - **Ajustes de texto:** "workspace" → "área de trabalho" (login/cadastro); papéis em pt-BR — novo `lib/roles.ts` (`roleLabel`/`STAFF_ROLES`/`inviteStatusLabel`) aplicado em **Convites** (mostrava `director`/`teacher` crus e o select em inglês).
+- **Arquivos:** `app/app/actions.ts`, `app/app/mensagens/page.tsx`, `app/app/comunicados/page.tsx`, `app/app/escola/convites/page.tsx`, `lib/roles.ts` (novo), `app/login/page.tsx`, `app/signup/page.tsx`.
+- **Migrations/RLS:** não. **Testes:** `tsc` + `eslint` + `next build` verdes.
+- **Pendências:** **Fase 3 — inbox** (webhook + receber/responder). Envio depende da `SUPABASE_SERVICE_ROLE_KEY` e do canal conectado (e `EVOLUTION_*` no Vercel). Responsividade das páginas (pedido do Lucas) ainda a melhorar. Replicar `roleLabel` em outras telas se aparecer papel cru.
+- **Próximo passo sugerido:** Fase 3 (inbox) OU atacar a responsividade.
+- **Commit(s):** ver `feat: whatsapp fase 2 (envio individual + lote com alerta) + textos pt-br`.
+
 ### [2026-06-04 23:30] — WhatsApp Fase 1: conexão (Evolution API, QR self-service) — STATUS: CONCLUÍDO
 
 - **Tarefa:** "coisa grande" — escola/professor conecta o próprio WhatsApp e usa pra comunicação. Decisão do Lucas: **Evolution API** (igual OnWay Condomínio), usando as edge functions do Condomínio como base, adaptadas pro Next.js.

@@ -25,7 +25,7 @@ export default async function LoginPage({
   return (
     <AuthShell
       title="Entrar"
-      subtitle="Acesse seu workspace."
+      subtitle="Acesse sua área de trabalho."
       footer={
         <>
           Não tem conta?{' '}

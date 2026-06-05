@@ -46,6 +46,8 @@ import {
   restoreStudent,
   unlinkClassSubject,
   unlinkGuardian,
+  getWhatsappConnection,
+  listGuardians,
   updateClassDetails,
   upsertTenantSettings,
 } from '@on-education/module-nucleo';
@@ -124,6 +126,7 @@ import { parseCsvRecords, pick } from '@/lib/csv';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
 import { removeTenantFile, uploadPublicLogo, uploadTenantFile } from '@/server/storage';
+import { evoSendText, normalizePhone, whatsappConfigured } from '@/server/whatsapp';
 
 export async function logoutAction(): Promise<void> {
   await signOut();
@@ -134,6 +137,22 @@ async function requireCtx(): Promise<AuthContext> {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   return ctx;
+}
+
+/**
+ * Envia um texto pelo WhatsApp do tenant (Evolution), se conectado. No-op silencioso se o
+ * canal não estiver configurado/ativo ou o número faltar. Devolve se entregou.
+ */
+async function sendWhatsappText(
+  ctx: AuthContext,
+  phone: string | null | undefined,
+  text: string,
+): Promise<boolean> {
+  if (!whatsappConfigured() || !phone) return false;
+  const conn = await getWhatsappConnection(db(), ctx);
+  if (!conn?.active) return false;
+  const r = await evoSendText(conn.instanceId, normalizePhone(phone), text);
+  return r.ok && !r.noWhatsapp;
 }
 
 export async function createClassAction(formData: FormData): Promise<void> {
@@ -712,7 +731,30 @@ export async function createMessageAction(formData: FormData): Promise<void> {
     body: (formData.get('body') as string) || '',
   });
   await createMessage(db(), ctx, input);
+  // Envio individual no WhatsApp (sem risco de ban) quando marcado e o canal está ativo.
+  if (formData.get('sendWhatsapp') === 'on') {
+    const g = (await listGuardians(db(), ctx)).find((x) => x.id === input.guardianId);
+    await sendWhatsappText(ctx, g?.phone, `*${input.subject}*\n\n${input.body ?? ''}`).catch(
+      () => false,
+    );
+  }
   revalidatePath('/app/mensagens', 'page');
+}
+
+/**
+ * Envia um comunicado no WhatsApp para TODOS os responsáveis com telefone (LOTE).
+ * Sequencial (sem paralelizar) para reduzir risco de ban; a UI alerta antes de disparar.
+ */
+export async function broadcastComunicadoWhatsappAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const title = String(formData.get('title') ?? '');
+  const body = String(formData.get('body') ?? '');
+  const text = `*${title}*\n\n${body}`;
+  const guardians = (await listGuardians(db(), ctx)).filter((g) => g.phone);
+  for (const g of guardians) {
+    await sendWhatsappText(ctx, g.phone, text).catch(() => false);
+  }
+  revalidatePath('/app/comunicados', 'page');
 }
 
 export async function deleteMessageAction(formData: FormData): Promise<void> {

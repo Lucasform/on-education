@@ -1,6 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
 import { listCommunications } from '@on-education/module-comunicacao';
+import { getWhatsappConnection } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -9,6 +10,7 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import {
+  broadcastComunicadoWhatsappAction,
   createCommunicationAction,
   deleteCommunicationAction,
   generateCommunicationAction,
@@ -23,6 +25,7 @@ export default async function ComunicadosPage() {
   if (!ctx) redirect('/login');
   const comunicados = await listCommunications(db(), ctx);
   const aiOn = isAiConfigured();
+  const wa = await getWhatsappConnection(db(), ctx).catch(() => null);
 
   return (
     <>
@@ -91,6 +94,19 @@ export default async function ComunicadosPage() {
                         <SubmitButton type="submit" size="sm">
                           Publicar
                         </SubmitButton>
+                      </form>
+                    )}
+                    {wa?.active && c.status === 'published' && (
+                      <form action={broadcastComunicadoWhatsappAction}>
+                        <input type="hidden" name="title" value={c.title} />
+                        <input type="hidden" name="body" value={c.body ?? ''} />
+                        <ConfirmButton
+                          size="sm"
+                          variant="outline"
+                          message="Enviar este comunicado no WhatsApp para TODOS os responsáveis com telefone? Envio em LOTE pode levar a bloqueio/ban do número pela Meta. Use com moderação."
+                        >
+                          WhatsApp a todos
+                        </ConfirmButton>
                       </form>
                     )}
                     <form action={deleteCommunicationAction}>

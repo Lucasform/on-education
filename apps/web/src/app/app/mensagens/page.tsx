@@ -1,6 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { listMessages } from '@on-education/module-comunicacao';
-import { listGuardians, listStudents } from '@on-education/module-nucleo';
+import { getWhatsappConnection, listGuardians, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -24,6 +24,7 @@ export default async function MensagensPage() {
   ]);
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));
+  const wa = await getWhatsappConnection(client, ctx).catch(() => null);
 
   return (
     <>
@@ -99,12 +100,20 @@ export default async function MensagensPage() {
               </select>
               <input name="subject" required placeholder="Assunto" className={fieldClass} />
               <textarea name="body" rows={4} placeholder="Mensagem" className={fieldClass} />
+              {wa?.active && (
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" name="sendWhatsapp" className="h-4 w-4" />
+                  Enviar também no WhatsApp do responsável (se tiver telefone)
+                </label>
+              )}
               <SubmitButton type="submit" size="sm">
                 Registrar mensagem
               </SubmitButton>
             </form>
             <p className="mt-2 text-xs text-muted-foreground">
-              Por enquanto fica registrado no sistema. O envio por e-mail/WhatsApp entra depois.
+              {wa?.active
+                ? 'Fica registrado no sistema; marque a opção para enviar também no WhatsApp.'
+                : 'Fica registrado no sistema. Conecte o WhatsApp (menu Comunicação) para enviar por lá.'}
             </p>
           </div>
         </div>
