@@ -85,7 +85,7 @@ export const NAV: NavGroup[] = [
       { label: 'Responsáveis', href: '/app/escola/responsaveis', icon: Contact },
       { label: 'Notas e pesos', href: '/app/escola/notas', icon: ClipboardList },
       { label: 'Personalização', href: '/app/escola/personalizacao', icon: Palette },
-      soon('Matrícula e documentos', 'matricula', FileSignature),
+      { label: 'Matrícula', href: '/app/matricula', icon: FileSignature },
     ],
   },
   {
