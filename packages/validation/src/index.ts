@@ -63,6 +63,8 @@ export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 export const createActivitySchema = z.object({
   title: z.string().min(1).max(300),
   subject: z.string().max(120).optional(),
+  gradeLevel: z.string().max(60).optional(),
+  ageBand: z.string().max(20).optional(),
   content: z.string().max(50_000).default(''),
   tags: z.array(z.string().min(1).max(40)).max(30).default([]),
   aiGenerated: z.boolean().default(false),
@@ -75,6 +77,9 @@ export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 export const searchActivitiesSchema = z.object({
   q: z.string().max(300).optional(),
   tag: z.string().max(40).optional(),
+  subject: z.string().max(120).optional(),
+  gradeLevel: z.string().max(60).optional(),
+  ageBand: z.string().max(20).optional(),
 });
 export type SearchActivitiesInput = z.infer<typeof searchActivitiesSchema>;
 
@@ -384,6 +389,8 @@ export const generateActivitySchema = z.object({
   subject: z.string().max(120).optional(),
   level: z.string().max(120).optional(),
   kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),
+  gradeLevel: z.string().max(60).optional(),
+  ageBand: z.string().max(20).optional(),
   // Texto dos materiais da turma para o WayOn se basear (RAG-lite).
   context: z.string().max(60_000).optional(),
 });

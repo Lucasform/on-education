@@ -35,6 +35,8 @@ export async function createActivity(
         tenantId: ctx.tenantId,
         title: input.title,
         subject: input.subject ?? null,
+        gradeLevel: input.gradeLevel ?? null,
+        ageBand: input.ageBand ?? null,
         content: input.content,
         tags: input.tags,
         aiGenerated: input.aiGenerated,
@@ -106,7 +108,8 @@ export async function generateActivityWithWayOn(
   const prompt =
     `${tipo.verbo}: ${input.topic}.` +
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +
-    (input.level ? ` Nível/ano: ${input.level}.` : '') +
+    (input.gradeLevel || input.level ? ` Série/ano: ${input.gradeLevel ?? input.level}.` : '') +
+    (input.ageBand ? ` Faixa etária: ${input.ageBand} anos.` : '') +
     (input.context
       ? `\n\n--- MATERIAIS DA TURMA (referência) ---\n${input.context}\n--- FIM DOS MATERIAIS ---`
       : '');
@@ -120,6 +123,8 @@ export async function generateActivityWithWayOn(
         tenantId: ctx.tenantId,
         title: `${tipo.prefixo}${input.topic}`.slice(0, 200),
         subject: input.subject ?? null,
+        gradeLevel: input.gradeLevel ?? input.level ?? null,
+        ageBand: input.ageBand ?? null,
         content: result.text,
         tags: ['eduon', tipo.tag],
         aiGenerated: true,
@@ -191,6 +196,9 @@ export async function listActivities(
     const filters = [isNull(activities.deletedAt)];
     if (search.tag) filters.push(arrayContains(activities.tags, [search.tag]));
     if (search.q) filters.push(ilike(activities.title, `%${search.q}%`));
+    if (search.subject) filters.push(eq(activities.subject, search.subject));
+    if (search.gradeLevel) filters.push(eq(activities.gradeLevel, search.gradeLevel));
+    if (search.ageBand) filters.push(eq(activities.ageBand, search.ageBand));
     return tx
       .select()
       .from(activities)

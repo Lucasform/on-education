@@ -301,6 +301,9 @@ export const activities = oe.table(
     tenantId: uuid('tenant_id').notNull(),
     title: text('title').notNull(),
     subject: text('subject'),
+    // Classificação para filtrar no banco: série/ano e faixa etária (faixa derivada da série).
+    gradeLevel: text('grade_level'),
+    ageBand: text('age_band'),
     content: text('content').notNull().default(''),
     tags: text('tags').array().notNull().default([]),
     aiGenerated: boolean('ai_generated').notNull().default(false),

@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
+import { FAIXAS, SERIES } from '@/lib/series';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -15,11 +17,21 @@ import { createActivityAction, generateActivityAction } from '../actions';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Banco de atividades · Edu On Way' };
 
-export default async function AtividadesPage() {
+export default async function AtividadesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ subject?: string; gradeLevel?: string; ageBand?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  const sp = await searchParams;
+  const search = {
+    subject: sp.subject || undefined,
+    gradeLevel: sp.gradeLevel || undefined,
+    ageBand: sp.ageBand || undefined,
+  };
   const [atividades, turmas] = await Promise.all([
-    listActivities(db(), ctx, {}),
+    listActivities(db(), ctx, search),
     listClasses(db(), ctx).catch(() => []),
   ]);
   const aiOn = isAiConfigured();
@@ -30,8 +42,46 @@ export default async function AtividadesPage() {
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Atividades ({atividades.length})</h2>
+
+          <form method="get" className="mb-3 flex flex-wrap gap-2">
+            <input
+              name="subject"
+              defaultValue={sp.subject ?? ''}
+              placeholder="Matéria"
+              className={`${fieldClass} w-32`}
+            />
+            <select
+              name="gradeLevel"
+              defaultValue={sp.gradeLevel ?? ''}
+              className={`${fieldClass} w-36`}
+            >
+              <option value="">Série</option>
+              {SERIES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.value}
+                </option>
+              ))}
+            </select>
+            <select name="ageBand" defaultValue={sp.ageBand ?? ''} className={`${fieldClass} w-28`}>
+              <option value="">Faixa</option>
+              {FAIXAS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="rounded-md border border-border px-3 text-sm">
+              Filtrar
+            </button>
+            {(sp.subject || sp.gradeLevel || sp.ageBand) && (
+              <Link href="/app/atividades" className="px-2 text-sm text-muted-foreground">
+                Limpar
+              </Link>
+            )}
+          </form>
+
           {atividades.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhuma atividade ainda.</p>
+            <p className="text-sm text-muted-foreground">Nenhuma atividade encontrada.</p>
           ) : (
             <ul className="space-y-1 text-sm">
               {atividades.map((a) => (
@@ -42,8 +92,13 @@ export default async function AtividadesPage() {
                   >
                     {a.title}
                   </Link>
-                  {a.tags.length > 0 && (
-                    <span className="text-muted-foreground"> · {a.tags.join(', ')}</span>
+                  {(a.subject || a.gradeLevel || a.ageBand) && (
+                    <span className="text-muted-foreground">
+                      {' · '}
+                      {[a.subject, a.gradeLevel, a.ageBand && `${a.ageBand} anos`]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
                   )}
                 </li>
               ))}
@@ -73,14 +128,8 @@ export default async function AtividadesPage() {
                   placeholder="Tema (ex.: interpretação de texto, 5º ano)"
                   className={fieldClass}
                 />
-                <div className="flex gap-2">
-                  <input
-                    name="subject"
-                    placeholder="Disciplina (opcional)"
-                    className={fieldClass}
-                  />
-                  <input name="level" placeholder="Nível/ano" className={fieldClass} />
-                </div>
+                <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
+                <SerieFaixaPicker />
                 {turmas.length > 0 && (
                   <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                     Basear nos materiais de uma turma (opcional)
@@ -115,6 +164,7 @@ export default async function AtividadesPage() {
                 className={fieldClass}
               />
               <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
+              <SerieFaixaPicker />
               <textarea name="content" placeholder="Conteúdo" rows={4} className={fieldClass} />
               <input name="tags" placeholder="Tags separadas por vírgula" className={fieldClass} />
               <SubmitButton type="submit" size="sm" variant="outline">

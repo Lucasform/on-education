@@ -198,6 +198,8 @@ export async function createActivityAction(formData: FormData): Promise<void> {
   const input = createActivitySchema.parse({
     title: formData.get('title'),
     subject: (formData.get('subject') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageBand: (formData.get('ageBand') as string) || undefined,
     content: (formData.get('content') as string) || '',
     tags,
     aiGenerated: false,
@@ -223,6 +225,8 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     topic: formData.get('topic'),
     subject: (formData.get('subject') as string) || undefined,
     level: (formData.get('level') as string) || undefined,
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    ageBand: (formData.get('ageBand') as string) || undefined,
     kind: (formData.get('kind') as string) || 'atividade',
     context,
   });

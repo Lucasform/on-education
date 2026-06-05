@@ -211,6 +211,13 @@
       "when": 1780677294771,
       "tag": "0029_ai_standard_samples",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1780677660862,
+      "tag": "0030_activity_classification",
+      "breakpoints": true
     }
   ]
 }
