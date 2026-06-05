@@ -51,9 +51,11 @@ describe.skipIf(!DATABASE_URL)('banco de atividades — integração (1B.3)', ()
   it('cria, busca por tag e faz soft delete', async () => {
     const a = await createActivity(client, ctx, {
       title: 'Frações para 6º ano',
+      kind: 'atividade',
       content: 'conteúdo',
       tags: ['matematica', 'fracoes'],
       aiGenerated: false,
+      approved: true,
     });
     const porTag = await listActivities(client, ctx, { tag: 'fracoes' });
     expect(porTag.some((x) => x.id === a.id)).toBe(true);
