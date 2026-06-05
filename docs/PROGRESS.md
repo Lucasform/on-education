@@ -13,6 +13,21 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 01:00] — WhatsApp Fase 3: inbox (webhook + receber/responder) — STATUS: CONCLUÍDO
+
+- **Tarefa:** receber e responder mensagens dentro do app (estilo Condomínio).
+- **O que foi feito:**
+  - Tabelas **`whatsapp_conversations`** + **`whatsapp_messages`** (migration `0024`, RLS) — **aplicadas em prod**.
+  - **Webhook público** `app/api/whatsapp/webhook` (valida `?secret=` contra `whatsapp_connections.webhook_secret`, parser do payload Evolution igual ao Condomínio: `data.key.remoteJid`/`message.conversation`/`fromMe`/`pushName`) → grava conversa (upsert por telefone) + mensagem recebida + bump de não-lidas. A rota de connect já registra esse webhook.
+  - **Módulo** `nucleo/whatsapp-inbox.ts`: lado webhook (admin, sem RLS, por `tenantId`) e lado UI (`withTenant` + RBAC `communication`): list/get conversa, mensagens, marcar lida, registrar enviada.
+  - **UI:** `/app/whatsapp/inbox` (lista de conversas + badge de não-lidas) e `/app/whatsapp/inbox/[id]` (thread com bolhas in/out + responder). `replyWhatsappAction` envia no Evolution e registra a saída. Abrir a conversa marca como lida. Itens de nav: WhatsApp + Inbox WhatsApp.
+- **Arquivos:** `packages/db/src/schema.ts` (+`drizzle/0024_whatsapp_inbox.sql`), `packages/modules/nucleo/src/{whatsapp-inbox.ts,index.ts}`, `apps/web/src/app/api/whatsapp/webhook/route.ts`, `apps/web/src/app/app/whatsapp/inbox/*`, `apps/web/src/app/app/actions.ts`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** `0024_whatsapp_inbox` — aplicada em prod.
+- **Testes:** `tsc` + `eslint` + `next build` verdes (rotas webhook + inbox geradas).
+- **Pendências:** sem realtime (precisa recarregar o thread pra ver novas; polling/realtime depois). Webhook só funciona em prod com a URL pública (Vercel) + `EVOLUTION_*` no Vercel. **Epic WhatsApp (Fases 1-3) COMPLETO.**
+- **Próximo passo sugerido:** **responsividade das páginas** (pedido recorrente do Lucas); ou realtime no inbox.
+- **Commit(s):** ver `feat: whatsapp fase 3 (inbox: webhook + receber/responder)`.
+
 ### [2026-06-05 00:10] — WhatsApp Fase 2: envio + ajustes de texto — STATUS: CONCLUÍDO
 
 - **Tarefa:** enviar pelo WhatsApp. Regra do Lucas: **individual ok; lote só com alerta de ban**.

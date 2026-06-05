@@ -46,8 +46,11 @@ import {
   restoreStudent,
   unlinkClassSubject,
   unlinkGuardian,
+  getConversation,
   getWhatsappConnection,
   listGuardians,
+  markConversationRead,
+  recordOutgoingMessage,
   updateClassDetails,
   upsertTenantSettings,
 } from '@on-education/module-nucleo';
@@ -755,6 +758,20 @@ export async function broadcastComunicadoWhatsappAction(formData: FormData): Pro
     await sendWhatsappText(ctx, g.phone, text).catch(() => false);
   }
   revalidatePath('/app/comunicados', 'page');
+}
+
+/** Responde uma conversa do inbox: envia no WhatsApp e registra a mensagem enviada. */
+export async function replyWhatsappAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const conversationId = String(formData.get('conversationId') ?? '');
+  const body = String(formData.get('body') ?? '').trim();
+  if (!conversationId || !body) return;
+  const conv = await getConversation(db(), ctx, conversationId);
+  if (!conv) return;
+  const sent = await sendWhatsappText(ctx, conv.phone, body).catch(() => false);
+  if (sent) await recordOutgoingMessage(db(), ctx, conversationId, body);
+  await markConversationRead(db(), ctx, conversationId);
+  revalidatePath(`/app/whatsapp/inbox/${conversationId}`, 'page');
 }
 
 export async function deleteMessageAction(formData: FormData): Promise<void> {

@@ -134,6 +134,7 @@ export const NAV: NavGroup[] = [
       { label: 'Mural dos pais', href: '/app/mural', icon: Megaphone },
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
       { label: 'WhatsApp', href: '/app/whatsapp', icon: Phone },
+      { label: 'Inbox WhatsApp', href: '/app/whatsapp/inbox', icon: MessagesSquare },
     ],
   },
   {

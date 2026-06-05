@@ -990,6 +990,43 @@ export const whatsappConnections = oe.table(
   ],
 );
 
+// whatsapp_conversations / whatsapp_messages — inbox do WhatsApp (Fase 3). Uma conversa por
+// número; mensagens com direção in/out. RLS por tenant.
+export const whatsappConversations = oe.table(
+  'whatsapp_conversations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    phone: text('phone').notNull(),
+    contactName: text('contact_name'),
+    lastMessage: text('last_message'),
+    lastMessageAt: timestamp('last_message_at', { withTimezone: true }),
+    unread: integer('unread').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('whatsapp_conversations_tenant_phone_uq').on(t.tenantId, t.phone),
+    tenantPolicy('whatsapp_conversations_tenant_isolation'),
+  ],
+);
+
+export const whatsappMessages = oe.table(
+  'whatsapp_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    conversationId: uuid('conversation_id').notNull(),
+    direction: text('direction').notNull(),
+    body: text('body').notNull(),
+    waMessageId: text('wa_message_id'),
+    ...auditCols,
+  },
+  (t) => [
+    index('whatsapp_messages_conv_idx').on(t.conversationId),
+    tenantPolicy('whatsapp_messages_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1033,4 +1070,6 @@ export const schema = {
   invoices,
   sharedActivities,
   whatsappConnections,
+  whatsappConversations,
+  whatsappMessages,
 };

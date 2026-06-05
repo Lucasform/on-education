@@ -14,3 +14,4 @@ export * from './settings';
 export * from './occurrences';
 export * from './finance';
 export * from './whatsapp';
+export * from './whatsapp-inbox';
