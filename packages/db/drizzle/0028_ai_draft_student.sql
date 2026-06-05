@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."ai_drafts" ADD COLUMN "student_id" uuid;

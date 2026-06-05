@@ -61,6 +61,7 @@ export async function generateDraft(
       .values({
         tenantId: ctx.tenantId,
         kind: input.kind,
+        studentId: input.studentId ?? null,
         prompt: input.prompt,
         output: result.text,
         status: 'draft',

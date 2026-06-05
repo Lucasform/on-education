@@ -13,15 +13,19 @@ export async function IaGenerator({
   kind,
   promptPlaceholder,
   generateLabel,
+  students,
 }: {
   ctx: AuthContext;
   kind: string;
   promptPlaceholder: string;
   generateLabel: string;
+  /** Quando fornecido, mostra um seletor para vincular o rascunho a um aluno. */
+  students?: { id: string; fullName: string }[];
 }) {
   const all = await listDrafts(db(), ctx);
   const items = all.filter((d) => d.kind === kind);
   const aiOn = isAiConfigured();
+  const nameById = new Map((students ?? []).map((s) => [s.id, s.fullName]));
 
   return (
     <>
@@ -36,6 +40,16 @@ export async function IaGenerator({
               placeholder={promptPlaceholder}
               className={fieldClass}
             />
+            {students && students.length > 0 && (
+              <select name="studentId" defaultValue="" className={fieldClass}>
+                <option value="">Vincular a um aluno (opcional)</option>
+                {students.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.fullName}
+                  </option>
+                ))}
+              </select>
+            )}
             <Button type="submit" size="sm">
               {generateLabel}
             </Button>
@@ -56,7 +70,14 @@ export async function IaGenerator({
             {items.map((d) => (
               <li key={d.id} className="rounded-md border border-border p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">{d.status}</span>
+                  <span className="text-muted-foreground">
+                    {d.status}
+                    {d.studentId && nameById.get(d.studentId) && (
+                      <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                        {nameById.get(d.studentId)}
+                      </span>
+                    )}
+                  </span>
                   {d.status === 'draft' && (
                     <span className="flex gap-2">
                       <form action={approveDraftAction}>

@@ -26,7 +26,8 @@ async function downscale(file: File): Promise<Blob> {
   }
 }
 
-export function RedacaoFoto() {
+export function RedacaoFoto({ students = [] }: { students?: { id: string; fullName: string }[] }) {
+  const [studentId, setStudentId] = useState('');
   const [previews, setPreviews] = useState<{ url: string; blob: Blob }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,9 +201,25 @@ export function RedacaoFoto() {
             </p>
           )}
 
+          {students.length > 0 && (
+            <select
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              className={fieldClass}
+            >
+              <option value="">Vincular a um aluno (opcional)</option>
+              {students.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.fullName}
+                </option>
+              ))}
+            </select>
+          )}
+
           <form action={generateDraftAction}>
             <input type="hidden" name="kind" value="essay" />
             <input type="hidden" name="prompt" value={promptFinal} />
+            <input type="hidden" name="studentId" value={studentId} />
             <SubmitButton type="submit" size="sm">
               Corrigir com o WayOn
             </SubmitButton>

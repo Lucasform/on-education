@@ -362,6 +362,8 @@ export const aiDrafts = oe.table(
     id: uuid('id').defaultRandom().primaryKey(),
     tenantId: uuid('tenant_id').notNull(),
     kind: text('kind').notNull(), // 'lesson_plan' | 'activity' | ...
+    // Aluno vinculado (opcional, ex.: correção de redação de um aluno específico).
+    studentId: uuid('student_id'),
     prompt: text('prompt').notNull(),
     output: text('output').notNull().default(''),
     status: text('status').notNull().default('draft'), // draft | approved | discarded

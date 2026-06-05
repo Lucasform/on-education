@@ -233,6 +233,7 @@ export async function generateDraftAction(formData: FormData): Promise<void> {
   const input = generateDraftSchema.parse({
     kind: formData.get('kind'),
     prompt: formData.get('prompt'),
+    studentId: (formData.get('studentId') as string) || undefined,
   });
   // Usa o provider Anthropic default (exige ANTHROPIC_API_KEY). A UI só mostra o form
   // quando a IA está configurada; aqui a chamada lança erro legível se faltar a key.
