@@ -49,6 +49,7 @@ import {
   getConversation,
   getWhatsappConnection,
   listGuardians,
+  listInvoices,
   markConversationRead,
   recordOutgoingMessage,
   updateClassDetails,
@@ -126,6 +127,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 import { parseCsvRecords, pick } from '@/lib/csv';
+import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
 import { removeTenantFile, uploadPublicLogo, uploadTenantFile } from '@/server/storage';
@@ -773,6 +775,27 @@ export async function replyWhatsappAction(formData: FormData): Promise<void> {
   if (sent) await recordOutgoingMessage(db(), ctx, conversationId, body);
   await markConversationRead(db(), ctx, conversationId);
   revalidatePath(`/app/whatsapp/inbox/${conversationId}`, 'page');
+}
+
+/** Cobra um responsável inadimplente no WhatsApp (lembrete do total vencido). Individual. */
+export async function cobrarInadimplenteWhatsappAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const guardianId = String(formData.get('guardianId') ?? '');
+  if (!guardianId) return;
+  const g = (await listGuardians(db(), ctx)).find((x) => x.id === guardianId);
+  if (!g?.phone) return;
+  const hoje = hojeISO();
+  const vencidas = (await listInvoices(db(), ctx)).filter(
+    (i) => i.guardianId === guardianId && i.status === 'aberto' && i.dueDate < hoje,
+  );
+  const totalCents = vencidas.reduce((s, i) => s + i.amountCents, 0);
+  if (totalCents <= 0) return;
+  const reais = (totalCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const text =
+    `Olá! Consta um valor em aberto de ${reais} referente a ${vencidas.length} ` +
+    `mensalidade(s). Se já pagou, desconsidere. Qualquer dúvida, estamos à disposição.`;
+  await sendWhatsappText(ctx, g.phone, text).catch(() => false);
+  revalidatePath('/app/inadimplencia', 'page');
 }
 
 export async function deleteMessageAction(formData: FormData): Promise<void> {

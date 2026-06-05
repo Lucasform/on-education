@@ -27,7 +27,6 @@ import {
   PenLine,
   Phone,
   Plug,
-  School,
   Sparkles,
   Trash2,
   UserPlus,
@@ -112,7 +111,6 @@ export const NAV: NavGroup[] = [
       { label: 'Simulados e quizzes', href: '/app/simulados', icon: ClipboardList },
       { label: 'Portfólio', href: '/app/portfolio', icon: BookOpen },
       { label: 'Documentos', href: '/app/documentos', icon: FileSignature },
-      soon('Planejamento BNCC', 'bncc', BookOpen),
     ],
   },
   {
@@ -142,7 +140,6 @@ export const NAV: NavGroup[] = [
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
       soon('Dashboards avançados', 'dashboards', BarChart3),
-      soon('Censo INEP', 'inep', School),
     ],
   },
   {
@@ -150,7 +147,7 @@ export const NAV: NavGroup[] = [
     only: 'organization',
     items: [
       { label: 'Mensalidades', href: '/app/financeiro', icon: Wallet },
-      soon('Inadimplência', 'inadimplencia', AlertCircle),
+      { label: 'Inadimplência', href: '/app/inadimplencia', icon: AlertCircle },
     ],
   },
   {
