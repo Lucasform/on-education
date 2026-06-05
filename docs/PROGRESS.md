@@ -13,6 +13,20 @@
 
 ## Log de checkpoints
 
+### [2026-06-05 03:00] — "Em breve" → reais: Inadimplência, Dashboards, Matrícula, API aberta — STATUS: CONCLUÍDO
+
+- **Decisão:** dos 8 itens "em breve", **NFS-e, Marketplace, BNCC e INEP** ficam pra **v2** (saíram do menu). Os outros 4 foram construídos (lean).
+- **Inadimplência** (`/app/inadimplencia`): responsáveis com mensalidades vencidas (agrupa por responsável, total/atraso), botão "Cobrar no WhatsApp" individual.
+- **Dashboards** (`/app/dashboards`): KPIs financeiros + % inadimplência, distribuição de notas (faixas), frequência geral.
+- **Matrícula** (`/app/matricula`): roster por turma + matrícula rápida + atalho pros documentos.
+- **API aberta** (`/app/api` + endpoint `/api/v1/[resource]`): chaves por tenant (migration `0026`), **hash sha256** (valor mostrado 1x via cookie-flash), criar/listar/revogar; endpoint REST read-only (`students`, `classes`) com `Authorization: Bearer`. Resolve tenant pela chave (`adminTenantContext`).
+- **Limpeza:** removido o helper `soon()`, `SOON_LABELS` e a rota `/app/em-breve` (dead code, todos viraram reais ou v2).
+- **Arquivos:** novos `app/app/{inadimplencia,dashboards,matricula,api}/page.tsx`, `app/api/v1/[resource]/route.ts`, `packages/modules/nucleo/src/api-keys.ts`; editados `actions.ts`, `nav.ts`, `schema.ts` (+`0026_api_keys.sql`), `index.ts`.
+- **Migrations/RLS:** `0026_api_keys` (RLS) aplicada em prod.
+- **Testes:** `tsc` + `eslint` + `next build` verdes.
+- **Pendências:** v2 = NFS-e, Marketplace, BNCC, INEP. API: só read-only e 2 recursos (expandir depois).
+- **Commit(s):** `feat: inadimplencia...`, `feat: dashboards...`, `feat: matricula...`, `feat: api aberta...`.
+
 ### [2026-06-05 02:00] — Nome do agente personalizável por escola — STATUS: CONCLUÍDO
 
 - **O que foi feito:** `tenant_settings.agent_name` (migration `0025`, aplicada em prod); campo "Nome do seu agente" em `/app/escola/personalizacao`; header da home do agente (`/app/ia`) usa o nome com fallback **WayOn**.

@@ -52,16 +52,8 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-const soon = (label: string, slug: string, icon: LucideIcon): NavItem => ({
-  label,
-  href: `/app/em-breve/${slug}`,
-  icon,
-  soon: true,
-});
-
 /**
- * Menu de funcionalidades (padrão On Condomínio): grupos + itens, cada item com sua própria
- * rota. Itens `soon` levam a uma página de "em construção" para já navegarem.
+ * Menu de funcionalidades (padrão On Condomínio): grupos + itens, cada item com sua própria rota.
  */
 export const NAV: NavGroup[] = [
   {
@@ -153,7 +145,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'Integrações',
     only: 'organization',
-    items: [soon('API aberta', 'api', Plug)],
+    items: [{ label: 'API aberta', href: '/app/api', icon: Plug }],
   },
 ];
 
@@ -180,10 +172,3 @@ export function navFor(tenantType: TenantType): NavGroup[] {
   }
   return groups;
 }
-
-/** Mapa slug -> rótulo para a página de "em construção". */
-export const SOON_LABELS: Record<string, string> = Object.fromEntries(
-  NAV.flatMap((g) => g.items)
-    .filter((i) => i.soon)
-    .map((i) => [i.href.split('/').pop() as string, i.label]),
-);

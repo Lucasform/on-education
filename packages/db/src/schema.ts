@@ -1029,6 +1029,26 @@ export const whatsappMessages = oe.table(
   ],
 );
 
+// api_keys — chaves de API por tenant (API aberta). Guarda só o HASH (sha256); o valor é
+// mostrado uma vez na criação. `token_prefix` é os 1os caracteres, só para exibir na lista.
+export const apiKeys = oe.table(
+  'api_keys',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    tokenPrefix: text('token_prefix').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('api_keys_tenant_idx').on(t.tenantId),
+    uniqueIndex('api_keys_hash_uq').on(t.tokenHash),
+    tenantPolicy('api_keys_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1074,4 +1094,5 @@ export const schema = {
   whatsappConnections,
   whatsappConversations,
   whatsappMessages,
+  apiKeys,
 };

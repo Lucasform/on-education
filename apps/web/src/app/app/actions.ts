@@ -13,6 +13,8 @@ import {
 import { approveDraft, discardDraft, generateDraft } from '@on-education/module-ia';
 import {
   assignTeaching,
+  createApiKey,
+  revokeApiKey,
   createAcademicYear,
   createClass,
   createClassesBulk,
@@ -123,6 +125,7 @@ import {
   recordAttendanceSchema,
   recordGradeSchema,
 } from '@on-education/validation';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
@@ -796,6 +799,30 @@ export async function cobrarInadimplenteWhatsappAction(formData: FormData): Prom
     `mensalidade(s). Se já pagou, desconsidere. Qualquer dúvida, estamos à disposição.`;
   await sendWhatsappText(ctx, g.phone, text).catch(() => false);
   revalidatePath('/app/inadimplencia', 'page');
+}
+
+// --- API aberta -------------------------------------------------------------
+
+export async function createApiKeyAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const name = String(formData.get('name') ?? '').trim();
+  const { key } = await createApiKey(db(), ctx, name);
+  // Mostra o valor UMA vez via cookie curto (httpOnly), depois some.
+  (await cookies()).set('oe_apikey_flash', key, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/app/api',
+    maxAge: 120,
+  });
+  redirect('/app/api');
+}
+
+export async function revokeApiKeyAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (id) await revokeApiKey(db(), ctx, id);
+  revalidatePath('/app/api', 'page');
 }
 
 export async function deleteMessageAction(formData: FormData): Promise<void> {
