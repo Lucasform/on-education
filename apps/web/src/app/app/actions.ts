@@ -769,9 +769,11 @@ export async function uploadStandardSampleAction(formData: FormData): Promise<vo
   const file = formData.get('file');
   if (!(file instanceof File) || file.size === 0) return;
   const title = (String(formData.get('title') ?? '').trim() || file.name).slice(0, 200);
+  const kind = (String(formData.get('kind') ?? 'outro') || 'outro').slice(0, 20);
   const up = await uploadTenantFile(ctx.tenantId, '_padrao', file);
   await createStandardSample(db(), ctx, {
     title,
+    kind,
     fileName: up.fileName,
     storagePath: up.path,
     extractedText: up.extractedText,

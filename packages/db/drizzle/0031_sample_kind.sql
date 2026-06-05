@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."ai_standard_samples" ADD COLUMN "kind" text DEFAULT 'outro' NOT NULL;

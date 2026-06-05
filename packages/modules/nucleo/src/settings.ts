@@ -93,7 +93,8 @@ export async function getAiStandard(client: DbClient, ctx: AuthContext): Promise
     for (const s of comTexto) {
       const trecho = s.extractedText!.trim().slice(0, Math.max(0, orcamento));
       if (!trecho) break;
-      blocos.push(`--- Modelo: ${s.title} ---\n${trecho}`);
+      const rotulo = s.kind === 'prova' ? 'PROVA' : s.kind === 'atividade' ? 'ATIVIDADE' : 'GERAL';
+      blocos.push(`--- Modelo de ${rotulo}: ${s.title} ---\n${trecho}`);
       orcamento -= trecho.length;
       if (orcamento <= 0) break;
     }
@@ -119,7 +120,13 @@ export async function listStandardSamples(client: DbClient, ctx: AuthContext) {
 export async function createStandardSample(
   client: DbClient,
   ctx: AuthContext,
-  input: { title: string; fileName: string; storagePath: string; extractedText?: string | null },
+  input: {
+    title: string;
+    fileName: string;
+    storagePath: string;
+    extractedText?: string | null;
+    kind?: string;
+  },
 ) {
   assertCan(ctx, 'update', 'tenant_settings');
   return client.withTenant(ctx.tenantId, async (tx) => {
@@ -127,6 +134,7 @@ export async function createStandardSample(
       .insert(aiStandardSamples)
       .values({
         tenantId: ctx.tenantId,
+        kind: input.kind ?? 'outro',
         title: input.title,
         fileName: input.fileName,
         storagePath: input.storagePath,

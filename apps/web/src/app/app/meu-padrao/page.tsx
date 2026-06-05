@@ -65,6 +65,11 @@ export default async function MeuPadraoPage() {
           imitar o FORMATO e o ESTILO deles em tudo que gerar.
         </p>
         <form action={uploadStandardSampleAction} className="flex flex-wrap items-end gap-2">
+          <select name="kind" defaultValue="prova" className={`${fieldClass} w-36`}>
+            <option value="prova">Prova</option>
+            <option value="atividade">Atividade</option>
+            <option value="outro">Outro</option>
+          </select>
           <input
             name="title"
             placeholder="Nome do modelo (ex.: Prova bimestral)"
@@ -90,6 +95,9 @@ export default async function MeuPadraoPage() {
                 className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-1.5"
               >
                 <span>
+                  <span className="mr-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                    {m.kind === 'prova' ? 'Prova' : m.kind === 'atividade' ? 'Atividade' : 'Outro'}
+                  </span>
                   {m.title}
                   {!m.extractedText && (
                     <span className="ml-2 text-xs text-warning">(texto não extraído)</span>

@@ -218,6 +218,13 @@
       "when": 1780677660862,
       "tag": "0030_activity_classification",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1780678077687,
+      "tag": "0031_sample_kind",
+      "breakpoints": true
     }
   ]
 }

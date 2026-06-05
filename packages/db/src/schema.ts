@@ -1044,6 +1044,8 @@ export const aiStandardSamples = oe.table(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     tenantId: uuid('tenant_id').notNull(),
+    // Categoria do modelo: 'prova' | 'atividade' | 'outro' (para o WayOn aplicar o certo).
+    kind: text('kind').notNull().default('outro'),
     title: text('title').notNull(),
     fileName: text('file_name').notNull(),
     storagePath: text('storage_path').notNull(),
