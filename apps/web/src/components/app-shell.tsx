@@ -20,12 +20,14 @@ export function AppShell({
   subtitle,
   headerActions,
   logoUrl,
+  workspaceName,
   children,
 }: {
   tenantType: TenantType;
   subtitle?: string;
   headerActions?: ReactNode;
   logoUrl?: string | null;
+  workspaceName?: string | null;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -48,6 +50,11 @@ export function AppShell({
             </span>
           )}
           <span className="font-semibold">Edu On Way</span>
+          {workspaceName && (
+            <span className="truncate text-sm text-muted-foreground" title={workspaceName}>
+              · {workspaceName}
+            </span>
+          )}
           <button
             type="button"
             aria-label="Fechar menu"

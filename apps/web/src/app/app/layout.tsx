@@ -16,10 +16,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const impersonating = await isImpersonating();
-  // Nome do tenant só é necessário no banner de impersonação (conexão admin).
-  const brand = impersonating
-    ? await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null)
-    : null;
+  // Nome do tenant (workspace que o professor/escola escolheu): vai no topo e no banner de
+  // impersonação. Conexão dona; falha não pode derrubar o app.
+  const brand = await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null);
+  const workspaceName = brand?.name ?? null;
   // Personalização da escola (logo + cor do tema). Falha não pode derrubar o app.
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
 
@@ -47,7 +47,14 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
       <AppShell
         tenantType={ctx.tenantType}
-        subtitle={ctx.tenantType === 'organization' ? 'Escola' : 'Professor'}
+        subtitle={
+          ctx.tenantType === 'organization'
+            ? 'Escola'
+            : workspaceName
+              ? `Professor · ${workspaceName}`
+              : 'Professor'
+        }
+        workspaceName={workspaceName}
         logoUrl={settings?.logoUrl ?? null}
         headerActions={headerActions}
       >
