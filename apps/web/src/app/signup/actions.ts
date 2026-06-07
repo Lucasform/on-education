@@ -37,6 +37,14 @@ export async function signupAction(formData: FormData): Promise<void> {
   try {
     await provisionIndividualTenant(db(), data.user.id, input);
   } catch {
+    // O usuário JÁ foi criado no Auth acima. Se o provision falha (ex.: erro transitório do
+    // pooler), ele ficaria órfão (existe no Auth, sem tenant) — sem conseguir logar nem recriar
+    // ("e-mail já existe"). Desfaz a criação para que o cadastro possa ser refeito do zero.
+    try {
+      await admin.auth.admin.deleteUser(data.user.id);
+    } catch {
+      // melhor esforço: se a limpeza falhar, ainda redirecionamos com erro amigável.
+    }
     redirect('/signup?erro=falha');
   }
 
