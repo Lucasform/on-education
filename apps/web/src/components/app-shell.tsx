@@ -8,6 +8,7 @@ import { type ReactNode, useState } from 'react';
 
 import { navFor } from '@/lib/nav';
 
+import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
 import { ThemeToggle } from './theme-toggle';
 
@@ -36,11 +37,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-card transition-transform md:translate-x-0 print:hidden ${
-          open ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-card md:block print:hidden">
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
           {logoUrl ? (
             <img src={logoUrl} alt="Logo da escola" className="h-7 w-7 rounded-lg object-cover" />
@@ -103,12 +100,31 @@ export function AppShell({
         </nav>
       </aside>
 
+      {/* Launcher em tela cheia no mobile (sem sidebar): ícones grandes, escolha e abra. */}
       {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
-          onClick={() => setOpen(false)}
-          aria-hidden
-        />
+        <div className="fixed inset-0 z-40 flex flex-col bg-background md:hidden print:hidden">
+          <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="h-7 w-7 rounded-lg object-cover" />
+            ) : (
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <GraduationCap className="h-4 w-4" />
+              </span>
+            )}
+            <span className="font-semibold">{workspaceName ?? 'Edu On Way'}</span>
+            <button
+              type="button"
+              aria-label="Fechar"
+              onClick={() => setOpen(false)}
+              className="ml-auto"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <AppGrid groups={groups} onNavigate={() => setOpen(false)} />
+          </div>
+        </div>
       )}
 
       <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-8 print:hidden">

@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { KpiCard as StatCard } from '@/components/kpi-card';
+import { MobileLauncher } from '@/components/mobile-launcher';
 import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
@@ -95,6 +96,11 @@ export default async function OverviewPage() {
         title={isSchool ? 'Painel da escola' : 'Início'}
         description="Tudo o que você precisa para ensinar, em um só lugar."
       />
+
+      {/* Launcher de apps no mobile (sem sidebar): toque no ícone e abra. */}
+      <section className="md:hidden">
+        <MobileLauncher tenantType={ctx.tenantType} />
+      </section>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Turmas" value={turmas.length} href="/app/turmas" />

@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 13:00] — Frente 5: UI/UX mobile (app launcher) + refino — STATUS: CONCLUÍDO
+
+- **Tarefa:** experiência mobile estilo app — sem sidebar; home com grid de ícones grandes + bottom bar; menu vira launcher em tela cheia.
+- **Segmento:** ambos.
+- **O que foi feito:**
+  - **`AppGrid`** (componente): launcher de ícones grandes (tiles 64px arredondados, agrupados por seção), tocáveis com feedback `active:scale`.
+  - **Mobile sem sidebar:** a `aside` virou desktop-only (`hidden md:block`). No mobile o botão de menu abre um **launcher em tela cheia** (AppGrid) em vez do drawer estreito.
+  - **Home mobile:** `MobileLauncher` (wrapper client que monta `navFor` — ícones não serializam server→client) no topo da home, só no mobile (`md:hidden`).
+  - **Bottom bar** refinada: safe-area inset, estado ativo com pílula, match por prefixo de rota, `aria-current`.
+- **Arquivos principais:** `apps/web/src/components/app-grid.tsx` (novo), `apps/web/src/components/mobile-launcher.tsx` (novo), `apps/web/src/components/app-shell.tsx`, `apps/web/src/components/bottom-nav.tsx`, `apps/web/src/app/app/page.tsx`.
+- **Migrations/RLS:** não (puramente apresentacional).
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Pendências / bloqueios:** desktop mantém a sidebar (não pedido pra mexer). Próximos refinos de web possíveis depois (DataTable, densidade).
+- **Próximo passo sugerido:** Frente 4 — Gamificação + relatório aos pais (precisa migration).
+- **Commit(s):** `feat: ui mobile estilo app (launcher de icones) + bottom bar refinada`.
+
 ### [2026-06-10 12:30] — Frente 3: Correção em lote por foto — STATUS: CONCLUÍDO
 
 - **Tarefa:** professor fotografa a pilha de provas/trabalhos; WayOn corrige um a um, sugere nota+feedback; lança tudo no diário.
