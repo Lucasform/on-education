@@ -55,7 +55,12 @@ export default async function FlashcardDeckPage({ params }: { params: Promise<{ 
               >
                 <span className="flex items-center gap-3">
                   {c.image ? (
-                    <img src={c.image} alt={c.front} className="h-12 w-12 rounded object-cover" />
+                    <img
+                      src={c.image}
+                      alt={c.front}
+                      loading="lazy"
+                      className="h-12 w-12 rounded object-cover"
+                    />
                   ) : (
                     <span className="flex h-12 w-12 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
                       sem img

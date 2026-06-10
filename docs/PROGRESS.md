@@ -13,6 +13,13 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 16:50] — Frente 13b: lazy-load nas imagens de conteúdo — STATUS: CONCLUÍDO
+
+- **Tarefa:** carregar mais rápido sem risco — `loading="lazy"` nas imagens pesadas (galeria de imagens geradas, flashcards lista + estudo). Logos de cabeçalho (above-fold, pequenos) mantidos.
+- **Arquivos:** `apps/web/src/app/app/ia/imagem/page.tsx`, `apps/web/src/app/app/ia/flashcards/[id]/page.tsx`, `apps/web/src/components/flashcard-study.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `perf: lazy-load nas imagens de conteudo`.
+
 ### [2026-06-10 16:40] — Frente 13: responsividade mobile-first (sem mexer no desktop) — STATUS: CONCLUÍDO
 
 - **Tarefa:** ajustar pontos que apertavam/estouravam no celular, sem alterar o desktop.

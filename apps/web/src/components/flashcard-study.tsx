@@ -37,6 +37,7 @@ export function FlashcardStudy({
             <img
               src={card.image}
               alt={card.front}
+              loading="lazy"
               className="mx-auto mb-3 h-40 w-40 rounded-lg object-cover"
             />
           )}

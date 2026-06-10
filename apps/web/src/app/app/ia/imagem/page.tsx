@@ -96,6 +96,7 @@ export default async function ImagemPage() {
               <img
                 src={img.url}
                 alt={img.prompt}
+                loading="lazy"
                 className="aspect-square w-full rounded-md object-cover"
               />
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{img.prompt}</p>
