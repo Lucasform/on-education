@@ -13,6 +13,14 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 16:20] — Frente 12: RAG-lite no "Gerar conteúdo" + fix da casinha no mobile — STATUS: CONCLUÍDO
+
+- **RAG-lite:** a tela genérica "Gerar conteúdo" (`/app/ia`) ganhou seletor de turma; `generateContentAction` anexa os materiais como referência (cap 12k). Flashcards ficam de fora (o tema vira título do baralho). Fecha o RAG-lite em todos os fluxos de geração.
+- **Fix (reportado pelo Lucas):** na home mobile, o atalho "Início" apontava para `/app` (a própria página) — virava um ícone que não levava a lugar nenhum. Removido do launcher da home (`MobileLauncher`); continua no menu em tela cheia, onde serve para voltar.
+- **Arquivos principais:** `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/ia/page.tsx`, `apps/web/src/components/mobile-launcher.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `feat: rag-lite no gerar conteudo` + `fix: remove atalho inicio que apontava pra propria home no mobile`.
+
 ### [2026-06-10 16:00] — Frente 11: RAG-lite no tutor — STATUS: CONCLUÍDO
 
 - **Tarefa:** o tutor do aluno pode se basear nos materiais de uma turma.

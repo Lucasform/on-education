@@ -66,6 +66,16 @@ export default async function IaPage() {
               placeholder="Ex.: plano de aula sobre frações para o 6º ano"
               className={fieldClass}
             />
+            {turmas.length > 0 && (
+              <select name="classId" defaultValue="" className={fieldClass}>
+                <option value="">Basear nos materiais de uma turma (opcional)</option>
+                {turmas.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <SubmitButton type="submit" size="sm">
               Gerar com o WayOn
             </SubmitButton>
