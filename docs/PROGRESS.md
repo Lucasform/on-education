@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 16:40] — Frente 13: responsividade mobile-first (sem mexer no desktop) — STATUS: CONCLUÍDO
+
+- **Tarefa:** ajustar pontos que apertavam/estouravam no celular, sem alterar o desktop.
+- **O que foi feito (mobile-first, padrão `w-full sm:w-*`):**
+  - Form "Dar pontos" (ficha do aluno): vira full-width no mobile; campo Motivo cresce (`flex-1`) em vez de largura fixa.
+  - Busca do banco de atividades: `w-full` no mobile, `sm:w-44` no desktop.
+  - Linhas da correção em lote: aluno + arquivo empilham no mobile (`w-full sm:...`), lado a lado no desktop.
+- **Nota de performance:** deliberadamente NÃO refatorei as queries agora (risco). Fica como passada medida futura.
+- **Arquivos principais:** `apps/web/src/app/app/alunos/[id]/page.tsx`, `apps/web/src/app/app/atividades/page.tsx`, `apps/web/src/components/correcao-lote.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `fix: responsividade mobile-first em formularios (pontos, busca, correcao)`.
+
 ### [2026-06-10 16:20] — Frente 12: RAG-lite no "Gerar conteúdo" + fix da casinha no mobile — STATUS: CONCLUÍDO
 
 - **RAG-lite:** a tela genérica "Gerar conteúdo" (`/app/ia`) ganhou seletor de turma; `generateContentAction` anexa os materiais como referência (cap 12k). Flashcards ficam de fora (o tema vira título do baralho). Fecha o RAG-lite em todos os fluxos de geração.

@@ -140,7 +140,10 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
                 </p>
               </div>
             </div>
-            <form action={awardPointsAction} className="flex flex-wrap items-end gap-2">
+            <form
+              action={awardPointsAction}
+              className="flex w-full flex-wrap items-end gap-2 sm:w-auto"
+            >
               <input type="hidden" name="studentId" value={aluno.id} />
               <input
                 name="points"
@@ -148,13 +151,13 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
                 min={1}
                 max={1000}
                 defaultValue={10}
-                className={`${fieldClass} w-20`}
+                className={`${fieldClass} w-16`}
                 aria-label="Pontos"
               />
               <input
                 name="reason"
                 placeholder="Motivo (ex.: participação)"
-                className={`${fieldClass} w-48`}
+                className={`${fieldClass} min-w-0 flex-1 sm:w-48 sm:flex-none`}
               />
               <SubmitButton type="submit" size="sm" variant="outline">
                 Dar pontos

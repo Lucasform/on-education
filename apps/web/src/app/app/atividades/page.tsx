@@ -123,7 +123,7 @@ export default async function AtividadesPage({
               name="q"
               defaultValue={sp.q ?? ''}
               placeholder="Buscar por título…"
-              className={`${fieldClass} w-44`}
+              className={`${fieldClass} w-full sm:w-44`}
             />
             <select name="kind" defaultValue={sp.kind ?? ''} className={`${fieldClass} w-32`}>
               <option value="">Todos os tipos</option>

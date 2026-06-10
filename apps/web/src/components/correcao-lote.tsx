@@ -242,7 +242,7 @@ export function CorrecaoLote({
                 <select
                   value={r.studentId}
                   onChange={(e) => patch(r.key, { studentId: e.target.value })}
-                  className={`${fieldClass} max-w-[14rem] flex-1`}
+                  className={`${fieldClass} w-full sm:max-w-[14rem] sm:flex-1`}
                 >
                   <option value="">Aluno…</option>
                   {alunosDaTurma.map((a) => (
@@ -257,7 +257,7 @@ export function CorrecaoLote({
                   capture="environment"
                   multiple
                   onChange={(e) => onPick(r.key, e.target.files)}
-                  className={`${fieldClass} max-w-[12rem] cursor-pointer`}
+                  className={`${fieldClass} w-full cursor-pointer sm:w-auto sm:max-w-[12rem]`}
                 />
                 <button
                   type="button"
