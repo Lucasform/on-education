@@ -13,6 +13,17 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 14:35] — Frente 7: refino de web (tabelas responsivas no mobile) — STATUS: CONCLUÍDO
+
+- **Tarefa:** refino focado e seguro — impedir que tabelas estourem a largura no mobile, sem reescrever telas.
+- **Segmento:** ambos.
+- **O que foi feito:** helper `tableWrapClass` em `components/form.tsx`; tabelas SEM wrapper envolvidas em scroll horizontal (home/aniversariantes + 2 de relatórios/faltas). As demais (financeiro, inadimplência, api, boletim, relatórios) já tinham `overflow-x-auto` — não tocadas.
+- **Arquivos principais:** `apps/web/src/components/form.tsx`, `apps/web/src/app/app/page.tsx`, `apps/web/src/app/app/relatorios/faltas/page.tsx`.
+- **Migrations/RLS:** não.
+- **Testes:** `typecheck` · `build` — verdes (14/14).
+- **Próximo passo sugerido:** DataTable genérica (ordenação/estado vazio) se quiser ir além; faixas de medalha por escola; auto-pontos.
+- **Commit(s):** `fix: tabelas com scroll horizontal no mobile (refino web)`.
+
 ### [2026-06-10 14:20] — Frente 6: Leaderboard de pontos por turma + doc de revisão — STATUS: CONCLUÍDO
 
 - **Tarefa:** ranking social da gamificação na turma + consolidar a sessão num MD de revisão.

@@ -23,7 +23,7 @@ import { redirect } from 'next/navigation';
 
 import { KpiCard as StatCard } from '@/components/kpi-card';
 import { MobileLauncher } from '@/components/mobile-launcher';
-import { cardClass, PageHeader } from '@/components/form';
+import { cardClass, PageHeader, tableWrapClass } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
@@ -159,24 +159,26 @@ export default async function OverviewPage() {
               Aniversariantes do mês ({aniversariantes.length})
             </h2>
           </div>
-          <table className="w-full text-sm">
-            <thead className="border-b border-border text-left text-xs text-muted-foreground">
-              <tr>
-                <th className="py-1.5 pr-4 font-medium">Dia</th>
-                <th className="py-1.5 pr-4 font-medium">Aluno</th>
-                <th className="py-1.5 font-medium">Turma</th>
-              </tr>
-            </thead>
-            <tbody>
-              {aniversariantes.map((a) => (
-                <tr key={a.id} className="border-b border-border/50 last:border-0">
-                  <td className="py-1.5 pr-4 font-medium">{a.dia}</td>
-                  <td className="py-1.5 pr-4">{a.nome}</td>
-                  <td className="py-1.5 text-muted-foreground">{a.turma || '—'}</td>
+          <div className={tableWrapClass}>
+            <table className="w-full text-sm">
+              <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-1.5 pr-4 font-medium">Dia</th>
+                  <th className="py-1.5 pr-4 font-medium">Aluno</th>
+                  <th className="py-1.5 font-medium">Turma</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {aniversariantes.map((a) => (
+                  <tr key={a.id} className="border-b border-border/50 last:border-0">
+                    <td className="py-1.5 pr-4 font-medium">{a.dia}</td>
+                    <td className="py-1.5 pr-4">{a.nome}</td>
+                    <td className="py-1.5 text-muted-foreground">{a.turma || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
 

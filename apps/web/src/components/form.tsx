@@ -5,6 +5,9 @@ export const fieldClass =
 
 export const cardClass = 'rounded-lg border border-border bg-card p-5';
 
+/** Envolve uma <table> para rolar na horizontal no mobile sem estourar o layout. */
+export const tableWrapClass = 'w-full overflow-x-auto';
+
 /** Cabeçalho padrão de página dentro do app (título + descrição). */
 export function PageHeader({ title, description }: { title: string; description?: string }) {
   return (

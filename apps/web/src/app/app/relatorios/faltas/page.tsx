@@ -3,7 +3,7 @@ import { listClasses, listStudents, listSubjects } from '@on-education/module-nu
 import { listAttendance } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
-import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { cardClass, fieldClass, PageHeader, tableWrapClass } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -119,22 +119,24 @@ export default async function RelatorioFaltasPage({
         {resumo.length > 0 && (
           <section className="mb-5">
             <h3 className="mb-2 text-sm font-medium">Resumo por aluno</h3>
-            <table className="w-full text-sm">
-              <thead className="border-b border-border text-left text-xs text-muted-foreground">
-                <tr>
-                  <th className="py-1.5 pr-4 font-medium">Aluno</th>
-                  <th className="py-1.5 font-medium">Faltas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resumo.map((r) => (
-                  <tr key={r.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-1.5 pr-4">{r.nome}</td>
-                    <td className="py-1.5">{r.total}</td>
+            <div className={tableWrapClass}>
+              <table className="w-full text-sm">
+                <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                  <tr>
+                    <th className="py-1.5 pr-4 font-medium">Aluno</th>
+                    <th className="py-1.5 font-medium">Faltas</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {resumo.map((r) => (
+                    <tr key={r.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-1.5 pr-4">{r.nome}</td>
+                      <td className="py-1.5">{r.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 
@@ -145,30 +147,32 @@ export default async function RelatorioFaltasPage({
               Nenhuma falta registrada para o escopo selecionado.
             </p>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="border-b border-border text-left text-xs text-muted-foreground">
-                <tr>
-                  <th className="py-1.5 pr-4 font-medium">Data</th>
-                  <th className="py-1.5 pr-4 font-medium">Aluno</th>
-                  <th className="py-1.5 pr-4 font-medium">Turma</th>
-                  <th className="py-1.5 font-medium">Matéria</th>
-                </tr>
-              </thead>
-              <tbody>
-                {faltas.map((f) => (
-                  <tr key={f.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-1.5 pr-4">{f.date}</td>
-                    <td className="py-1.5 pr-4">{alunoNome.get(f.studentId) ?? 'Aluno'}</td>
-                    <td className="py-1.5 pr-4 text-muted-foreground">
-                      {turmaNome.get(f.classId) ?? '—'}
-                    </td>
-                    <td className="py-1.5 text-muted-foreground">
-                      {f.subjectId ? (subjNome.get(f.subjectId) ?? '—') : 'Dia (sem matéria)'}
-                    </td>
+            <div className={tableWrapClass}>
+              <table className="w-full text-sm">
+                <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                  <tr>
+                    <th className="py-1.5 pr-4 font-medium">Data</th>
+                    <th className="py-1.5 pr-4 font-medium">Aluno</th>
+                    <th className="py-1.5 pr-4 font-medium">Turma</th>
+                    <th className="py-1.5 font-medium">Matéria</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {faltas.map((f) => (
+                    <tr key={f.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-1.5 pr-4">{f.date}</td>
+                      <td className="py-1.5 pr-4">{alunoNome.get(f.studentId) ?? 'Aluno'}</td>
+                      <td className="py-1.5 pr-4 text-muted-foreground">
+                        {turmaNome.get(f.classId) ?? '—'}
+                      </td>
+                      <td className="py-1.5 text-muted-foreground">
+                        {f.subjectId ? (subjNome.get(f.subjectId) ?? '—') : 'Dia (sem matéria)'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       </article>
