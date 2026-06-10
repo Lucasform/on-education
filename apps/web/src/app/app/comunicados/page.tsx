@@ -2,6 +2,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
 import { listCommunications } from '@on-education/module-comunicacao';
 import { getWhatsappConnection } from '@on-education/module-nucleo';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -26,10 +27,15 @@ export default async function ComunicadosPage() {
   const comunicados = await listCommunications(db(), ctx);
   const aiOn = isAiConfigured();
   const wa = await getWhatsappConnection(db(), ctx).catch(() => null);
+  const waFlash = (await cookies()).get('oe_wa_flash')?.value;
 
   return (
     <>
       <PageHeader title="Comunicados" description="Escreva ou gere comunicados e publique." />
+
+      {waFlash && (
+        <div className="mb-4 rounded-md border border-border bg-muted p-3 text-sm">{waFlash}</div>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>

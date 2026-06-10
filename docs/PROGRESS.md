@@ -13,6 +13,21 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 11:25] — Frente 0: hardening de envio (anti-ban WhatsApp) + env vars — STATUS: CONCLUÍDO
+
+- **Tarefa:** quick wins de saúde antes das frentes de produto; reduzir risco de ban do número no envio em lote.
+- **Segmento:** ambos.
+- **O que foi feito:**
+  - **Anti-ban no broadcast de comunicado** (`broadcastComunicadoWhatsappAction`): (1) **cooldown de 6h** por tenant entre envios em lote; (2) **cap de 200 destinatários** por disparo; (3) **delay com jitter** entre mensagens. Feedback ao usuário via cookie flash + banner na página de Comunicados.
+  - Throttle reusa `usage_meters` (metric `wa_broadcast`, período `rolling`) — **sem migration**. Funções novas no módulo: `canBroadcast`, `recordBroadcast`, `getLastBroadcastAt`, `BROADCAST_COOLDOWN_MS`, `BROADCAST_MAX_RECIPIENTS`.
+  - **Env vars** registradas: `OPENAI_API_KEY` e `IMAGE_MONTHLY_GLOBAL_CAP` no `.env.example`; estas + `EVOLUTION_API_URL`/`EVOLUTION_API_KEY`/`DEV_SESSION_SECRET` no `turbo.json` (globalEnv).
+- **Arquivos principais:** `packages/modules/nucleo/src/whatsapp.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/comunicados/page.tsx`, `turbo.json`, `.env.example`.
+- **Migrations/RLS:** não (reuso de `usage_meters`, já com RLS).
+- **Testes:** `pnpm lint` · `typecheck` · `test` · `build` — todos verdes (14/14).
+- **Pendências / bloqueios:** nenhum. Nota: `occurrences.ts` já existe (ocorrências já implementadas; checkbox do roadmap estava desatualizado).
+- **Próximo passo sugerido:** Frente 1 — Biblioteca pessoal + reuso 1-clique de conteúdo do professor.
+- **Commit(s):** `chore: anti-ban no envio em lote + env vars`.
+
 ### [2026-06-05 08:10] — Imagem: estilo padrão + formato/enquadramento + flashcards ilustrados — STATUS: CONCLUÍDO
 
 - **Estilo padrão de imagem** ("treino"): `tenant_settings.image_style` (mig. `0034`) + campo no Meu padrão; `getImageStyle` vira prefixo de todo prompt de imagem.

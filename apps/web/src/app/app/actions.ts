@@ -60,6 +60,9 @@ import {
   unlinkGuardian,
   getConversation,
   getWhatsappConnection,
+  canBroadcast,
+  recordBroadcast,
+  BROADCAST_MAX_RECIPIENTS,
   listGuardians,
   listInvoices,
   markConversationRead,
@@ -1005,15 +1008,56 @@ export async function createMessageAction(formData: FormData): Promise<void> {
  * Envia um comunicado no WhatsApp para TODOS os responsáveis com telefone (LOTE).
  * Sequencial (sem paralelizar) para reduzir risco de ban; a UI alerta antes de disparar.
  */
+async function setWaFlash(msg: string): Promise<void> {
+  (await cookies()).set('oe_wa_flash', msg, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/app/comunicados',
+    maxAge: 30,
+  });
+}
+
 export async function broadcastComunicadoWhatsappAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
+
+  // Anti-ban 1: respeita o cooldown entre envios em lote do tenant.
+  const gate = await canBroadcast(db(), ctx);
+  if (!gate.ok) {
+    const horas = Math.ceil(gate.retryAfterMs / (60 * 60 * 1000));
+    await setWaFlash(
+      `Envio em lote bloqueado: aguarde ~${horas}h desde o último para proteger o número de bloqueio pela Meta.`,
+    );
+    revalidatePath('/app/comunicados', 'page');
+    return;
+  }
+
   const title = String(formData.get('title') ?? '');
   const body = String(formData.get('body') ?? '');
   const text = `*${title}*\n\n${body}`;
-  const guardians = (await listGuardians(db(), ctx)).filter((g) => g.phone);
-  for (const g of guardians) {
-    await sendWhatsappText(ctx, g.phone, text).catch(() => false);
+
+  const all = (await listGuardians(db(), ctx)).filter((g) => g.phone);
+  // Anti-ban 2: limita destinatários por disparo.
+  const targets = all.slice(0, BROADCAST_MAX_RECIPIENTS);
+
+  let sent = 0;
+  for (let i = 0; i < targets.length; i++) {
+    const ok = await sendWhatsappText(ctx, targets[i]!.phone, text).catch(() => false);
+    if (ok) sent++;
+    // Anti-ban 3: espaçamento com jitter entre mensagens (exceto a última).
+    if (i < targets.length - 1) {
+      await new Promise((r) => setTimeout(r, 800 + Math.floor((i * 137) % 1000)));
+    }
   }
+
+  await recordBroadcast(db(), ctx);
+  const sobra = all.length - targets.length;
+  await setWaFlash(
+    `Comunicado enviado a ${sent}/${targets.length} responsável(is).` +
+      (sobra > 0
+        ? ` ${sobra} ficaram de fora do limite de ${BROADCAST_MAX_RECIPIENTS}; reenvie depois do cooldown.`
+        : ''),
+  );
   revalidatePath('/app/comunicados', 'page');
 }
 
