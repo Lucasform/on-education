@@ -13,6 +13,14 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 18:35] — Frente 19: testes da gamificação — STATUS: CONCLUÍDO
+
+- **Tarefa:** cobrir com testes a regra central da gamificação (faixas de medalha).
+- **O que foi feito:** `gamification.test.ts` (8 testes puros, sem DB) — bordas das faixas padrão (50/150/300), `toNext`, topo (ouro), faixas personalizadas e faixa parcial caindo no default.
+- **Arquivos:** `packages/modules/pedagogico/src/__tests__/gamification.test.ts`.
+- **Testes:** `pnpm test` — verdes (14/14; 8 novos passando).
+- **Commit(s):** `test: cobertura de medalFor (gamificacao)`.
+
 ### [2026-06-10 18:20] — Frente 18: Tutor lê enunciado por foto — STATUS: CONCLUÍDO
 
 - **Tarefa:** estender a visão — o tutor poder ler o enunciado de um exercício a partir de uma foto.
