@@ -601,6 +601,40 @@ export async function recordGradeAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/**
+ * Lança em lote as notas vindas da correção por foto. Recebe `items` (JSON:
+ * [{studentId, score, feedback}]) + label/turma/componente. Cada nota válida vira
+ * um registro `formal` com o feedback do WayOn na observação. Decisão humana: só
+ * grava o que o professor confirmou na tela.
+ */
+export async function lancarNotasCorrecaoAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = (formData.get('classId') as string) || undefined;
+  const label = String(formData.get('label') ?? 'Correção').slice(0, 120) || 'Correção';
+  const componentId = (formData.get('componentId') as string) || undefined;
+  let items: { studentId?: string; score?: number; feedback?: string }[] = [];
+  try {
+    items = JSON.parse(String(formData.get('items') ?? '[]'));
+  } catch {
+    items = [];
+  }
+  for (const it of items) {
+    if (!it?.studentId || typeof it.score !== 'number') continue;
+    const input = recordGradeSchema.parse({
+      studentId: it.studentId,
+      classId,
+      kind: 'formal',
+      label,
+      value: it.score,
+      note: it.feedback ? String(it.feedback).slice(0, 2000) : undefined,
+      componentId,
+    });
+    await recordGrade(db(), ctx, input);
+  }
+  revalidatePath('/app', 'layout');
+  redirect('/app/sala/notas');
+}
+
 export async function recordAttendanceAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = recordAttendanceSchema.parse({

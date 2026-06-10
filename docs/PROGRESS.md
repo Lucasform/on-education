@@ -13,6 +13,23 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 12:30] — Frente 3: Correção em lote por foto — STATUS: CONCLUÍDO
+
+- **Tarefa:** professor fotografa a pilha de provas/trabalhos; WayOn corrige um a um, sugere nota+feedback; lança tudo no diário.
+- **Segmento:** ambos (entitlement `ai.activities`; lançar nota = `classes.manage`).
+- **O que foi feito:**
+  - `correctWorkFromPhotos` (módulo ia, novo `correct.ts`): visão corrige UM trabalho contra rubrica/gabarito opcionais; devolve nota SUGERIDA + feedback estruturado (resumo/fortes/a melhorar) em JSON tolerante. Não inventa resposta. Consome cota.
+  - Rota `POST /api/ia/correcao` (espelha a de transcrever: até 4 fotos, 6MB cada, downscale no cliente).
+  - Página `/app/ia/correcao` + componente cliente `correcao-lote.tsx`: config da avaliação (turma, nome, nota máx, componente da média opcional, rubrica/gabarito/contexto) → linhas por aluno (selecionar + fotos + Corrigir) com "Corrigir todos" → nota e feedback **editáveis** → "Lançar no diário".
+  - `lancarNotasCorrecaoAction`: grava as notas confirmadas (kind `formal`, feedback na observação) via `recordGrade`; redireciona pra Notas. **Nota automática é opcional**: só lança o que o professor confirmou.
+  - Link "Correção em lote" no menu WayOn.
+- **Arquivos principais:** `packages/modules/ia/src/correct.ts` (+ index), `apps/web/src/app/api/ia/correcao/route.ts`, `apps/web/src/app/app/ia/correcao/page.tsx`, `apps/web/src/components/correcao-lote.tsx`, `apps/web/src/app/app/actions.ts`, `apps/web/src/lib/nav.ts`.
+- **Migrations/RLS:** não (reuso de `grades`).
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14); rotas geradas.
+- **Pendências / bloqueios:** visão custa tokens (1 chamada por trabalho) — cota por plano protege. HEIC ainda não suportado (downscale tenta, cai no original).
+- **Próximo passo sugerido:** Frente 4 — Gamificação + relatório aos pais.
+- **Commit(s):** `feat: correcao em lote por foto com nota sugerida`.
+
 ### [2026-06-10 12:05] — Frente 2: Planejador de aula com o WayOn (BNCC opcional) — STATUS: CONCLUÍDO
 
 - **Tarefa:** WayOn gera plano de aula/avaliação/trabalho completo e salva direto no planejamento da turma.

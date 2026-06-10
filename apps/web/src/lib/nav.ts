@@ -111,6 +111,7 @@ export const NAV: NavGroup[] = [
     label: 'WayOn',
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
+      { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks },
       { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
       { label: 'Tutor do aluno', href: '/app/ia/tutor', icon: MessageCircleQuestion },
       { label: 'Flashcards', href: '/app/ia/flashcards', icon: Layers },
