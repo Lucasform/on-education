@@ -102,6 +102,8 @@ export function CorrecaoLote({
       if (rubric.trim()) fd.append('rubric', rubric.trim());
       if (answerKey.trim()) fd.append('answerKey', answerKey.trim());
       if (context.trim()) fd.append('context', context.trim());
+      // RAG-lite: deixa a rota juntar os materiais da turma como referência.
+      if (turmaId) fd.append('classId', turmaId);
       const res = await fetch('/api/ia/correcao', { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? 'Falha ao corrigir.');
@@ -195,6 +197,9 @@ export function CorrecaoLote({
           <summary className="cursor-pointer text-xs text-primary">
             Rubrica / gabarito / contexto (opcional, melhora a correção)
           </summary>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Se uma turma estiver selecionada, os materiais dela já entram como referência.
+          </p>
           <div className="mt-2 grid gap-2">
             <textarea
               value={context}

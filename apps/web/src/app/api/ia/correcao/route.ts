@@ -2,6 +2,7 @@ import { type AiImage, correctWorkFromPhotos } from '@on-education/module-ia';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { db } from '@/server/db';
+import { buildClassMaterialsContext } from '@/server/materials-context';
 import { getAuthContext } from '@/server/session';
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +33,12 @@ export async function POST(req: NextRequest) {
   const maxScore = Number(form.get('maxScore') ?? 10) || 10;
   const rubric = (form.get('rubric') as string) || undefined;
   const answerKey = (form.get('answerKey') as string) || undefined;
-  const context = (form.get('context') as string) || undefined;
+  const contextManual = (form.get('context') as string) || '';
+  // RAG-lite: junta os materiais da turma (se houver) ao contexto digitado.
+  const classId = (form.get('classId') as string) || '';
+  const materiais = await buildClassMaterialsContext(db(), ctx, classId, 20_000);
+  const context =
+    [contextManual.trim(), materiais].filter(Boolean).join('\n\n').slice(0, 30_000) || undefined;
 
   try {
     const out = await correctWorkFromPhotos(db(), ctx, {
