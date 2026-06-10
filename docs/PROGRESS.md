@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 13:55] — Frente 4b: Gamificação (pontos + medalhas) — STATUS: CONCLUÍDO
+
+- **Tarefa:** professor premia alunos com pontos; total vira medalha (bronze/prata/ouro); aparece na ficha do aluno.
+- **Segmento:** ambos (reusa entitlement `activities.bank`).
+- **Migration:** **`0036_parched_william_stryker`** — `CREATE TABLE student_points` (ledger: points + reason, RLS, 2 índices). **Aditiva** (inspecionada: zero ALTER/DROP). **Aplicada em prod** via `db:migrate` com sucesso.
+- **O que foi feito:**
+  - Tabela `student_points` no schema + export.
+  - Módulo `gamification.ts` (pedagógico): `awardPoints`, `listStudentPoints`, `pointsTotals`, `deleteStudentPoint`, `medalFor` (faixas 50/150/300 → bronze/prata/ouro; personalizável depois).
+  - Actions `awardPointsAction` / `deleteStudentPointAction`.
+  - UI: card **Conquistas** na ficha do aluno (medalha + total + "faltam X p/ a próxima" + dar pontos com motivo + chips das premiações recentes com remover).
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0036_*.sql`, `packages/modules/pedagogico/src/gamification.ts` (+ index), `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/alunos/[id]/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Pendências / bloqueios:** "opcional por turma" e leaderboard por turma ficaram como evolução leve (hoje é por aluno, disponível a todos). Auto-premiar por nota/frequência é um próximo passo possível.
+- **Próximo passo sugerido:** afinar faixas de medalha por escola; leaderboard da turma; auto-pontos.
+- **Commit(s):** `feat: gamificacao com pontos e medalhas por aluno`.
+
 ### [2026-06-10 13:25] — Frente 4a: Relatório do aluno aos pais — STATUS: CONCLUÍDO
 
 - **Tarefa:** relatório de desempenho por aluno (média/frequência/notas) imprimível + recado do WayOn + envio no WhatsApp ao responsável.

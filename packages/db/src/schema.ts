@@ -1107,6 +1107,27 @@ export const generatedImages = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// student_points — gamificação (Frente 4b): ledger de pontos por aluno. Cada linha é uma
+// premiação (positiva) com motivo. O total e a medalha são derivados da soma. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const studentPoints = oe.table(
+  'student_points',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    points: integer('points').notNull().default(0),
+    reason: text('reason'),
+    ...auditCols,
+  },
+  (t) => [
+    index('student_points_tenant_idx').on(t.tenantId),
+    index('student_points_student_idx').on(t.studentId),
+    tenantPolicy('student_points_tenant_isolation'),
+  ],
+);
+
 // api_keys — chaves de API por tenant (API aberta). Guarda só o HASH (sha256); o valor é
 // mostrado uma vez na criação. `token_prefix` é os 1os caracteres, só para exibir na lista.
 export const apiKeys = oe.table(
@@ -1176,4 +1197,5 @@ export const schema = {
   aiStandardSamples,
   flashcardDecks,
   generatedImages,
+  studentPoints,
 };

@@ -75,6 +75,8 @@ import {
   addQuizQuestion,
   adaptActivityWithWayOn,
   approveActivity,
+  awardPoints,
+  deleteStudentPoint,
   copyFromCollective,
   createActivity,
   duplicateActivity,
@@ -1158,6 +1160,26 @@ export async function cobrarInadimplenteWhatsappAction(formData: FormData): Prom
     `mensalidade(s). Se já pagou, desconsidere. Qualquer dúvida, estamos à disposição.`;
   await sendWhatsappText(ctx, g.phone, text).catch(() => false);
   revalidatePath('/app/inadimplencia', 'page');
+}
+
+// --- Gamificação: pontos do aluno -------------------------------------------
+
+export async function awardPointsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const points = Number(formData.get('points') ?? 0);
+  const reason = (formData.get('reason') as string) || undefined;
+  if (!studentId || !Number.isFinite(points) || points <= 0) return;
+  await awardPoints(db(), ctx, { studentId, points, reason });
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+export async function deleteStudentPointAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  const studentId = String(formData.get('studentId') ?? '');
+  if (id) await deleteStudentPoint(db(), ctx, id);
+  if (studentId) revalidatePath(`/app/alunos/${studentId}`, 'page');
 }
 
 // --- Relatório do aluno aos pais --------------------------------------------
