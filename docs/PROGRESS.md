@@ -13,6 +13,17 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 18:00] — Frente 17: Gráficos de evolução (tendência) — STATUS: CONCLUÍDO
+
+- **Tarefa:** transformar os indicadores de "foto do momento" em tendência ao longo do tempo.
+- **Segmento:** escola (`organization`). Sem migration, sem lib nova.
+- **O que foi feito:**
+  - Componente `TrendChart` (SVG puro, server-safe): mini gráfico de linha com rótulos, pula pontos nulos.
+  - Dashboards: seção "Evolução (6 meses)" com **média da escola** e **frequência** por mês, calculadas a partir de `grades.createdAt`/`attendance.date`. Aparece só quando há dado.
+- **Arquivos principais:** `apps/web/src/components/trend-chart.tsx`, `apps/web/src/app/app/dashboards/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `feat: graficos de evolucao (media e frequencia por mes)`.
+
 ### [2026-06-10 17:40] — Frente 16: Trilha de auditoria — STATUS: CONCLUÍDO
 
 - **Tarefa:** registrar operações sensíveis para a escola revisar (LGPD/segurança).

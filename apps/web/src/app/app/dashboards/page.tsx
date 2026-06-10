@@ -3,6 +3,7 @@ import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
+import { TrendChart, type TrendPoint } from '@/components/trend-chart';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -60,6 +61,48 @@ export default async function DashboardsPage() {
   const presentes = presencas.filter((p) => p.present).length;
   const freqGeral = presencas.length > 0 ? Math.round((presentes / presencas.length) * 100) : null;
 
+  // Evolução nos últimos 6 meses (tendência de média e de frequência).
+  const MESES = [
+    'jan',
+    'fev',
+    'mar',
+    'abr',
+    'mai',
+    'jun',
+    'jul',
+    'ago',
+    'set',
+    'out',
+    'nov',
+    'dez',
+  ];
+  const ref = new Date(`${hoje}T00:00:00Z`);
+  const buckets: { key: string; label: string }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() - i, 1));
+    buckets.push({
+      key: `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`,
+      label: MESES[d.getUTCMonth()]!,
+    });
+  }
+  const mesDaData = (s: string) => s.slice(0, 7); // 'YYYY-MM'
+  const mediaPorMes: TrendPoint[] = buckets.map((b) => {
+    const vals = grades
+      .filter((g) => g.value !== null && mesDaData(new Date(g.createdAt).toISOString()) === b.key)
+      .map((g) => g.value as number);
+    const media = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+    return { label: b.label, value: media === null ? null : Math.round(media * 10) / 10 };
+  });
+  const freqPorMes: TrendPoint[] = buckets.map((b) => {
+    const doMes = presencas.filter((p) => mesDaData(p.date) === b.key);
+    const pct = doMes.length
+      ? Math.round((doMes.filter((p) => p.present).length / doMes.length) * 100)
+      : null;
+    return { label: b.label, value: pct };
+  });
+  const temEvolucao =
+    mediaPorMes.some((p) => p.value !== null) || freqPorMes.some((p) => p.value !== null);
+
   return (
     <>
       <PageHeader
@@ -98,6 +141,19 @@ export default async function DashboardsPage() {
           </p>
         </div>
       </section>
+
+      {temEvolucao && (
+        <section className="grid gap-5 md:grid-cols-2">
+          <div className={cardClass}>
+            <h2 className="mb-2 text-sm font-medium">Média da escola (6 meses)</h2>
+            <TrendChart points={mediaPorMes} max={10} />
+          </div>
+          <div className={cardClass}>
+            <h2 className="mb-2 text-sm font-medium">Frequência (6 meses)</h2>
+            <TrendChart points={freqPorMes} max={100} suffix="%" />
+          </div>
+        </section>
+      )}
 
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Distribuição de notas ({notas.length})</h2>
