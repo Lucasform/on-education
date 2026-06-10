@@ -233,6 +233,8 @@ export const generateLessonPlanSchema = z.object({
   useBncc: z.coerce.boolean().default(false),
   bncc: z.string().max(600).optional(),
   notes: z.string().max(1000).optional(),
+  // RAG-lite: texto dos materiais da turma, usado como referência (não é instrução).
+  context: z.string().max(60_000).optional(),
 });
 export type GenerateLessonPlanInput = z.infer<typeof generateLessonPlanSchema>;
 

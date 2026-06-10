@@ -129,7 +129,7 @@ export default async function PlanejamentoPage({
                 </h2>
                 <p className="mb-2 text-xs text-muted-foreground">
                   Diga o tema; o WayOn monta objetivos, passo a passo, recursos e avaliação. Vai
-                  direto pro planejamento desta turma.
+                  direto pro planejamento desta turma e usa os materiais dela como referência.
                 </p>
                 {aiOn ? (
                   <form action={generateLessonPlanAction} className="flex flex-col gap-2">

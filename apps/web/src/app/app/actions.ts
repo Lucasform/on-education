@@ -96,7 +96,6 @@ import {
   getFlashcardDeck,
   setFlashcardCardImage,
   generateQuizWithWayOn,
-  listMaterials,
   restoreActivity,
   shareToCollective,
   submitQuizAttempt,
@@ -165,6 +164,7 @@ import { revalidatePath } from 'next/cache';
 
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
+import { buildClassMaterialsContext } from '@/server/materials-context';
 import { buildReportText, buildStudentSummary } from '@/server/student-report';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
@@ -423,14 +423,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
   const ctx = await requireCtx();
   // RAG-lite: se uma turma foi escolhida, junta o texto extraído dos materiais dela.
   const classId = (formData.get('classId') as string) || '';
-  let context: string | undefined;
-  if (classId) {
-    const textos = (await listMaterials(db(), ctx, classId))
-      .map((m) => m.extractedText)
-      .filter((t): t is string => Boolean(t));
-    const juntos = textos.join('\n\n').slice(0, 55_000);
-    if (juntos) context = juntos;
-  }
+  const context = await buildClassMaterialsContext(db(), ctx, classId);
   const input = generateActivitySchema.parse({
     topic: formData.get('topic'),
     subject: (formData.get('subject') as string) || undefined,
@@ -1507,8 +1500,11 @@ export async function deleteLessonPlanAction(formData: FormData): Promise<void> 
 /** Gera um plano completo com o WayOn e já salva no planejamento da turma. */
 export async function generateLessonPlanAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '');
+  // RAG-lite: usa os materiais da própria turma como referência do plano.
+  const context = await buildClassMaterialsContext(db(), ctx, classId);
   const input = generateLessonPlanSchema.parse({
-    classId: formData.get('classId'),
+    classId,
     subjectId: (formData.get('subjectId') as string) || undefined,
     kind: (formData.get('kind') as string) || 'aula',
     topic: formData.get('topic'),
@@ -1517,6 +1513,7 @@ export async function generateLessonPlanAction(formData: FormData): Promise<void
     useBncc: formData.get('useBncc') === 'on' || formData.get('useBncc') === 'true',
     bncc: (formData.get('bncc') as string) || undefined,
     notes: (formData.get('notes') as string) || undefined,
+    context,
   });
   await generateLessonPlanWithWayOn(db(), ctx, input);
   revalidatePath('/app/sala/planejamento', 'page');

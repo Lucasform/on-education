@@ -13,6 +13,19 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 15:40] — Frente 10: RAG-lite expandido (materiais da turma no planejador) — STATUS: CONCLUÍDO
+
+- **Tarefa:** o WayOn já guardava o texto dos materiais da turma, mas só o gerador de atividade usava. Ampliar para o planejador de aula.
+- **Segmento:** ambos. Sem migration, sem credencial, sem infra nova.
+- **O que foi feito:**
+  - Helper `buildClassMaterialsContext` (`apps/web/src/server/materials-context.ts`): junta o `extractedText` dos materiais da turma (limite p/ tokens).
+  - **Planejador de aula** agora usa os materiais da própria turma como referência (campo `context` em `generateLessonPlanSchema` + prompt do gerador). Hint na UI.
+  - `generateActivityAction` refatorada para reusar o helper (dedupe).
+- **Arquivos principais:** `apps/web/src/server/materials-context.ts`, `packages/modules/sala-de-aula/src/lesson-plans.ts`, `packages/validation/src/index.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/sala/planejamento/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Pendências / bloqueios:** RAG **semântico** (embeddings) continua dependendo da decisão de habilitar `pgvector` em prod.
+- **Commit(s):** `feat: rag-lite no planejador (materiais da turma como contexto)`.
+
 ### [2026-06-10 15:20] — Frente 9: Auto-pontos por boa nota (opt-in) — STATUS: CONCLUÍDO
 
 - **Tarefa:** premiar o aluno automaticamente ao lançar boas notas, sem mudar o comportamento de quem não quiser.
