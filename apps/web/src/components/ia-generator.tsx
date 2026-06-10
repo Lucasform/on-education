@@ -14,6 +14,7 @@ export async function IaGenerator({
   promptPlaceholder,
   generateLabel,
   students,
+  classes,
 }: {
   ctx: AuthContext;
   kind: string;
@@ -21,6 +22,8 @@ export async function IaGenerator({
   generateLabel: string;
   /** Quando fornecido, mostra um seletor para vincular o rascunho a um aluno. */
   students?: { id: string; fullName: string }[];
+  /** Quando fornecido, mostra um seletor para basear a resposta nos materiais de uma turma. */
+  classes?: { id: string; name: string }[];
 }) {
   const all = await listDrafts(db(), ctx);
   const items = all.filter((d) => d.kind === kind);
@@ -46,6 +49,16 @@ export async function IaGenerator({
                 {students.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.fullName}
+                  </option>
+                ))}
+              </select>
+            )}
+            {classes && classes.length > 0 && (
+              <select name="classId" defaultValue="" className={fieldClass}>
+                <option value="">Basear nos materiais de uma turma (opcional)</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
                   </option>
                 ))}
               </select>

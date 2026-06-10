@@ -13,6 +13,15 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 16:00] — Frente 11: RAG-lite no tutor — STATUS: CONCLUÍDO
+
+- **Tarefa:** o tutor do aluno pode se basear nos materiais de uma turma.
+- **Segmento:** ambos. Sem migration/credencial.
+- **O que foi feito:** `IaGenerator` ganhou seletor opcional de turma (`classes`); `generateDraftAction` monta o contexto dos materiais (cap. 12k para caber no prompt de 16k) e anexa como referência; tela do Tutor passa as turmas.
+- **Arquivos principais:** `apps/web/src/components/ia-generator.tsx`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/ia/tutor/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `feat: rag-lite no tutor (materiais da turma)`.
+
 ### [2026-06-10 15:40] — Frente 10: RAG-lite expandido (materiais da turma no planejador) — STATUS: CONCLUÍDO
 
 - **Tarefa:** o WayOn já guardava o texto dos materiais da turma, mas só o gerador de atividade usava. Ampliar para o planejador de aula.
