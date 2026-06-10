@@ -49,14 +49,14 @@ export default async function AtividadeDetalhePage({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         <Link
           href="/app/atividades"
           className="text-sm text-primary underline-offset-4 hover:underline"
         >
           ← Voltar ao banco
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <a
             href={`/app/atividades/${id}/word`}
             className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
@@ -106,7 +106,7 @@ export default async function AtividadeDetalhePage({
 
       {!atividade.approved && (
         <div
-          className={`${cardClass} flex items-center justify-between gap-2 border-warning/40 print:hidden`}
+          className={`${cardClass} flex flex-wrap items-center justify-between gap-2 border-warning/40 print:hidden`}
         >
           <p className="text-sm text-warning">
             Este é um rascunho do WayOn. Revise e dê OK para ir ao banco.
