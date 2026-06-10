@@ -9,7 +9,7 @@ import type {
   RecordAttendanceInput,
   RecordGradeInput,
 } from '@on-education/validation';
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 
 /**
  * Sala de aula (Fase 1A.2): diário, notas e faltas. Checagem tripla (RBAC + entitlement +
@@ -78,6 +78,14 @@ export async function listGrades(client: DbClient, ctx: AuthContext) {
   );
 }
 
+/** Notas de UM aluno (evita varrer todas as notas do tenant na ficha/relatório). */
+export async function listGradesForStudent(client: DbClient, ctx: AuthContext, studentId: string) {
+  assertCan(ctx, 'read', 'grade');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx.select().from(grades).where(eq(grades.studentId, studentId)).orderBy(desc(grades.createdAt)),
+  );
+}
+
 // --- Faltas (attendance) -----------------------------------------------------
 export async function recordAttendance(
   client: DbClient,
@@ -115,6 +123,22 @@ export async function listAttendance(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'attendance');
   return client.withTenant(ctx.tenantId, (tx) =>
     tx.select().from(attendance).orderBy(desc(attendance.date)),
+  );
+}
+
+/** Faltas/presenças de UM aluno (evita varrer toda a frequência do tenant). */
+export async function listAttendanceForStudent(
+  client: DbClient,
+  ctx: AuthContext,
+  studentId: string,
+) {
+  assertCan(ctx, 'read', 'attendance');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(attendance)
+      .where(eq(attendance.studentId, studentId))
+      .orderBy(desc(attendance.date)),
   );
 }
 

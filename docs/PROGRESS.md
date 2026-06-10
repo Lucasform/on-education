@@ -13,6 +13,17 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 17:10] — Frente 14: queries filtradas por aluno (performance) — STATUS: CONCLUÍDO
+
+- **Tarefa:** parar de carregar notas/faltas/portfólio do tenant inteiro na ficha do aluno e no relatório.
+- **Segmento:** ambos. Sem migration; mudança aditiva na camada de dados.
+- **O que foi feito:**
+  - Novas consultas estreitas: `getStudent` (nucleo), `listGradesForStudent`/`listAttendanceForStudent` (sala-de-aula), `listPortfolioForStudent` (pedagógico) — mesma checagem RBAC+RLS das versões amplas, só com `WHERE student_id = ?`. As funções antigas seguem intactas.
+  - `buildStudentSummary` (relatório) e a ficha do aluno (`/app/alunos/[id]`) passam a usar as filtradas → muito menos dados trafegados quando a escola tem muitos registros.
+- **Arquivos principais:** `packages/modules/nucleo/src/classes.ts`, `packages/modules/sala-de-aula/src/index.ts`, `packages/modules/pedagogico/src/portfolio.ts`, `apps/web/src/server/student-report.ts`, `apps/web/src/app/app/alunos/[id]/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `test` (isolamento de tenant incluso) · `build` — verdes (14/14).
+- **Commit(s):** `perf: consultas filtradas por aluno na ficha e no relatorio`.
+
 ### [2026-06-10 16:50] — Frente 13b: lazy-load nas imagens de conteúdo — STATUS: CONCLUÍDO
 
 - **Tarefa:** carregar mais rápido sem risco — `loading="lazy"` nas imagens pesadas (galeria de imagens geradas, flashcards lista + estudo). Logos de cabeçalho (above-fold, pequenos) mantidos.

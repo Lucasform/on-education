@@ -112,6 +112,18 @@ export async function listStudents(client: DbClient, ctx: AuthContext) {
   );
 }
 
+/** Um aluno pelo id (evita listar todos só para achar um na ficha/relatório). */
+export async function getStudent(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'read', 'student');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .select()
+      .from(students)
+      .where(and(eq(students.id, id), isNull(students.deletedAt)));
+    return rows[0] ?? null;
+  });
+}
+
 // Soft delete (poder voltar): marca deletedAt. Exclusão física só via Lixeira (gestor).
 export async function deleteClass(client: DbClient, ctx: AuthContext, id: string) {
   assertCan(ctx, 'delete', 'class');

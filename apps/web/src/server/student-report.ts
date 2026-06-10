@@ -2,8 +2,8 @@ import 'server-only';
 
 import type { AuthContext } from '@on-education/auth';
 import type { DbClient } from '@on-education/db';
-import { listGradeComponents, listStudents, weightedAverage } from '@on-education/module-nucleo';
-import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
+import { getStudent, listGradeComponents, weightedAverage } from '@on-education/module-nucleo';
+import { listAttendanceForStudent, listGradesForStudent } from '@on-education/module-sala-de-aula';
 
 export interface StudentSummary {
   studentId: string;
@@ -21,17 +21,14 @@ export async function buildStudentSummary(
   studentId: string,
 ): Promise<StudentSummary | null> {
   const isSchool = ctx.tenantType === 'organization';
-  const [alunos, notas, presencas, componentes] = await Promise.all([
-    listStudents(client, ctx),
-    listGrades(client, ctx),
-    listAttendance(client, ctx),
+  const [aluno, minhasNotas, minhasPresencas, componentes] = await Promise.all([
+    getStudent(client, ctx, studentId),
+    listGradesForStudent(client, ctx, studentId),
+    listAttendanceForStudent(client, ctx, studentId),
     isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
   ]);
-  const aluno = alunos.find((a) => a.id === studentId);
   if (!aluno) return null;
 
-  const minhasNotas = notas.filter((n) => n.studentId === studentId);
-  const minhasPresencas = presencas.filter((p) => p.studentId === studentId);
   const mediaNum = weightedAverage(minhasNotas, componentes);
   const average = mediaNum === null ? '—' : mediaNum.toFixed(1);
   const attendance = minhasPresencas.length

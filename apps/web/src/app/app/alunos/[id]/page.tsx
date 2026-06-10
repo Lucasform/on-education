@@ -1,14 +1,18 @@
 import { SubmitButton } from '@/components/submit-button';
 import {
+  getStudent,
   getTenantSettings,
   listGradeComponents,
   listGuardians,
   listStudentGuardians,
-  listStudents,
   weightedAverage,
 } from '@on-education/module-nucleo';
-import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
-import { listPortfolioEntries, listStudentPoints, medalFor } from '@on-education/module-pedagogico';
+import { listAttendanceForStudent, listGradesForStudent } from '@on-education/module-sala-de-aula';
+import {
+  listPortfolioForStudent,
+  listStudentPoints,
+  medalFor,
+} from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -34,26 +38,28 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
 
   const isSchool = ctx.tenantType === 'organization';
   const [
-    alunos,
-    notas,
-    presencas,
-    portfolio,
+    aluno,
+    minhasNotas,
+    minhasPresencas,
+    meuPortfolio,
     vinculos,
     responsaveis,
     componentes,
     pontos,
     settings,
   ] = await Promise.all([
-    listStudents(client, ctx),
-    listGrades(client, ctx),
-    listAttendance(client, ctx),
-    listPortfolioEntries(client, ctx),
+    getStudent(client, ctx, id),
+    listGradesForStudent(client, ctx, id),
+    listAttendanceForStudent(client, ctx, id),
+    listPortfolioForStudent(client, ctx, id),
     listStudentGuardians(client, ctx, id),
     isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
     isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
     listStudentPoints(client, ctx, id).catch(() => []),
     getTenantSettings(client, ctx).catch(() => null),
   ]);
+  if (!aluno) redirect('/app/alunos');
+
   const gamificacaoOn = settings?.gamificationEnabled ?? true;
   const totalPontos = pontos.reduce((s, p) => s + p.points, 0);
   const medalha = medalFor(
@@ -63,15 +69,9 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
       : undefined,
   );
 
-  const aluno = alunos.find((a) => a.id === id);
-  if (!aluno) redirect('/app/alunos');
-
   const vinculados = new Set(vinculos.map((v) => v.guardianId));
   const guardiansDisponiveis = responsaveis.filter((g) => !vinculados.has(g.id));
 
-  const minhasNotas = notas.filter((n) => n.studentId === id);
-  const minhasPresencas = presencas.filter((p) => p.studentId === id);
-  const meuPortfolio = portfolio.filter((p) => p.studentId === id);
   const mediaNum = weightedAverage(minhasNotas, componentes);
   const media = mediaNum === null ? '—' : mediaNum.toFixed(1);
   const compNome = new Map(componentes.map((c) => [c.id, c.name]));
