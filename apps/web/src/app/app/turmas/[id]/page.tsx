@@ -5,7 +5,7 @@ import {
   listStudents,
   listSubjects,
 } from '@on-education/module-nucleo';
-import { listMaterials } from '@on-education/module-pedagogico';
+import { listMaterials, medalFor, pointsTotals } from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -40,16 +40,22 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const [turma, alunos, materias, disciplinas, materiais] = await Promise.all([
+  const [turma, alunos, materias, disciplinas, materiais, totais] = await Promise.all([
     getClass(client, ctx, id),
     listStudents(client, ctx),
     listClassSubjects(client, ctx, id),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
     listMaterials(client, ctx, id).catch(() => []),
+    pointsTotals(client, ctx).catch(() => new Map<string, number>()),
   ]);
   if (!turma) redirect('/app/turmas');
 
   const daTurma = alunos.filter((a) => a.classId === id);
+  // Ranking de pontos da turma (gamificação): só entra quem já tem pontos.
+  const ranking = daTurma
+    .map((a) => ({ id: a.id, nome: a.fullName, pontos: totais.get(a.id) ?? 0 }))
+    .filter((r) => r.pontos > 0)
+    .sort((a, b) => b.pontos - a.pontos);
   const jaVinculadas = new Set(materias.map((m) => m.subjectId));
   const disponiveis = disciplinas.filter((s) => !jaVinculadas.has(s.id));
 
@@ -132,17 +138,45 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
             </p>
           ) : (
             <ul className="space-y-1 text-sm">
-              {daTurma.map((a) => (
-                <li key={a.id}>
-                  <Link href={`/app/alunos/${a.id}`} className="hover:underline">
-                    {a.fullName}
-                  </Link>
-                </li>
-              ))}
+              {daTurma.map((a) => {
+                const pts = totais.get(a.id) ?? 0;
+                return (
+                  <li key={a.id} className="flex items-center justify-between gap-2">
+                    <Link href={`/app/alunos/${a.id}`} className="hover:underline">
+                      {a.fullName}
+                    </Link>
+                    {pts > 0 && (
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {medalFor(pts).emoji} {pts}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
       </div>
+
+      {ranking.length > 0 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">🏆 Ranking de pontos da turma</h2>
+          <ol className="space-y-1 text-sm">
+            {ranking.map((r, i) => (
+              <li key={r.id} className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2">
+                  <span className="w-5 text-right text-xs text-muted-foreground">{i + 1}º</span>
+                  <Link href={`/app/alunos/${r.id}`} className="hover:underline">
+                    {r.nome}
+                  </Link>
+                  <span>{medalFor(r.pontos).emoji}</span>
+                </span>
+                <span className="font-medium">{r.pontos} pts</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       {isSchool && (
         <div className={cardClass}>

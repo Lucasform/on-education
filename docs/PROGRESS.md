@@ -13,6 +13,19 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 14:20] — Frente 6: Leaderboard de pontos por turma + doc de revisão — STATUS: CONCLUÍDO
+
+- **Tarefa:** ranking social da gamificação na turma + consolidar a sessão num MD de revisão.
+- **Segmento:** ambos.
+- **O que foi feito:**
+  - Na página da turma: cada aluno mostra **medalha + pontos**; card **🏆 Ranking de pontos da turma** (ordenado desc, só quem tem pontos). Reusa `pointsTotals`/`medalFor` (sem migration).
+  - **`docs/MELHORIAS-PROFESSOR-2026-06-10.md`**: documento de revisão com todas as 8 entregas da sessão, como usar cada uma, decisões, pendências (credenciais) e próximos passos.
+- **Arquivos principais:** `apps/web/src/app/app/turmas/[id]/page.tsx`, `docs/MELHORIAS-PROFESSOR-2026-06-10.md`.
+- **Migrations/RLS:** não.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Próximo passo sugerido:** faixas de medalha configuráveis por escola; auto-pontos; refino de web (DataTable/densidade).
+- **Commit(s):** `feat: leaderboard de pontos por turma + doc de melhorias`.
+
 ### [2026-06-10 13:55] — Frente 4b: Gamificação (pontos + medalhas) — STATUS: CONCLUÍDO
 
 - **Tarefa:** professor premia alunos com pontos; total vira medalha (bronze/prata/ouro); aparece na ficha do aluno.
