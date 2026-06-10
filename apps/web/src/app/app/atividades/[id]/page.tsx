@@ -12,7 +12,15 @@ import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { approveActivityAction, deleteActivityAction, updateActivityAction } from '../../actions';
+import { isAiConfigured } from '@on-education/module-ia';
+
+import {
+  adaptActivityAction,
+  approveActivityAction,
+  deleteActivityAction,
+  duplicateActivityAction,
+  updateActivityAction,
+} from '../../actions';
 
 const KINDS = [
   { value: 'atividade', label: 'Atividade' },
@@ -37,6 +45,7 @@ export default async function AtividadeDetalhePage({
     getTenantSettings(client, ctx).catch(() => null),
   ]);
   if (!atividade) notFound();
+  const aiOn = isAiConfigured();
 
   return (
     <>
@@ -110,6 +119,54 @@ export default async function AtividadeDetalhePage({
           </form>
         </div>
       )}
+
+      {/* reuso 1-clique: duplicar e duplicar-e-adaptar (não aparece na impressão) */}
+      <div className={`${cardClass} print:hidden`}>
+        <h2 className="mb-1 text-sm font-medium">Reaproveitar</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Crie uma nova a partir desta, sem começar do zero.
+        </p>
+        <div className="flex flex-col gap-3 md:flex-row md:items-start">
+          <form action={duplicateActivityAction}>
+            <input type="hidden" name="id" value={atividade.id} />
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Duplicar igual
+            </SubmitButton>
+          </form>
+
+          {aiOn ? (
+            <form action={adaptActivityAction} className="flex flex-1 flex-col gap-2">
+              <input type="hidden" name="sourceId" value={atividade.id} />
+              <div className="flex gap-2">
+                <input
+                  name="instruction"
+                  required
+                  placeholder="Como adaptar? ex.: deixe mais fácil, adapte pro 5º ano, foque em frações…"
+                  className={`${fieldClass} flex-1`}
+                />
+                <select name="kind" defaultValue="" className={`${fieldClass} w-36`}>
+                  <option value="">Mesmo tipo</option>
+                  {KINDS.map((k) => (
+                    <option key={k.value} value={k.value}>
+                      Virar {k.label.toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <SubmitButton type="submit" size="sm">
+                Duplicar e adaptar com o WayOn
+              </SubmitButton>
+              <p className="text-[11px] text-muted-foreground">
+                Gera um rascunho pra você revisar antes de salvar no banco.
+              </p>
+            </form>
+          ) : (
+            <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+              Configure <code>ANTHROPIC_API_KEY</code> para adaptar com o WayOn.
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* edição da atividade (não aparece na impressão) */}
       <details className={`${cardClass} print:hidden`}>

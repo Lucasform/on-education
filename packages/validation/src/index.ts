@@ -96,6 +96,15 @@ export const generateFlashcardsSchema = z.object({
 });
 export type GenerateFlashcardsInput = z.infer<typeof generateFlashcardsSchema>;
 
+/** Adaptar/remixar uma atividade existente com o WayOn (reuso 1-clique). */
+export const adaptActivitySchema = z.object({
+  sourceId: z.string().uuid(),
+  instruction: z.string().min(2).max(600),
+  // Opcionalmente muda o tipo do documento (ex.: vira uma prova).
+  kind: activityKindSchema.optional(),
+});
+export type AdaptActivityInput = z.infer<typeof adaptActivitySchema>;
+
 export const searchActivitiesSchema = z.object({
   q: z.string().max(300).optional(),
   tag: z.string().max(40).optional(),

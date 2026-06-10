@@ -36,6 +36,7 @@ export default async function AtividadesPage({
   searchParams,
 }: {
   searchParams: Promise<{
+    q?: string;
     subject?: string;
     kind?: string;
     gradeLevel?: string;
@@ -47,6 +48,7 @@ export default async function AtividadesPage({
   const sp = await searchParams;
   const search = {
     approved: true,
+    q: sp.q || undefined,
     subject: sp.subject || undefined,
     kind: sp.kind || undefined,
     gradeLevel: sp.gradeLevel || undefined,
@@ -117,6 +119,12 @@ export default async function AtividadesPage({
           <h2 className="mb-3 text-sm font-medium">No banco ({atividades.length})</h2>
 
           <form method="get" className="mb-3 flex flex-wrap gap-2">
+            <input
+              name="q"
+              defaultValue={sp.q ?? ''}
+              placeholder="Buscar por título…"
+              className={`${fieldClass} w-44`}
+            />
             <select name="kind" defaultValue={sp.kind ?? ''} className={`${fieldClass} w-32`}>
               <option value="">Todos os tipos</option>
               {KINDS.map((k) => (
@@ -154,7 +162,7 @@ export default async function AtividadesPage({
             <button type="submit" className="rounded-md border border-border px-3 text-sm">
               Filtrar
             </button>
-            {(sp.subject || sp.kind || sp.gradeLevel || sp.ageBand) && (
+            {(sp.q || sp.subject || sp.kind || sp.gradeLevel || sp.ageBand) && (
               <Link href="/app/atividades" className="px-2 text-sm text-muted-foreground">
                 Limpar
               </Link>

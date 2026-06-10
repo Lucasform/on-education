@@ -72,9 +72,11 @@ import {
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
+  adaptActivityWithWayOn,
   approveActivity,
   copyFromCollective,
   createActivity,
+  duplicateActivity,
   createMaterial,
   createPortfolioEntry,
   createQuiz,
@@ -108,6 +110,7 @@ import {
   recordGrade,
 } from '@on-education/module-sala-de-aula';
 import {
+  adaptActivitySchema,
   addQuizQuestionSchema,
   assignTeachingSchema,
   createScheduleSlotSchema,
@@ -290,6 +293,29 @@ export async function updateActivityAction(formData: FormData): Promise<void> {
   const act = await getActivity(db(), ctx, id);
   if (act) await syncActivitySchedule(ctx, id, act.title, act.eventId, applyDate);
   revalidatePath(`/app/atividades/${id}`, 'page');
+}
+
+/** Duplica uma atividade (reuso 1-clique, sem IA). A cópia abre direto pra edição. */
+export async function duplicateActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const nova = await duplicateActivity(db(), ctx, id);
+  revalidatePath('/app/atividades', 'page');
+  if (nova) redirect(`/app/atividades/${nova.id}`);
+}
+
+/** Duplica e adapta uma atividade com o WayOn segundo a instrução do professor. */
+export async function adaptActivityAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = adaptActivitySchema.parse({
+    sourceId: formData.get('sourceId'),
+    instruction: formData.get('instruction'),
+    kind: (formData.get('kind') as string) || undefined,
+  });
+  const nova = await adaptActivityWithWayOn(db(), ctx, input);
+  revalidatePath('/app/atividades', 'page');
+  if (nova) redirect(`/app/atividades/${nova.id}`);
 }
 
 /** Gera uma imagem pelo WayOn (gpt-image-1): checa cota, sobe pro storage e salva. */

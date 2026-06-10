@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 11:45] — Frente 1: Biblioteca pessoal + reuso 1-clique — STATUS: CONCLUÍDO
+
+- **Tarefa:** transformar o banco de atividades em biblioteca reaproveitável (valor que cresce com o uso).
+- **Segmento:** ambos (entitlement `activities.bank` / `ai.activities`).
+- **O que foi feito:**
+  - **Busca textual** por título na lista de atividades (campo `q`; o módulo já suportava `search.q`, faltava expor).
+  - **Duplicar igual** (`duplicateActivity`): clona a atividade SEM IA, nasce aprovada e editável ("Cópia de…"). Não consome cota.
+  - **Duplicar e adaptar com o WayOn** (`adaptActivityWithWayOn`): pega a atividade + instrução do professor ("deixe mais fácil", "adapte pro 5º ano", "vira prova") e gera um RASCUNHO pra revisão. Pode trocar o tipo. Consome cota; respeita "Meu padrão".
+  - UI: card "Reaproveitar" na tela de detalhe; busca na lista.
+- **Arquivos principais:** `packages/modules/pedagogico/src/activities.ts`, `packages/validation/src/index.ts` (`adaptActivitySchema`), `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/atividades/page.tsx`, `apps/web/src/app/app/atividades/[id]/page.tsx`.
+- **Migrations/RLS:** não (reuso da tabela `activities`).
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Pendências / bloqueios:** nenhum.
+- **Próximo passo sugerido:** Frente 2 — Planejador de aula (BNCC opcional) integrado ao diário.
+- **Commit(s):** `feat: biblioteca de atividades com busca e reuso 1-clique`.
+
 ### [2026-06-10 11:25] — Frente 0: hardening de envio (anti-ban WhatsApp) + env vars — STATUS: CONCLUÍDO
 
 - **Tarefa:** quick wins de saúde antes das frentes de produto; reduzir risco de ban do número no envio em lote.

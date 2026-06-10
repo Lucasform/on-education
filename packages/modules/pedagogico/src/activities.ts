@@ -8,6 +8,7 @@ import {
 } from '@on-education/module-ia';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type {
+  AdaptActivityInput,
   CreateActivityInput,
   GenerateActivityInput,
   SearchActivitiesInput,
@@ -180,6 +181,98 @@ export async function generateActivityWithWayOn(
 
   await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
   return atividade;
+}
+
+/**
+ * Duplica uma atividade do banco (reuso 1-clique, SEM IA). A cópia já nasce
+ * aprovada e editável, com título "Cópia de ...". Não consome cota.
+ */
+export async function duplicateActivity(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'create', 'activity');
+  await assertEntitled(client, ctx.tenantId, FEATURE);
+  const src = await getActivity(client, ctx, id);
+  if (!src) return null;
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .insert(activities)
+      .values({
+        tenantId: ctx.tenantId,
+        title: `Cópia de ${src.title}`.slice(0, 300),
+        subject: src.subject,
+        kind: src.kind,
+        gradeLevel: src.gradeLevel,
+        ageBand: src.ageBand,
+        applyDate: null, // a cópia não herda agendamento
+        content: src.content,
+        tags: src.tags,
+        aiGenerated: src.aiGenerated,
+        approved: true,
+        createdBy: ctx.userId,
+      })
+      .returning();
+    return rows[0]!;
+  });
+}
+
+/**
+ * Duplica E adapta uma atividade com o WayOn segundo uma instrução do professor
+ * (ex.: "deixe mais fácil", "adapte para o 5º ano", "transforme em prova").
+ * Nasce como RASCUNHO (approved=false) para o professor revisar. Consome cota.
+ */
+export async function adaptActivityWithWayOn(
+  client: DbClient,
+  ctx: AuthContext,
+  input: AdaptActivityInput,
+  provider?: AiProvider,
+) {
+  assertCan(ctx, 'create', 'activity');
+  const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
+  await assertWithinQuota(client, ctx.tenantId, planId);
+
+  const src = await getActivity(client, ctx, input.sourceId);
+  if (!src) return null;
+
+  const ai = provider ?? createAnthropicProvider('sonnet');
+  const standard = await getAiStandard(client, ctx);
+  const targetKind = input.kind ?? (src.kind as AdaptActivityInput['kind']);
+
+  const system = applyAiStandard(
+    'Você é o WayOn, um assistente pedagógico. Receberá uma atividade EXISTENTE e uma ' +
+      'instrução de adaptação. Reescreva a atividade aplicando a instrução, mantendo o que ' +
+      'estiver bom e preservando o sentido pedagógico. Responda em português do Brasil, apenas ' +
+      'com o conteúdo final (sem comentários, sem explicar o que mudou).',
+    standard,
+  );
+  const prompt =
+    `Instrução de adaptação: ${input.instruction}.` +
+    (input.kind ? ` Entregue no formato de ${input.kind}.` : '') +
+    `\n\n--- ATIVIDADE ORIGINAL ("${src.title}") ---\n${src.content}\n--- FIM ---`;
+
+  const result = await ai.generate({ prompt, system });
+
+  const nova = await client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .insert(activities)
+      .values({
+        tenantId: ctx.tenantId,
+        title: `${src.title} (adaptada)`.slice(0, 300),
+        subject: src.subject,
+        kind: targetKind ?? 'atividade',
+        gradeLevel: src.gradeLevel,
+        ageBand: src.ageBand,
+        applyDate: null,
+        content: result.text,
+        tags: Array.from(new Set([...src.tags, 'adaptada'])).slice(0, 30),
+        aiGenerated: true,
+        approved: false, // rascunho: professor revisa antes de ir ao banco
+        createdBy: ctx.userId,
+      })
+      .returning();
+    return rows[0]!;
+  });
+
+  await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
+  return nova;
 }
 
 export async function updateActivity(
