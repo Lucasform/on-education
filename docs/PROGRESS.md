@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 17:40] — Frente 16: Trilha de auditoria — STATUS: CONCLUÍDO
+
+- **Tarefa:** registrar operações sensíveis para a escola revisar (LGPD/segurança).
+- **Segmento:** escola (`organization`). **A tabela `audit_log` JÁ existia** no schema (Master Spec §6.3) mas estava sem uso; nenhuma migration necessária.
+- **O que foi feito:**
+  - Módulo `nucleo/audit.ts`: `recordAudit` (best-effort, nunca derruba a operação) + `listAudit`.
+  - Auditoria ligada em ações sensíveis: lançar/alterar nota, excluir aluno, excluir turma, baixar mensalidade, excluir mensalidade.
+  - Tela `/app/auditoria` (escola): tabela dos últimos 200 eventos (quando, ação, detalhes). Link no menu Gestão e analytics.
+- **Arquivos principais:** `packages/modules/nucleo/src/audit.ts` (+ index), `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/auditoria/page.tsx`, `apps/web/src/lib/nav.ts`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14); rota gerada.
+- **Commit(s):** `feat: trilha de auditoria (audit_log + acoes sensiveis + tela)`.
+
 ### [2026-06-10 17:10] — Frente 14: queries filtradas por aluno (performance) — STATUS: CONCLUÍDO
 
 - **Tarefa:** parar de carregar notas/faltas/portfólio do tenant inteiro na ficha do aluno e no relatório.

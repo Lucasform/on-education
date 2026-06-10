@@ -62,6 +62,7 @@ import {
   getConversation,
   getTenantSettings,
   getWhatsappConnection,
+  recordAudit,
   canBroadcast,
   recordBroadcast,
   BROADCAST_MAX_RECIPIENTS,
@@ -632,6 +633,11 @@ export async function recordGradeAction(formData: FormData): Promise<void> {
     componentId: (formData.get('componentId') as string) || undefined,
   });
   await recordGrade(db(), ctx, input);
+  await recordAudit(db(), ctx, {
+    action: 'grade.record',
+    resource: 'grade',
+    metadata: { studentId: input.studentId, label: input.label, value: input.value ?? null },
+  });
   await maybeAutoAwardPoints(ctx, input.studentId, input.kind, input.value);
   revalidatePath('/app', 'layout');
 }
@@ -732,13 +738,17 @@ export async function createPortfolioEntryAction(formData: FormData): Promise<vo
 
 export async function deleteClassAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await deleteClass(db(), ctx, String(formData.get('id')));
+  const id = String(formData.get('id'));
+  await deleteClass(db(), ctx, id);
+  await recordAudit(db(), ctx, { action: 'class.delete', resource: 'class', metadata: { id } });
   revalidatePath('/app', 'layout');
 }
 
 export async function deleteStudentAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await deleteStudent(db(), ctx, String(formData.get('id')));
+  const id = String(formData.get('id'));
+  await deleteStudent(db(), ctx, id);
+  await recordAudit(db(), ctx, { action: 'student.delete', resource: 'student', metadata: { id } });
   revalidatePath('/app', 'layout');
 }
 
@@ -945,7 +955,9 @@ export async function generateMonthlyInvoicesAction(formData: FormData): Promise
 
 export async function markInvoicePaidAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await markInvoicePaid(db(), ctx, String(formData.get('id')));
+  const id = String(formData.get('id'));
+  await markInvoicePaid(db(), ctx, id);
+  await recordAudit(db(), ctx, { action: 'invoice.paid', resource: 'invoice', metadata: { id } });
   revalidatePath('/app/financeiro', 'page');
 }
 
@@ -957,7 +969,9 @@ export async function reopenInvoiceAction(formData: FormData): Promise<void> {
 
 export async function deleteInvoiceAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await deleteInvoice(db(), ctx, String(formData.get('id')));
+  const id = String(formData.get('id'));
+  await deleteInvoice(db(), ctx, id);
+  await recordAudit(db(), ctx, { action: 'invoice.delete', resource: 'invoice', metadata: { id } });
   revalidatePath('/app/financeiro', 'page');
 }
 

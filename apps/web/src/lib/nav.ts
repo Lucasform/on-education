@@ -29,6 +29,7 @@ import {
   PenLine,
   Phone,
   Plug,
+  ShieldCheck,
   Sparkles,
   Trash2,
   UserPlus,
@@ -137,6 +138,7 @@ export const NAV: NavGroup[] = [
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3 },
+      { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck },
     ],
   },
   {

@@ -16,3 +16,4 @@ export * from './finance';
 export * from './whatsapp';
 export * from './whatsapp-inbox';
 export * from './api-keys';
+export * from './audit';
