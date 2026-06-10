@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { PageHeader } from '@/components/form';
 import { IaGenerator } from '@/components/ia-generator';
+import { TutorFoto } from '@/components/tutor-foto';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -20,6 +21,7 @@ export default async function TutorPage() {
         title="Tutor do aluno"
         description="Tira-dúvidas que explica o raciocínio sem fazer a tarefa pelo aluno. Pode se basear nos materiais da turma."
       />
+      <TutorFoto />
       <IaGenerator
         ctx={ctx}
         kind="tutor"

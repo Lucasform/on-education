@@ -83,3 +83,34 @@ export async function transcribeEssay(
   await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
   return parseTranscription(result.text);
 }
+
+const READ_SYSTEM =
+  'Você transcreve o texto presente em uma foto (impresso ou manuscrito): enunciados, ' +
+  'exercícios, questões. Regras: transcreva FIELMENTE o que está escrito, preservando quebras de ' +
+  'linha; NÃO resolva, NÃO comente, NÃO invente. Se algo estiver ilegível, escreva [ilegível]. ' +
+  'Responda apenas com o texto transcrito.';
+
+/**
+ * Transcrição GENÉRICA de texto numa foto (ex.: enunciado de exercício para o tutor ler).
+ * Não resolve nem comenta. Checagem RBAC + entitlement + cota; consumo medido. Não persiste.
+ */
+export async function transcribePhoto(
+  client: DbClient,
+  ctx: AuthContext,
+  images: AiImage[],
+  provider?: AiProvider,
+): Promise<string> {
+  assertCan(ctx, 'create', 'ai_draft');
+  const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
+  await assertWithinQuota(client, ctx.tenantId, planId);
+
+  const ai = provider ?? createAnthropicProvider('sonnet');
+  const result = await ai.generate({
+    system: READ_SYSTEM,
+    prompt: 'Transcreva o texto da(s) imagem(ns). Apenas o texto, sem resolver.',
+    images,
+    maxTokens: 2048,
+  });
+  await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
+  return result.text.trim();
+}

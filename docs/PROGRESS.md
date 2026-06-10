@@ -13,6 +13,18 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 18:20] — Frente 18: Tutor lê enunciado por foto — STATUS: CONCLUÍDO
+
+- **Tarefa:** estender a visão — o tutor poder ler o enunciado de um exercício a partir de uma foto.
+- **Segmento:** ambos. (Prova/gabarito por foto já é coberto pela correção em lote, Frente 3.)
+- **O que foi feito:**
+  - `transcribePhoto` (módulo ia): transcrição GENÉRICA de texto em foto (impresso/manuscrito), não resolve nem comenta. Cota + RBAC.
+  - Rota `POST /api/ia/transcrever` (até 4 fotos, 6MB, downscale no cliente).
+  - Componente `TutorFoto`: foto → transcreve o enunciado (editável) → + dúvida opcional → manda pro tutor (`generateDraftAction kind=tutor`). Posto na tela do Tutor.
+- **Arquivos principais:** `packages/modules/ia/src/transcribe.ts`, `apps/web/src/app/api/ia/transcrever/route.ts`, `apps/web/src/components/tutor-foto.tsx`, `apps/web/src/app/app/ia/tutor/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14); rota gerada.
+- **Commit(s):** `feat: tutor le enunciado por foto (transcricao generica)`.
+
 ### [2026-06-10 18:00] — Frente 17: Gráficos de evolução (tendência) — STATUS: CONCLUÍDO
 
 - **Tarefa:** transformar os indicadores de "foto do momento" em tendência ao longo do tempo.
