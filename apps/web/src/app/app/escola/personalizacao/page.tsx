@@ -166,6 +166,18 @@ export default async function PersonalizacaoPage() {
             />
           </label>
         </div>
+        <label className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
+          Auto-pontos por boa nota (0 = desligado)
+          <input
+            name="autoPointsGrade"
+            type="number"
+            min={0}
+            max={1000}
+            defaultValue={settings?.autoPointsGrade ?? 0}
+            className={`${fieldClass} w-40`}
+          />
+          <span>Dá esses pontos ao lançar uma nota formal &ge; 60% da escala.</span>
+        </label>
         <div className="mt-3">
           <SubmitButton type="submit" size="sm" variant="outline">
             Salvar gamificação

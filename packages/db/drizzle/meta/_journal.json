@@ -267,6 +267,13 @@
       "when": 1781112508406,
       "tag": "0037_icy_morbius",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1781112903884,
+      "tag": "0038_right_sister_grimm",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."tenant_settings" ADD COLUMN "auto_points_grade" integer DEFAULT 0 NOT NULL;

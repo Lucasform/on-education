@@ -893,6 +893,8 @@ export const tenantSettings = oe.table(
     medalBronze: integer('medal_bronze').notNull().default(50),
     medalPrata: integer('medal_prata').notNull().default(150),
     medalOuro: integer('medal_ouro').notNull().default(300),
+    // Auto-pontos: pontos dados automaticamente a cada boa nota (>=60% da escala). 0 = desligado.
+    autoPointsGrade: integer('auto_points_grade').notNull().default(0),
     ...auditCols,
   },
   (t) => [

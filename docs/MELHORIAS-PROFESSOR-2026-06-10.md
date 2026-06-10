@@ -20,7 +20,10 @@ Tudo validado com `lint + typecheck + test + build` (14/14) antes de cada push.
 | 5   | UI/UX mobile estilo app (launcher de ícones)     | `4129849` | não                          |
 | 4a  | Relatório do aluno aos pais                      | `5d0048e` | não                          |
 | 4b  | Gamificação: pontos + medalhas                   | `c3c65d2` | **0036** (aditiva, aplicada) |
-| 6   | Leaderboard de pontos por turma                  | (este)    | não                          |
+| 6   | Leaderboard de pontos por turma                  | `a900145` | não                          |
+| 7   | Refino web: tabelas responsivas no mobile        | `6de2306` | não                          |
+| 8   | Gamificação configurável (liga/desliga + faixas) | `bfaae48` | **0037** (aditiva, aplicada) |
+| 9   | Auto-pontos por boa nota (opt-in)                | (este)    | **0038** (aditiva, aplicada) |
 
 ---
 
@@ -77,6 +80,21 @@ Tudo validado com `lint + typecheck + test + build` (14/14) antes de cada push.
 
 - Na página da turma, cada aluno mostra **medalha + pontos**, e há um card **🏆 Ranking de pontos da turma** (ordenado, só quem tem pontos).
 - **Onde:** Sala de aula › Turmas › abrir uma turma.
+
+### 7 — Refino web (tabelas responsivas)
+
+- Tabelas que faltavam (home/aniversariantes, relatório de faltas) agora rolam na horizontal no mobile em vez de estourar o layout. As demais já tinham. Nenhuma tela reescrita.
+
+### 8 — Gamificação configurável
+
+- **Liga/desliga** a gamificação inteira por escola/professor; quando desligada, somem Conquistas, Ranking e medalhas.
+- **Faixas de medalha personalizáveis** (a partir de quantos pontos cada medalha).
+- **Onde:** Escola › Personalização (escola) e Meu padrão (professor) › card "Gamificação".
+
+### 9 — Auto-pontos por boa nota (opt-in)
+
+- Defina quantos pontos o aluno ganha **automaticamente** ao receber uma nota formal **≥ 60% da escala** (também vale na correção em lote). **0 = desligado** (padrão), então nada muda até você ativar.
+- **Onde:** mesmo card "Gamificação" (campo "Auto-pontos por boa nota").
 
 ---
 

@@ -397,6 +397,7 @@ export const updateTenantSettingsSchema = z.object({
   medalBronze: z.coerce.number().int().min(1).max(100_000).optional(),
   medalPrata: z.coerce.number().int().min(1).max(100_000).optional(),
   medalOuro: z.coerce.number().int().min(1).max(100_000).optional(),
+  autoPointsGrade: z.coerce.number().int().min(0).max(1000).optional(),
 });
 
 /** Composição da média (pesos) definida pela escola. */

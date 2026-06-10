@@ -60,6 +60,7 @@ import {
   unlinkClassSubject,
   unlinkGuardian,
   getConversation,
+  getTenantSettings,
   getWhatsappConnection,
   canBroadcast,
   recordBroadcast,
@@ -589,6 +590,27 @@ export async function createLessonAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/**
+ * Auto-pontos (opt-in): se a gamificação estiver ligada e `autoPointsGrade > 0`, premia o aluno
+ * ao registrar uma boa nota formal (>= 60% da escala). No-op silencioso fora dessas condições.
+ */
+async function maybeAutoAwardPoints(
+  ctx: AuthContext,
+  studentId: string,
+  kind: string,
+  value: number | null | undefined,
+): Promise<void> {
+  if (kind !== 'formal' || value === null || value === undefined) return;
+  const s = await getTenantSettings(db(), ctx).catch(() => null);
+  if (!s?.gamificationEnabled) return;
+  const pts = s.autoPointsGrade ?? 0;
+  if (pts <= 0) return;
+  const scale = s.gradeScale ?? 10;
+  if (value >= 0.6 * scale) {
+    await awardPoints(db(), ctx, { studentId, points: pts, reason: 'Boa nota' }).catch(() => {});
+  }
+}
+
 export async function recordGradeAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const rawValue = (formData.get('value') as string) || '';
@@ -602,6 +624,7 @@ export async function recordGradeAction(formData: FormData): Promise<void> {
     componentId: (formData.get('componentId') as string) || undefined,
   });
   await recordGrade(db(), ctx, input);
+  await maybeAutoAwardPoints(ctx, input.studentId, input.kind, input.value);
   revalidatePath('/app', 'layout');
 }
 
@@ -634,6 +657,7 @@ export async function lancarNotasCorrecaoAction(formData: FormData): Promise<voi
       componentId,
     });
     await recordGrade(db(), ctx, input);
+    await maybeAutoAwardPoints(ctx, input.studentId, 'formal', input.value);
   }
   revalidatePath('/app', 'layout');
   redirect('/app/sala/notas');

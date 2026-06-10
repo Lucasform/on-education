@@ -13,6 +13,21 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 15:20] — Frente 9: Auto-pontos por boa nota (opt-in) — STATUS: CONCLUÍDO
+
+- **Tarefa:** premiar o aluno automaticamente ao lançar boas notas, sem mudar o comportamento de quem não quiser.
+- **Segmento:** ambos.
+- **Migration:** **`0038_right_sister_grimm`** — `ALTER tenant_settings ADD COLUMN auto_points_grade` (int, default **0 = desligado**). Aditiva, aplicada em prod.
+- **O que foi feito:**
+  - Helper `maybeAutoAwardPoints`: ao registrar nota **formal** com valor **≥ 60% da escala**, se gamificação ligada e `autoPointsGrade > 0`, premia o aluno (motivo "Boa nota"). No-op silencioso fora disso.
+  - Ligado no lançamento individual (`recordGradeAction`) e no **lote da correção por foto** (`lancarNotasCorrecaoAction`).
+  - Campo "Auto-pontos por boa nota" nas duas telas de config (Personalização / Meu padrão).
+  - **Default 0**: sem mudança de comportamento até o professor ativar.
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0038_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/settings.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/escola/personalizacao/page.tsx`, `apps/web/src/app/app/meu-padrao/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Próximo passo sugerido:** RAG com embeddings (precisa pgvector + chunking) ou DataTable genérica; demais bloqueados por credencial.
+- **Commit(s):** `feat: auto-pontos por boa nota (opt-in)`.
+
 ### [2026-06-10 15:00] — Frente 8: Gamificação configurável por escola/professor — STATUS: CONCLUÍDO
 
 - **Tarefa:** tornar a gamificação opcional (liga/desliga) e as faixas de medalha personalizáveis.
