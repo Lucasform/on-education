@@ -13,6 +13,21 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 13:25] — Frente 4a: Relatório do aluno aos pais — STATUS: CONCLUÍDO
+
+- **Tarefa:** relatório de desempenho por aluno (média/frequência/notas) imprimível + recado do WayOn + envio no WhatsApp ao responsável.
+- **Segmento:** ambos (recado usa `ai.activities`; envio reusa WhatsApp do tenant).
+- **O que foi feito:**
+  - Helper `buildStudentSummary`/`buildReportText` (`apps/web/src/server/student-report.ts`) — calcula média ponderada, frequência e notas a partir dos dados reais; sem migration.
+  - `writeParentNote` (módulo ia, `parent-report.ts`): WayOn escreve recado curto e respeitoso baseado SÓ nos números (não inventa). Consome cota.
+  - Página `/app/alunos/[id]/relatorio`: relatório imprimível com identidade da escola (logo) + "Escrever recado com o WayOn" + "Enviar no WhatsApp" por responsável (com telefone). Recado guardado em cookie pra revisão.
+  - Link "Relatório aos pais" na página do aluno.
+- **Arquivos principais:** `packages/modules/ia/src/parent-report.ts` (+ index), `apps/web/src/server/student-report.ts`, `apps/web/src/app/app/alunos/[id]/relatorio/page.tsx`, `apps/web/src/app/app/alunos/[id]/page.tsx`, `apps/web/src/app/app/actions.ts`.
+- **Migrations/RLS:** não.
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14); rota gerada.
+- **Pendências / bloqueios:** nenhum. Próximo é a gamificação (4b) que precisa de migration aditiva.
+- **Commit(s):** `feat: relatorio do aluno aos pais (wayon + whatsapp)`.
+
 ### [2026-06-10 13:00] — Frente 5: UI/UX mobile (app launcher) + refino — STATUS: CONCLUÍDO
 
 - **Tarefa:** experiência mobile estilo app — sem sidebar; home com grid de ícones grandes + bottom bar; menu vira launcher em tela cheia.

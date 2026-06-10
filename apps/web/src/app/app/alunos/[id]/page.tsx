@@ -57,9 +57,20 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   return (
     <>
       <PageHeader title={aluno.fullName} description="Histórico do aluno." />
-      <Link href="/app/alunos" className="text-sm text-primary underline-offset-4 hover:underline">
-        ← Voltar para alunos
-      </Link>
+      <div className="flex items-center justify-between gap-2">
+        <Link
+          href="/app/alunos"
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          ← Voltar para alunos
+        </Link>
+        <Link
+          href={`/app/alunos/${id}/relatorio`}
+          className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+        >
+          Relatório aos pais
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className={cardClass}>

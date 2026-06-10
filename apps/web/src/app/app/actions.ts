@@ -18,6 +18,7 @@ import {
   generateTenantImage,
   recordImages,
   saveGeneratedImage,
+  writeParentNote,
 } from '@on-education/module-ia';
 import {
   assignTeaching,
@@ -161,6 +162,7 @@ import { revalidatePath } from 'next/cache';
 
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
+import { buildReportText, buildStudentSummary } from '@/server/student-report';
 import { db } from '@/server/db';
 import { getAuthContext, signOut } from '@/server/session';
 import {
@@ -1156,6 +1158,62 @@ export async function cobrarInadimplenteWhatsappAction(formData: FormData): Prom
     `mensalidade(s). Se já pagou, desconsidere. Qualquer dúvida, estamos à disposição.`;
   await sendWhatsappText(ctx, g.phone, text).catch(() => false);
   revalidatePath('/app/inadimplencia', 'page');
+}
+
+// --- Relatório do aluno aos pais --------------------------------------------
+
+/** WayOn escreve um recado aos pais com base nos números do aluno; guarda em cookie p/ revisar. */
+export async function escreverRecadoPaisAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const notes = (formData.get('notes') as string) || undefined;
+  if (!studentId) return;
+  const resumo = await buildStudentSummary(db(), ctx, studentId);
+  if (!resumo) return;
+  const recado = await writeParentNote(db(), ctx, {
+    studentName: resumo.studentName,
+    average: resumo.average,
+    attendance: resumo.attendance,
+    gradeLines: resumo.gradeLines,
+    notes,
+  });
+  (await cookies()).set('oe_report_msg', recado, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: `/app/alunos/${studentId}/relatorio`,
+    maxAge: 1800,
+  });
+  redirect(`/app/alunos/${studentId}/relatorio`);
+}
+
+/** Envia o relatório do aluno (números + recado opcional) no WhatsApp de um responsável. */
+export async function enviarRelatorioWhatsappAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const guardianId = String(formData.get('guardianId') ?? '');
+  const recado = (formData.get('recado') as string) || null;
+  if (!studentId || !guardianId) return;
+  const resumo = await buildStudentSummary(db(), ctx, studentId);
+  if (!resumo) return;
+  const g = (await listGuardians(db(), ctx)).find((x) => x.id === guardianId);
+  if (!g?.phone) return;
+  const texto = buildReportText(resumo, recado);
+  const ok = await sendWhatsappText(ctx, g.phone, texto).catch(() => false);
+  (await cookies()).set(
+    'oe_report_flash',
+    ok
+      ? `Relatório enviado a ${g.fullName}.`
+      : 'Falha ao enviar (verifique o WhatsApp conectado e o telefone).',
+    {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: `/app/alunos/${studentId}/relatorio`,
+      maxAge: 30,
+    },
+  );
+  redirect(`/app/alunos/${studentId}/relatorio`);
 }
 
 // --- API aberta -------------------------------------------------------------
