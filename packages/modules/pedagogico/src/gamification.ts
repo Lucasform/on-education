@@ -17,12 +17,20 @@ export interface Medal {
   toNext: number;
 }
 
-/** Faixas de medalha por total de pontos. Personalizável depois (config por escola). */
-export function medalFor(total: number): Medal {
-  if (total >= 300) return { tier: 'ouro', emoji: '🥇', toNext: 0 };
-  if (total >= 150) return { tier: 'prata', emoji: '🥈', toNext: 300 - total };
-  if (total >= 50) return { tier: 'bronze', emoji: '🥉', toNext: 150 - total };
-  return { tier: 'nenhuma', emoji: '⭐', toNext: 50 - total };
+/** Faixas de medalha por total de pontos. Personalizável por escola (config no tenant_settings). */
+export interface MedalThresholds {
+  bronze: number;
+  prata: number;
+  ouro: number;
+}
+const DEFAULT_THRESHOLDS: MedalThresholds = { bronze: 50, prata: 150, ouro: 300 };
+
+export function medalFor(total: number, thresholds?: Partial<MedalThresholds>): Medal {
+  const t = { ...DEFAULT_THRESHOLDS, ...thresholds };
+  if (total >= t.ouro) return { tier: 'ouro', emoji: '🥇', toNext: 0 };
+  if (total >= t.prata) return { tier: 'prata', emoji: '🥈', toNext: t.ouro - total };
+  if (total >= t.bronze) return { tier: 'bronze', emoji: '🥉', toNext: t.prata - total };
+  return { tier: 'nenhuma', emoji: '⭐', toNext: t.bronze - total };
 }
 
 /** Premia um aluno com pontos (positivos) + motivo. Decisão do professor. */

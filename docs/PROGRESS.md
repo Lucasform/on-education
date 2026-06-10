@@ -13,6 +13,20 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 15:00] — Frente 8: Gamificação configurável por escola/professor — STATUS: CONCLUÍDO
+
+- **Tarefa:** tornar a gamificação opcional (liga/desliga) e as faixas de medalha personalizáveis.
+- **Segmento:** ambos.
+- **Migration:** **`0037_icy_morbius`** — `ALTER tenant_settings ADD COLUMN` `gamification_enabled`(bool, default true) + `medal_bronze/prata/ouro`(int, defaults 50/150/300). **Aditiva** (ADD COLUMN com default constante; sem rewrite). **Aplicada em prod.**
+- **O que foi feito:**
+  - `medalFor(total, thresholds?)` agora aceita faixas customizadas.
+  - Ficha do aluno e página da turma leem `tenant_settings`: escondem Conquistas/Ranking/medalhas quando desligado; usam as faixas da escola.
+  - Config UI: card "Gamificação" em Escola › Personalização (organização) e em Meu padrão (professor individual), com `updateGamificationAction` (checkbox enviado explicitamente para não cair na armadilha do merge).
+- **Arquivos principais:** `packages/db/src/schema.ts`, `packages/db/drizzle/0037_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/settings.ts`, `packages/modules/pedagogico/src/gamification.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/alunos/[id]/page.tsx`, `apps/web/src/app/app/turmas/[id]/page.tsx`, `apps/web/src/app/app/escola/personalizacao/page.tsx`, `apps/web/src/app/app/meu-padrao/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Próximo passo sugerido:** Frente 9 — auto-pontos por nota/frequência (opcional).
+- **Commit(s):** `feat: gamificacao configuravel (liga/desliga + faixas de medalha)`.
+
 ### [2026-06-10 14:35] — Frente 7: refino de web (tabelas responsivas no mobile) — STATUS: CONCLUÍDO
 
 - **Tarefa:** refino focado e seguro — impedir que tabelas estourem a largura no mobile, sem reescrever telas.

@@ -10,6 +10,7 @@ import { getAuthContext } from '@/server/session';
 import {
   deleteStandardSampleAction,
   updateAiStandardAction,
+  updateGamificationAction,
   uploadStandardSampleAction,
 } from '../actions';
 
@@ -130,6 +131,61 @@ export default async function MeuPadraoPage() {
           </ul>
         )}
       </div>
+
+      {!isSchool && (
+        <form action={updateGamificationAction} className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Pontos e medalhas para os alunos. Desligue se não usar.
+          </p>
+          <label className="mb-3 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="gamificationEnabled"
+              defaultChecked={settings?.gamificationEnabled ?? true}
+              className="h-4 w-4"
+            />
+            Ativar pontos e medalhas
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              🥉 Bronze
+              <input
+                name="medalBronze"
+                type="number"
+                min={1}
+                defaultValue={settings?.medalBronze ?? 50}
+                className={fieldClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              🥈 Prata
+              <input
+                name="medalPrata"
+                type="number"
+                min={1}
+                defaultValue={settings?.medalPrata ?? 150}
+                className={fieldClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              🥇 Ouro
+              <input
+                name="medalOuro"
+                type="number"
+                min={1}
+                defaultValue={settings?.medalOuro ?? 300}
+                className={fieldClass}
+              />
+            </label>
+          </div>
+          <div className="mt-3">
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Salvar gamificação
+            </SubmitButton>
+          </div>
+        </form>
+      )}
 
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Como funciona</h2>

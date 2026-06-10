@@ -393,6 +393,10 @@ export const updateTenantSettingsSchema = z.object({
   imageStyle: z.string().max(2000).optional(),
   agentName: z.string().max(40).optional(),
   gradeScale: z.coerce.number().int().min(1).max(1000).optional(),
+  gamificationEnabled: z.coerce.boolean().optional(),
+  medalBronze: z.coerce.number().int().min(1).max(100_000).optional(),
+  medalPrata: z.coerce.number().int().min(1).max(100_000).optional(),
+  medalOuro: z.coerce.number().int().min(1).max(100_000).optional(),
 });
 
 /** Composição da média (pesos) definida pela escola. */

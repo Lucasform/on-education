@@ -888,6 +888,11 @@ export const tenantSettings = oe.table(
     imageStyle: text('image_style'),
     // Nome do agente de IA escolhido pela escola/professor (padrão: WayOn).
     agentName: text('agent_name'),
+    // Gamificação (Frente 8): liga/desliga por escola/professor + faixas de medalha.
+    gamificationEnabled: boolean('gamification_enabled').notNull().default(true),
+    medalBronze: integer('medal_bronze').notNull().default(50),
+    medalPrata: integer('medal_prata').notNull().default(150),
+    medalOuro: integer('medal_ouro').notNull().default(300),
     ...auditCols,
   },
   (t) => [

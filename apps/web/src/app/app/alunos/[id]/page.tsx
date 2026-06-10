@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import {
+  getTenantSettings,
   listGradeComponents,
   listGuardians,
   listStudentGuardians,
@@ -32,19 +33,35 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   const client = db();
 
   const isSchool = ctx.tenantType === 'organization';
-  const [alunos, notas, presencas, portfolio, vinculos, responsaveis, componentes, pontos] =
-    await Promise.all([
-      listStudents(client, ctx),
-      listGrades(client, ctx),
-      listAttendance(client, ctx),
-      listPortfolioEntries(client, ctx),
-      listStudentGuardians(client, ctx, id),
-      isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
-      isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
-      listStudentPoints(client, ctx, id).catch(() => []),
-    ]);
+  const [
+    alunos,
+    notas,
+    presencas,
+    portfolio,
+    vinculos,
+    responsaveis,
+    componentes,
+    pontos,
+    settings,
+  ] = await Promise.all([
+    listStudents(client, ctx),
+    listGrades(client, ctx),
+    listAttendance(client, ctx),
+    listPortfolioEntries(client, ctx),
+    listStudentGuardians(client, ctx, id),
+    isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
+    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
+    listStudentPoints(client, ctx, id).catch(() => []),
+    getTenantSettings(client, ctx).catch(() => null),
+  ]);
+  const gamificacaoOn = settings?.gamificationEnabled ?? true;
   const totalPontos = pontos.reduce((s, p) => s + p.points, 0);
-  const medalha = medalFor(totalPontos);
+  const medalha = medalFor(
+    totalPontos,
+    settings
+      ? { bronze: settings.medalBronze, prata: settings.medalPrata, ouro: settings.medalOuro }
+      : undefined,
+  );
 
   const aluno = alunos.find((a) => a.id === id);
   if (!aluno) redirect('/app/alunos');
@@ -99,75 +116,77 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      {/* Gamificação: conquistas do aluno */}
-      <div className={cardClass}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl" aria-hidden>
-              {medalha.emoji}
-            </span>
-            <div>
-              <div className="text-sm font-medium">
-                {totalPontos} ponto{totalPontos === 1 ? '' : 's'}
-                {medalha.tier !== 'nenhuma' && (
-                  <span className="ml-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs capitalize text-primary">
-                    {medalha.tier}
-                  </span>
-                )}
+      {/* Gamificação: conquistas do aluno (pode ser desligada por escola/professor) */}
+      {gamificacaoOn && (
+        <div className={cardClass}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl" aria-hidden>
+                {medalha.emoji}
+              </span>
+              <div>
+                <div className="text-sm font-medium">
+                  {totalPontos} ponto{totalPontos === 1 ? '' : 's'}
+                  {medalha.tier !== 'nenhuma' && (
+                    <span className="ml-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs capitalize text-primary">
+                      {medalha.tier}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {medalha.toNext > 0
+                    ? `Faltam ${medalha.toNext} para a próxima medalha.`
+                    : 'Medalha máxima alcançada! 🎉'}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {medalha.toNext > 0
-                  ? `Faltam ${medalha.toNext} para a próxima medalha.`
-                  : 'Medalha máxima alcançada! 🎉'}
-              </p>
             </div>
+            <form action={awardPointsAction} className="flex flex-wrap items-end gap-2">
+              <input type="hidden" name="studentId" value={aluno.id} />
+              <input
+                name="points"
+                type="number"
+                min={1}
+                max={1000}
+                defaultValue={10}
+                className={`${fieldClass} w-20`}
+                aria-label="Pontos"
+              />
+              <input
+                name="reason"
+                placeholder="Motivo (ex.: participação)"
+                className={`${fieldClass} w-48`}
+              />
+              <SubmitButton type="submit" size="sm" variant="outline">
+                Dar pontos
+              </SubmitButton>
+            </form>
           </div>
-          <form action={awardPointsAction} className="flex flex-wrap items-end gap-2">
-            <input type="hidden" name="studentId" value={aluno.id} />
-            <input
-              name="points"
-              type="number"
-              min={1}
-              max={1000}
-              defaultValue={10}
-              className={`${fieldClass} w-20`}
-              aria-label="Pontos"
-            />
-            <input
-              name="reason"
-              placeholder="Motivo (ex.: participação)"
-              className={`${fieldClass} w-48`}
-            />
-            <SubmitButton type="submit" size="sm" variant="outline">
-              Dar pontos
-            </SubmitButton>
-          </form>
+          {pontos.length > 0 && (
+            <ul className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3 text-xs">
+              {pontos.slice(0, 8).map((p) => (
+                <li
+                  key={p.id}
+                  className="flex items-center gap-1.5 rounded-full bg-muted px-2 py-1 text-muted-foreground"
+                >
+                  <span className="font-medium text-foreground">+{p.points}</span>
+                  {p.reason && <span>{p.reason}</span>}
+                  <form action={deleteStudentPointAction}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <input type="hidden" name="studentId" value={aluno.id} />
+                    <button
+                      type="submit"
+                      className="text-muted-foreground hover:text-danger"
+                      aria-label="Remover pontos"
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        {pontos.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3 text-xs">
-            {pontos.slice(0, 8).map((p) => (
-              <li
-                key={p.id}
-                className="flex items-center gap-1.5 rounded-full bg-muted px-2 py-1 text-muted-foreground"
-              >
-                <span className="font-medium text-foreground">+{p.points}</span>
-                {p.reason && <span>{p.reason}</span>}
-                <form action={deleteStudentPointAction}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <input type="hidden" name="studentId" value={aluno.id} />
-                  <button
-                    type="submit"
-                    className="text-muted-foreground hover:text-danger"
-                    aria-label="Remover pontos"
-                  >
-                    ✕
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>

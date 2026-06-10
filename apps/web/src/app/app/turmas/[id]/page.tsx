@@ -1,6 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
 import {
   getClass,
+  getTenantSettings,
   listClassSubjects,
   listStudents,
   listSubjects,
@@ -40,22 +41,29 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const [turma, alunos, materias, disciplinas, materiais, totais] = await Promise.all([
+  const [turma, alunos, materias, disciplinas, materiais, totais, settings] = await Promise.all([
     getClass(client, ctx, id),
     listStudents(client, ctx),
     listClassSubjects(client, ctx, id),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
     listMaterials(client, ctx, id).catch(() => []),
     pointsTotals(client, ctx).catch(() => new Map<string, number>()),
+    getTenantSettings(client, ctx).catch(() => null),
   ]);
   if (!turma) redirect('/app/turmas');
 
+  const gamificacaoOn = settings?.gamificationEnabled ?? true;
+  const faixas = settings
+    ? { bronze: settings.medalBronze, prata: settings.medalPrata, ouro: settings.medalOuro }
+    : undefined;
   const daTurma = alunos.filter((a) => a.classId === id);
   // Ranking de pontos da turma (gamificação): só entra quem já tem pontos.
-  const ranking = daTurma
-    .map((a) => ({ id: a.id, nome: a.fullName, pontos: totais.get(a.id) ?? 0 }))
-    .filter((r) => r.pontos > 0)
-    .sort((a, b) => b.pontos - a.pontos);
+  const ranking = gamificacaoOn
+    ? daTurma
+        .map((a) => ({ id: a.id, nome: a.fullName, pontos: totais.get(a.id) ?? 0 }))
+        .filter((r) => r.pontos > 0)
+        .sort((a, b) => b.pontos - a.pontos)
+    : [];
   const jaVinculadas = new Set(materias.map((m) => m.subjectId));
   const disponiveis = disciplinas.filter((s) => !jaVinculadas.has(s.id));
 
@@ -145,9 +153,9 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
                     <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                       {a.fullName}
                     </Link>
-                    {pts > 0 && (
+                    {gamificacaoOn && pts > 0 && (
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {medalFor(pts).emoji} {pts}
+                        {medalFor(pts, faixas).emoji} {pts}
                       </span>
                     )}
                   </li>
@@ -169,7 +177,7 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
                   <Link href={`/app/alunos/${r.id}`} className="hover:underline">
                     {r.nome}
                   </Link>
-                  <span>{medalFor(r.pontos).emoji}</span>
+                  <span>{medalFor(r.pontos, faixas).emoji}</span>
                 </span>
                 <span className="font-medium">{r.pontos} pts</span>
               </li>

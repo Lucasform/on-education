@@ -966,6 +966,19 @@ export async function updateTenantSettingsAction(formData: FormData): Promise<vo
   revalidatePath('/app', 'layout');
 }
 
+/** Configura a gamificação (liga/desliga + faixas de medalha). Checkbox enviado explicitamente. */
+export async function updateGamificationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateTenantSettingsSchema.parse({
+    gamificationEnabled: formData.get('gamificationEnabled') === 'on',
+    medalBronze: (formData.get('medalBronze') as string) || undefined,
+    medalPrata: (formData.get('medalPrata') as string) || undefined,
+    medalOuro: (formData.get('medalOuro') as string) || undefined,
+  });
+  await upsertTenantSettings(db(), ctx, input);
+  revalidatePath('/app', 'layout');
+}
+
 /**
  * Upload da logo da escola: sobe o arquivo no bucket público e salva a URL na personalização.
  * Isolado do form grande de personalização. RBAC vem do `upsertTenantSettings` (gestão da escola).

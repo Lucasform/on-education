@@ -53,6 +53,11 @@ export async function upsertTenantSettings(
   if (input.imageStyle !== undefined) patch.imageStyle = input.imageStyle || null;
   if (input.agentName !== undefined) patch.agentName = input.agentName || null;
   if (input.gradeScale !== undefined) patch.gradeScale = input.gradeScale;
+  if (input.gamificationEnabled !== undefined)
+    patch.gamificationEnabled = input.gamificationEnabled;
+  if (input.medalBronze !== undefined) patch.medalBronze = input.medalBronze;
+  if (input.medalPrata !== undefined) patch.medalPrata = input.medalPrata;
+  if (input.medalOuro !== undefined) patch.medalOuro = input.medalOuro;
 
   return client.withTenant(ctx.tenantId, async (tx) => {
     const existing = await tx
