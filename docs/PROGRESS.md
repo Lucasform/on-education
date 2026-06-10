@@ -13,6 +13,22 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 12:05] — Frente 2: Planejador de aula com o WayOn (BNCC opcional) — STATUS: CONCLUÍDO
+
+- **Tarefa:** WayOn gera plano de aula/avaliação/trabalho completo e salva direto no planejamento da turma.
+- **Segmento:** ambos (entitlement `ai.activities` + `classes.manage`).
+- **O que foi feito:**
+  - `generateLessonPlanWithWayOn` (módulo sala-de-aula): monta plano estruturado por tipo (aula = objetivos/conteúdos/recursos/passo a passo com tempo/avaliação/tarefa; avaliação = questões+gabarito; trabalho = etapas+rubrica). Respeita "Meu padrão". Consome cota.
+  - **BNCC opcional e personalizável:** checkbox "Alinhar à BNCC" (sugere habilidades/códigos como sugestão a confirmar, sem inventar código) + campo pra colar uma habilidade específica. Desligado por padrão.
+  - UI no Planejamento: card "Gerar plano com o WayOn" (tema, série, duração, BNCC on/off, observações); plano salvo aparece na lista com "Ver plano" em markdown.
+  - `module-sala-de-aula` passou a depender de `module-ia` (mesmo padrão do pedagógico).
+- **Arquivos principais:** `packages/modules/sala-de-aula/src/lesson-plans.ts`, `packages/modules/sala-de-aula/package.json`, `packages/validation/src/index.ts` (`generateLessonPlanSchema`), `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/sala/planejamento/page.tsx`.
+- **Migrations/RLS:** não (reuso da tabela `lesson_plans`).
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Pendências / bloqueios:** BNCC hoje vem do conhecimento do modelo (sugestão). Dataset oficial BNCC continua dependendo do Lucas para virar validação/seletor.
+- **Próximo passo sugerido:** Frente 3 — Correção em lote por foto.
+- **Commit(s):** `feat: planejador de aula com o wayon e bncc opcional`.
+
 ### [2026-06-10 11:45] — Frente 1: Biblioteca pessoal + reuso 1-clique — STATUS: CONCLUÍDO
 
 - **Tarefa:** transformar o banco de atividades em biblioteca reaproveitável (valor que cresce com o uso).

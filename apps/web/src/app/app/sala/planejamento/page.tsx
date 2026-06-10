@@ -1,14 +1,21 @@
 import { SubmitButton } from '@/components/submit-button';
+import { isAiConfigured } from '@on-education/module-ia';
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listLessonPlans } from '@on-education/module-sala-de-aula';
+import { Sparkles } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { MarkdownView } from '@/components/markdown-view';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createLessonPlanAction, deleteLessonPlanAction } from '../../actions';
+import {
+  createLessonPlanAction,
+  deleteLessonPlanAction,
+  generateLessonPlanAction,
+} from '../../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Planejamento · Edu On Way' };
@@ -36,6 +43,7 @@ export default async function PlanejamentoPage({
     turmaId ? listLessonPlans(client, ctx, turmaId) : Promise.resolve([]),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
   ]);
+  const aiOn = isAiConfigured();
 
   return (
     <>
@@ -86,9 +94,14 @@ export default async function PlanejamentoPage({
                           {p.date ? ` · ${p.date.split('-').reverse().join('/')}` : ''}
                         </span>
                         {p.content && (
-                          <span className="mt-0.5 block text-xs text-muted-foreground">
-                            {p.content}
-                          </span>
+                          <details className="mt-1">
+                            <summary className="cursor-pointer text-xs text-primary">
+                              Ver plano
+                            </summary>
+                            <div className="mt-1 text-xs">
+                              <MarkdownView>{p.content}</MarkdownView>
+                            </div>
+                          </details>
                         )}
                       </span>
                       <form action={deleteLessonPlanAction}>
@@ -108,37 +121,113 @@ export default async function PlanejamentoPage({
               )}
             </div>
 
-            <div className={cardClass}>
-              <h2 className="mb-3 text-sm font-medium">Novo item</h2>
-              <form action={createLessonPlanAction} className="flex flex-col gap-2">
-                <input type="hidden" name="classId" value={turmaId} />
-                <select name="kind" className={fieldClass} defaultValue="aula">
-                  <option value="aula">Plano de aula</option>
-                  <option value="avaliacao">Avaliação</option>
-                  <option value="trabalho">Trabalho</option>
-                </select>
-                {isSchool && (
-                  <select name="subjectId" className={fieldClass} defaultValue="">
-                    <option value="">Matéria (opcional)</option>
-                    {disciplinas.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+            <div className="flex flex-col gap-5">
+              <div className={cardClass}>
+                <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Gerar plano com o WayOn
+                </h2>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  Diga o tema; o WayOn monta objetivos, passo a passo, recursos e avaliação. Vai
+                  direto pro planejamento desta turma.
+                </p>
+                {aiOn ? (
+                  <form action={generateLessonPlanAction} className="flex flex-col gap-2">
+                    <input type="hidden" name="classId" value={turmaId} />
+                    <select name="kind" className={fieldClass} defaultValue="aula">
+                      <option value="aula">Plano de aula</option>
+                      <option value="avaliacao">Avaliação</option>
+                      <option value="trabalho">Trabalho</option>
+                    </select>
+                    {isSchool && (
+                      <select name="subjectId" className={fieldClass} defaultValue="">
+                        <option value="">Matéria (opcional)</option>
+                        {disciplinas.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <input
+                      name="topic"
+                      required
+                      placeholder="Tema (ex.: frações equivalentes)"
+                      className={fieldClass}
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        name="gradeLevel"
+                        placeholder="Série/ano (ex.: 5º ano)"
+                        className={fieldClass}
+                      />
+                      <input
+                        name="durationMin"
+                        type="number"
+                        min={10}
+                        max={600}
+                        placeholder="min"
+                        className={`${fieldClass} w-24`}
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 text-xs">
+                      <input type="checkbox" name="useBncc" className="h-4 w-4" />
+                      Alinhar à BNCC (sugere habilidades/códigos pra você confirmar)
+                    </label>
+                    <input
+                      name="bncc"
+                      placeholder="Habilidade BNCC específica (opcional, ex.: EF05MA03)"
+                      className={fieldClass}
+                    />
+                    <textarea
+                      name="notes"
+                      rows={2}
+                      placeholder="Observações (opcional): turma agitada, foco em revisão, etc."
+                      className={fieldClass}
+                    />
+                    <SubmitButton type="submit" size="sm">
+                      Gerar e salvar no planejamento
+                    </SubmitButton>
+                  </form>
+                ) : (
+                  <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+                    WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar planos.
+                  </p>
                 )}
-                <input name="title" required placeholder="Título" className={fieldClass} />
-                <input name="date" type="date" className={fieldClass} />
-                <textarea
-                  name="content"
-                  rows={4}
-                  placeholder="Objetivos, conteúdo, instruções…"
-                  className={fieldClass}
-                />
-                <SubmitButton type="submit" size="sm">
-                  Adicionar ao planejamento
-                </SubmitButton>
-              </form>
+              </div>
+
+              <div className={cardClass}>
+                <h2 className="mb-3 text-sm font-medium">Novo item (manual)</h2>
+                <form action={createLessonPlanAction} className="flex flex-col gap-2">
+                  <input type="hidden" name="classId" value={turmaId} />
+                  <select name="kind" className={fieldClass} defaultValue="aula">
+                    <option value="aula">Plano de aula</option>
+                    <option value="avaliacao">Avaliação</option>
+                    <option value="trabalho">Trabalho</option>
+                  </select>
+                  {isSchool && (
+                    <select name="subjectId" className={fieldClass} defaultValue="">
+                      <option value="">Matéria (opcional)</option>
+                      {disciplinas.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <input name="title" required placeholder="Título" className={fieldClass} />
+                  <input name="date" type="date" className={fieldClass} />
+                  <textarea
+                    name="content"
+                    rows={4}
+                    placeholder="Objetivos, conteúdo, instruções…"
+                    className={fieldClass}
+                  />
+                  <SubmitButton type="submit" size="sm">
+                    Adicionar ao planejamento
+                  </SubmitButton>
+                </form>
+              </div>
             </div>
           </div>
         </>

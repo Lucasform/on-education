@@ -366,6 +366,9 @@ importers:
       '@on-education/db':
         specifier: workspace:*
         version: link:../../db
+      '@on-education/module-ia':
+        specifier: workspace:*
+        version: link:../ia
       '@on-education/module-nucleo':
         specifier: workspace:*
         version: link:../nucleo

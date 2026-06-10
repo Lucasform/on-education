@@ -100,6 +100,7 @@ import {
 import {
   createLesson,
   createLessonPlan,
+  generateLessonPlanWithWayOn,
   createScheduleException,
   createScheduleSlot,
   deleteLessonPlan,
@@ -116,6 +117,7 @@ import {
   createScheduleSlotSchema,
   createScheduleExceptionSchema,
   createLessonPlanSchema,
+  generateLessonPlanSchema,
   createGradeComponentSchema,
   updateGradeScaleSchema,
   updateAiStandardSchema,
@@ -1348,6 +1350,24 @@ export async function createLessonPlanAction(formData: FormData): Promise<void> 
 export async function deleteLessonPlanAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteLessonPlan(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/sala/planejamento', 'page');
+}
+
+/** Gera um plano completo com o WayOn e já salva no planejamento da turma. */
+export async function generateLessonPlanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateLessonPlanSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'aula',
+    topic: formData.get('topic'),
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    durationMin: (formData.get('durationMin') as string) || undefined,
+    useBncc: formData.get('useBncc') === 'on' || formData.get('useBncc') === 'true',
+    bncc: (formData.get('bncc') as string) || undefined,
+    notes: (formData.get('notes') as string) || undefined,
+  });
+  await generateLessonPlanWithWayOn(db(), ctx, input);
   revalidatePath('/app/sala/planejamento', 'page');
 }
 

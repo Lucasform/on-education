@@ -221,6 +221,21 @@ export const createLessonPlanSchema = z.object({
 });
 export type CreateLessonPlanInput = z.infer<typeof createLessonPlanSchema>;
 
+/** Geração de plano de aula/avaliação/trabalho pelo WayOn (item 7.1). */
+export const generateLessonPlanSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  kind: lessonPlanKindSchema.default('aula'),
+  topic: z.string().min(2).max(300),
+  gradeLevel: z.string().max(60).optional(),
+  durationMin: z.coerce.number().int().min(10).max(600).optional(),
+  // BNCC é OPCIONAL e personalizável: liga/desliga + habilidade específica colável.
+  useBncc: z.coerce.boolean().default(false),
+  bncc: z.string().max(600).optional(),
+  notes: z.string().max(1000).optional(),
+});
+export type GenerateLessonPlanInput = z.infer<typeof generateLessonPlanSchema>;
+
 export const gradeKindSchema = z.enum(['formal', 'participacao', 'anotacao']);
 export type GradeKind = z.infer<typeof gradeKindSchema>;
 
