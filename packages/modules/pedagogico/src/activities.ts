@@ -3,7 +3,7 @@ import { activities, type DbClient } from '@on-education/db';
 import {
   type AiProvider,
   assertWithinQuota,
-  createAnthropicProvider,
+  resolveTenantProvider,
   recordUsage,
 } from '@on-education/module-ia';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
@@ -95,7 +95,7 @@ export async function generateActivityWithWayOn(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
 
   // Tipo de documento gerado (itens 11.1/11.2/11.3/11.4). Muda o foco do prompt e a etiqueta.
@@ -232,7 +232,7 @@ export async function adaptActivityWithWayOn(
   const src = await getActivity(client, ctx, input.sourceId);
   if (!src) return null;
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
   const targetKind = input.kind ?? (src.kind as AdaptActivityInput['kind']);
 

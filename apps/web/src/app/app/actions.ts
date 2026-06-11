@@ -14,9 +14,11 @@ import {
   approveDraft,
   deleteGeneratedImage,
   discardDraft,
+  encryptSecret,
   generateDraft,
   generateTenantImage,
   recordImages,
+  resolveTenantProvider,
   saveGeneratedImage,
   writeParentNote,
 } from '@on-education/module-ia';
@@ -116,6 +118,7 @@ import {
 } from '@on-education/module-sala-de-aula';
 import {
   adaptActivitySchema,
+  updateAiProviderSchema,
   addQuizQuestionSchema,
   assignTeachingSchema,
   createScheduleSlotSchema,
@@ -1095,6 +1098,46 @@ export async function deleteStandardSampleAction(formData: FormData): Promise<vo
   const path = await deleteStandardSample(db(), ctx, id);
   if (path) await removeTenantFile(path).catch(() => {});
   revalidatePath('/app/meu-padrao', 'page');
+}
+
+// --- BYOK: IA do professor (provedor + chave própria) ------------------------
+
+/** Salva o provedor de IA do tenant + a chave DELE (criptografada). 'default' limpa a chave. */
+export async function updateAiProviderAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateAiProviderSchema.parse({
+    aiProvider: (formData.get('aiProvider') as string) || 'default',
+    apiKey: (formData.get('apiKey') as string) || undefined,
+  });
+  if (input.aiProvider === 'default') {
+    await upsertTenantSettings(db(), ctx, { aiProvider: 'default', aiApiKeyEnc: null });
+  } else {
+    const patch: { aiProvider: 'anthropic' | 'openai' | 'gemini'; aiApiKeyEnc?: string } = {
+      aiProvider: input.aiProvider,
+    };
+    // Só re-criptografa se o professor digitou uma chave nova (senão mantém a atual).
+    if (input.apiKey?.trim()) patch.aiApiKeyEnc = encryptSecret(input.apiKey.trim());
+    await upsertTenantSettings(db(), ctx, patch);
+  }
+  // Cookie flash: testa a chave de verdade com uma geração mínima.
+  let msg = 'IA atualizada.';
+  if (input.aiProvider !== 'default') {
+    try {
+      const p = await resolveTenantProvider(db(), ctx);
+      await p.generate({ prompt: 'responda apenas: ok', maxTokens: 5 });
+      msg = 'Chave validada — a IA do professor está ativa. ✅';
+    } catch {
+      msg = 'Salvo, mas a chave falhou no teste. Confira o provedor e a chave.';
+    }
+  }
+  (await cookies()).set('oe_ai_flash', msg, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/app/meu-padrao',
+    maxAge: 30,
+  });
+  redirect('/app/meu-padrao');
 }
 
 // --- Meu padrão / padrão do WayOn (item 18.3) --------------------------------

@@ -3,6 +3,8 @@ import { type DbClient, usageMeters } from '@on-education/db';
 import { limitFor } from '@on-education/entitlements';
 import { and, eq, sql } from 'drizzle-orm';
 
+import { tenantUsesOwnAi } from './byok';
+
 /**
  * Cota de IA por tenant (Master Spec §9.3, essencial no freemium). Mede tokens consumidos
  * no período e impõe o limite do plano (`aiTokensPerMonth`). -1/undefined = ilimitado.
@@ -37,6 +39,8 @@ export async function assertWithinQuota(
   tenantId: string,
   planId: string,
 ): Promise<void> {
+  // BYOK: com a própria chave, não há nossa cota (os tokens são do tenant).
+  if (await tenantUsesOwnAi(client, tenantId)) return;
   const used = await getUsedTokens(client, tenantId);
   const limit = limitFor(planId, 'aiTokensPerMonth');
   if (tokensRemaining(limit, used) <= 0) {
@@ -52,6 +56,8 @@ export async function recordUsage(
   period: string = currentPeriod(),
 ): Promise<void> {
   if (tokens <= 0) return;
+  // BYOK: não medimos o consumo de quem usa a própria chave.
+  if (await tenantUsesOwnAi(client, tenantId)) return;
   await client.withTenant(tenantId, (tx) =>
     tx
       .insert(usageMeters)

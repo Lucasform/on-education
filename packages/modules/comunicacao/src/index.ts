@@ -6,8 +6,8 @@ import { assertEntitled } from '@on-education/module-nucleo';
 import {
   type AiProvider,
   assertWithinQuota,
-  createAnthropicProvider,
   recordUsage,
+  resolveTenantProvider,
 } from '@on-education/module-ia';
 import type {
   CreateCommunicationInput,
@@ -137,7 +137,7 @@ export async function generateCommunication(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const p = provider ?? createAnthropicProvider('sonnet');
+  const p = provider ?? (await resolveTenantProvider(client, ctx));
   const result = await p.generate({ prompt: input.prompt, system: SYSTEM });
   await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
 

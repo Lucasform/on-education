@@ -400,7 +400,17 @@ export const updateTenantSettingsSchema = z.object({
   medalPrata: z.coerce.number().int().min(1).max(100_000).optional(),
   medalOuro: z.coerce.number().int().min(1).max(100_000).optional(),
   autoPointsGrade: z.coerce.number().int().min(0).max(1000).optional(),
+  // BYOK: provedor de IA do tenant + chave já criptografada (a action cuida da cripto).
+  aiProvider: z.enum(['default', 'anthropic', 'openai', 'gemini']).optional(),
+  aiApiKeyEnc: z.string().nullable().optional(),
 });
+
+/** BYOK: escolha do provedor + chave crua (criptografada na action). */
+export const updateAiProviderSchema = z.object({
+  aiProvider: z.enum(['default', 'anthropic', 'openai', 'gemini']),
+  apiKey: z.string().max(400).optional(),
+});
+export type UpdateAiProviderInput = z.infer<typeof updateAiProviderSchema>;
 
 /** Composição da média (pesos) definida pela escola. */
 export const createGradeComponentSchema = z.object({

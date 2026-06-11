@@ -3,8 +3,9 @@ import { type DbClient, lessonPlans, subjects } from '@on-education/db';
 import {
   type AiProvider,
   assertWithinQuota,
-  createAnthropicProvider,
   recordUsage,
+  resolveTenantProvider,
+  searchYouTube,
 } from '@on-education/module-ia';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type { CreateLessonPlanInput, GenerateLessonPlanInput } from '@on-education/validation';
@@ -56,7 +57,7 @@ export async function generateLessonPlanWithWayOn(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
 
   const ESTRUTURA: Record<GenerateLessonPlanInput['kind'], string> = {
@@ -102,6 +103,13 @@ export async function generateLessonPlanWithWayOn(
 
   const result = await ai.generate({ prompt, system });
 
+  // Recurso externo (Fase 2): sugere um vídeo do YouTube relacionado (no-op se não configurado).
+  let content = result.text.slice(0, 20_000);
+  const video = await searchYouTube(`${input.topic} ${input.gradeLevel ?? ''} aula`.trim()).catch(
+    () => null,
+  );
+  if (video) content += `\n\n📺 **Vídeo sugerido:** [${video.title}](${video.url})`;
+
   const plano = await client.withTenant(ctx.tenantId, async (tx) => {
     const rows = await tx
       .insert(lessonPlans)
@@ -111,7 +119,7 @@ export async function generateLessonPlanWithWayOn(
         subjectId: input.subjectId ?? null,
         kind: input.kind,
         title: input.topic.slice(0, 300),
-        content: result.text.slice(0, 20_000),
+        content: content.slice(0, 20_000),
         date: null,
         createdBy: ctx.userId,
       })

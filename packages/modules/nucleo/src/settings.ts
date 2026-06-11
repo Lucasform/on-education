@@ -59,6 +59,8 @@ export async function upsertTenantSettings(
   if (input.medalPrata !== undefined) patch.medalPrata = input.medalPrata;
   if (input.medalOuro !== undefined) patch.medalOuro = input.medalOuro;
   if (input.autoPointsGrade !== undefined) patch.autoPointsGrade = input.autoPointsGrade;
+  if (input.aiProvider !== undefined) patch.aiProvider = input.aiProvider;
+  if (input.aiApiKeyEnc !== undefined) patch.aiApiKeyEnc = input.aiApiKeyEnc;
 
   return client.withTenant(ctx.tenantId, async (tx) => {
     const existing = await tx

@@ -5,7 +5,8 @@ import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/mo
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
 import { desc, eq, ne, sql } from 'drizzle-orm';
 
-import { type AiProvider, createAnthropicProvider } from './provider';
+import { resolveTenantProvider } from './byok';
+import { type AiProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
 
 /**
@@ -52,7 +53,7 @@ export async function generateDraft(
   const planId = await assertEntitled(client, ctx.tenantId, FEATURE_BY_KIND[input.kind]);
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
   const result = await ai.generate({
     prompt: input.prompt,

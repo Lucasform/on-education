@@ -2,7 +2,8 @@ import { assertCan, type AuthContext } from '@on-education/auth';
 import type { DbClient } from '@on-education/db';
 import { assertEntitled } from '@on-education/module-nucleo';
 
-import { type AiImage, type AiProvider, createAnthropicProvider } from './provider';
+import { resolveTenantProvider } from './byok';
+import { type AiImage, type AiProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
 
 /** Uma palavra/trecho que a IA não conseguiu ler na foto (não inventa: marca e relata). */
@@ -71,7 +72,7 @@ export async function transcribeEssay(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const result = await ai.generate({
     system: TRANSCRIBE_SYSTEM,
     prompt:
@@ -104,7 +105,7 @@ export async function transcribePhoto(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const result = await ai.generate({
     system: READ_SYSTEM,
     prompt: 'Transcreva o texto da(s) imagem(ns). Apenas o texto, sem resolver.',

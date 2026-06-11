@@ -1,0 +1,2 @@
+ALTER TABLE "on_education"."tenant_settings" ADD COLUMN "ai_provider" text DEFAULT 'default' NOT NULL;--> statement-breakpoint
+ALTER TABLE "on_education"."tenant_settings" ADD COLUMN "ai_api_key_enc" text;

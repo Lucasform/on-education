@@ -13,6 +13,19 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 21:30] — Fase 2 adiantada: BYOK (IA do professor) + vídeo do YouTube — STATUS: CONCLUÍDO (a pedido do Lucas, pra testar)
+
+- **Migration `0039_clean_bucky`** (aditiva, aplicada em prod): `tenant_settings` + `ai_provider` (default|anthropic|openai|gemini) + `ai_api_key_enc` (chave do professor criptografada).
+- **BYOK:** novo `packages/modules/ia/src/byok.ts` — cripto AES-256-GCM (`encryptSecret`/`decryptSecret`, chave de `APP_ENCRYPTION_KEY` ou fallback `DEV_SESSION_SECRET`), adaptadores `createOpenAiProvider`/`createGeminiProvider` (mesmo contrato `AiProvider`, com visão), `resolveTenantProvider` (cai pro Claude padrão em QUALQUER falha) e `tenantUsesOwnAi`.
+  - Todas as 11 funções de geração trocaram `createAnthropicProvider('sonnet')` por `resolveTenantProvider(client, ctx)` → usam a IA do professor quando configurada.
+  - `assertWithinQuota`/`recordUsage` **pulam a nossa cota** quando o tenant usa a própria chave (senão pagaríamos sem medir).
+  - UI em **Meu padrão → "Sua própria IA"**: escolhe provedor + cola chave (guardada criptografada) + **"Salvar e testar"** (faz uma geração mínima e valida).
+- **Vídeo do YouTube:** `ia/youtube.ts` (`searchYouTube`, gated por `YOUTUBE_API_KEY`); o **planejador de aula** anexa "📺 Vídeo sugerido" ao plano (no-op se não configurado/sem resultado).
+- **Princípio de segurança:** o caminho padrão (nosso Claude) é blindado — qualquer erro no provider do professor cai pro padrão.
+- **Pendência do Lucas (pra testar):** BYOK precisa de uma chave do professor (OpenAI/Gemini/Claude); YouTube precisa de `YOUTUBE_API_KEY` no Vercel (cota grátis). Sem elas, tudo segue no padrão.
+- **Testes:** `lint` · `typecheck` · `test` · `build` — verdes (14/14).
+- **Commit(s):** `feat: BYOK (IA do professor) + sugestao de video do youtube`.
+
 ### [2026-06-10 20:00] — Performance: transaction pooler automático + admin numa consulta — STATUS: CONCLUÍDO (cura definitiva)
 
 - **Sintoma:** app lento/travando; painel `/admin` girava sem carregar contas e não voltava.

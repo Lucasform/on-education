@@ -895,6 +895,10 @@ export const tenantSettings = oe.table(
     medalOuro: integer('medal_ouro').notNull().default(300),
     // Auto-pontos: pontos dados automaticamente a cada boa nota (>=60% da escala). 0 = desligado.
     autoPointsGrade: integer('auto_points_grade').notNull().default(0),
+    // BYOK (Fase 2): provedor de IA do tenant ('default' = nosso Claude) + a API key DELE,
+    // criptografada (AES-GCM). Quando configurado, usa a IA/tokens dele e pula a nossa cota.
+    aiProvider: text('ai_provider').notNull().default('default'), // default | anthropic | openai | gemini
+    aiApiKeyEnc: text('ai_api_key_enc'),
     ...auditCols,
   },
   (t) => [

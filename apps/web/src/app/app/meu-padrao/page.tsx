@@ -1,4 +1,5 @@
 import { getTenantSettings, listStandardSamples } from '@on-education/module-nucleo';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -9,10 +10,18 @@ import { getAuthContext } from '@/server/session';
 
 import {
   deleteStandardSampleAction,
+  updateAiProviderAction,
   updateAiStandardAction,
   updateGamificationAction,
   uploadStandardSampleAction,
 } from '../actions';
+
+const AI_PROVIDERS = [
+  { value: 'default', label: 'WayOn (nossa IA — usa sua cota do plano)' },
+  { value: 'openai', label: 'OpenAI (GPT) — sua chave' },
+  { value: 'gemini', label: 'Google Gemini — sua chave' },
+  { value: 'anthropic', label: 'Anthropic (Claude) — sua chave' },
+];
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Meu padrão · Edu On Way' };
@@ -26,6 +35,9 @@ export default async function MeuPadraoPage() {
   if (!ctx) redirect('/login');
   const isSchool = ctx.tenantType === 'organization';
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  const aiProvider = settings?.aiProvider ?? 'default';
+  const temChave = Boolean(settings?.aiApiKeyEnc);
+  const aiFlash = (await cookies()).get('oe_ai_flash')?.value;
   const modelos = await listStandardSamples(db(), ctx).catch(() => []);
 
   return (
@@ -198,6 +210,45 @@ export default async function MeuPadraoPage() {
           </div>
         </form>
       )}
+
+      <form action={updateAiProviderAction} className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Sua própria IA (avançado)</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Conecte a chave da IA que você preferir (GPT, Gemini ou Claude) e use os tokens dela — sem
+          limite da nossa cota. Seu padrão e suas regras continuam valendo. A chave é guardada
+          criptografada.
+        </p>
+        {aiFlash && (
+          <div className="mb-3 rounded-md border border-border bg-muted p-2 text-xs">{aiFlash}</div>
+        )}
+        <div className="flex flex-col gap-2">
+          <select name="aiProvider" defaultValue={aiProvider} className={fieldClass}>
+            {AI_PROVIDERS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <input
+            name="apiKey"
+            type="password"
+            placeholder={
+              temChave ? 'Chave salva — preencha só para trocar' : 'Cole sua API key (sk-…, AIza…)'
+            }
+            className={fieldClass}
+            autoComplete="off"
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Em &quot;WayOn&quot; usamos a nossa IA (cota do plano). Nos demais, a cobrança é direto
+            no seu provedor. {temChave ? 'Há uma chave salva.' : ''}
+          </p>
+          <div>
+            <SubmitButton type="submit" size="sm">
+              Salvar e testar
+            </SubmitButton>
+          </div>
+        </div>
+      </form>
 
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Como funciona</h2>

@@ -3,8 +3,8 @@ import { type DbClient, quizQuestions, quizzes, quizAttempts } from '@on-educati
 import {
   type AiProvider,
   assertWithinQuota,
-  createAnthropicProvider,
   recordUsage,
+  resolveTenantProvider,
 } from '@on-education/module-ia';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type {
@@ -97,7 +97,7 @@ export async function generateQuizWithWayOn(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
   const system = applyAiStandard(
     'Você é o WayOn, um assistente pedagógico. Gere questões de múltipla escolha em português ' +

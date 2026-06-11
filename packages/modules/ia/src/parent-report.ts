@@ -2,7 +2,8 @@ import { assertCan, type AuthContext } from '@on-education/auth';
 import type { DbClient } from '@on-education/db';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 
-import { type AiProvider, createAnthropicProvider } from './provider';
+import { resolveTenantProvider } from './byok';
+import { type AiProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
 
 export interface ParentNoteInput {
@@ -32,7 +33,7 @@ export async function writeParentNote(
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.activities');
   await assertWithinQuota(client, ctx.tenantId, planId);
 
-  const ai = provider ?? createAnthropicProvider('sonnet');
+  const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
 
   const system = applyAiStandard(

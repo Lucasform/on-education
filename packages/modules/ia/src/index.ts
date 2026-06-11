@@ -3,5 +3,7 @@ export * from './quota';
 export * from './drafts';
 export * from './transcribe';
 export * from './correct';
+export * from './byok';
+export * from './youtube';
 export * from './parent-report';
 export * from './images';
