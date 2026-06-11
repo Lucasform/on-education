@@ -9,10 +9,15 @@ import { MarkdownView } from '@/components/markdown-view';
 import { PrintButton } from '@/components/print-button';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
+import { isEmailConfigured } from '@/server/email';
 import { getAuthContext } from '@/server/session';
 import { buildStudentSummary } from '@/server/student-report';
 
-import { enviarRelatorioWhatsappAction, escreverRecadoPaisAction } from '../../../actions';
+import {
+  enviarRelatorioEmailAction,
+  enviarRelatorioWhatsappAction,
+  escreverRecadoPaisAction,
+} from '../../../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Relatório do aluno · Edu On Way' };
@@ -34,7 +39,9 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
   const recado = jar.get('oe_report_msg')?.value ?? null;
   const flash = jar.get('oe_report_flash')?.value ?? null;
   const aiOn = isAiConfigured();
+  const emailOn = isEmailConfigured();
   const comTelefone = vinculos.filter((v) => v.guardianPhone);
+  const comEmail = vinculos.filter((v) => v.guardianEmail);
 
   return (
     <>
@@ -150,6 +157,27 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
                   <input type="hidden" name="recado" value={recado ?? ''} />
                   <SubmitButton type="submit" size="sm" variant="outline">
                     Enviar no WhatsApp
+                  </SubmitButton>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {emailOn && comEmail.length > 0 && (
+          <ul className="mt-3 space-y-2 border-t border-border pt-3">
+            {comEmail.map((v) => (
+              <li key={`e-${v.id}`} className="flex items-center justify-between gap-2 text-sm">
+                <span>
+                  {v.guardianName ?? 'Responsável'}{' '}
+                  <span className="text-muted-foreground">· {v.guardianEmail}</span>
+                </span>
+                <form action={enviarRelatorioEmailAction}>
+                  <input type="hidden" name="studentId" value={id} />
+                  <input type="hidden" name="guardianId" value={v.guardianId} />
+                  <input type="hidden" name="recado" value={recado ?? ''} />
+                  <SubmitButton type="submit" size="sm" variant="outline">
+                    Enviar por e-mail
                   </SubmitButton>
                 </form>
               </li>

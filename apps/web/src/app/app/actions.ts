@@ -165,6 +165,7 @@ import { revalidatePath } from 'next/cache';
 
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
+import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
 import { buildClassMaterialsContext } from '@/server/materials-context';
 import { buildReportText, buildStudentSummary } from '@/server/student-report';
 import { db } from '@/server/db';
@@ -1186,6 +1187,33 @@ export async function broadcastComunicadoWhatsappAction(formData: FormData): Pro
   revalidatePath('/app/comunicados', 'page');
 }
 
+/** Envia um comunicado por E-MAIL a todos os responsáveis com e-mail (informativo em massa). */
+export async function broadcastComunicadoEmailAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  if (!isEmailConfigured()) {
+    await setWaFlash('E-mail não configurado. Adicione RESEND_API_KEY no Vercel.');
+    revalidatePath('/app/comunicados', 'page');
+    return;
+  }
+  const title = String(formData.get('title') ?? '');
+  const body = String(formData.get('body') ?? '');
+  const html = emailHtml(title, `<p>${escapeHtml(body).replace(/\n/g, '<br>')}</p>`);
+
+  const comEmail = (await listGuardians(db(), ctx)).filter((g) => g.email);
+  const targets = comEmail.slice(0, 300);
+  let sent = 0;
+  for (const g of targets) {
+    // Um e-mail por responsável (privacidade: ninguém vê o e-mail dos outros).
+    const r = await sendEmail({ to: g.email!, subject: title, html });
+    if (r.ok) sent++;
+  }
+  await setWaFlash(
+    `Comunicado enviado por e-mail a ${sent}/${targets.length} responsável(is).` +
+      (comEmail.length > targets.length ? ` (limite de 300 por envio)` : ''),
+  );
+  revalidatePath('/app/comunicados', 'page');
+}
+
 /** Responde uma conversa do inbox: envia no WhatsApp e registra a mensagem enviada. */
 export async function replyWhatsappAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
@@ -1286,6 +1314,41 @@ export async function enviarRelatorioWhatsappAction(formData: FormData): Promise
     ok
       ? `Relatório enviado a ${g.fullName}.`
       : 'Falha ao enviar (verifique o WhatsApp conectado e o telefone).',
+    {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: true,
+      path: `/app/alunos/${studentId}/relatorio`,
+      maxAge: 30,
+    },
+  );
+  redirect(`/app/alunos/${studentId}/relatorio`);
+}
+
+/** Envia o relatório do aluno por E-MAIL a um responsável (números + recado opcional). */
+export async function enviarRelatorioEmailAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const guardianId = String(formData.get('guardianId') ?? '');
+  const recado = (formData.get('recado') as string) || null;
+  if (!studentId || !guardianId) return;
+  const resumo = await buildStudentSummary(db(), ctx, studentId);
+  if (!resumo) return;
+  const g = (await listGuardians(db(), ctx)).find((x) => x.id === guardianId);
+  if (!g?.email) return;
+
+  const linhasNotas = resumo.gradeLines.length
+    ? `<p><b>Notas</b><br>${resumo.gradeLines.map((l) => escapeHtml(l.replace(/^- /, ''))).join('<br>')}</p>`
+    : '';
+  const recadoHtml = recado ? `<p>${escapeHtml(recado).replace(/\n/g, '<br>')}</p>` : '';
+  const html = emailHtml(
+    `Relatório de ${resumo.studentName}`,
+    `<p>Média: <b>${resumo.average}</b> · Frequência: <b>${resumo.attendance}</b></p>${linhasNotas}${recadoHtml}`,
+  );
+  const r = await sendEmail({ to: g.email, subject: `Relatório de ${resumo.studentName}`, html });
+  (await cookies()).set(
+    'oe_report_flash',
+    r.ok ? `Relatório enviado por e-mail a ${g.fullName}.` : `Falha ao enviar: ${r.error ?? ''}`,
     {
       httpOnly: true,
       sameSite: 'lax',

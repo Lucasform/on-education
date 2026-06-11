@@ -10,7 +10,10 @@ import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { isEmailConfigured } from '@/server/email';
+
 import {
+  broadcastComunicadoEmailAction,
   broadcastComunicadoWhatsappAction,
   createCommunicationAction,
   deleteCommunicationAction,
@@ -27,6 +30,7 @@ export default async function ComunicadosPage() {
   const comunicados = await listCommunications(db(), ctx);
   const aiOn = isAiConfigured();
   const wa = await getWhatsappConnection(db(), ctx).catch(() => null);
+  const emailOn = isEmailConfigured();
   const waFlash = (await cookies()).get('oe_wa_flash')?.value;
 
   return (
@@ -112,6 +116,19 @@ export default async function ComunicadosPage() {
                           message="Enviar este comunicado no WhatsApp para TODOS os responsáveis com telefone? Envio em LOTE pode levar a bloqueio/ban do número pela Meta. Use com moderação."
                         >
                           WhatsApp a todos
+                        </ConfirmButton>
+                      </form>
+                    )}
+                    {emailOn && c.status === 'published' && (
+                      <form action={broadcastComunicadoEmailAction}>
+                        <input type="hidden" name="title" value={c.title} />
+                        <input type="hidden" name="body" value={c.body ?? ''} />
+                        <ConfirmButton
+                          size="sm"
+                          variant="outline"
+                          message="Enviar este comunicado por e-mail para TODOS os responsáveis com e-mail cadastrado?"
+                        >
+                          E-mail a todos
                         </ConfirmButton>
                       </form>
                     )}
