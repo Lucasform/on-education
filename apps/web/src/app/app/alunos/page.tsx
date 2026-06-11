@@ -19,26 +19,79 @@ import {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Alunos · Edu On Way' };
 
-export default async function AlunosPage() {
+export default async function AlunosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; classId?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
+  const sp = await searchParams;
   const [alunos, turmas] = await Promise.all([listStudents(client, ctx), listClasses(client, ctx)]);
+  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
+
+  const termo = (sp.q ?? '').trim().toLowerCase();
+  const filtrados = alunos
+    .filter((a) => !sp.classId || a.classId === sp.classId)
+    .filter((a) => !termo || a.fullName.toLowerCase().includes(termo));
 
   return (
     <>
       <PageHeader title="Alunos" description="Cadastre, importe e acompanhe seus alunos." />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Alunos ({alunos.length})</h2>
-          {alunos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum aluno ainda.</p>
+          <h2 className="mb-3 text-sm font-medium">
+            Alunos ({filtrados.length}
+            {filtrados.length !== alunos.length ? ` de ${alunos.length}` : ''})
+          </h2>
+
+          <form method="get" className="mb-3 flex flex-wrap gap-2">
+            <input
+              name="q"
+              defaultValue={sp.q ?? ''}
+              placeholder="Buscar por nome…"
+              className={`${fieldClass} w-full sm:w-44`}
+            />
+            {turmas.length > 0 && (
+              <select
+                name="classId"
+                defaultValue={sp.classId ?? ''}
+                className={`${fieldClass} w-36`}
+              >
+                <option value="">Todas as turmas</option>
+                {turmas.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <button type="submit" className="rounded-md border border-border px-3 text-sm">
+              Filtrar
+            </button>
+            {(sp.q || sp.classId) && (
+              <Link href="/app/alunos" className="px-2 text-sm text-muted-foreground">
+                Limpar
+              </Link>
+            )}
+          </form>
+
+          {filtrados.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {alunos.length === 0 ? 'Nenhum aluno ainda.' : 'Nenhum aluno com esse filtro.'}
+            </p>
           ) : (
             <ul className="space-y-1 text-sm">
-              {alunos.map((a) => (
+              {filtrados.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-2">
                   <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                     {a.fullName}
+                    {a.classId && turmaNome.get(a.classId) && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {turmaNome.get(a.classId)}
+                      </span>
+                    )}
                   </Link>
                   <form action={deleteStudentAction}>
                     <input type="hidden" name="id" value={a.id} />
