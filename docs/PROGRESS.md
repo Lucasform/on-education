@@ -13,6 +13,19 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 19:30] — Performance: região, pool e painel admin — STATUS: CONCLUÍDO
+
+- **Sintoma (Lucas):** app lento em prod, "às vezes nem carrega"; depois isolado no **painel /admin** (girava no skeleton).
+- **Causa raiz:** (1) Vercel sem região → funções rodavam fora do Brasil enquanto o Supabase está em **sa-east-1 (SP)**; cada query cruzava o continente (~150ms) e, com `max:1`, as 5–9 queries de cada página enfileiravam → 1–2s/página. (2) Painel admin fazia **9 consultas cross-tenant**.
+- **O que foi feito:**
+  - **`apps/web/vercel.json` com `regions: ["gru1"]`** (São Paulo) → funções co-localizadas com o banco. **Confirmado em prod** via header `X-Vercel-Id: gru1::gru1`. Latência por query caiu de ~150ms para ~5ms.
+  - **`DB_POOL_MAX`** configurável no client (default 1; recomendado 5 no transaction pooler 6543). Registrado no turbo/.env.example.
+  - **`getAppStats` colapsado de 6 queries em 1** (subqueries). Painel admin com **timeout de 7s** (degrada em vez de travar pra sempre).
+  - Calendário responsivo no mobile (células menores + bolinhas).
+- **Validação Lucas:** responsividade OK; resta confirmar o admin após esta deploy.
+- **Pendência (Lucas, opcional, mais ganho):** `DATABASE_URL` porta `5432`→`6543` + `DB_POOL_MAX=5` no Vercel (paraleliza as queries de cada página).
+- **Commits:** `340754b` pool, `155367a` região, `f4ac87e` calendário, `4f4ba1b` admin.
+
 ### [2026-06-10 18:35] — Frente 19: testes da gamificação — STATUS: CONCLUÍDO
 
 - **Tarefa:** cobrir com testes a regra central da gamificação (faixas de medalha).
