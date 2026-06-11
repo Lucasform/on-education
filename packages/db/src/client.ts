@@ -24,20 +24,26 @@ export function createDbClient(
   connectionString: string,
   options: postgres.Options<Record<string, never>> = {},
 ): DbClient {
-  // search_path em on_education: o Drizzle já qualifica as tabelas, mas isto garante que
-  // SQL não-qualificado (scripts/limpeza de teste) resolva no nosso schema, nunca no public.
-  const sqlClient = postgres(connectionString, {
+  // Best practice serverless + Supabase: usar o TRANSACTION pooler (porta 6543), que devolve a
+  // conexão a cada transação e suporta várias conexões em paralelo. O session pooler (5432)
+  // segura a conexão a sessão inteira e, com pool pequeno, enfileira as consultas (páginas
+  // lentas / "às vezes nem carrega"). Reescreve SÓ o pooler do Supabase, sem tocar na senha.
+  // Escape hatch: `DB_DISABLE_POOLER_REWRITE=1` mantém a porta original.
+  const conn =
+    process.env.DB_DISABLE_POOLER_REWRITE === '1'
+      ? connectionString
+      : connectionString.replace(/(\.pooler\.supabase\.com):5432\b/, '$1:6543');
+  const usingTxnPooler = /\.pooler\.supabase\.com:6543\b/.test(conn);
+
+  const sqlClient = postgres(conn, {
     connection: { search_path: 'on_education, public' },
-    // Pooler do Supabase + serverless (Vercel): prepared statements quebram transações no
-    // modo transaction do pgbouncer. `prepare: false` usa o protocolo simples e é seguro.
+    // `prepare:false` é EXIGIDO no transaction pooler (prepared statements quebram lá) e seguro
+    // no session pooler. Mantemos sempre.
     prepare: false,
-    // Tamanho do pool por instância serverless. Configurável por `DB_POOL_MAX` (default 1).
-    // - SESSION pooler (porta 5432): mantenha 1 para não estourar o limite (EMAXCONNSESSION).
-    // - TRANSACTION pooler (porta 6543): pode subir (ex.: 5). O pgbouncer devolve a conexão a
-    //   cada transação, então as consultas de uma página (Promise.all) rodam EM PARALELO,
-    //   eliminando o enfileiramento que deixava as páginas lentas. `prepare:false` já é exigido
-    //   e está setado. Recomendado p/ Vercel: DATABASE_URL no 6543 + DB_POOL_MAX=5.
-    max: Math.max(1, Number(process.env.DB_POOL_MAX) || 1),
+    // Pool por instância serverless. No transaction pooler dá para abrir várias (conexão volta
+    // ao pool a cada transação) → as consultas de uma página rodam EM PARALELO. Override por
+    // `DB_POOL_MAX`. Default: 5 no transaction pooler, 1 no session pooler (evita EMAXCONNSESSION).
+    max: Math.max(1, Number(process.env.DB_POOL_MAX) || (usingTxnPooler ? 5 : 1)),
     // Tuning serverless: fecha conexões ociosas e não pendura em conexão lenta.
     idle_timeout: 20,
     connect_timeout: 15,
