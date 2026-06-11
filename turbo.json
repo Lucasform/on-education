@@ -3,6 +3,7 @@
   "globalEnv": [
     "NODE_ENV",
     "DATABASE_URL",
+    "DB_POOL_MAX",
     "SUPABASE_URL",
     "SUPABASE_ANON_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",

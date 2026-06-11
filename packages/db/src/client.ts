@@ -31,11 +31,13 @@ export function createDbClient(
     // Pooler do Supabase + serverless (Vercel): prepared statements quebram transações no
     // modo transaction do pgbouncer. `prepare: false` usa o protocolo simples e é seguro.
     prepare: false,
-    // Serverless + projeto Supabase COMPARTILHADO com o On Way Financial: cada instância da
-    // lambda mantém o pool mínimo para não estourar o limite do pooler (EMAXCONNSESSION /
-    // "max clients reached"). 1 conexão por instância; o paralelismo de uma request é
-    // serializado nessa conexão (barato e seguro). Combine com o transaction pooler (6543).
-    max: 1,
+    // Tamanho do pool por instância serverless. Configurável por `DB_POOL_MAX` (default 1).
+    // - SESSION pooler (porta 5432): mantenha 1 para não estourar o limite (EMAXCONNSESSION).
+    // - TRANSACTION pooler (porta 6543): pode subir (ex.: 5). O pgbouncer devolve a conexão a
+    //   cada transação, então as consultas de uma página (Promise.all) rodam EM PARALELO,
+    //   eliminando o enfileiramento que deixava as páginas lentas. `prepare:false` já é exigido
+    //   e está setado. Recomendado p/ Vercel: DATABASE_URL no 6543 + DB_POOL_MAX=5.
+    max: Math.max(1, Number(process.env.DB_POOL_MAX) || 1),
     // Tuning serverless: fecha conexões ociosas e não pendura em conexão lenta.
     idle_timeout: 20,
     connect_timeout: 15,
