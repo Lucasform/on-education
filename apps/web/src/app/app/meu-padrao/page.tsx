@@ -38,6 +38,11 @@ export default async function MeuPadraoPage() {
   const aiProvider = settings?.aiProvider ?? 'default';
   const temChave = Boolean(settings?.aiApiKeyEnc);
   const aiFlash = (await cookies()).get('oe_ai_flash')?.value;
+  // IA realmente ativa agora: a do professor só vale se houver chave salva; senão é a nossa.
+  const usandoPropria = aiProvider !== 'default' && temChave;
+  const aiAtivaLabel = usandoPropria
+    ? `${AI_PROVIDERS.find((p) => p.value === aiProvider)?.label.split(' —')[0] ?? aiProvider} (sua chave, sem cota nossa)`
+    : 'WayOn — nossa IA (usa a cota do seu plano)';
   const modelos = await listStandardSamples(db(), ctx).catch(() => []);
 
   return (
@@ -218,6 +223,11 @@ export default async function MeuPadraoPage() {
           limite da nossa cota. Seu padrão e suas regras continuam valendo. A chave é guardada
           criptografada.
         </p>
+        <div
+          className={`mb-3 rounded-md border p-2 text-xs ${usandoPropria ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted'}`}
+        >
+          <span className="font-medium">IA ativa agora:</span> {aiAtivaLabel}
+        </div>
         {aiFlash && (
           <div className="mb-3 rounded-md border border-border bg-muted p-2 text-xs">{aiFlash}</div>
         )}
@@ -240,7 +250,9 @@ export default async function MeuPadraoPage() {
           />
           <p className="text-[11px] text-muted-foreground">
             Em &quot;WayOn&quot; usamos a nossa IA (cota do plano). Nos demais, a cobrança é direto
-            no seu provedor. {temChave ? 'Há uma chave salva.' : ''}
+            no seu provedor. {temChave ? 'Há uma chave salva.' : ''} Se a sua chave falhar numa
+            geração, o app avisa o erro (não usa a nossa por baixo dos panos) — aí é só corrigir a
+            chave ou voltar para &quot;WayOn&quot;.
           </p>
           <div>
             <SubmitButton type="submit" size="sm">
