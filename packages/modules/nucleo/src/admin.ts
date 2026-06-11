@@ -7,7 +7,7 @@ import {
   tenants,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { count, countDistinct, desc, eq, isNull, sql } from 'drizzle-orm';
+import { count, countDistinct, eq, sql } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -38,35 +38,41 @@ export async function listAllTenants(
   client: DbClient,
   opts: { includeDeleted?: boolean } = {},
 ): Promise<TenantOverview[]> {
-  const base = client.db
-    .select({
-      id: tenants.id,
-      name: tenants.name,
-      tenantType: tenants.tenantType,
-      createdAt: tenants.createdAt,
-      deletedAt: tenants.deletedAt,
-    })
-    .from(tenants);
-  const rows = await (opts.includeDeleted
-    ? base.orderBy(desc(tenants.createdAt))
-    : base.where(isNull(tenants.deletedAt)).orderBy(desc(tenants.createdAt)));
-
-  const memberCounts = await client.db
-    .select({ tenantId: memberships.tenantId, c: countDistinct(memberships.userId) })
-    .from(memberships)
-    .groupBy(memberships.tenantId);
-  const studentCounts = await client.db
-    .select({ tenantId: students.tenantId, c: count() })
-    .from(students)
-    .groupBy(students.tenantId);
-
-  const memberBy = new Map(memberCounts.map((r) => [r.tenantId, Number(r.c)]));
-  const studentBy = new Map(studentCounts.map((r) => [r.tenantId, Number(r.c)]));
+  // UMA consulta só (subqueries por linha) — antes eram 3 round-trips que, no pool max:1,
+  // enfileiravam e travavam o painel admin. As contagens viram subselects correlacionados.
+  const where = opts.includeDeleted ? sql`` : sql`where ${tenants.deletedAt} is null`;
+  const rows = (await client.db.execute(sql`
+    select
+      ${tenants.id} as id,
+      ${tenants.name} as name,
+      ${tenants.tenantType} as tenant_type,
+      ${tenants.createdAt} as created_at,
+      ${tenants.deletedAt} as deleted_at,
+      (select count(distinct ${memberships.userId}) from ${memberships}
+        where ${memberships.tenantId} = ${tenants.id}) as members,
+      (select count(*) from ${students}
+        where ${students.tenantId} = ${tenants.id}) as students
+    from ${tenants}
+    ${where}
+    order by ${tenants.createdAt} desc
+  `)) as unknown as Array<{
+    id: string;
+    name: string;
+    tenant_type: TenantType;
+    created_at: Date;
+    deleted_at: Date | null;
+    members: number | string;
+    students: number | string;
+  }>;
 
   return rows.map((t) => ({
-    ...t,
-    members: memberBy.get(t.id) ?? 0,
-    students: studentBy.get(t.id) ?? 0,
+    id: t.id,
+    name: t.name,
+    tenantType: t.tenant_type,
+    createdAt: new Date(t.created_at),
+    deletedAt: t.deleted_at ? new Date(t.deleted_at) : null,
+    members: Number(t.members ?? 0),
+    students: Number(t.students ?? 0),
   }));
 }
 

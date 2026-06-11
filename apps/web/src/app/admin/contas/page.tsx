@@ -23,7 +23,13 @@ export default async function ContasPage({
 }) {
   const { deleted } = await searchParams;
   const showDeleted = deleted === '1';
-  const tenants = await listAllTenants(db(), { includeDeleted: showDeleted }).catch(() => []);
+  // Blindagem: lentidão do banco não pode deixar a página girando pra sempre (degrada em ~7s).
+  const tenants = await Promise.race([
+    listAllTenants(db(), { includeDeleted: showDeleted }).catch(
+      () => [] as Awaited<ReturnType<typeof listAllTenants>>,
+    ),
+    new Promise<Awaited<ReturnType<typeof listAllTenants>>>((r) => setTimeout(() => r([]), 7000)),
+  ]);
   const lista = showDeleted ? tenants.filter((t) => t.deletedAt) : tenants;
 
   return (
