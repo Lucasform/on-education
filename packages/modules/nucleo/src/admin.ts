@@ -7,7 +7,7 @@ import {
   tenants,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { count, countDistinct, desc, eq, isNull } from 'drizzle-orm';
+import { count, countDistinct, desc, eq, isNull, sql } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -71,31 +71,30 @@ export async function listAllTenants(
 }
 
 export async function getAppStats(client: DbClient): Promise<AppStats> {
-  const [allTenants, byType, users, studentsTotal, classesTotal, activitiesTotal] =
-    await Promise.all([
-      client.db.select({ c: count() }).from(tenants).where(isNull(tenants.deletedAt)),
-      client.db
-        .select({ tenantType: tenants.tenantType, c: count() })
-        .from(tenants)
-        .where(isNull(tenants.deletedAt))
-        .groupBy(tenants.tenantType),
-      client.db.select({ c: countDistinct(memberships.userId) }).from(memberships),
-      client.db.select({ c: count() }).from(students),
-      client.db.select({ c: count() }).from(classes),
-      client.db.select({ c: count() }).from(activities),
-    ]);
-
-  const orgRow = byType.find((r) => r.tenantType === 'organization');
-  const indRow = byType.find((r) => r.tenantType === 'individual');
-
+  // Tudo numa ÚNICA consulta (subqueries) — antes eram 6 round-trips que, no pool max:1,
+  // enfileiravam e deixavam o painel lento. Agora é 1 ida ao banco.
+  const rows = (await client.db.execute(sql`
+    select
+      (select count(*) from ${tenants} where ${tenants.deletedAt} is null) as tenants,
+      (select count(*) from ${tenants}
+        where ${tenants.deletedAt} is null and ${tenants.tenantType} = 'organization') as organizations,
+      (select count(*) from ${tenants}
+        where ${tenants.deletedAt} is null and ${tenants.tenantType} = 'individual') as individuals,
+      (select count(distinct ${memberships.userId}) from ${memberships}) as users,
+      (select count(*) from ${students}) as students,
+      (select count(*) from ${classes}) as classes,
+      (select count(*) from ${activities}) as activities
+  `)) as unknown as Array<Record<keyof AppStats, number | string>>;
+  const r = rows[0];
+  const n = (v: number | string | undefined) => Number(v ?? 0);
   return {
-    tenants: Number(allTenants[0]?.c ?? 0),
-    organizations: Number(orgRow?.c ?? 0),
-    individuals: Number(indRow?.c ?? 0),
-    users: Number(users[0]?.c ?? 0),
-    students: Number(studentsTotal[0]?.c ?? 0),
-    classes: Number(classesTotal[0]?.c ?? 0),
-    activities: Number(activitiesTotal[0]?.c ?? 0),
+    tenants: n(r?.tenants),
+    organizations: n(r?.organizations),
+    individuals: n(r?.individuals),
+    users: n(r?.users),
+    students: n(r?.students),
+    classes: n(r?.classes),
+    activities: n(r?.activities),
   };
 }
 

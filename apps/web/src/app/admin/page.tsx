@@ -27,12 +27,25 @@ const EMPTY_STATS = {
   activities: 0,
 };
 
+/** Garante que a página renderize mesmo se o banco estiver lento (não fica girando pra sempre). */
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([p, new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))]);
+}
+
 export default async function AdminOverviewPage() {
   const client = db();
-  // Blindagem: uma falha transitória de banco não pode derrubar o painel.
+  // Blindagem: falha OU lentidão do banco não pode deixar o painel girando. Degrada em ~7s.
   const [stats, tenants] = await Promise.all([
-    getAppStats(client).catch(() => EMPTY_STATS),
-    listAllTenants(client).catch(() => []),
+    withTimeout(
+      getAppStats(client).catch(() => EMPTY_STATS),
+      7000,
+      EMPTY_STATS,
+    ),
+    withTimeout(
+      listAllTenants(client).catch(() => []),
+      7000,
+      [] as Awaited<ReturnType<typeof listAllTenants>>,
+    ),
   ]);
   const recentes = tenants.slice(0, 6);
 
