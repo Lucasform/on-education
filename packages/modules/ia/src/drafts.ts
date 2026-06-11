@@ -8,6 +8,7 @@ import { desc, eq, ne, sql } from 'drizzle-orm';
 import { resolveTenantProvider } from './byok';
 import { type AiProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
+import { searchYouTube } from './youtube';
 
 /**
  * Geração de rascunhos com human-in-the-loop (Fase 1B.2, Master Spec §9.3):
@@ -60,6 +61,14 @@ export async function generateDraft(
     system: applyAiStandard(SYSTEM_BY_KIND[input.kind], standard),
   });
 
+  // Recurso externo: em PLANO DE AULA, sugere um vídeo do YouTube no fim (abaixo de tudo).
+  // Link markdown → na tela vira link clicável com o nome; na impressão sai só o nome.
+  let output = result.text;
+  if (input.kind === 'lesson_plan') {
+    const video = await searchYouTube(`${input.prompt} aula`).catch(() => null);
+    if (video) output += `\n\n📺 **Vídeo sugerido:** [${video.title}](${video.url})`;
+  }
+
   const draft = await client.withTenant(ctx.tenantId, async (tx) => {
     const rows = await tx
       .insert(aiDrafts)
@@ -68,7 +77,7 @@ export async function generateDraft(
         kind: input.kind,
         studentId: input.studentId ?? null,
         prompt: input.prompt,
-        output: result.text,
+        output,
         status: 'draft',
         model: result.model,
         tokensIn: result.tokensIn,
