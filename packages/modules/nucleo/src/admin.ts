@@ -7,7 +7,7 @@ import {
   tenants,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { count, countDistinct, eq, sql } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -115,28 +115,35 @@ export async function getTenantDetail(
   client: DbClient,
   tenantId: string,
 ): Promise<TenantDetail | null> {
-  const t = (
-    await client.db
-      .select({
-        id: tenants.id,
-        name: tenants.name,
-        tenantType: tenants.tenantType,
-        createdAt: tenants.createdAt,
-        deletedAt: tenants.deletedAt,
-      })
-      .from(tenants)
-      .where(eq(tenants.id, tenantId))
-  )[0];
-  if (!t) return null;
-
-  const [members, studentsTotal, classesTotal, activitiesTotal, rolesRows] = await Promise.all([
-    client.db
-      .select({ c: countDistinct(memberships.userId) })
-      .from(memberships)
-      .where(eq(memberships.tenantId, tenantId)),
-    client.db.select({ c: count() }).from(students).where(eq(students.tenantId, tenantId)),
-    client.db.select({ c: count() }).from(classes).where(eq(classes.tenantId, tenantId)),
-    client.db.select({ c: count() }).from(activities).where(eq(activities.tenantId, tenantId)),
+  // Tenant + todas as contagens numa consulta (subselects); papéis (group by) na segunda.
+  // Antes eram 6 round-trips que travavam no pool max:1.
+  const [tRows, rolesRows] = await Promise.all([
+    client.db.execute(sql`
+      select
+        ${tenants.id} as id,
+        ${tenants.name} as name,
+        ${tenants.tenantType} as tenant_type,
+        ${tenants.createdAt} as created_at,
+        ${tenants.deletedAt} as deleted_at,
+        (select count(distinct ${memberships.userId}) from ${memberships}
+          where ${memberships.tenantId} = ${tenants.id}) as members,
+        (select count(*) from ${students} where ${students.tenantId} = ${tenants.id}) as students,
+        (select count(*) from ${classes} where ${classes.tenantId} = ${tenants.id}) as classes,
+        (select count(*) from ${activities}
+          where ${activities.tenantId} = ${tenants.id}) as activities
+      from ${tenants}
+      where ${tenants.id} = ${tenantId}
+    `) as unknown as Array<{
+      id: string;
+      name: string;
+      tenant_type: TenantType;
+      created_at: Date;
+      deleted_at: Date | null;
+      members: number | string;
+      students: number | string;
+      classes: number | string;
+      activities: number | string;
+    }>,
     client.db
       .select({ role: memberships.role, c: count() })
       .from(memberships)
@@ -144,12 +151,18 @@ export async function getTenantDetail(
       .groupBy(memberships.role),
   ]);
 
+  const t = tRows[0];
+  if (!t) return null;
   return {
-    ...t,
-    members: Number(members[0]?.c ?? 0),
-    students: Number(studentsTotal[0]?.c ?? 0),
-    classes: Number(classesTotal[0]?.c ?? 0),
-    activities: Number(activitiesTotal[0]?.c ?? 0),
+    id: t.id,
+    name: t.name,
+    tenantType: t.tenant_type,
+    createdAt: new Date(t.created_at),
+    deletedAt: t.deleted_at ? new Date(t.deleted_at) : null,
+    members: Number(t.members ?? 0),
+    students: Number(t.students ?? 0),
+    classes: Number(t.classes ?? 0),
+    activities: Number(t.activities ?? 0),
     roles: rolesRows.map((r) => ({ role: String(r.role), count: Number(r.c) })),
   };
 }

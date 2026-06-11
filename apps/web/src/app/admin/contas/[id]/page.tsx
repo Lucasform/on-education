@@ -30,7 +30,11 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default async function ContaDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const t = await getTenantDetail(db(), id).catch(() => null);
+  // Blindagem: lentidão do banco não pode deixar a página girando pra sempre (degrada em ~7s).
+  const t = await Promise.race([
+    getTenantDetail(db(), id).catch(() => null),
+    new Promise<null>((r) => setTimeout(() => r(null), 7000)),
+  ]);
   if (!t) notFound();
 
   return (
