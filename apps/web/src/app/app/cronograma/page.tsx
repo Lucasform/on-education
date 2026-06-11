@@ -1,6 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listScheduleExceptions, listScheduleSlots } from '@on-education/module-sala-de-aula';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -81,7 +82,12 @@ export default async function CronogramaPage({
       </form>
 
       {turmas.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Crie uma turma primeiro.</p>
+        <p className="text-sm text-muted-foreground">
+          Crie uma turma primeiro.{' '}
+          <Link href="/app/turmas" className="text-primary underline-offset-4 hover:underline">
+            Criar turma →
+          </Link>
+        </p>
       ) : (
         <>
           <article className="rounded-lg border border-border bg-card p-5 print:border-0 print:p-0">

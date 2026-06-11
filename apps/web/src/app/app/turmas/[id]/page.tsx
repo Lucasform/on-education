@@ -205,6 +205,7 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
                     <ConfirmButton
                       size="sm"
                       variant="ghost"
+                      aria-label="Remover matéria da turma"
                       message="Remover esta matéria da turma?"
                       className="h-6 px-2 text-xs"
                     >

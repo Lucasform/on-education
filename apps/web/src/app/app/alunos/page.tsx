@@ -22,7 +22,7 @@ export const metadata = { title: 'Alunos · Edu On Way' };
 export default async function AlunosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; classId?: string }>;
+  searchParams: Promise<{ q?: string; classId?: string; sort?: string }>;
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
@@ -34,7 +34,12 @@ export default async function AlunosPage({
   const termo = (sp.q ?? '').trim().toLowerCase();
   const filtrados = alunos
     .filter((a) => !sp.classId || a.classId === sp.classId)
-    .filter((a) => !termo || a.fullName.toLowerCase().includes(termo));
+    .filter((a) => !termo || a.fullName.toLowerCase().includes(termo))
+    .sort((a, b) =>
+      sp.sort === 'za'
+        ? b.fullName.localeCompare(a.fullName, 'pt-BR')
+        : a.fullName.localeCompare(b.fullName, 'pt-BR'),
+    );
 
   return (
     <>
@@ -77,10 +82,14 @@ export default async function AlunosPage({
                 ))}
               </select>
             )}
+            <select name="sort" defaultValue={sp.sort ?? 'az'} className={`${fieldClass} w-28`}>
+              <option value="az">Nome A-Z</option>
+              <option value="za">Nome Z-A</option>
+            </select>
             <button type="submit" className="rounded-md border border-border px-3 text-sm">
               Filtrar
             </button>
-            {(sp.q || sp.classId) && (
+            {(sp.q || sp.classId || sp.sort === 'za') && (
               <Link href="/app/alunos" className="px-2 text-sm text-muted-foreground">
                 Limpar
               </Link>

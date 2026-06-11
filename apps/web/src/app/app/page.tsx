@@ -65,6 +65,8 @@ export default async function OverviewPage() {
       turma: a.classId ? (turmaNome.get(a.classId) ?? '') : '',
     }))
     .sort((a, b) => a.dia.localeCompare(b.dia));
+  const diaHoje = hoje.slice(8, 10);
+  const aniversariantesHoje = aniversariantes.filter((a) => a.dia === diaHoje);
 
   // Checklist de onboarding: o usuário vai alimentando o sistema sem ficar travado.
   const passos = [
@@ -150,6 +152,24 @@ export default async function OverviewPage() {
           ))}
         </div>
       </section>
+
+      {aniversariantesHoje.length > 0 && (
+        <section className={`${cardClass} border-primary/40 bg-primary/5`}>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Cake className="h-5 w-5 text-primary" />
+            <span className="font-medium">
+              🎉 Aniversário hoje:{' '}
+              {aniversariantesHoje.map((a, i) => (
+                <span key={a.id}>
+                  {i > 0 ? ', ' : ''}
+                  {a.nome}
+                  {a.turma ? ` (${a.turma})` : ''}
+                </span>
+              ))}
+            </span>
+          </div>
+        </section>
+      )}
 
       {aniversariantes.length > 0 && (
         <section className={cardClass}>

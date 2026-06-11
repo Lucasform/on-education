@@ -3,6 +3,7 @@ import { isAiConfigured } from '@on-education/module-ia';
 import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listLessonPlans } from '@on-education/module-sala-de-aula';
 import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -53,7 +54,12 @@ export default async function PlanejamentoPage({
       />
 
       {turmas.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Crie uma turma primeiro.</p>
+        <p className="text-sm text-muted-foreground">
+          Crie uma turma primeiro.{' '}
+          <Link href="/app/turmas" className="text-primary underline-offset-4 hover:underline">
+            Criar turma →
+          </Link>
+        </p>
       ) : (
         <>
           <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
@@ -109,6 +115,7 @@ export default async function PlanejamentoPage({
                         <ConfirmButton
                           size="sm"
                           variant="ghost"
+                          aria-label="Remover do planejamento"
                           message="Remover este item do planejamento?"
                           className="h-6 px-1.5 text-xs"
                         >
