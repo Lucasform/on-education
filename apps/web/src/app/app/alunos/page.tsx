@@ -41,10 +41,20 @@ export default async function AlunosPage({
       <PageHeader title="Alunos" description="Cadastre, importe e acompanhe seus alunos." />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">
-            Alunos ({filtrados.length}
-            {filtrados.length !== alunos.length ? ` de ${alunos.length}` : ''})
-          </h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-medium">
+              Alunos ({filtrados.length}
+              {filtrados.length !== alunos.length ? ` de ${alunos.length}` : ''})
+            </h2>
+            {alunos.length > 0 && (
+              <a
+                href="/app/alunos/export"
+                className="rounded-md border border-border px-2 py-1 text-xs transition-colors hover:bg-accent"
+              >
+                Exportar CSV
+              </a>
+            )}
+          </div>
 
           <form method="get" className="mb-3 flex flex-wrap gap-2">
             <input

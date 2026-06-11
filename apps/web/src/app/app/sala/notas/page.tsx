@@ -39,7 +39,17 @@ export default async function NotasPage() {
       />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Lançamentos ({notas.length})</h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-medium">Lançamentos ({notas.length})</h2>
+            {notas.length > 0 && (
+              <a
+                href="/app/sala/notas/export"
+                className="rounded-md border border-border px-2 py-1 text-xs transition-colors hover:bg-accent"
+              >
+                Exportar CSV
+              </a>
+            )}
+          </div>
           {notas.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum lançamento ainda.</p>
           ) : (
