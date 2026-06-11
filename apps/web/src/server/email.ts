@@ -10,7 +10,9 @@ export function isEmailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
-const FROM_FALLBACK = 'Edu On Way <onboarding@resend.dev>';
+// Domínio onwaytech.com.br já verificado no Resend (mesma conta do On Way Condomínio), então
+// envia pros responsáveis de verdade. Sobrescrevível por RESEND_FROM (ex.: domínio da escola).
+const FROM_FALLBACK = 'Edu On Way <noreply@onwaytech.com.br>';
 
 export interface SendEmailInput {
   to: string | string[];
