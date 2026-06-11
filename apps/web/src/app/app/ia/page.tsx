@@ -1,6 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
-import { isAiConfigured, listDrafts } from '@on-education/module-ia';
-import { getTenantSettings, listClasses } from '@on-education/module-nucleo';
+import { limitFor } from '@on-education/entitlements';
+import { getUsedTokens, isAiConfigured, listDrafts } from '@on-education/module-ia';
+import { getTenantPlanId, getTenantSettings, listClasses } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -35,13 +36,21 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function IaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const [rascunhos, settings, turmas] = await Promise.all([
+  const [rascunhos, settings, turmas, planId, usedTokens] = await Promise.all([
     listDrafts(db(), ctx),
     getTenantSettings(db(), ctx).catch(() => null),
     listClasses(db(), ctx).catch(() => []),
+    getTenantPlanId(db(), ctx.tenantId).catch(() => null),
+    getUsedTokens(db(), ctx.tenantId).catch(() => 0),
   ]);
   const aiOn = isAiConfigured();
   const agente = settings?.agentName?.trim() || 'WayOn';
+
+  // Cota de IA do mês (tokens). limit -1/undefined = ilimitado.
+  const tokenLimit = planId ? limitFor(planId, 'aiTokensPerMonth') : undefined;
+  const ilimitado = tokenLimit === undefined || tokenLimit === -1;
+  const usoPct =
+    ilimitado || !tokenLimit ? 0 : Math.min(100, Math.round((usedTokens / tokenLimit) * 100));
 
   return (
     <>
@@ -49,6 +58,34 @@ export default async function IaPage() {
         title={agente}
         description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
       />
+
+      {aiOn && (
+        <div className={cardClass}>
+          <div className="mb-1.5 flex items-center justify-between text-sm">
+            <span className="font-medium">Uso de IA este mês</span>
+            <span className="text-xs text-muted-foreground">
+              {ilimitado ? 'Plano ilimitado' : `${usoPct}% da cota`}
+            </span>
+          </div>
+          {ilimitado ? (
+            <p className="text-xs text-muted-foreground">Sem limite de gerações no seu plano. ✨</p>
+          ) : (
+            <>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full rounded-full transition-all ${usoPct >= 90 ? 'bg-danger' : usoPct >= 70 ? 'bg-warning' : 'bg-primary'}`}
+                  style={{ width: `${usoPct}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {usoPct >= 100
+                  ? 'Cota do mês esgotada. Renova no início do próximo mês.'
+                  : `Renova no início do próximo mês.`}
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Gerar conteúdo</h2>

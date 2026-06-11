@@ -3,7 +3,7 @@ import { aiDrafts, type DbClient } from '@on-education/db';
 import type { Feature } from '@on-education/entitlements';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
-import { desc, eq, ne } from 'drizzle-orm';
+import { desc, eq, ne, sql } from 'drizzle-orm';
 
 import { type AiProvider, createAnthropicProvider } from './provider';
 import { assertWithinQuota, recordUsage } from './quota';
@@ -80,6 +80,18 @@ export async function generateDraft(
 
   await recordUsage(client, ctx.tenantId, result.tokensIn + result.tokensOut);
   return draft;
+}
+
+/** Conta quantos rascunhos estão pendentes de revisão (status 'draft'). Para badge de menu. */
+export async function countPendingDrafts(client: DbClient, ctx: AuthContext): Promise<number> {
+  assertCan(ctx, 'read', 'ai_draft');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const rows = await tx
+      .select({ c: sql<number>`count(*)` })
+      .from(aiDrafts)
+      .where(eq(aiDrafts.status, 'draft'));
+    return Number(rows[0]?.c ?? 0);
+  });
 }
 
 /** Lista os rascunhos do tenant, escondendo os descartados (mais recentes primeiro). */

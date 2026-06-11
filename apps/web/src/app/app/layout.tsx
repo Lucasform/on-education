@@ -1,3 +1,4 @@
+import { countPendingDrafts } from '@on-education/module-ia';
 import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -22,6 +23,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const workspaceName = brand?.name ?? null;
   // Personalização da escola (logo + cor do tema). Falha não pode derrubar o app.
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  // Badge de pendências no menu: rascunhos do WayOn a revisar.
+  const pendingDrafts = await countPendingDrafts(db(), ctx).catch(() => 0);
 
   const headerActions = impersonating ? (
     <form action={exitImpersonationAction}>
@@ -57,6 +60,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         workspaceName={workspaceName}
         logoUrl={settings?.logoUrl ?? null}
         headerActions={headerActions}
+        badges={pendingDrafts > 0 ? { '/app/ia': pendingDrafts } : undefined}
       >
         {impersonating && (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/40 bg-warning/10 px-4 py-2 text-sm">

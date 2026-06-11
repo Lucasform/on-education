@@ -22,6 +22,7 @@ export function AppShell({
   headerActions,
   logoUrl,
   workspaceName,
+  badges,
   children,
 }: {
   tenantType: TenantType;
@@ -29,6 +30,8 @@ export function AppShell({
   headerActions?: ReactNode;
   logoUrl?: string | null;
   workspaceName?: string | null;
+  /** Contadores por rota (href → número) exibidos como badge no item do menu. */
+  badges?: Record<string, number>;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -85,10 +88,16 @@ export function AppShell({
                       >
                         <Icon className="h-4 w-4 shrink-0 opacity-80" />
                         <span className="truncate">{item.label}</span>
-                        {item.soon && (
-                          <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            em breve
+                        {badges?.[item.href] ? (
+                          <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+                            {badges[item.href]}
                           </span>
+                        ) : (
+                          item.soon && (
+                            <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                              em breve
+                            </span>
+                          )
                         )}
                       </Link>
                     </li>
