@@ -11,8 +11,9 @@ export function isEmailConfigured(): boolean {
 }
 
 // Domínio onwaytech.com.br já verificado no Resend (mesma conta do On Way Condomínio), então
-// envia pros responsáveis de verdade. Sobrescrevível por RESEND_FROM (ex.: domínio da escola).
-const FROM_FALLBACK = 'Edu On Way <noreply@onwaytech.com.br>';
+// envia pros responsáveis de verdade. Education usa `nao-responda@` (Condomínio usa `noreply@`).
+// Sobrescrevível por RESEND_FROM (ex.: domínio próprio da escola).
+const FROM_FALLBACK = 'Edu On Way <nao-responda@onwaytech.com.br>';
 
 export interface SendEmailInput {
   to: string | string[];
