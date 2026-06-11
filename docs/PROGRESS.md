@@ -13,6 +13,17 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 20:00] — Performance: transaction pooler automático + admin numa consulta — STATUS: CONCLUÍDO (cura definitiva)
+
+- **Sintoma:** app lento/travando; painel `/admin` girava sem carregar contas e não voltava.
+- **Causa raiz:** conexão de banco em **session pooler (5432) com pool 1** → todas as consultas de cada página enfileiravam numa conexão só. O admin (9 consultas cross-tenant) travava.
+- **Cura definitiva (em código, validada contra o banco de prod — raw + withTenant — antes de subir):**
+  - **`createDbClient` reescreve o pooler do Supabase `5432`→`6543` (transaction pooler)** e abre **pool de 5**. As consultas de cada página passam a rodar EM PARALELO. `prepare:false` já era exigido e está setado; só o pooler é reescrito (senha intacta). Escape hatch `DB_DISABLE_POOLER_REWRITE=1`. Override `DB_POOL_MAX`.
+  - **Admin colapsado**: `getAppStats` 6→1 consulta, `listAllTenants` 3→1, `getTenantDetail` 6→2 (subqueries). As 3 telas do admin com **timeout de 7s** (degrada em vez de travar).
+  - **Região do Vercel = São Paulo** (`vercel.json` `gru1`), co-localizada com o banco (confirmado por `X-Vercel-Id`).
+- **Resultado esperado:** app rápido sem o Lucas mexer em env. (O env manual de 6543/DB_POOL_MAX virou desnecessário — o código já faz.)
+- **Commits:** `155367a` região, `4f4ba1b`/`c854f80`/`cfe2ddf` admin, `74fe2a2` transaction pooler automático.
+
 ### [2026-06-10 19:30] — Performance: região, pool e painel admin — STATUS: CONCLUÍDO
 
 - **Sintoma (Lucas):** app lento em prod, "às vezes nem carrega"; depois isolado no **painel /admin** (girava no skeleton).
