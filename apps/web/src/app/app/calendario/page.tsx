@@ -120,7 +120,8 @@ export default async function CalendarioPage({
             </div>
           ))}
           {celulas.map((d, i) => {
-            if (d === null) return <div key={`v-${i}`} className="min-h-20 bg-muted/30" />;
+            if (d === null)
+              return <div key={`v-${i}`} className="min-h-12 bg-muted/30 sm:min-h-20" />;
             const dataStr = `${ano}-${pad(m)}-${pad(d)}`;
             const evs = porDia.get(dataStr) ?? [];
             const isHoje = dataStr === hojeStr;
@@ -130,12 +131,12 @@ export default async function CalendarioPage({
                 key={dataStr}
                 href={`/app/calendario?mes=${ano}-${pad(m)}&dia=${dataStr}`}
                 scroll={false}
-                className={`min-h-20 bg-card p-1.5 transition-colors hover:bg-accent/50 ${
+                className={`min-h-12 bg-card p-1 transition-colors hover:bg-accent/50 sm:min-h-20 sm:p-1.5 ${
                   isSel ? 'ring-2 ring-inset ring-primary' : ''
                 }`}
               >
                 <div
-                  className={`mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                  className={`mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px] sm:h-6 sm:w-6 sm:text-xs ${
                     isHoje
                       ? 'bg-primary font-semibold text-primary-foreground'
                       : 'text-muted-foreground'
@@ -143,7 +144,16 @@ export default async function CalendarioPage({
                 >
                   {d}
                 </div>
-                <div className="space-y-0.5">
+                {/* Mobile: bolinhas (evita estourar a célula estreita). */}
+                {evs.length > 0 && (
+                  <div className="flex flex-wrap gap-0.5 sm:hidden">
+                    {evs.slice(0, 4).map((e) => (
+                      <span key={e.id} className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    ))}
+                  </div>
+                )}
+                {/* sm+: rótulos dos eventos. */}
+                <div className="hidden space-y-0.5 sm:block">
                   {evs.slice(0, 3).map((e) => (
                     <div
                       key={e.id}
