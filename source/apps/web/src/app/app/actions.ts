@@ -110,13 +110,19 @@ import {
   createScheduleException,
   createScheduleSlot,
   deleteLessonPlan,
+  createCurriculumUnit,
+  deleteCurriculumUnit,
   deleteScheduleException,
   deleteScheduleSlot,
+  distributeCurriculum,
+  generateCurriculumWithWayOn,
   generateLessons,
+  moveCurriculumUnit,
   recordAttendance,
   recordAttendanceBulk,
   recordGrade,
   setLessonStatus,
+  updateCurriculumUnit,
 } from '@on-education/module-sala-de-aula';
 import {
   adaptActivitySchema,
@@ -125,6 +131,9 @@ import {
   assignTeachingSchema,
   createScheduleSlotSchema,
   createScheduleExceptionSchema,
+  createCurriculumUnitSchema,
+  updateCurriculumUnitSchema,
+  generateCurriculumSchema,
   createLessonPlanSchema,
   generateLessonPlanSchema,
   createGradeComponentSchema,
@@ -1710,6 +1719,81 @@ export async function markLessonAction(formData: FormData): Promise<void> {
     cancelReason: (formData.get('cancelReason') as string) || undefined,
   });
   revalidatePath('/app/sala/diario', 'page');
+}
+
+// --- Plano de curso / sequência didática (ponto 3) ---------------------------
+function planoCursoQuery(formData: FormData): string {
+  const classId = String(formData.get('classId') ?? '');
+  const subjectId = (formData.get('subjectId') as string) || '';
+  return `?classId=${classId}${subjectId ? `&subjectId=${subjectId}` : ''}`;
+}
+
+export async function createCurriculumUnitAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = createCurriculumUnitSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    title: formData.get('title'),
+    content: (formData.get('content') as string) || undefined,
+    lessonsPlanned: formData.get('lessonsPlanned') ?? 1,
+  });
+  await createCurriculumUnit(db(), ctx, input);
+  revalidatePath('/app/sala/plano-curso', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}`);
+}
+
+export async function updateCurriculumUnitAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = updateCurriculumUnitSchema.parse({
+    id: formData.get('id'),
+    title: (formData.get('title') as string) || undefined,
+    content: (formData.get('content') as string) || undefined,
+    lessonsPlanned: (formData.get('lessonsPlanned') as string) || undefined,
+  });
+  await updateCurriculumUnit(db(), ctx, input);
+  revalidatePath('/app/sala/plano-curso', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}`);
+}
+
+export async function deleteCurriculumUnitAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteCurriculumUnit(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/sala/plano-curso', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}`);
+}
+
+export async function moveCurriculumUnitAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const dir = formData.get('dir') === 'up' ? 'up' : 'down';
+  await moveCurriculumUnit(db(), ctx, String(formData.get('id')), dir);
+  revalidatePath('/app/sala/plano-curso', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}`);
+}
+
+export async function generateCurriculumAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const input = generateCurriculumSchema.parse({
+    classId: formData.get('classId'),
+    subjectId: (formData.get('subjectId') as string) || undefined,
+    subject: formData.get('subject'),
+    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+    totalLessons: (formData.get('totalLessons') as string) || undefined,
+    useBncc: formData.get('useBncc') ?? false,
+    notes: (formData.get('notes') as string) || undefined,
+  });
+  await generateCurriculumWithWayOn(db(), ctx, input);
+  revalidatePath('/app/sala/plano-curso', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}`);
+}
+
+export async function distributeCurriculumAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '');
+  const subjectId = (formData.get('subjectId') as string) || null;
+  const r = await distributeCurriculum(db(), ctx, { classId, subjectId, today: hojeISO() });
+  revalidatePath('/app/sala/plano-curso', 'page');
+  revalidatePath('/app/sala/diario', 'page');
+  redirect(`/app/sala/plano-curso${planoCursoQuery(formData)}&dist=${r.assigned}.${r.leftover}`);
 }
 
 export async function createScheduleExceptionAction(formData: FormData): Promise<void> {

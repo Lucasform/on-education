@@ -293,6 +293,36 @@ export const createScheduleExceptionSchema = z.object({
 });
 export type CreateScheduleExceptionInput = z.infer<typeof createScheduleExceptionSchema>;
 
+/** Plano de curso / sequência didática (ponto 3): unidade da ementa de uma matéria. */
+export const createCurriculumUnitSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  title: z.string().min(1).max(200),
+  content: z.string().max(10_000).optional(),
+  lessonsPlanned: z.coerce.number().int().min(1).max(200).default(1),
+});
+export type CreateCurriculumUnitInput = z.infer<typeof createCurriculumUnitSchema>;
+
+export const updateCurriculumUnitSchema = z.object({
+  id: uuidSchema,
+  title: z.string().min(1).max(200).optional(),
+  content: z.string().max(10_000).optional(),
+  lessonsPlanned: z.coerce.number().int().min(1).max(200).optional(),
+});
+export type UpdateCurriculumUnitInput = z.infer<typeof updateCurriculumUnitSchema>;
+
+/** Geração da ementa (lista de unidades) pelo WayOn. */
+export const generateCurriculumSchema = z.object({
+  classId: uuidSchema,
+  subjectId: uuidSchema.optional(),
+  subject: z.string().min(2).max(120),
+  gradeLevel: z.string().max(60).optional(),
+  totalLessons: z.coerce.number().int().min(1).max(400).optional(),
+  useBncc: z.coerce.boolean().default(false),
+  notes: z.string().max(1000).optional(),
+});
+export type GenerateCurriculumInput = z.infer<typeof generateCurriculumSchema>;
+
 /** Comunicação — comunicados. */
 export const createCommunicationSchema = z.object({
   title: z.string().min(1).max(200),

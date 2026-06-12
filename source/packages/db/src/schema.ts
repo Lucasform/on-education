@@ -598,6 +598,8 @@ export const lessons = oe.table(
     // Origem: o slot do cronograma que gerou esta aula (nulo = lançada manualmente no diário).
     slotId: uuid('slot_id'),
     cancelReason: text('cancel_reason'),
+    // Unidade do plano de curso que esta aula cobre (preenchido ao distribuir a sequência didática).
+    unitId: uuid('unit_id'),
     ...auditCols,
   },
   (t) => [
@@ -634,6 +636,31 @@ export const lessonPlans = oe.table(
     index('lesson_plans_tenant_idx').on(t.tenantId),
     index('lesson_plans_class_idx').on(t.classId),
     tenantPolicy('lesson_plans_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// curriculum_units — plano de curso / sequência didática (ponto 3 do módulo calendário):
+// a ementa da matéria numa turma, como uma lista ORDENADA de unidades/temas, cada uma com
+// quantas aulas deve ocupar. O distribuidor espalha essas unidades pelas aulas previstas
+// (lessons) geradas pelo cronograma. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const curriculumUnits = oe.table(
+  'curriculum_units',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    subjectId: uuid('subject_id'),
+    position: integer('position').notNull().default(0), // ordem da unidade na sequência
+    title: text('title').notNull(),
+    content: text('content'), // objetivos/conteúdo da unidade (opcional)
+    lessonsPlanned: integer('lessons_planned').notNull().default(1), // aulas que a unidade ocupa
+    ...auditCols,
+  },
+  (t) => [
+    index('curriculum_units_class_idx').on(t.tenantId, t.classId, t.subjectId, t.position),
+    tenantPolicy('curriculum_units_tenant_isolation'),
   ],
 );
 

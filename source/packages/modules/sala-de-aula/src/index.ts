@@ -1,6 +1,7 @@
 export * from './schedule';
 export * from './lesson-plans';
 export * from './generate';
+export * from './curriculum';
 
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { attendance, type DbClient, grades, lessons, subjects } from '@on-education/db';
