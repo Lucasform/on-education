@@ -112,9 +112,11 @@ import {
   deleteLessonPlan,
   deleteScheduleException,
   deleteScheduleSlot,
+  generateLessons,
   recordAttendance,
   recordAttendanceBulk,
   recordGrade,
+  setLessonStatus,
 } from '@on-education/module-sala-de-aula';
 import {
   adaptActivitySchema,
@@ -1675,6 +1677,39 @@ export async function deleteScheduleSlotAction(formData: FormData): Promise<void
   const ctx = await requireCtx();
   await deleteScheduleSlot(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/cronograma', 'page');
+}
+
+/**
+ * Motor de aulas previstas: gera o diário automático da turma no intervalo, cruzando o
+ * cronograma com os dias letivos. Idempotente; regeneração só mexe no futuro.
+ */
+export async function generateLessonsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '');
+  const from = String(formData.get('from') ?? '');
+  const to = String(formData.get('to') ?? '');
+  const ymd = /^\d{4}-\d{2}-\d{2}$/;
+  if (!classId || !ymd.test(from) || !ymd.test(to) || from > to) {
+    redirect(`/app/cronograma?classId=${classId}&gen=erro`);
+  }
+  const r = await generateLessons(db(), ctx, { classId, from, to, today: hojeISO() });
+  revalidatePath('/app/sala/diario', 'page');
+  revalidatePath('/app/cronograma', 'page');
+  redirect(`/app/cronograma?classId=${classId}&gen=${r.created}.${r.removed}.${r.slots}`);
+}
+
+/** Marca uma aula do diário: dada (com tema), cancelada (com motivo) ou volta a prevista. */
+export async function markLessonAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  const status = String(formData.get('status') ?? '') as 'prevista' | 'dada' | 'cancelada';
+  if (!id || !['prevista', 'dada', 'cancelada'].includes(status)) return;
+  await setLessonStatus(db(), ctx, id, {
+    status,
+    topic: (formData.get('topic') as string) || undefined,
+    cancelReason: (formData.get('cancelReason') as string) || undefined,
+  });
+  revalidatePath('/app/sala/diario', 'page');
 }
 
 export async function createScheduleExceptionAction(formData: FormData): Promise<void> {

@@ -1,6 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses, listSubjects } from '@on-education/module-nucleo';
+import { listAcademicYears, listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listScheduleExceptions, listScheduleSlots } from '@on-education/module-sala-de-aula';
+import { CalendarClock } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -16,6 +17,7 @@ import {
   createScheduleSlotAction,
   deleteScheduleExceptionAction,
   deleteScheduleSlotAction,
+  generateLessonsAction,
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -34,9 +36,9 @@ const DIAS = [
 export default async function CronogramaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ classId?: string }>;
+  searchParams: Promise<{ classId?: string; gen?: string }>;
 }) {
-  const { classId } = await searchParams;
+  const { classId, gen } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
@@ -44,11 +46,30 @@ export default async function CronogramaPage({
 
   const turmas = await listClasses(client, ctx);
   const turmaId = classId || turmas[0]?.id || '';
-  const [slots, disciplinas, excecoes] = await Promise.all([
+  const [slots, disciplinas, excecoes, anos] = await Promise.all([
     turmaId ? listScheduleSlots(client, ctx, turmaId) : Promise.resolve([]),
     isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
     turmaId ? listScheduleExceptions(client, ctx, turmaId) : Promise.resolve([]),
+    listAcademicYears(client, ctx).catch(() => []),
   ]);
+
+  // Ano letivo com datas (mais recente) para pré-preencher o intervalo de geração.
+  const ano = anos
+    .filter((a) => a.startsOn && a.endsOn)
+    .sort((a, b) => String(b.startsOn).localeCompare(String(a.startsOn)))[0];
+  const genFrom = ano?.startsOn ?? hojeISO();
+  const genTo = ano?.endsOn ?? hojeISO();
+
+  // Feedback da geração (created.removed.slots ou "erro").
+  const genParts = gen && gen !== 'erro' ? gen.split('.') : null;
+  const genMsg =
+    gen === 'erro'
+      ? 'Não foi possível gerar: confira o intervalo de datas.'
+      : genParts
+        ? `${genParts[0]} aula(s) prevista(s) gerada(s)${
+            Number(genParts[1]) > 0 ? `, ${genParts[1]} futura(s) substituída(s)` : ''
+          } a partir de ${genParts[2]} horário(s) da grade.`
+        : null;
 
   // Só dias úteis por padrão; mostra sábado/domingo se houver slot neles.
   const usaFimDeSemana = slots.some((s) => s.weekday > 5);
@@ -134,6 +155,74 @@ export default async function CronogramaPage({
               })}
             </div>
           </article>
+
+          {genMsg && (
+            <div
+              className={`rounded-lg border p-3 text-sm print:hidden ${
+                gen === 'erro'
+                  ? 'border-danger/30 bg-danger/10 text-danger'
+                  : 'border-success/30 bg-success/10 text-success'
+              }`}
+            >
+              {genMsg}{' '}
+              {gen !== 'erro' && (
+                <Link href="/app/sala/diario" className="font-medium underline-offset-4 hover:underline">
+                  Abrir o diário →
+                </Link>
+              )}
+            </div>
+          )}
+
+          <div className={`${cardClass} print:hidden`}>
+            <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+              <CalendarClock className="h-4 w-4 text-primary" />
+              Gerar aulas do período
+            </h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Cria o diário automático desta turma a partir da grade acima, descontando fins de
+              semana, feriados/recessos do calendário e alterações pontuais. O professor só marca
+              o que fugir do previsto (aula não dada). Pode rodar de novo a qualquer momento: só
+              ajusta as aulas futuras, nunca o que já foi registrado.
+            </p>
+            {slots.length === 0 ? (
+              <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+                Monte o horário semanal acima antes de gerar as aulas.
+              </p>
+            ) : (
+              <form action={generateLessonsAction} className="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="classId" value={turmaId} />
+                <label className="flex flex-col gap-1 text-sm">
+                  De
+                  <input
+                    name="from"
+                    type="date"
+                    required
+                    defaultValue={genFrom}
+                    className={fieldClass}
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-sm">
+                  Até
+                  <input
+                    name="to"
+                    type="date"
+                    required
+                    defaultValue={genTo}
+                    className={fieldClass}
+                  />
+                </label>
+                <SubmitButton type="submit" size="sm">
+                  Gerar aulas previstas
+                </SubmitButton>
+                {!ano && (
+                  <span className="w-full text-xs text-muted-foreground">
+                    Dica: configure o ano letivo em Escola › Ano letivo para já vir com o intervalo
+                    certo.
+                  </span>
+                )}
+              </form>
+            )}
+          </div>
 
           <div className={`${cardClass} print:hidden`}>
             <h2 className="mb-3 text-sm font-medium">Adicionar horário</h2>

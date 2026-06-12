@@ -590,9 +590,26 @@ export const lessons = oe.table(
     date: date('date').notNull(),
     topic: text('topic').notNull(),
     notes: text('notes'),
+    // Motor de aulas previstas (diário automático): 'dada' = registrada/realizada (default das
+    // entradas manuais e das previstas que o professor não cancelou), 'prevista' = gerada pelo
+    // cronograma e ainda não tocada, 'cancelada' = não houve aula (com motivo). Filosofia da UI:
+    // prevista conta como dada; o professor só age para cancelar ou enriquecer com o tema.
+    status: text('status').notNull().default('dada'),
+    // Origem: o slot do cronograma que gerou esta aula (nulo = lançada manualmente no diário).
+    slotId: uuid('slot_id'),
+    cancelReason: text('cancel_reason'),
     ...auditCols,
   },
-  (t) => [index('lessons_tenant_idx').on(t.tenantId), tenantPolicy('lessons_tenant_isolation')],
+  (t) => [
+    index('lessons_tenant_idx').on(t.tenantId),
+    index('lessons_class_date_idx').on(t.tenantId, t.classId, t.date),
+    // Idempotência do motor: no máximo uma aula gerada por (slot, data). Parcial — só vale para
+    // as geradas (slot_id não nulo); lançamentos manuais (slot_id nulo) ficam livres.
+    uniqueIndex('lessons_slot_date_uq')
+      .on(t.tenantId, t.slotId, t.date)
+      .where(sql`${t.slotId} is not null`),
+    tenantPolicy('lessons_tenant_isolation'),
+  ],
 );
 
 // ---------------------------------------------------------------------------
