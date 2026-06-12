@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
+import { buildSchoolCalendar } from '@/server/school-calendar';
 import { getAuthContext } from '@/server/session';
 
 import { hojeISO } from '@/lib/date';
@@ -43,7 +44,11 @@ export default async function CalendarioPage({
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [eventos, turmas] = await Promise.all([listEvents(client, ctx), listClasses(client, ctx)]);
+  const [eventos, turmas, cal] = await Promise.all([
+    listEvents(client, ctx),
+    listClasses(client, ctx),
+    buildSchoolCalendar(client, ctx),
+  ]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 
   const hoje = new Date();
@@ -88,6 +93,49 @@ export default async function CalendarioPage({
   return (
     <>
       <PageHeader title="Calendário" description="Eventos e agendamentos da escola." />
+
+      {cal ? (
+        <section className={cardClass}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-medium">Ano letivo {cal.yearName}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {cal.start.split('-').reverse().join('/')} a{' '}
+                {cal.end.split('-').reverse().join('/')} · {cal.feriados} feriados ·{' '}
+                {cal.recessos} recessos
+              </p>
+              <p className="mt-1 text-sm">
+                <span className="font-semibold">{cal.letivos}</span>
+                <span className="text-muted-foreground"> / {cal.required} dias letivos</span>{' '}
+                {cal.faltam === 0 ? (
+                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                    ✓ atinge o mínimo do MEC
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
+                    faltam {cal.faltam} dias letivos
+                  </span>
+                )}
+              </p>
+            </div>
+            <a href="/app/calendario/escolar/word" download>
+              <Button size="sm" variant="outline">
+                Baixar calendário (Word)
+              </Button>
+            </a>
+          </div>
+        </section>
+      ) : (
+        <section className={cardClass}>
+          <p className="text-sm text-muted-foreground">
+            Configure o ano letivo (início e fim) em{' '}
+            <Link href="/app/escola/ano-letivo" className="text-primary hover:underline">
+              Escola › Ano letivo
+            </Link>{' '}
+            para contar os dias letivos e gerar o calendário em Word.
+          </p>
+        </section>
+      )}
 
       <section className={cardClass}>
         <div className="mb-4 flex items-center justify-between">
