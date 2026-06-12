@@ -1,0 +1,1 @@
+ALTER TABLE "on_education"."events" ADD COLUMN "kind" text DEFAULT 'evento' NOT NULL;

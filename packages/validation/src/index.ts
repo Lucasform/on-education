@@ -320,6 +320,8 @@ export const createEventSchema = z.object({
   date: z.string().date(),
   time: z.string().max(10).optional(),
   classId: uuidSchema.optional(),
+  // Calendário escolar: evento normal | feriado | recesso (estes dois = dias não letivos).
+  kind: z.enum(['evento', 'feriado', 'recesso']).optional(),
 });
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 

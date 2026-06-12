@@ -830,10 +830,10 @@ export async function recordChamadaAction(formData: FormData): Promise<void> {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
-  // Cada aluno tem um checkbox present_<id>; marcado = presente.
+  // Chamada simples: marca-se só quem FALTOU (absent_<id>); sem marca = presente.
   const entries = ids.map((id) => ({
     studentId: id,
-    present: formData.get(`present_${id}`) != null,
+    present: formData.get(`absent_${id}`) == null,
   }));
   if (classId && date) await recordAttendanceBulk(db(), ctx, classId, date, entries, subjectId);
   revalidatePath('/app', 'layout');
@@ -849,6 +849,7 @@ export async function createEventAction(formData: FormData): Promise<void> {
     date: formData.get('date'),
     time: (formData.get('time') as string) || undefined,
     classId: (formData.get('classId') as string) || undefined,
+    kind: (formData.get('kind') as string) || 'evento',
   });
   await createEvent(db(), ctx, input);
   revalidatePath('/app', 'layout');

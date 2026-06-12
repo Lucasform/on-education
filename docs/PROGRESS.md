@@ -13,6 +13,15 @@
 
 ## Log de checkpoints
 
+### [2026-06-10 22:30] — Chamada fácil + feriados no calendário — STATUS: CONCLUÍDO
+
+- **Chamada (UX):** invertida — lista limpa, marca-se só quem **faltou** (`absent_<id>`); sem marca = presente. Checkbox vermelho maior, descrição atualizada. (`recordChamadaAction` + tela de Chamada.)
+- **Feriados no calendário** (mig. `0040`, aditiva, aplicada em prod): `events.kind` ('evento'|'feriado'|'recesso'). Form de novo evento com seletor de tipo; badge "não letivo" na lista; **dias não letivos destacados** na grade (Set `naoLetivos`, célula tingida). Base do futuro motor de aulas.
+- **Motor de aulas previstas (item 3): NÃO construído** — só ideias anotadas em `[[project_on_education_fase2_ideias]]` (ideia 4), a pedido do Lucas.
+- **Arquivos:** `packages/db/src/schema.ts`, `packages/db/drizzle/0040_*.sql`, `packages/validation/src/index.ts`, `packages/modules/nucleo/src/events.ts`, `apps/web/src/app/app/actions.ts`, `apps/web/src/app/app/sala/chamada/page.tsx`, `apps/web/src/app/app/calendario/page.tsx`.
+- **Testes:** `lint` · `typecheck` · `build` — verdes (14/14).
+- **Commit(s):** `feat: chamada facil (marca quem faltou) + feriados no calendario`.
+
 ### [2026-06-10 21:30] — Fase 2 adiantada: BYOK (IA do professor) + vídeo do YouTube — STATUS: CONCLUÍDO (a pedido do Lucas, pra testar)
 
 - **Migration `0039_clean_bucky`** (aditiva, aplicada em prod): `tenant_settings` + `ai_provider` (default|anthropic|openai|gemini) + `ai_api_key_enc` (chave do professor criptografada).

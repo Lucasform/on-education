@@ -64,7 +64,10 @@ export default async function CalendarioPage({
   // Eventos do mês, agrupados por dia (YYYY-MM-DD).
   const prefixo = `${ano}-${pad(m)}-`;
   const porDia = new Map<string, typeof eventos>();
+  // Dias não letivos (feriado/recesso) — destacados na grade e base do futuro motor de aulas.
+  const naoLetivos = new Set<string>();
   for (const e of eventos) {
+    if (e.kind === 'feriado' || e.kind === 'recesso') naoLetivos.add(e.date);
     if (!e.date.startsWith(prefixo)) continue;
     const arr = porDia.get(e.date) ?? [];
     arr.push(e);
@@ -126,14 +129,16 @@ export default async function CalendarioPage({
             const evs = porDia.get(dataStr) ?? [];
             const isHoje = dataStr === hojeStr;
             const isSel = dataStr === diaSel;
+            const naoLetivo = naoLetivos.has(dataStr);
             return (
               <Link
                 key={dataStr}
                 href={`/app/calendario?mes=${ano}-${pad(m)}&dia=${dataStr}`}
                 scroll={false}
-                className={`min-h-12 bg-card p-1 transition-colors hover:bg-accent/50 sm:min-h-20 sm:p-1.5 ${
-                  isSel ? 'ring-2 ring-inset ring-primary' : ''
-                }`}
+                title={naoLetivo ? 'Dia não letivo' : undefined}
+                className={`min-h-12 p-1 transition-colors hover:bg-accent/50 sm:min-h-20 sm:p-1.5 ${
+                  naoLetivo ? 'bg-danger/10' : 'bg-card'
+                } ${isSel ? 'ring-2 ring-inset ring-primary' : ''}`}
               >
                 <div
                   className={`mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px] sm:h-6 sm:w-6 sm:text-xs ${
@@ -206,7 +211,14 @@ export default async function CalendarioPage({
                     {e.time && (
                       <span className="text-muted-foreground">{e.time.slice(0, 5)} · </span>
                     )}
+                    {e.kind === 'feriado' && <span className="mr-1">🔴</span>}
+                    {e.kind === 'recesso' && <span className="mr-1">🟠</span>}
                     {e.title}
+                    {(e.kind === 'feriado' || e.kind === 'recesso') && (
+                      <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                        {e.kind === 'feriado' ? 'feriado' : 'recesso'} · não letivo
+                      </span>
+                    )}
                     {e.classId && (
                       <span className="text-muted-foreground"> · {turmaNome.get(e.classId)}</span>
                     )}
@@ -231,6 +243,11 @@ export default async function CalendarioPage({
           <h2 className="mb-3 text-sm font-medium">Novo evento</h2>
           <form action={createEventAction} className="flex flex-col gap-2">
             <input name="title" required placeholder="Título do evento" className={fieldClass} />
+            <select name="kind" defaultValue="evento" className={fieldClass}>
+              <option value="evento">Evento normal</option>
+              <option value="feriado">Feriado (dia não letivo)</option>
+              <option value="recesso">Recesso (dias não letivos)</option>
+            </select>
             <div className="flex gap-2">
               <input
                 name="date"

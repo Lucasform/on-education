@@ -19,6 +19,7 @@ export async function createEvent(client: DbClient, ctx: AuthContext, input: Cre
         date: input.date,
         time: input.time ?? null,
         classId: input.classId ?? null,
+        kind: input.kind ?? 'evento',
         createdBy: ctx.userId,
       })
       .returning();

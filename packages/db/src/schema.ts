@@ -785,6 +785,8 @@ export const events = oe.table(
     date: date('date').notNull(),
     time: text('time'),
     classId: uuid('class_id'),
+    // Tipo (calendário escolar): 'evento' normal | 'feriado' | 'recesso' (não letivos).
+    kind: text('kind').notNull().default('evento'),
     ...auditCols,
   },
   (t) => [index('events_tenant_idx').on(t.tenantId), tenantPolicy('events_tenant_isolation')],
