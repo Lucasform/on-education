@@ -1,7 +1,7 @@
 'use client';
 
 import type { TenantType } from '@on-education/core';
-import { GraduationCap, Lock, Menu, X } from 'lucide-react';
+import { Lock, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
@@ -10,6 +10,7 @@ import { navFor } from '@/lib/nav';
 
 import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
+import { LogoMark } from './logo-mark';
 import { ThemeToggle } from './theme-toggle';
 
 /**
@@ -49,9 +50,7 @@ export function AppShell({
           {logoUrl ? (
             <img src={logoUrl} alt="Logo da escola" className="h-7 w-7 rounded-lg object-cover" />
           ) : (
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <GraduationCap className="h-4 w-4" />
-            </span>
+            <LogoMark size={28} />
           )}
           <span className="font-semibold">Edu On Way</span>
           {workspaceName && (
@@ -125,9 +124,7 @@ export function AppShell({
             {logoUrl ? (
               <img src={logoUrl} alt="Logo" className="h-7 w-7 rounded-lg object-cover" />
             ) : (
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <GraduationCap className="h-4 w-4" />
-              </span>
+              <LogoMark size={28} />
             )}
             <span className="font-semibold">{workspaceName ?? 'Edu On Way'}</span>
             <button

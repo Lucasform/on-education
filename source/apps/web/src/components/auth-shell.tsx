@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { LogoMark } from '@/components/logo-mark';
+
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export function AuthShell({
@@ -36,7 +38,7 @@ export function AuthShell({
 
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-xl">
         <Link href={backHref} className="mb-6 flex items-center gap-2">
-          <span className="h-7 w-7 rounded-lg bg-primary" />
+          <LogoMark size={28} />
           <span className="font-semibold">Edu On Way</span>
         </Link>
         <h1 className="text-center text-xl font-semibold">{title}</h1>

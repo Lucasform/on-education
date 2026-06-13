@@ -33,6 +33,7 @@ import {
   PenLine,
   Phone,
   Plug,
+  Settings,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -75,6 +76,7 @@ export const NAV: NavGroup[] = [
       { label: 'Início', href: '/app', icon: Home },
       { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
       { label: 'Planos', href: '/app/planos', icon: CreditCard },
+      { label: 'Configurações', href: '/app/conta/configuracoes', icon: Settings, only: 'individual' },
     ],
   },
   {
