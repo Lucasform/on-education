@@ -75,7 +75,6 @@ export const NAV: NavGroup[] = [
       { label: 'Início', href: '/app', icon: Home },
       { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
       { label: 'Planos', href: '/app/planos', icon: CreditCard },
-      { label: 'Lixeira', href: '/app/lixeira', icon: Trash2 },
     ],
   },
   {
@@ -167,6 +166,10 @@ export const NAV: NavGroup[] = [
     label: 'Integrações',
     only: 'organization',
     items: [{ label: 'API aberta', href: '/app/api', icon: Plug }],
+  },
+  {
+    label: 'Sistema',
+    items: [{ label: 'Lixeira', href: '/app/lixeira', icon: Trash2 }],
   },
 ];
 
