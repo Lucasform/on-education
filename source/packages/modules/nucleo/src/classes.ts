@@ -182,6 +182,49 @@ export async function createClassesBulk(client: DbClient, ctx: AuthContext, name
   return clean.length;
 }
 
+/** Atualiza campos opcionais do perfil do aluno (endereço, informações médicas, emergência). */
+export async function updateStudentProfile(
+  client: DbClient,
+  ctx: AuthContext,
+  id: string,
+  input: {
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zipCode?: string | null;
+    bloodType?: string | null;
+    allergies?: string | null;
+    medicalNotes?: string | null;
+    emergencyName?: string | null;
+    emergencyPhone?: string | null;
+    emergencyRelation?: string | null;
+  },
+) {
+  assertCan(ctx, 'update', 'student');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(students)
+      .set({ ...input, updatedAt: new Date() })
+      .where(and(eq(students.id, id), isNull(students.deletedAt))),
+  );
+}
+
+/** Move um aluno para outra turma (ou remove de turma com null). */
+export async function transferStudentClass(
+  client: DbClient,
+  ctx: AuthContext,
+  studentId: string,
+  classId: string | null,
+) {
+  assertCan(ctx, 'update', 'student');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(students)
+      .set({ classId, updatedAt: new Date() })
+      .where(and(eq(students.id, studentId), isNull(students.deletedAt))),
+  );
+}
+
 /**
  * Importa alunos em lote. Cada item tem nome e, opcionalmente, o nome da turma (resolvido
  * para uma turma existente). Respeita a cota de alunos do plano.

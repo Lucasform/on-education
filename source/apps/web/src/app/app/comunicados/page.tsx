@@ -1,7 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
 import { listCommunications } from '@on-education/module-comunicacao';
-import { getWhatsappConnection } from '@on-education/module-nucleo';
+import { getWhatsappConnection, listClasses } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -24,14 +24,28 @@ import {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Comunicados · Edu On Way' };
 
-export default async function ComunicadosPage() {
+export default async function ComunicadosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ turma?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const comunicados = await listCommunications(db(), ctx);
+  const sp = await searchParams;
+  const client = db();
+  const [comunicados, turmas, wa] = await Promise.all([
+    listCommunications(client, ctx),
+    ctx.tenantType === 'organization' ? listClasses(client, ctx) : Promise.resolve([]),
+    getWhatsappConnection(client, ctx).catch(() => null),
+  ]);
   const aiOn = isAiConfigured();
-  const wa = await getWhatsappConnection(db(), ctx).catch(() => null);
   const emailOn = isEmailConfigured();
   const waFlash = (await cookies()).get('oe_wa_flash')?.value;
+  const turmaFiltro = sp.turma ?? '';
+  const comunicadosFiltrados = turmaFiltro
+    ? comunicados.filter((c) => (c as { classId?: string | null }).classId === turmaFiltro)
+    : comunicados;
+  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 
   return (
     <>
@@ -52,6 +66,21 @@ export default async function ComunicadosPage() {
               placeholder="Texto do comunicado"
               className={fieldClass}
             />
+            {turmas.length > 0 && (
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">
+                  Destinatários (opcional)
+                </label>
+                <select name="classId" className={fieldClass} defaultValue="">
+                  <option value="">Todos — comunicado geral</option>
+                  {turmas.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      Apenas {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <SubmitButton type="submit" size="sm">
               Salvar rascunho
             </SubmitButton>
@@ -82,12 +111,36 @@ export default async function ComunicadosPage() {
       </div>
 
       <div className={cardClass}>
-        <h2 className="mb-3 text-sm font-medium">Comunicados ({comunicados.length})</h2>
-        {comunicados.length === 0 ? (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-medium">
+            Comunicados ({comunicadosFiltrados.length}
+            {comunicadosFiltrados.length !== comunicados.length ? ` de ${comunicados.length}` : ''})
+          </h2>
+          {turmas.length > 0 && (
+            <form method="get" className="flex gap-2">
+              <select
+                name="turma"
+                defaultValue={turmaFiltro}
+                className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+              >
+                <option value="">Todos</option>
+                {turmas.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+              <button type="submit" className="rounded-md border border-border px-2 py-1 text-xs">
+                Filtrar
+              </button>
+            </form>
+          )}
+        </div>
+        {comunicadosFiltrados.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhum comunicado ainda.</p>
         ) : (
           <ul className="space-y-3 text-sm">
-            {comunicados.map((c) => (
+            {comunicadosFiltrados.map((c) => {
+              const classId = (c as { classId?: string | null }).classId;
+              return (
               <li key={c.id} className="rounded-md border border-border p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">
@@ -95,6 +148,7 @@ export default async function ComunicadosPage() {
                     <span className="text-muted-foreground">
                       · {c.status === 'published' ? 'publicado' : 'rascunho'}
                       {c.aiGenerated ? ' · WayOn' : ''}
+                      {classId && turmaNome.get(classId) ? ` · ${turmaNome.get(classId)}` : ''}
                     </span>
                   </span>
                   <span className="flex gap-2">
@@ -148,7 +202,8 @@ export default async function ComunicadosPage() {
                   <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{c.body}</p>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </div>

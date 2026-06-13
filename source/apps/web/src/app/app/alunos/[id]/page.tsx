@@ -2,6 +2,7 @@ import { SubmitButton } from '@/components/submit-button';
 import {
   getStudent,
   getTenantSettings,
+  listClasses,
   listGradeComponents,
   listGuardians,
   listOccurrenceLinks,
@@ -27,7 +28,9 @@ import {
   awardPointsAction,
   deleteStudentPointAction,
   linkGuardianAction,
+  transferStudentClassAction,
   unlinkGuardianAction,
+  updateStudentProfileAction,
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -51,6 +54,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     settings,
     todasOcorrencias,
     linksOcorrencias,
+    turmas,
   ] = await Promise.all([
     getStudent(client, ctx, id),
     listGradesForStudent(client, ctx, id),
@@ -63,6 +67,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     getTenantSettings(client, ctx).catch(() => null),
     isSchool ? listOccurrences(client, ctx).catch(() => []) : Promise.resolve([]),
     isSchool ? listOccurrenceLinks(client, ctx).catch(() => []) : Promise.resolve([]),
+    listClasses(client, ctx).catch(() => [] as { id: string; name: string }[]),
   ]);
   if (!aluno) redirect('/app/alunos');
 
@@ -389,6 +394,162 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           >
             Ver todas as ocorrências →
           </Link>
+        </div>
+      )}
+
+      {/* Perfil completo — endereço e dados gerais */}
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Dados pessoais</h2>
+        <form action={updateStudentProfileAction} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={aluno.id} />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Endereço</label>
+              <input
+                name="address"
+                placeholder="Rua, número, complemento"
+                defaultValue={aluno.address ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">CEP</label>
+              <input
+                name="zipCode"
+                placeholder="00000-000"
+                defaultValue={aluno.zipCode ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Cidade</label>
+              <input
+                name="city"
+                placeholder="Cidade"
+                defaultValue={aluno.city ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Estado</label>
+              <input
+                name="state"
+                placeholder="UF"
+                defaultValue={aluno.state ?? ''}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Salvar endereço
+          </SubmitButton>
+        </form>
+      </div>
+
+      {/* Informações médicas */}
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Informações de saúde</h2>
+        <form action={updateStudentProfileAction} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={aluno.id} />
+          {/* Preserva campos de outras seções (envia vazio = null, ok pois são opcionais) */}
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Tipo sanguíneo</label>
+              <select name="bloodType" defaultValue={aluno.bloodType ?? ''} className={fieldClass}>
+                <option value="">Não informado</option>
+                {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs text-muted-foreground">Alergias</label>
+              <input
+                name="allergies"
+                placeholder="Penicilina, amendoim, etc."
+                defaultValue={aluno.allergies ?? ''}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Observações médicas</label>
+            <textarea
+              name="medicalNotes"
+              rows={3}
+              placeholder="Medicamentos, condições especiais, restrições de atividade física…"
+              defaultValue={aluno.medicalNotes ?? ''}
+              className={fieldClass}
+            />
+          </div>
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Salvar informações de saúde
+          </SubmitButton>
+        </form>
+      </div>
+
+      {/* Contato de emergência */}
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Contato de emergência</h2>
+        <form action={updateStudentProfileAction} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={aluno.id} />
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs text-muted-foreground">Nome</label>
+              <input
+                name="emergencyName"
+                placeholder="Nome completo"
+                defaultValue={aluno.emergencyName ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Parentesco</label>
+              <input
+                name="emergencyRelation"
+                placeholder="Mãe, pai, tio…"
+                defaultValue={aluno.emergencyRelation ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Telefone</label>
+              <input
+                name="emergencyPhone"
+                placeholder="(11) 99999-9999"
+                defaultValue={aluno.emergencyPhone ?? ''}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Salvar contato de emergência
+          </SubmitButton>
+        </form>
+      </div>
+
+      {/* Transferência de turma */}
+      {turmas.length > 1 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Transferir de turma</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Turma atual:{' '}
+            <span className="font-medium text-foreground">
+              {aluno.classId ? (turmas.find((t) => t.id === aluno.classId)?.name ?? 'desconhecida') : 'sem turma'}
+            </span>
+          </p>
+          <form action={transferStudentClassAction} className="flex flex-wrap gap-2">
+            <input type="hidden" name="studentId" value={aluno.id} />
+            <select name="classId" className={`${fieldClass} flex-1`} defaultValue={aluno.classId ?? ''}>
+              <option value="">Sem turma</option>
+              {turmas.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Transferir
+            </SubmitButton>
+          </form>
         </div>
       )}
     </>

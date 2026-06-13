@@ -1,10 +1,13 @@
 import { listDrafts } from '@on-education/module-ia';
 import {
+  listAcademicYears,
   listClasses,
   listGuardians,
   listStudents,
   listSubjects,
+  listTerms,
   listUpcomingEvents,
+  getTenantSettings,
 } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import {
@@ -41,7 +44,7 @@ export default async function OverviewPage() {
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
   const hoje = new Date().toISOString().slice(0, 10);
-  const [turmas, alunos, atividades, rascunhos, proximosEventos, disciplinas, responsaveis] =
+  const [turmas, alunos, atividades, rascunhos, proximosEventos, disciplinas, responsaveis, anosLetivos, periodos, configuracoes] =
     await Promise.all([
       listClasses(client, ctx),
       listStudents(client, ctx),
@@ -50,6 +53,9 @@ export default async function OverviewPage() {
       listUpcomingEvents(client, ctx, hoje),
       isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
       isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
+      isSchool ? listAcademicYears(client, ctx).catch(() => []) : Promise.resolve([]),
+      isSchool ? listTerms(client, ctx).catch(() => []) : Promise.resolve([]),
+      isSchool ? getTenantSettings(client, ctx).catch(() => null) : Promise.resolve(null),
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
 
@@ -84,7 +90,26 @@ export default async function OverviewPage() {
             href: '/app/escola/responsaveis',
             done: responsaveis.length > 0,
           },
-          { label: 'Convidar professores e equipe', href: '/app/escola/convites', done: false },
+          {
+            label: 'Criar ano letivo',
+            href: '/app/escola/ano-letivo',
+            done: anosLetivos.length > 0,
+          },
+          {
+            label: 'Definir períodos (bimestres/trimestres)',
+            href: '/app/escola/ano-letivo',
+            done: periodos.length > 0,
+          },
+          {
+            label: 'Personalizar a escola',
+            href: '/app/escola/personalizar',
+            done: !!(configuracoes?.logoUrl || configuracoes?.profileName),
+          },
+          {
+            label: 'Convidar professores e equipe',
+            href: '/app/escola/convites',
+            done: false,
+          },
         ]
       : []),
     { label: 'Montar o banco de atividades', href: '/app/atividades', done: atividades.length > 0 },

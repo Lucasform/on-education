@@ -67,6 +67,7 @@ export async function createCommunication(
         body: input.body,
         status: 'draft',
         aiGenerated,
+        classId: input.classId ?? null,
         createdBy: ctx.userId,
       })
       .returning();

@@ -275,6 +275,19 @@ export const students = oe.table(
     classId: uuid('class_id'),
     fullName: text('full_name').notNull(),
     birthDate: date('birth_date'), // aniversariantes do mês + idade
+    // Perfil completo (endereço)
+    address: text('address'),
+    city: text('city'),
+    state: text('state'),
+    zipCode: text('zip_code'),
+    // Informações médicas (PII sensível de menor: nunca logar)
+    bloodType: text('blood_type'),
+    allergies: text('allergies'),
+    medicalNotes: text('medical_notes'),
+    // Contato de emergência
+    emergencyName: text('emergency_name'),
+    emergencyPhone: text('emergency_phone'),
+    emergencyRelation: text('emergency_relation'),
     ...auditCols,
   },
   (t) => [
@@ -790,6 +803,8 @@ export const communications = oe.table(
     body: text('body').notNull().default(''),
     status: text('status').notNull().default('draft'), // draft | published
     aiGenerated: boolean('ai_generated').notNull().default(false),
+    // Segmentação por turma (NULL = geral para todos)
+    classId: uuid('class_id'),
     ...auditCols,
   },
   (t) => [

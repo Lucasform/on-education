@@ -78,7 +78,9 @@ import {
   listInvoices,
   markConversationRead,
   recordOutgoingMessage,
+  transferStudentClass,
   updateClassDetails,
+  updateStudentProfile,
   upsertTenantSettings,
 } from '@on-education/module-nucleo';
 import {
@@ -782,6 +784,7 @@ export async function createCommunicationAction(formData: FormData): Promise<voi
   const input = createCommunicationSchema.parse({
     title: formData.get('title'),
     body: (formData.get('body') as string) || '',
+    classId: (formData.get('classId') as string) || undefined,
   });
   await createCommunication(db(), ctx, input);
   revalidatePath('/app', 'layout');
@@ -852,6 +855,35 @@ export async function deleteStudentAction(formData: FormData): Promise<void> {
   await deleteStudent(db(), ctx, id);
   await recordAudit(db(), ctx, { action: 'student.delete', resource: 'student', metadata: { id } });
   revalidatePath('/app', 'layout');
+}
+
+export async function updateStudentProfileAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const str = (key: string) => (formData.get(key) as string) || null;
+  await updateStudentProfile(db(), ctx, id, {
+    address: str('address'),
+    city: str('city'),
+    state: str('state'),
+    zipCode: str('zipCode'),
+    bloodType: str('bloodType'),
+    allergies: str('allergies'),
+    medicalNotes: str('medicalNotes'),
+    emergencyName: str('emergencyName'),
+    emergencyPhone: str('emergencyPhone'),
+    emergencyRelation: str('emergencyRelation'),
+  });
+  revalidatePath(`/app/alunos/${id}`, 'page');
+}
+
+export async function transferStudentClassAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const classId = (formData.get('classId') as string) || null;
+  if (!studentId) return;
+  await transferStudentClass(db(), ctx, studentId, classId);
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
 }
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {

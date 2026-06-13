@@ -323,10 +323,11 @@ export const generateCurriculumSchema = z.object({
 });
 export type GenerateCurriculumInput = z.infer<typeof generateCurriculumSchema>;
 
-/** Comunicação — comunicados. */
+/** Comunicação — comunicados. classId = segmentado p/ turma; undefined = geral. */
 export const createCommunicationSchema = z.object({
   title: z.string().min(1).max(200),
   body: z.string().max(20_000).default(''),
+  classId: z.string().uuid().optional(),
 });
 export type CreateCommunicationInput = z.infer<typeof createCommunicationSchema>;
 
