@@ -20,6 +20,7 @@ function serviceClient(): SupabaseClient {
 
 const LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
 const LOGO_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+const PHOTO_MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 
 /**
  * Sobe a logo da escola no bucket público `public-assets` (path por tenant) e devolve a
@@ -58,6 +59,29 @@ export async function uploadPublicLogo(tenantId: string, file: File): Promise<st
     .from('public-assets')
     .upload(path, bytes, { contentType: file.type, upsert: true });
   if (error) throw new Error(`Falha no upload: ${error.message}`);
+  return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
+}
+
+/** Sobe a foto de um aluno no bucket público e devolve a URL permanente. */
+export async function uploadStudentPhoto(
+  tenantId: string,
+  studentId: string,
+  file: File,
+): Promise<string> {
+  if (!LOGO_TYPES.includes(file.type)) {
+    throw new Error('Formato inválido. Use PNG, JPG ou WEBP.');
+  }
+  if (file.size > PHOTO_MAX_BYTES) {
+    throw new Error('Foto muito grande (máx. 4 MB).');
+  }
+  const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+  const path = `${tenantId}/students/${studentId}.${ext}`;
+  const sb = serviceClient();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { error } = await sb.storage
+    .from('public-assets')
+    .upload(path, bytes, { contentType: file.type, upsert: true });
+  if (error) throw new Error(`Falha no upload da foto: ${error.message}`);
   return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
 }
 

@@ -21,6 +21,7 @@ import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -31,6 +32,7 @@ import {
   transferStudentClassAction,
   unlinkGuardianAction,
   updateStudentProfileAction,
+  uploadStudentPhotoAction,
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -97,19 +99,61 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   return (
     <>
       <PageHeader title={aluno.fullName} description="Histórico do aluno." />
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href="/app/alunos"
           className="text-sm text-primary underline-offset-4 hover:underline"
         >
           ← Voltar para alunos
         </Link>
-        <Link
-          href={`/app/alunos/${id}/relatorio`}
-          className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
-        >
-          Relatório aos pais
-        </Link>
+        <span className="flex flex-wrap gap-2">
+          <Link
+            href={`/app/alunos/${id}/relatorio`}
+            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Relatório aos pais
+          </Link>
+          <PrintButton />
+        </span>
+      </div>
+
+      {/* Foto do aluno */}
+      <div className={`${cardClass} print:hidden`}>
+        <div className="flex flex-wrap items-center gap-4">
+          {aluno.photoUrl ? (
+            /* Foto do aluno: URL pública do bucket, não requer next/image */
+            <img  // eslint-disable-line
+              src={aluno.photoUrl}
+              alt={aluno.fullName}
+              className="h-20 w-20 rounded-full object-cover ring-2 ring-border"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground ring-2 ring-border">
+              {aluno.fullName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-medium">{aluno.fullName}</p>
+            {aluno.birthDate && (
+              <p className="text-xs text-muted-foreground">
+                {aluno.birthDate.split('-').reverse().join('/')}
+              </p>
+            )}
+            <form action={uploadStudentPhotoAction} className="mt-2 flex items-center gap-2">
+              <input type="hidden" name="studentId" value={aluno.id} />
+              <input
+                type="file"
+                name="file"
+                accept="image/png,image/jpeg,image/webp"
+                aria-label="Foto do aluno"
+                className="text-xs file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs"
+              />
+              <SubmitButton type="submit" size="sm" variant="outline">
+                {aluno.photoUrl ? 'Trocar foto' : 'Adicionar foto'}
+              </SubmitButton>
+            </form>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

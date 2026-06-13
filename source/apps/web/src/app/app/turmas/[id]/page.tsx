@@ -5,8 +5,11 @@ import {
   listClassSubjects,
   listStudents,
   listSubjects,
+  weightedAverage,
+  listGradeComponents,
 } from '@on-education/module-nucleo';
 import { listMaterials, medalFor, pointsTotals } from '@on-education/module-pedagogico';
+import { listGrades, listAttendance } from '@on-education/module-sala-de-aula';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -41,7 +44,7 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const [turma, alunos, materias, disciplinas, materiais, totais, settings] = await Promise.all([
+  const [turma, alunos, materias, disciplinas, materiais, totais, settings, todasNotas, todasFaltas, componentes] = await Promise.all([
     getClass(client, ctx, id),
     listStudents(client, ctx),
     listClassSubjects(client, ctx, id),
@@ -49,6 +52,9 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
     listMaterials(client, ctx, id).catch(() => []),
     pointsTotals(client, ctx).catch(() => new Map<string, number>()),
     getTenantSettings(client, ctx).catch(() => null),
+    listGrades(client, ctx).catch(() => []),
+    listAttendance(client, ctx).catch(() => []),
+    isSchool ? listGradeComponents(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
   if (!turma) redirect('/app/turmas');
 
@@ -57,6 +63,24 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
     ? { bronze: settings.medalBronze, prata: settings.medalPrata, ouro: settings.medalOuro }
     : undefined;
   const daTurma = alunos.filter((a) => a.classId === id);
+
+  // Estatísticas da turma
+  const mediasPorAluno = daTurma.map((a) => {
+    const notasAluno = todasNotas.filter((g) => g.studentId === a.id && g.classId === id);
+    return { id: a.id, nome: a.fullName, media: weightedAverage(notasAluno, componentes) };
+  });
+  const mediasValidas = mediasPorAluno.filter((m) => m.media !== null) as { id: string; nome: string; media: number }[];
+  const mediaGeral = mediasValidas.length
+    ? mediasValidas.reduce((s, m) => s + m.media, 0) / mediasValidas.length
+    : null;
+  const freqPorAluno = daTurma.map((a) => {
+    const reg = todasFaltas.filter((f) => f.studentId === a.id && f.classId === id);
+    return reg.length ? Math.round((reg.filter((f) => f.present).length / reg.length) * 100) : null;
+  });
+  const freqsValidas = freqPorAluno.filter((f) => f !== null) as number[];
+  const freqGeral = freqsValidas.length
+    ? Math.round(freqsValidas.reduce((s, f) => s + f, 0) / freqsValidas.length)
+    : null;
   // Ranking de pontos da turma (gamificação): só entra quem já tem pontos.
   const ranking = gamificacaoOn
     ? daTurma
@@ -75,9 +99,19 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   return (
     <>
       <PageHeader title={turma.name} description="Detalhes da turma, alunos e grade de matérias." />
-      <Link href="/app/turmas" className="text-sm text-primary underline-offset-4 hover:underline">
-        ← Voltar para turmas
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link href="/app/turmas" className="text-sm text-primary underline-offset-4 hover:underline">
+          ← Voltar para turmas
+        </Link>
+        {daTurma.length > 0 && (
+          <Link
+            href={`/app/turmas/${id}/boletim`}
+            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Boletim consolidado →
+          </Link>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className={cardClass}>
@@ -85,12 +119,16 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
           <div className="text-xs text-muted-foreground">Alunos</div>
         </div>
         <div className={cardClass}>
-          <div className="text-2xl font-semibold">{turma.gradeLevel || '—'}</div>
-          <div className="text-xs text-muted-foreground">Série/ano</div>
+          <div className="text-2xl font-semibold">
+            {mediaGeral !== null ? mediaGeral.toFixed(1) : '—'}
+          </div>
+          <div className="text-xs text-muted-foreground">Média da turma</div>
         </div>
         <div className={cardClass}>
-          <div className="text-2xl font-semibold">{turma.ageRange || '—'}</div>
-          <div className="text-xs text-muted-foreground">Faixa etária</div>
+          <div className="text-2xl font-semibold">
+            {freqGeral !== null ? `${freqGeral}%` : '—'}
+          </div>
+          <div className="text-xs text-muted-foreground">Frequência média</div>
         </div>
         {isSchool && (
           <div className={cardClass}>
@@ -165,6 +203,54 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
           )}
         </div>
       </div>
+
+      {/* Estatísticas por aluno */}
+      {mediasValidas.length > 0 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Desempenho por aluno</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="pb-2 pr-4 font-medium">Aluno</th>
+                  <th className="pb-2 pr-4 font-medium text-right">Média</th>
+                  <th className="pb-2 font-medium text-right">Frequência</th>
+                </tr>
+              </thead>
+              <tbody>
+                {daTurma
+                  .map((a, i) => ({
+                    ...a,
+                    media: mediasPorAluno[i]?.media ?? null,
+                    freq: freqPorAluno[i] ?? null,
+                  }))
+                  .sort((a, b) => (b.media ?? -1) - (a.media ?? -1))
+                  .map((a) => (
+                    <tr key={a.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-1.5 pr-4">
+                        <Link href={`/app/alunos/${a.id}`} className="hover:underline">
+                          {a.fullName}
+                        </Link>
+                      </td>
+                      <td className="py-1.5 pr-4 text-right font-medium">
+                        {a.media !== null ? a.media.toFixed(1) : '—'}
+                      </td>
+                      <td
+                        className={`py-1.5 text-right text-xs ${
+                          a.freq !== null && a.freq < 75
+                            ? 'font-medium text-destructive'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {a.freq !== null ? `${a.freq}%` : '—'}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {ranking.length > 0 && (
         <div className={cardClass}>

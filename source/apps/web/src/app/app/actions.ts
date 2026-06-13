@@ -74,6 +74,7 @@ import {
   canBroadcast,
   recordBroadcast,
   BROADCAST_MAX_RECIPIENTS,
+  listClasses,
   listGuardians,
   listInvoices,
   markConversationRead,
@@ -199,6 +200,7 @@ import {
   removeTenantFile,
   uploadPublicImagePng,
   uploadPublicLogo,
+  uploadStudentPhoto,
   uploadTenantFile,
 } from '@/server/storage';
 import { evoSendText, normalizePhone, whatsappConfigured } from '@/server/whatsapp';
@@ -884,6 +886,28 @@ export async function transferStudentClassAction(formData: FormData): Promise<vo
   if (!studentId) return;
   await transferStudentClass(db(), ctx, studentId, classId);
   revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+/** Faz upload da foto do aluno, salva a URL no perfil e invalida a ficha. */
+export async function uploadStudentPhotoAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const file = formData.get('file');
+  if (!studentId || !(file instanceof File) || file.size === 0) return;
+  const url = await uploadStudentPhoto(ctx.tenantId, studentId, file);
+  await updateStudentProfile(db(), ctx, studentId, { photoUrl: url });
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+/** Duplica todas as turmas ativas para um novo ano/sufixo. */
+export async function duplicateClassesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const suffix = String(formData.get('suffix') ?? '').trim();
+  const turmas = await listClasses(db(), ctx);
+  if (turmas.length === 0) return;
+  const names = turmas.map((t) => (suffix ? `${t.name} (${suffix})` : t.name));
+  await createClassesBulk(db(), ctx, names);
+  revalidatePath('/app/turmas', 'page');
 }
 
 export async function deleteActivityAction(formData: FormData): Promise<void> {

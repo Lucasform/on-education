@@ -1,24 +1,21 @@
 'use client';
 
-import { Printer } from 'lucide-react';
-import { Button } from '@on-education/ui';
+interface PrintButtonProps {
+  className?: string;
+  label?: string;
+}
 
-/**
- * Geração de documento "fácil" (9.1 / 8.2): aciona a impressão do navegador, que permite
- * "Salvar como PDF". A folha de estilo de impressão (globals.css + print:hidden na casca)
- * esconde a navegação e deixa só o conteúdo do relatório na página impressa.
- */
-export function PrintButton({ label = 'Imprimir / PDF' }: { label?: string }) {
+export function PrintButton({ className, label = 'Imprimir ficha' }: PrintButtonProps) {
   return (
-    <Button
+    <button
       type="button"
-      size="sm"
-      variant="outline"
       onClick={() => window.print()}
-      className="print:hidden"
+      className={
+        className ??
+        'rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent print:hidden'
+      }
     >
-      <Printer className="mr-1.5 h-4 w-4" />
       {label}
-    </Button>
+    </button>
   );
 }

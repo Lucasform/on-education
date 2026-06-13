@@ -59,6 +59,25 @@ export default async function OverviewPage() {
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
 
+  // Alertas de dados incompletos
+  const alertas: { msg: string; href: string }[] = [];
+  if (isSchool) {
+    const turmasSemAlunos = turmas.filter((t) => !alunos.some((a) => a.classId === t.id));
+    if (turmasSemAlunos.length > 0) {
+      alertas.push({
+        msg: `${turmasSemAlunos.length} turma${turmasSemAlunos.length > 1 ? 's' : ''} sem alunos (${turmasSemAlunos.map((t) => t.name).join(', ')})`,
+        href: '/app/turmas',
+      });
+    }
+    const alunosSemTurma = alunos.filter((a) => !a.classId);
+    if (alunosSemTurma.length > 0) {
+      alertas.push({
+        msg: `${alunosSemTurma.length} aluno${alunosSemTurma.length > 1 ? 's' : ''} sem turma definida`,
+        href: '/app/alunos',
+      });
+    }
+  }
+
   // Aniversariantes do mês (inspirado em painéis de gestão escolar, no nosso padrão).
   const mesAtual = hoje.slice(5, 7);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
@@ -151,6 +170,21 @@ export default async function OverviewPage() {
           href="/app/ia"
         />
       </section>
+
+      {alertas.length > 0 && (
+        <section className="flex flex-col gap-2">
+          {alertas.map((a) => (
+            <Link
+              key={a.href + a.msg}
+              href={a.href}
+              className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900 transition-colors hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+            >
+              <span>⚠ {a.msg}</span>
+              <span className="shrink-0 text-xs opacity-70">Ver →</span>
+            </Link>
+          ))}
+        </section>
+      )}
 
       <section className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Ações rápidas</h2>

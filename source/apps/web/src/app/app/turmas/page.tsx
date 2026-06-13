@@ -14,6 +14,7 @@ import { getAuthContext } from '@/server/session';
 import {
   createClassAction,
   deleteClassAction,
+  duplicateClassesAction,
   importClassesCsvAction,
   importClassesStructuredAction,
 } from '../actions';
@@ -180,6 +181,27 @@ export default async function TurmasPage({
               hint="Coluna: nome. Abra no Excel, preencha e salve como CSV."
             />
           </div>
+
+          {/* Duplicar turmas para novo ano */}
+          {turmas.length > 0 && (
+            <div className={cardClass}>
+              <h2 className="mb-1 text-sm font-medium">Duplicar turmas para novo ano</h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Cria uma cópia de todas as {turmas.length} turmas ativas. Informe um sufixo para
+                diferenciar (ex.: 2027) — deixe em branco para copiar com o mesmo nome.
+              </p>
+              <form action={duplicateClassesAction} className="flex flex-wrap gap-2">
+                <input
+                  name="suffix"
+                  placeholder="Sufixo (ex.: 2027)"
+                  className={`${fieldClass} flex-1`}
+                />
+                <SubmitButton type="submit" size="sm" variant="outline">
+                  Duplicar turmas
+                </SubmitButton>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </>

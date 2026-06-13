@@ -182,7 +182,7 @@ export async function createClassesBulk(client: DbClient, ctx: AuthContext, name
   return clean.length;
 }
 
-/** Atualiza campos opcionais do perfil do aluno (endereço, informações médicas, emergência). */
+/** Atualiza campos opcionais do perfil do aluno (endereço, informações médicas, emergência, foto). */
 export async function updateStudentProfile(
   client: DbClient,
   ctx: AuthContext,
@@ -198,6 +198,7 @@ export async function updateStudentProfile(
     emergencyName?: string | null;
     emergencyPhone?: string | null;
     emergencyRelation?: string | null;
+    photoUrl?: string | null;
   },
 ) {
   assertCan(ctx, 'update', 'student');

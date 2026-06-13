@@ -288,6 +288,8 @@ export const students = oe.table(
     emergencyName: text('emergency_name'),
     emergencyPhone: text('emergency_phone'),
     emergencyRelation: text('emergency_relation'),
+    // Foto do aluno (public-assets bucket)
+    photoUrl: text('photo_url'),
     ...auditCols,
   },
   (t) => [
