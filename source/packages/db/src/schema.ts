@@ -1205,6 +1205,29 @@ export const apiKeys = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// guardian_access_tokens — links de acesso do portal do responsável (sem login Supabase).
+// Gerado pela escola; o responsável acessa /portal/<token>. Tenant-scoped + RLS.
+// O token bruto nunca é armazenado; só o hash SHA-256.
+// ---------------------------------------------------------------------------
+export const guardianAccessTokens = oe.table(
+  'guardian_access_tokens',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    guardianId: uuid('guardian_id').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex('guardian_access_tokens_hash_uq').on(t.tokenHash),
+    index('guardian_access_tokens_guardian_idx').on(t.tenantId, t.guardianId),
+    tenantPolicy('guardian_access_tokens_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1255,4 +1278,6 @@ export const schema = {
   flashcardDecks,
   generatedImages,
   studentPoints,
+  guardianAccessTokens,
+  curriculumUnits,
 };

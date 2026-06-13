@@ -302,6 +302,13 @@
       "when": 1781302965506,
       "tag": "0042_wet_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1781348198804,
+      "tag": "0043_mighty_sandman",
+      "breakpoints": true
     }
   ]
 }

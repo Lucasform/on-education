@@ -1,5 +1,7 @@
 import { SubmitButton } from '@/components/submit-button';
 import { listGuardians } from '@on-education/module-nucleo';
+import { ExternalLink, Link2 } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -9,6 +11,7 @@ import { getAuthContext } from '@/server/session';
 
 import {
   createGuardianAction,
+  generateGuardianTokenAction,
   importGuardiansAction,
   importGuardiansCsvAction,
 } from '../../actions';
@@ -16,25 +19,82 @@ import {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Responsáveis · Edu On Way' };
 
-export default async function ResponsaveisPage() {
+export default async function ResponsaveisPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ portalToken?: string; guardianId?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
+
+  const { portalToken, guardianId: tokenGuardianId } = await searchParams;
   const responsaveis = await listGuardians(db(), ctx);
+  const nomeGuardian = tokenGuardianId
+    ? (responsaveis.find((g) => g.id === tokenGuardianId)?.fullName ?? '')
+    : '';
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
   return (
     <>
       <PageHeader title="Responsáveis" description="Pais e responsáveis pelos alunos." />
+
+      {/* Link do portal gerado (exibido uma vez) */}
+      {portalToken && (
+        <div className="rounded-lg border border-success/40 bg-success/10 p-4">
+          <p className="mb-1 text-sm font-medium text-success">
+            Link do portal gerado{nomeGuardian ? ` para ${nomeGuardian}` : ''} (válido 90 dias)
+          </p>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Copie o link abaixo e envie ao responsável. Ele não requer login.
+          </p>
+          <div className="flex items-center gap-2 rounded-md border border-border bg-background p-2">
+            <code className="flex-1 break-all text-xs">
+              {baseUrl}/portal/{portalToken}
+            </code>
+            <Link
+              href={`${baseUrl}/portal/${portalToken}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-primary"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Guarde este link agora — o valor bruto não será exibido novamente.
+          </p>
+        </div>
+      )}
+
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Responsáveis ({responsaveis.length})</h2>
         {responsaveis.length === 0 ? (
           <p className="mb-4 text-sm text-muted-foreground">Nenhum responsável ainda.</p>
         ) : (
-          <ul className="mb-4 space-y-1 text-sm text-muted-foreground">
+          <ul className="mb-4 divide-y divide-border text-sm">
             {responsaveis.map((g) => (
-              <li key={g.id}>
-                {g.fullName}
-                {g.phone && <span className="opacity-60"> · {g.phone}</span>}
+              <li key={g.id} className="flex items-center justify-between gap-3 py-2">
+                <span>
+                  {g.fullName}
+                  {g.email && <span className="ml-2 text-xs text-muted-foreground">{g.email}</span>}
+                  {g.phone && <span className="ml-2 text-xs text-muted-foreground">{g.phone}</span>}
+                </span>
+                <form action={generateGuardianTokenAction}>
+                  <input type="hidden" name="guardianId" value={g.id} />
+                  <SubmitButton
+                    type="submit"
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-1"
+                  >
+                    <Link2 className="h-3.5 w-3.5" />
+                    Portal
+                  </SubmitButton>
+                </form>
               </li>
             ))}
           </ul>

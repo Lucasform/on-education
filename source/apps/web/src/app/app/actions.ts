@@ -36,6 +36,8 @@ import {
   deleteGradeComponent,
   createGuardian,
   createGuardiansBulk,
+  generateGuardianToken,
+  revokeGuardianTokens,
   createInvoice,
   createOccurrence,
   createStudent,
@@ -117,6 +119,7 @@ import {
   distributeCurriculum,
   generateCurriculumWithWayOn,
   generateLessons,
+  linkLessonToPlan,
   moveCurriculumUnit,
   recordAttendance,
   recordAttendanceBulk,
@@ -596,6 +599,26 @@ export async function createGuardianAction(formData: FormData): Promise<void> {
   });
   await createGuardian(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+// --- Portal do responsável ---------------------------------------------------
+
+/** Gera um token de acesso para o portal do responsável (link de 90 dias) e redireciona
+ *  para a página de responsáveis com o link exibido uma vez. */
+export async function generateGuardianTokenAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const guardianId = String(formData.get('guardianId') ?? '');
+  if (!guardianId) return;
+  const token = await generateGuardianToken(db(), ctx, guardianId);
+  redirect(`/app/escola/responsaveis?portalToken=${encodeURIComponent(token)}&guardianId=${guardianId}`);
+}
+
+export async function revokeGuardianTokensAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const guardianId = String(formData.get('guardianId') ?? '');
+  if (!guardianId) return;
+  await revokeGuardianTokens(db(), ctx, guardianId);
+  revalidatePath('/app/escola/responsaveis', 'page');
 }
 
 // --- Sala de aula — Fase 1A.2 ------------------------------------------------
@@ -1644,10 +1667,12 @@ export async function deleteLessonPlanAction(formData: FormData): Promise<void> 
   revalidatePath('/app/sala/planejamento', 'page');
 }
 
-/** Gera um plano completo com o WayOn e já salva no planejamento da turma. */
+/** Gera um plano completo com o WayOn e já salva no planejamento da turma.
+ *  Se `lessonId` vier no formData, o plano é automaticamente vinculado à aula. */
 export async function generateLessonPlanAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const classId = String(formData.get('classId') ?? '');
+  const lessonId = (formData.get('lessonId') as string) || null;
   // RAG-lite: usa os materiais da própria turma como referência do plano.
   const context = await buildClassMaterialsContext(db(), ctx, classId);
   const input = generateLessonPlanSchema.parse({
@@ -1662,7 +1687,11 @@ export async function generateLessonPlanAction(formData: FormData): Promise<void
     notes: (formData.get('notes') as string) || undefined,
     context,
   });
-  await generateLessonPlanWithWayOn(db(), ctx, input);
+  const plano = await generateLessonPlanWithWayOn(db(), ctx, input);
+  if (lessonId && plano) {
+    await linkLessonToPlan(db(), ctx, lessonId, plano.id);
+    revalidatePath('/app/sala/plano-diario', 'page');
+  }
   revalidatePath('/app/sala/planejamento', 'page');
 }
 
@@ -1719,6 +1748,16 @@ export async function markLessonAction(formData: FormData): Promise<void> {
     cancelReason: (formData.get('cancelReason') as string) || undefined,
   });
   revalidatePath('/app/sala/diario', 'page');
+}
+
+/** Vincula ou desvincula um plano de aula a uma aula do diário. */
+export async function linkLessonToPlanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const lessonId = String(formData.get('lessonId') ?? '');
+  const planId = (formData.get('planId') as string) || null;
+  if (!lessonId) return;
+  await linkLessonToPlan(db(), ctx, lessonId, planId);
+  revalidatePath('/app/sala/plano-diario', 'page');
 }
 
 // --- Plano de curso / sequência didática (ponto 3) ---------------------------

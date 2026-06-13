@@ -92,6 +92,7 @@ export const NAV: NavGroup[] = [
       { label: 'Cronograma', href: '/app/cronograma', icon: CalendarClock },
       { label: 'Planejamento', href: '/app/sala/planejamento', icon: ListChecks },
       { label: 'Plano de curso', href: '/app/sala/plano-curso', icon: ListOrdered },
+      { label: 'Plano de aulas', href: '/app/sala/plano-diario', icon: CalendarClock },
       { label: 'Diário de classe', href: '/app/sala/diario', icon: NotebookPen },
       { label: 'Chamada', href: '/app/sala/chamada', icon: ClipboardList },
       { label: 'Notas', href: '/app/sala/notas', icon: ClipboardList },
@@ -141,6 +142,7 @@ export const NAV: NavGroup[] = [
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3 },
       { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck },
+      { label: 'Segurança (MFA)', href: '/app/conta/mfa', icon: ShieldCheck },
     ],
   },
   {

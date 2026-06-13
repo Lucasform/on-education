@@ -4,14 +4,14 @@ export * from './generate';
 export * from './curriculum';
 
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { attendance, type DbClient, grades, lessons, subjects } from '@on-education/db';
+import { attendance, type DbClient, grades, lessonPlans, lessons, subjects } from '@on-education/db';
 import { assertEntitled } from '@on-education/module-nucleo';
 import type {
   CreateLessonInput,
   RecordAttendanceInput,
   RecordGradeInput,
 } from '@on-education/validation';
-import { and, asc, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
 
 /**
  * Sala de aula (Fase 1A.2): diário, notas e faltas. Checagem tripla (RBAC + entitlement +
@@ -107,6 +107,60 @@ export async function setLessonStatus(
         updatedAt: sql`now()`,
       })
       .where(eq(lessons.id, id)),
+  );
+}
+
+/**
+ * Próximas aulas previstas (do motor de horários) dentro de um intervalo, com nome da
+ * matéria e título do plano vinculado (se houver). Usado no plano de aulas por dia.
+ */
+export async function listUpcomingLessons(
+  client: DbClient,
+  ctx: AuthContext,
+  opts: { classId?: string; from: string; to: string },
+) {
+  assertCan(ctx, 'read', 'lesson');
+  return client.withTenant(ctx.tenantId, (tx) => {
+    const filtros = [
+      gte(lessons.date, opts.from),
+      lte(lessons.date, opts.to),
+      opts.classId ? eq(lessons.classId, opts.classId) : undefined,
+    ].filter(Boolean);
+    return tx
+      .select({
+        id: lessons.id,
+        classId: lessons.classId,
+        subjectId: lessons.subjectId,
+        subjectName: subjects.name,
+        date: lessons.date,
+        topic: lessons.topic,
+        status: lessons.status,
+        unitId: lessons.unitId,
+        lessonPlanId: lessons.lessonPlanId,
+        planTitle: lessonPlans.title,
+      })
+      .from(lessons)
+      .leftJoin(subjects, eq(subjects.id, lessons.subjectId))
+      .leftJoin(lessonPlans, eq(lessonPlans.id, lessons.lessonPlanId))
+      .where(and(...filtros))
+      .orderBy(asc(lessons.date), asc(subjects.name));
+  });
+}
+
+/** Vincula (ou desvincula) um plano de aula a uma aula do diário. */
+export async function linkLessonToPlan(
+  client: DbClient,
+  ctx: AuthContext,
+  lessonId: string,
+  planId: string | null,
+) {
+  assertCan(ctx, 'update', 'lesson');
+  await assertEntitled(client, ctx.tenantId, FEATURE);
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(lessons)
+      .set({ lessonPlanId: planId, updatedAt: sql`now()` })
+      .where(eq(lessons.id, lessonId)),
   );
 }
 
