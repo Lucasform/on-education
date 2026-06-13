@@ -71,9 +71,11 @@ export function AppShell({
         <nav className="flex h-[calc(100vh-3.5rem)] flex-col gap-5 overflow-y-auto px-3 py-4">
           {groups.map((g) => (
             <div key={g.label}>
-              <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {g.label}
-              </p>
+              {!g.hideLabel && (
+                <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {g.label}
+                </p>
+              )}
               <ul className="space-y-0.5">
                 {g.items.map((item) => {
                   const active = pathname === item.href;

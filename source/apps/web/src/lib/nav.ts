@@ -63,6 +63,8 @@ export interface NavGroup {
   label: string;
   /** Restringe o grupo a um segmento; ausente = aparece para todos. */
   only?: TenantType;
+  /** Oculta o título do grupo no sidebar (ex.: grupo de utilitários no rodapé). */
+  hideLabel?: boolean;
   items: NavItem[];
 }
 
@@ -171,6 +173,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Sistema',
+    hideLabel: true,
     items: [{ label: 'Lixeira', href: '/app/lixeira', icon: Trash2 }],
   },
 ];
