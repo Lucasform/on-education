@@ -1,5 +1,6 @@
 import type { TenantType } from '@on-education/core';
 import { Lock } from 'lucide-react';
+import Link from 'next/link';
 
 const FEATURE_LABELS: Record<string, string> = {
   'ai.essayGrading': 'Correção avançada (redação e em lote)',
@@ -35,15 +36,20 @@ export function UpgradeGate({
           </p>
         )}
       </div>
-      <p className="text-sm text-muted-foreground">
-        Entre em contato para fazer o upgrade:{' '}
+      <div className="flex flex-wrap justify-center gap-3">
+        <Link
+          href="/app/planos"
+          className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+        >
+          Ver planos
+        </Link>
         <a
           href="mailto:contato@onway.com.br"
-          className="text-primary underline-offset-4 hover:underline"
+          className="rounded-md border border-border px-5 py-2 text-sm text-muted-foreground hover:bg-accent"
         >
-          contato@onway.com.br
+          Falar conosco
         </a>
-      </p>
+      </div>
     </div>
   );
 }

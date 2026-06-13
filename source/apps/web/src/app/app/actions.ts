@@ -749,7 +749,24 @@ export async function generateCommunicationAction(formData: FormData): Promise<v
 
 export async function publishCommunicationAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  await setCommunicationStatus(db(), ctx, String(formData.get('id')), 'published');
+  const client = db();
+  const comunicado = await setCommunicationStatus(client, ctx, String(formData.get('id')), 'published');
+
+  // Auto-notificação por e-mail ao publicar (só escolas com e-mail configurado; não bloqueia em caso de falha).
+  if (comunicado && ctx.tenantType === 'organization' && isEmailConfigured()) {
+    const guardians = await listGuardians(client, ctx).catch(() => []);
+    const comEmail = guardians.filter((g) => g.email).slice(0, 200);
+    if (comEmail.length > 0) {
+      const html = emailHtml(
+        comunicado.title,
+        `<p>${escapeHtml(comunicado.body ?? '').replace(/\n/g, '<br>')}</p>`,
+      );
+      await Promise.allSettled(
+        comEmail.map((g) => sendEmail({ to: g.email!, subject: comunicado.title, html })),
+      );
+    }
+  }
+
   revalidatePath('/app', 'layout');
 }
 

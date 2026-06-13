@@ -4,6 +4,8 @@ import {
   getTenantSettings,
   listGradeComponents,
   listGuardians,
+  listOccurrenceLinks,
+  listOccurrences,
   listStudentGuardians,
   weightedAverage,
 } from '@on-education/module-nucleo';
@@ -47,6 +49,8 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     componentes,
     pontos,
     settings,
+    todasOcorrencias,
+    linksOcorrencias,
   ] = await Promise.all([
     getStudent(client, ctx, id),
     listGradesForStudent(client, ctx, id),
@@ -57,8 +61,14 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
     listStudentPoints(client, ctx, id).catch(() => []),
     getTenantSettings(client, ctx).catch(() => null),
+    isSchool ? listOccurrences(client, ctx).catch(() => []) : Promise.resolve([]),
+    isSchool ? listOccurrenceLinks(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
   if (!aluno) redirect('/app/alunos');
+
+  // Ocorrências deste aluno
+  const idsComAluno = new Set(linksOcorrencias.filter((l) => l.studentId === id).map((l) => l.occurrenceId));
+  const ocorrenciasDoAluno = todasOcorrencias.filter((o) => idsComAluno.has(o.id));
 
   const gamificacaoOn = settings?.gamificationEnabled ?? true;
   const totalPontos = pontos.reduce((s, p) => s + p.points, 0);
@@ -102,6 +112,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           <div className="text-2xl font-semibold">{media}</div>
           <div className="text-xs text-muted-foreground">Média</div>
         </div>
+
         <div className={cardClass}>
           <div className="text-2xl font-semibold">{freq}</div>
           <div className="text-xs text-muted-foreground">Frequência</div>
@@ -114,6 +125,12 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           <div className="text-2xl font-semibold">{meuPortfolio.length}</div>
           <div className="text-xs text-muted-foreground">Portfólio</div>
         </div>
+        {isSchool && (
+          <div className={cardClass}>
+            <div className="text-2xl font-semibold">{ocorrenciasDoAluno.length}</div>
+            <div className="text-xs text-muted-foreground">Ocorrências</div>
+          </div>
+        )}
       </div>
 
       {/* Gamificação: conquistas do aluno (pode ser desligada por escola/professor) */}
@@ -318,6 +335,62 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           </ul>
         )}
       </div>
+
+      {/* Faltas detalhadas */}
+      {minhasPresencas.filter((p) => !p.present).length > 0 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">
+            Faltas ({minhasPresencas.filter((p) => !p.present).length})
+          </h2>
+          <ul className="space-y-1 text-sm">
+            {minhasPresencas
+              .filter((p) => !p.present)
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .map((p) => (
+                <li key={p.id} className="flex items-center justify-between gap-2 text-muted-foreground">
+                  <span>{p.date.split('-').reverse().join('/')}</span>
+                  {'justification' in p && (p as { justification?: string }).justification && (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                      {(p as { justification?: string }).justification}
+                    </span>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Ocorrências */}
+      {isSchool && ocorrenciasDoAluno.length > 0 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">
+            Ocorrências ({ocorrenciasDoAluno.length})
+          </h2>
+          <ul className="space-y-2 text-sm">
+            {ocorrenciasDoAluno.map((o) => (
+              <li key={o.id} className="flex items-start justify-between gap-2 border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                <div>
+                  {'type' in o && (o as { type?: string }).type && (
+                    <span className="mr-2 rounded-full bg-muted px-2 py-0.5 text-xs capitalize">
+                      {(o as { type?: string }).type}
+                    </span>
+                  )}
+                  <span>{'description' in o ? (o as { description?: string }).description : ''}</span>
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {o.date.split('-').reverse().join('/')}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/app/ocorrencias"
+            className="mt-2 block text-xs text-primary underline-offset-4 hover:underline"
+          >
+            Ver todas as ocorrências →
+          </Link>
+        </div>
+      )}
     </>
   );
 }

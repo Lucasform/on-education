@@ -10,6 +10,7 @@ import {
   CalendarX,
   ClipboardList,
   Contact,
+  CreditCard,
   FileBarChart,
   FileSignature,
   FileText,
@@ -73,6 +74,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Início', href: '/app', icon: Home },
       { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
+      { label: 'Planos', href: '/app/planos', icon: CreditCard },
       { label: 'Lixeira', href: '/app/lixeira', icon: Trash2 },
     ],
   },
