@@ -1,5 +1,7 @@
-import { listAudit } from '@on-education/module-nucleo';
+import { isEntitled, listAudit } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { cardClass, PageHeader, tableWrapClass } from '@/components/form';
 import { db } from '@/server/db';
@@ -25,7 +27,11 @@ export default async function AuditoriaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
-  const eventos = await listAudit(db(), ctx, 200).catch(() => []);
+  const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'analytics.director')) {
+    return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
+  }
+  const eventos = await listAudit(client, ctx, 200).catch(() => []);
 
   return (
     <>

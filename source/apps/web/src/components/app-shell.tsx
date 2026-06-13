@@ -1,7 +1,7 @@
 'use client';
 
 import type { TenantType } from '@on-education/core';
-import { GraduationCap, Menu, X } from 'lucide-react';
+import { GraduationCap, Lock, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
@@ -18,6 +18,7 @@ import { ThemeToggle } from './theme-toggle';
  */
 export function AppShell({
   tenantType,
+  planId,
   subtitle,
   headerActions,
   logoUrl,
@@ -26,6 +27,8 @@ export function AppShell({
   children,
 }: {
   tenantType: TenantType;
+  /** Plano ativo do tenant — usado para marcar itens travados no menu. */
+  planId?: string | null;
   subtitle?: string;
   headerActions?: ReactNode;
   logoUrl?: string | null;
@@ -36,7 +39,8 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const groups = navFor(tenantType);
+  const groups = navFor(tenantType, planId);
+  const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
@@ -81,24 +85,29 @@ export function AppShell({
                         href={item.href}
                         onClick={() => setOpen(false)}
                         className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
-                          active
-                            ? 'bg-primary/15 font-medium text-foreground'
-                            : 'text-foreground/75 hover:bg-accent hover:text-foreground'
+                          item.locked
+                            ? 'text-muted-foreground/50 hover:bg-accent hover:text-muted-foreground'
+                            : active
+                              ? 'bg-primary/15 font-medium text-foreground'
+                              : 'text-foreground/75 hover:bg-accent hover:text-foreground'
                         }`}
                       >
                         <Icon className="h-4 w-4 shrink-0 opacity-80" />
                         <span className="truncate">{item.label}</span>
-                        {badges?.[item.href] ? (
+                        {item.locked ? (
+                          <span className="ml-auto flex items-center gap-0.5 rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                            <Lock className="h-2.5 w-2.5" />
+                            {upgradeBadge}
+                          </span>
+                        ) : badges?.[item.href] ? (
                           <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
                             {badges[item.href]}
                           </span>
-                        ) : (
-                          item.soon && (
-                            <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                              em breve
-                            </span>
-                          )
-                        )}
+                        ) : item.soon ? (
+                          <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                            em breve
+                          </span>
+                        ) : null}
                       </Link>
                     </li>
                   );

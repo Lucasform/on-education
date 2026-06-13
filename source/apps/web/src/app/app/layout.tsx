@@ -1,5 +1,5 @@
 import { countPendingDrafts } from '@on-education/module-ia';
-import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantPlanId, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -19,12 +19,13 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const impersonating = await isImpersonating();
   // Nome do tenant (workspace que o professor/escola escolheu): vai no topo e no banner de
   // impersonação. Conexão dona; falha não pode derrubar o app.
-  const brand = await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null);
+  const [brand, settings, planId, pendingDrafts] = await Promise.all([
+    getPublicTenantBrand(db(), ctx.tenantId).catch(() => null),
+    getTenantSettings(db(), ctx).catch(() => null),
+    getTenantPlanId(db(), ctx.tenantId).catch(() => null),
+    countPendingDrafts(db(), ctx).catch(() => 0),
+  ]);
   const workspaceName = brand?.name ?? null;
-  // Personalização da escola (logo + cor do tema). Falha não pode derrubar o app.
-  const settings = await getTenantSettings(db(), ctx).catch(() => null);
-  // Badge de pendências no menu: rascunhos do WayOn a revisar.
-  const pendingDrafts = await countPendingDrafts(db(), ctx).catch(() => 0);
 
   const headerActions = impersonating ? (
     <form action={exitImpersonationAction}>
@@ -50,6 +51,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
       <AppShell
         tenantType={ctx.tenantType}
+        planId={planId}
         subtitle={
           ctx.tenantType === 'organization'
             ? 'Escola'

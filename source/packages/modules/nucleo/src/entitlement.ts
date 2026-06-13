@@ -17,6 +17,16 @@ export async function getTenantPlanId(client: DbClient, tenantId: string): Promi
   });
 }
 
+/** Versão não-throwing: retorna false se o plano não habilita a feature (ou não há plano). */
+export async function isEntitled(
+  client: DbClient,
+  tenantId: string,
+  feature: Feature,
+): Promise<boolean> {
+  const planId = await getTenantPlanId(client, tenantId);
+  return planId ? canUse(planId, feature) : false;
+}
+
 /**
  * Garante que o plano do tenant habilita `feature`; lança se não. Retorna o planId para
  * reuso (ex.: checagem de cota), evitando segunda ida ao banco.

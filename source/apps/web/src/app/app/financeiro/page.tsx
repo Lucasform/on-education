@@ -1,7 +1,9 @@
 import { KpiCard as Kpi } from '@/components/kpi-card';
 import { SubmitButton } from '@/components/submit-button';
-import { listGuardians, listInvoices, listStudents } from '@on-education/module-nucleo';
+import { isEntitled, listGuardians, listInvoices, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -36,6 +38,9 @@ export default async function FinanceiroPage({
 
   const { resp } = await searchParams;
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'finance.institutional')) {
+    return <UpgradeGate feature="finance.institutional" tenantType={ctx.tenantType} />;
+  }
   const [todas, responsaveis, alunos] = await Promise.all([
     listInvoices(client, ctx),
     listGuardians(client, ctx),

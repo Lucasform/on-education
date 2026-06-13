@@ -1,7 +1,9 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
 import { listAttendance } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { cardClass, fieldClass, PageHeader, tableWrapClass } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
@@ -22,6 +24,9 @@ export default async function RelatorioFaltasPage({
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'analytics.director')) {
+    return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
+  }
   const [turmas, alunos, disciplinas, registros] = await Promise.all([
     listClasses(client, ctx),
     listStudents(client, ctx),

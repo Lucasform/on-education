@@ -1,11 +1,14 @@
 import { isAiConfigured } from '@on-education/module-ia';
 import {
   getTenantSettings,
+  isEntitled,
   listClasses,
   listGradeComponents,
   listStudents,
 } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { cardClass, PageHeader } from '@/components/form';
 import { CorrecaoLote } from '@/components/correcao-lote';
@@ -19,6 +22,9 @@ export default async function CorrecaoPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'ai.essayGrading')) {
+    return <UpgradeGate feature="ai.essayGrading" tenantType={ctx.tenantType} />;
+  }
   const isSchool = ctx.tenantType === 'organization';
 
   const [turmas, alunos, componentes, settings] = await Promise.all([

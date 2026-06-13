@@ -1,4 +1,5 @@
 import type { TenantType } from '@on-education/core';
+import { canUse, type Feature } from '@on-education/entitlements';
 import {
   AlertCircle,
   BarChart3,
@@ -20,6 +21,7 @@ import {
   Library,
   ListChecks,
   ListOrdered,
+  Lock,
   type LucideIcon,
   Megaphone,
   MessageCircleQuestion,
@@ -39,6 +41,8 @@ import {
   Wand2,
 } from 'lucide-react';
 
+export { Lock };
+
 export interface NavItem {
   label: string;
   href: string;
@@ -47,6 +51,10 @@ export interface NavItem {
   soon?: boolean;
   /** Restringe o item a um segmento; ausente = aparece para todos. */
   only?: TenantType;
+  /** Entitlement necessário; ausente = disponível em todos os planos. */
+  requiresFeature?: Feature;
+  /** Preenchido por navFor quando o plano não inclui requiresFeature. */
+  locked?: boolean;
 }
 
 export interface NavGroup {
@@ -115,8 +123,8 @@ export const NAV: NavGroup[] = [
     label: 'WayOn',
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
-      { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks },
-      { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine },
+      { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks, requiresFeature: 'ai.essayGrading' },
+      { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine, requiresFeature: 'ai.essayGrading' },
       { label: 'Tutor do aluno', href: '/app/ia/tutor', icon: MessageCircleQuestion },
       { label: 'Flashcards', href: '/app/ia/flashcards', icon: Layers },
       { label: 'Gerar imagem', href: '/app/ia/imagem', icon: ImageIcon },
@@ -138,10 +146,10 @@ export const NAV: NavGroup[] = [
     label: 'Gestão e analytics',
     only: 'organization',
     items: [
-      { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart },
-      { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX },
-      { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3 },
-      { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck },
+      { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart, requiresFeature: 'analytics.director' },
+      { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX, requiresFeature: 'analytics.director' },
+      { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3, requiresFeature: 'analytics.director' },
+      { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck, requiresFeature: 'analytics.director' },
       { label: 'Segurança (MFA)', href: '/app/conta/mfa', icon: ShieldCheck },
     ],
   },
@@ -149,8 +157,8 @@ export const NAV: NavGroup[] = [
     label: 'Financeiro',
     only: 'organization',
     items: [
-      { label: 'Mensalidades', href: '/app/financeiro', icon: Wallet },
-      { label: 'Inadimplência', href: '/app/inadimplencia', icon: AlertCircle },
+      { label: 'Mensalidades', href: '/app/financeiro', icon: Wallet, requiresFeature: 'finance.institutional' },
+      { label: 'Inadimplência', href: '/app/inadimplencia', icon: AlertCircle, requiresFeature: 'finance.institutional' },
     ],
   },
   {
@@ -166,9 +174,17 @@ export const NAV: NavGroup[] = [
  * Integrações e itens marcados `only`), sobrando o essencial: turmas/alunos, sala de aula,
  * pedagógico, WayOn e agenda. A escola (`organization`) vê tudo.
  */
-export function navFor(tenantType: TenantType): NavGroup[] {
+export function navFor(tenantType: TenantType, planId?: string | null): NavGroup[] {
   const groups = NAV.filter((g) => !g.only || g.only === tenantType)
-    .map((g) => ({ ...g, items: g.items.filter((i) => !i.only || i.only === tenantType) }))
+    .map((g) => ({
+      ...g,
+      items: g.items
+        .filter((i) => !i.only || i.only === tenantType)
+        .map((i) => ({
+          ...i,
+          locked: i.requiresFeature ? !canUse(planId ?? '', i.requiresFeature) : false,
+        })),
+    }))
     .filter((g) => g.items.length > 0);
 
   // Professor autônomo (item 18.8): navegação centrada no WayOn. O WayOn sobe logo após a

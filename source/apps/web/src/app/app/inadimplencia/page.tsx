@@ -1,5 +1,7 @@
-import { getWhatsappConnection, listGuardians, listInvoices } from '@on-education/module-nucleo';
+import { getWhatsappConnection, isEntitled, listGuardians, listInvoices } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { cardClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
@@ -26,6 +28,9 @@ export default async function InadimplenciaPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'finance.institutional')) {
+    return <UpgradeGate feature="finance.institutional" tenantType={ctx.tenantType} />;
+  }
   const hoje = hojeISO();
   const [todas, responsaveis, wa] = await Promise.all([
     listInvoices(client, ctx),

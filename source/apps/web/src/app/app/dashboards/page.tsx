@@ -1,6 +1,8 @@
-import { listInvoices } from '@on-education/module-nucleo';
+import { isEntitled, listInvoices } from '@on-education/module-nucleo';
 import { listAttendance, listGrades } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { cardClass, PageHeader } from '@/components/form';
 import { TrendChart, type TrendPoint } from '@/components/trend-chart';
@@ -29,6 +31,9 @@ export default async function DashboardsPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'analytics.director')) {
+    return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
+  }
   const hoje = hojeISO();
   const [invoices, grades, presencas] = await Promise.all([
     listInvoices(client, ctx).catch(() => []),

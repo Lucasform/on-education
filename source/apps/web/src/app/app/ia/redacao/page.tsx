@@ -1,6 +1,8 @@
 import { isAiConfigured } from '@on-education/module-ia';
-import { listStudents } from '@on-education/module-nucleo';
+import { isEntitled, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
+
+import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { PageHeader } from '@/components/form';
 import { IaGenerator } from '@/components/ia-generator';
@@ -14,8 +16,12 @@ export const metadata = { title: 'Correção de redação · Edu On Way' };
 export default async function RedacaoPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'ai.essayGrading')) {
+    return <UpgradeGate feature="ai.essayGrading" tenantType={ctx.tenantType} />;
+  }
 
-  const alunos = await listStudents(db(), ctx).catch(() => []);
+  const alunos = await listStudents(client, ctx).catch(() => []);
   const students = alunos.map((a) => ({ id: a.id, fullName: a.fullName }));
 
   return (

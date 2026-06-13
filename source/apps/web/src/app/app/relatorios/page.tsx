@@ -1,6 +1,7 @@
 import { KpiCard as Kpi } from '@/components/kpi-card';
 import { SubmitButton } from '@/components/submit-button';
 import {
+  isEntitled,
   listClasses,
   listGradeComponents,
   listOccurrences,
@@ -13,6 +14,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { PrintButton } from '@/components/print-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -45,6 +47,9 @@ export default async function RelatoriosPage({
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
+  if (!await isEntitled(client, ctx.tenantId, 'analytics.director')) {
+    return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
+  }
   const [turmas, alunosAll, notas, presencas, atividades, simulados, ocorrencias, componentes] =
     await Promise.all([
       listClasses(client, ctx),
