@@ -120,14 +120,6 @@ export default async function PersonalizacaoPage() {
 
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Identidade visual</h2>
-          <label className="text-xs text-muted-foreground">Logo (URL da imagem, opcional)</label>
-          <input
-            name="logoUrl"
-            type="url"
-            defaultValue={settings?.logoUrl ?? ''}
-            placeholder="https://.../logo.png"
-            className={`${fieldClass} mb-4 mt-1`}
-          />
           <label className="text-xs text-muted-foreground">Cor do tema</label>
           <div className="mt-2 flex flex-wrap gap-3">
             {CORES.map((c) => (

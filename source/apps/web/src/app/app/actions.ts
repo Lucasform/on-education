@@ -1183,7 +1183,6 @@ export async function deleteOccurrenceAction(formData: FormData): Promise<void> 
 export async function updateTenantSettingsAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const input = updateTenantSettingsSchema.parse({
-    logoUrl: (formData.get('logoUrl') as string) || '',
     themeColor: (formData.get('themeColor') as string) || undefined,
     regimento: (formData.get('regimento') as string) || undefined,
     docTemplates: (formData.get('docTemplates') as string) || undefined,
@@ -1216,6 +1215,13 @@ export async function uploadLogoAction(formData: FormData): Promise<void> {
   if (!(file instanceof File) || file.size === 0) return;
   const logoUrl = await uploadPublicLogo(ctx.tenantId, file);
   await upsertTenantSettings(db(), ctx, { logoUrl });
+  revalidatePath('/app', 'layout');
+}
+
+/** Remove a logo da escola (seta null no banco; não deleta o arquivo do storage). */
+export async function removeLogoAction(): Promise<void> {
+  const ctx = await requireCtx();
+  await upsertTenantSettings(db(), ctx, { logoUrl: '' });
   revalidatePath('/app', 'layout');
 }
 
