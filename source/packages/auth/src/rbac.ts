@@ -12,7 +12,7 @@ import type { AuthContext } from './context';
 export type Action = 'create' | 'read' | 'update' | 'delete';
 
 /** Papéis com poder amplo dentro do tenant: gerenciam tudo da escola (inclui excluir). */
-const FULL_ACCESS_ROLES: readonly Role[] = ['owner', 'director', 'coordinator'];
+const FULL_ACCESS_ROLES: readonly Role[] = ['owner', 'director', 'vice_director', 'coordinator'];
 
 /** Recursos pedagógicos do dia a dia que o professor pode criar/editar/excluir na sua org. */
 const TEACHING_RESOURCES: readonly string[] = [

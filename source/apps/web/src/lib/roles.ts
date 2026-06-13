@@ -2,6 +2,7 @@
 export const ROLE_LABEL: Record<string, string> = {
   owner: 'Dono(a)',
   director: 'Diretor(a)',
+  vice_director: 'Vice-diretor(a)',
   coordinator: 'Coordenador(a)',
   teacher: 'Professor(a)',
   monitor: 'Monitor(a)',
@@ -16,6 +17,7 @@ export const roleLabel = (r: string): string => ROLE_LABEL[r] ?? r;
 /** Papéis que fazem sentido CONVIDAR como equipe (sem dono/responsável/aluno). */
 export const STAFF_ROLES = [
   'director',
+  'vice_director',
   'coordinator',
   'teacher',
   'monitor',

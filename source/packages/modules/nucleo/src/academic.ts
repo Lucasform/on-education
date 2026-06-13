@@ -89,3 +89,24 @@ export async function listSubjects(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'subject');
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(subjects));
 }
+
+export async function deleteSubject(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'subject');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.delete(subjects).where(eq(subjects.id, id)),
+  );
+}
+
+export async function deleteAcademicYear(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'academic_year');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.delete(academicYears).where(eq(academicYears.id, id)),
+  );
+}
+
+export async function deleteTerm(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'term');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx.delete(terms).where(eq(terms.id, id)),
+  );
+}

@@ -10,6 +10,7 @@ import {
   tenants,
   units,
   usageMeters,
+  users,
 } from '@on-education/db';
 import { PLANS } from '@on-education/entitlements';
 import type {
@@ -48,6 +49,14 @@ export async function provisionOrganizationTenant(
       .returning({ id: tenants.id });
     const tenantId = tenantRows[0]?.id;
     if (!tenantId) throw new Error('Falha ao criar tenant organization.');
+
+    await tx
+      .insert(users)
+      .values({ id: ownerUserId, email: input.ownerEmail, fullName: input.ownerName ?? null })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: { email: input.ownerEmail, fullName: input.ownerName ?? null, updatedAt: new Date() },
+      });
 
     await tx.insert(memberships).values([
       { tenantId, userId: ownerUserId, role: 'owner', createdBy: ownerUserId },
@@ -148,6 +157,11 @@ export async function acceptInvitation(
     if (!invite) throw new Error('Convite inválido ou já utilizado.');
 
     await tx
+      .insert(users)
+      .values({ id: userId, email: invite.email, fullName: null })
+      .onConflictDoUpdate({ target: users.id, set: { email: invite.email, updatedAt: new Date() } });
+
+    await tx
       .insert(memberships)
       .values({ tenantId: invite.tenantId, userId, role: invite.role, createdBy: userId });
     await tx
@@ -157,4 +171,18 @@ export async function acceptInvitation(
 
     return { tenantId: invite.tenantId, role: invite.role };
   });
+}
+
+/** Sincroniza um usuário autenticado na tabela on_education.users (best-effort). */
+export async function syncUserFromAuth(
+  client: DbClient,
+  id: string,
+  email: string,
+  fullName: string | null,
+): Promise<void> {
+  await client.db
+    .insert(users)
+    .values({ id, email, fullName })
+    .onConflictDoUpdate({ target: users.id, set: { email, fullName, updatedAt: new Date() } })
+    .catch(() => {});
 }

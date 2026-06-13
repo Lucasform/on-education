@@ -4,13 +4,16 @@ import { ExternalLink, Link2 } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { BulkAddRows } from '@/components/bulk-add-rows';
+import { ConfirmButton } from '@/components/confirm-button';
 import { CsvImport } from '@/components/csv-import';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import {
   createGuardianAction,
+  deleteGuardianAction,
   generateGuardianTokenAction,
   importGuardiansAction,
   importGuardiansCsvAction,
@@ -42,7 +45,6 @@ export default async function ResponsaveisPage({
     <>
       <PageHeader title="Responsáveis" description="Pais e responsáveis pelos alunos." />
 
-      {/* Link do portal gerado (exibido uma vez) */}
       {portalToken && (
         <div className="rounded-lg border border-success/40 bg-success/10 p-4">
           <p className="mb-1 text-sm font-medium text-success">
@@ -83,18 +85,30 @@ export default async function ResponsaveisPage({
                   {g.email && <span className="ml-2 text-xs text-muted-foreground">{g.email}</span>}
                   {g.phone && <span className="ml-2 text-xs text-muted-foreground">{g.phone}</span>}
                 </span>
-                <form action={generateGuardianTokenAction}>
-                  <input type="hidden" name="guardianId" value={g.id} />
-                  <SubmitButton
-                    type="submit"
-                    size="sm"
-                    variant="outline"
-                    className="flex items-center gap-1"
-                  >
-                    <Link2 className="h-3.5 w-3.5" />
-                    Portal
-                  </SubmitButton>
-                </form>
+                <div className="flex shrink-0 items-center gap-1">
+                  <form action={generateGuardianTokenAction}>
+                    <input type="hidden" name="guardianId" value={g.id} />
+                    <SubmitButton
+                      type="submit"
+                      size="sm"
+                      variant="outline"
+                      className="flex items-center gap-1"
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
+                      Portal
+                    </SubmitButton>
+                  </form>
+                  <form action={deleteGuardianAction}>
+                    <input type="hidden" name="id" value={g.id} />
+                    <ConfirmButton
+                      size="sm"
+                      variant="ghost"
+                      message={`Excluir "${g.fullName}" e todos os vínculos? Não pode ser desfeito.`}
+                    >
+                      Excluir
+                    </ConfirmButton>
+                  </form>
+                </div>
               </li>
             ))}
           </ul>
@@ -117,17 +131,17 @@ export default async function ResponsaveisPage({
       </div>
 
       <div className={cardClass}>
-        <h2 className="mb-1 text-sm font-medium">Importar em lote</h2>
-        <p className="mb-2 text-xs text-muted-foreground">
-          Um responsável por linha. Formato: <code>Nome; email; telefone</code> (e-mail e telefone
-          opcionais).
+        <h2 className="mb-1 text-sm font-medium">Adicionar em lote</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Um responsável por linha. Clique em "+" para adicionar mais.
         </p>
-        <form action={importGuardiansAction} className="flex flex-col gap-2">
-          <textarea
-            name="lista"
-            rows={4}
-            placeholder={'Maria Souza; maria@email.com; 11999990000\nJoão Lima'}
-            className={fieldClass}
+        <form action={importGuardiansAction} className="flex flex-col gap-3">
+          <BulkAddRows
+            fields={[
+              { name: 'fullName', placeholder: 'Nome do responsável', className: 'flex-[2]' },
+              { name: 'email', placeholder: 'E-mail (opcional)', type: 'email' },
+              { name: 'phone', placeholder: 'Telefone (opcional)' },
+            ]}
           />
           <SubmitButton type="submit" size="sm" variant="outline">
             Importar responsáveis

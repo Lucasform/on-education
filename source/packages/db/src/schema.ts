@@ -35,6 +35,7 @@ export const tenantTypeEnum = oe.enum('tenant_type', ['organization', 'individua
 export const roleEnum = oe.enum('role', [
   'owner',
   'director',
+  'vice_director',
   'coordinator',
   'teacher',
   'monitor',

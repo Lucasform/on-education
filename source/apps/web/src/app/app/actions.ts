@@ -29,6 +29,7 @@ import {
   deleteStandardSample,
   revokeApiKey,
   createAcademicYear,
+  deleteAcademicYear,
   createClass,
   createClassesBulk,
   createEvent,
@@ -36,6 +37,7 @@ import {
   deleteGradeComponent,
   createGuardian,
   createGuardiansBulk,
+  deleteGuardian,
   generateGuardianToken,
   revokeGuardianTokens,
   createInvoice,
@@ -44,7 +46,9 @@ import {
   createStudentsBulk,
   createSubject,
   createSubjectsBulk,
+  deleteSubject,
   createTerm,
+  deleteTerm,
   createUnit,
   deleteClass,
   deleteEvent,
@@ -182,6 +186,7 @@ import { revalidatePath } from 'next/cache';
 
 import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
+import { faixaForSerie } from '@/lib/series';
 import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
 import { buildClassMaterialsContext } from '@/server/materials-context';
 import { buildReportText, buildStudentSummary } from '@/server/student-report';
@@ -225,14 +230,56 @@ async function sendWhatsappText(
 
 export async function createClassAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  const input = createClassSchema.parse({
-    name: formData.get('name'),
-    description: (formData.get('description') as string) || undefined,
-    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
-    ageRange: (formData.get('ageRange') as string) || undefined,
-  });
+  const serie = String(formData.get('serie') || '').trim();
+  const secao = String(formData.get('secao') || '').trim();
+  // Quando vem do formulário novo (série + seção), monta o nome composto.
+  const nameRaw = formData.get('name');
+  const name = nameRaw
+    ? String(nameRaw).trim()
+    : serie
+      ? secao
+        ? `${serie} - ${secao}`
+        : serie
+      : '';
+  if (!name) return;
+  const gradeLevel = (formData.get('gradeLevel') as string) || serie || undefined;
+  const ageRange = serie ? faixaForSerie(serie) || undefined : (formData.get('ageRange') as string) || undefined;
+  const input = createClassSchema.parse({ name, gradeLevel, ageRange });
   await createClass(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+/** Importa turmas em lote a partir de série + seções (A, B, C...). */
+export async function importClassesStructuredAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const serie = String(formData.get('serie') || '').trim();
+  const secoes = (formData.getAll('secao') as string[]).map((s) => s.trim()).filter(Boolean);
+  if (!serie || secoes.length === 0) return;
+  const ageRange = faixaForSerie(serie) || undefined;
+  const names = secoes.map((s) => `${serie} - ${s}`);
+  await createClassesBulk(db(), ctx, names.map((n) => n));
+  void ageRange; // gradeLevel/ageRange update happens via updateClassDetails if needed
+  revalidatePath('/app', 'layout');
+}
+
+/** Cria períodos de um tipo padrão (bimestral/trimestral/semestral) para um ano letivo. */
+export async function createTermsBulkAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const academicYearId = String(formData.get('academicYearId') || '');
+  const tipo = String(formData.get('tipo') || '');
+  if (!academicYearId || !tipo) return;
+  const TIPOS: Record<string, string[]> = {
+    bimestre: ['1º Bimestre', '2º Bimestre', '3º Bimestre', '4º Bimestre'],
+    trimestre: ['1º Trimestre', '2º Trimestre', '3º Trimestre'],
+    semestre: ['1º Semestre', '2º Semestre'],
+    mensal: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+  };
+  const names = TIPOS[tipo];
+  if (!names) return;
+  for (const name of names) {
+    await createTerm(db(), ctx, { academicYearId, name });
+  }
+  revalidatePath('/app/escola/ano-letivo', 'page');
 }
 
 export async function createStudentAction(formData: FormData): Promise<void> {
@@ -817,55 +864,77 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
   redirect('/app/atividades');
 }
 
+export async function deleteSubjectAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await deleteSubject(db(), ctx, id);
+  revalidatePath('/app/escola/disciplinas', 'page');
+}
+
+export async function deleteGuardianAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await deleteGuardian(db(), ctx, id);
+  revalidatePath('/app/escola/responsaveis', 'page');
+}
+
+export async function deleteAcademicYearAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await deleteAcademicYear(db(), ctx, id);
+  revalidatePath('/app/escola/ano-letivo', 'page');
+}
+
+export async function deleteTermAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id'));
+  await deleteTerm(db(), ctx, id);
+  revalidatePath('/app/escola/ano-letivo', 'page');
+}
+
 // --- Importação em lote ------------------------------------------------------
 
 export async function importClassesAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  const names = String(formData.get('lista') ?? '')
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
-  await createClassesBulk(db(), ctx, names);
+  const names = (formData.getAll('name') as string[]).map((s) => s.trim()).filter(Boolean);
+  if (names.length) await createClassesBulk(db(), ctx, names);
   revalidatePath('/app', 'layout');
 }
 
 export async function importStudentsAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  // Uma linha por aluno: "Nome Completo" ou "Nome Completo; Turma".
-  const items = String(formData.get('lista') ?? '')
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .map((l) => {
-      const [fullName, className] = l.split(';').map((p) => p.trim());
-      return { fullName: fullName ?? '', className: className || undefined };
-    });
-  await createStudentsBulk(db(), ctx, items);
+  const names = formData.getAll('fullName') as string[];
+  const classes = formData.getAll('className') as string[];
+  const items = names
+    .map((fullName, i) => ({
+      fullName: fullName.trim(),
+      className: classes[i]?.trim() || undefined,
+    }))
+    .filter((i) => i.fullName);
+  if (items.length) await createStudentsBulk(db(), ctx, items);
   revalidatePath('/app', 'layout');
 }
 
 export async function importSubjectsAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  const names = String(formData.get('lista') ?? '')
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
-  await createSubjectsBulk(db(), ctx, names);
+  const names = (formData.getAll('name') as string[]).map((s) => s.trim()).filter(Boolean);
+  if (names.length) await createSubjectsBulk(db(), ctx, names);
   revalidatePath('/app', 'layout');
 }
 
 export async function importGuardiansAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
-  // Uma linha por responsável: "Nome" ou "Nome; email; telefone".
-  const items = String(formData.get('lista') ?? '')
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .map((l) => {
-      const [fullName, email, phone] = l.split(';').map((p) => p.trim());
-      return { fullName: fullName ?? '', email: email || undefined, phone: phone || undefined };
-    });
-  await createGuardiansBulk(db(), ctx, items);
+  const names = formData.getAll('fullName') as string[];
+  const emails = formData.getAll('email') as string[];
+  const phones = formData.getAll('phone') as string[];
+  const items = names
+    .map((fullName, i) => ({
+      fullName: fullName.trim(),
+      email: emails[i]?.trim() || undefined,
+      phone: phones[i]?.trim() || undefined,
+    }))
+    .filter((i) => i.fullName);
+  if (items.length) await createGuardiansBulk(db(), ctx, items);
   revalidatePath('/app', 'layout');
 }
 

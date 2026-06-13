@@ -3,22 +3,25 @@ import { listClasses } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { db } from '@/server/db';
-import { getAuthContext } from '@/server/session';
-
+import { BulkAddRows } from '@/components/bulk-add-rows';
 import { ConfirmButton } from '@/components/confirm-button';
 import { CsvImport } from '@/components/csv-import';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { SERIES } from '@/lib/series';
+import { db } from '@/server/db';
+import { getAuthContext } from '@/server/session';
 
 import {
   createClassAction,
   deleteClassAction,
-  importClassesAction,
   importClassesCsvAction,
+  importClassesStructuredAction,
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Turmas · Edu On Way' };
+
+const SECOES = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 export default async function TurmasPage({
   searchParams,
@@ -92,36 +95,83 @@ export default async function TurmasPage({
             </ul>
           )}
         </div>
+
         <div className="flex flex-col gap-5">
+          {/* Nova turma individual */}
           <div className={cardClass}>
             <h2 className="mb-3 text-sm font-medium">Nova turma</h2>
             <form action={createClassAction} className="flex flex-col gap-2">
-              <input name="name" required placeholder="Nome da turma" className={fieldClass} />
+              <select name="serie" className={fieldClass} defaultValue="">
+                <option value="" disabled>
+                  Selecione a série
+                </option>
+                {SERIES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.value}
+                  </option>
+                ))}
+              </select>
               <div className="flex gap-2">
-                <input name="gradeLevel" placeholder="Série/ano" className={fieldClass} />
-                <input name="ageRange" placeholder="Faixa etária" className={fieldClass} />
+                <select name="secao" className={fieldClass} defaultValue="">
+                  <option value="">Sem seção</option>
+                  {SECOES.map((s) => (
+                    <option key={s} value={s}>
+                      Seção {s}
+                    </option>
+                  ))}
+                </select>
+                <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
               </div>
-              <input name="description" placeholder="Descrição (opcional)" className={fieldClass} />
               <SubmitButton type="submit" size="sm">
                 Adicionar turma
               </SubmitButton>
             </form>
           </div>
+
+          {/* Importar em lote estruturado */}
           <div className={cardClass}>
-            <h2 className="mb-1 text-sm font-medium">Importar em lote</h2>
-            <p className="mb-2 text-xs text-muted-foreground">Uma turma por linha.</p>
-            <form action={importClassesAction} className="flex flex-col gap-2">
-              <textarea
-                name="lista"
-                rows={4}
-                placeholder={'6º A\n6º B\n7º A'}
-                className={fieldClass}
-              />
+            <h2 className="mb-1 text-sm font-medium">Criar turmas em lote</h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Escolha a série e marque as seções. Cria uma turma por seção.
+            </p>
+            <form action={importClassesStructuredAction} className="flex flex-col gap-3">
+              <select name="serie" className={fieldClass} defaultValue="">
+                <option value="" disabled>
+                  Selecione a série
+                </option>
+                {SERIES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.value}
+                  </option>
+                ))}
+              </select>
+              <div>
+                <p className="mb-1.5 text-xs text-muted-foreground">Seções:</p>
+                <div className="flex flex-wrap gap-2">
+                  {SECOES.map((s) => (
+                    <label
+                      key={s}
+                      className="flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/10"
+                    >
+                      <input type="checkbox" name="secao" value={s} className="sr-only" />
+                      {s}
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  Ou digitar seções personalizadas:
+                </p>
+                <BulkAddRows
+                  fields={[{ name: 'secao', placeholder: 'Ex.: Integral, Noturno' }]}
+                />
+              </div>
               <SubmitButton type="submit" size="sm" variant="outline">
-                Importar turmas
+                Criar turmas
               </SubmitButton>
             </form>
           </div>
+
+          {/* CSV import */}
           <div className={cardClass}>
             <CsvImport
               action={importClassesCsvAction}

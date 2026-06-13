@@ -114,3 +114,12 @@ export async function unlinkGuardian(client: DbClient, ctx: AuthContext, id: str
     tx.delete(studentGuardians).where(eq(studentGuardians.id, id)),
   );
 }
+
+/** Remove o responsável e todos os seus vínculos com alunos. */
+export async function deleteGuardian(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'delete', 'guardian');
+  await client.withTenant(ctx.tenantId, async (tx) => {
+    await tx.delete(studentGuardians).where(eq(studentGuardians.guardianId, id));
+    await tx.delete(guardians).where(eq(guardians.id, id));
+  });
+}

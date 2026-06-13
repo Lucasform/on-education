@@ -12,6 +12,7 @@ export const metadata = { title: 'Quadro de funcionários · Edu On Way' };
 const ROLE_ORDER = [
   'owner',
   'director',
+  'vice_director',
   'coordinator',
   'teacher',
   'monitor',
@@ -22,6 +23,7 @@ const ROLE_ORDER = [
 const ROLE_LABEL: Record<string, string> = {
   owner: 'Direção (responsável)',
   director: 'Diretores',
+  vice_director: 'Vice-diretores',
   coordinator: 'Coordenação',
   teacher: 'Professores',
   monitor: 'Monitores',

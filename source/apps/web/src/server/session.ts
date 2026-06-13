@@ -9,6 +9,7 @@ import {
   adminTenantContext,
   resolveContextForTenant,
   resolveContextForUser,
+  syncUserFromAuth,
 } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 
@@ -51,6 +52,11 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
     } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     if (!userId) return null;
+
+    const email = session.user.email;
+    const fullName = (session.user.user_metadata?.full_name as string) || null;
+    if (email) void syncUserFromAuth(getDbClient(), userId, email, fullName);
+
     return await resolveContextForUser(getDbClient(), userId);
   } catch {
     // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página.
