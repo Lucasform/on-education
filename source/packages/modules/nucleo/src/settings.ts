@@ -14,11 +14,27 @@ export async function getPublicTenantBrand(client: DbClient, tenantId: string) {
   if (!t) return null;
   const s = (
     await client.db
-      .select({ logoUrl: tenantSettings.logoUrl, themeColor: tenantSettings.themeColor })
+      .select({
+        logoUrl: tenantSettings.logoUrl,
+        themeColor: tenantSettings.themeColor,
+        profileName: tenantSettings.profileName,
+        profilePhone: tenantSettings.profilePhone,
+        profileEmail: tenantSettings.profileEmail,
+        profileAddress: tenantSettings.profileAddress,
+        profileCnpj: tenantSettings.profileCnpj,
+      })
       .from(tenantSettings)
       .where(eq(tenantSettings.tenantId, tenantId))
   )[0];
-  return { name: t.name, logoUrl: s?.logoUrl ?? null, themeColor: s?.themeColor ?? null };
+  return {
+    name: s?.profileName ?? t.name,
+    logoUrl: s?.logoUrl ?? null,
+    themeColor: s?.themeColor ?? null,
+    profilePhone: s?.profilePhone ?? null,
+    profileEmail: s?.profileEmail ?? null,
+    profileAddress: s?.profileAddress ?? null,
+    profileCnpj: s?.profileCnpj ?? null,
+  };
 }
 
 /**
@@ -61,6 +77,11 @@ export async function upsertTenantSettings(
   if (input.autoPointsGrade !== undefined) patch.autoPointsGrade = input.autoPointsGrade;
   if (input.aiProvider !== undefined) patch.aiProvider = input.aiProvider;
   if (input.aiApiKeyEnc !== undefined) patch.aiApiKeyEnc = input.aiApiKeyEnc;
+  if (input.profileName !== undefined) patch.profileName = input.profileName || null;
+  if (input.profilePhone !== undefined) patch.profilePhone = input.profilePhone || null;
+  if (input.profileEmail !== undefined) patch.profileEmail = input.profileEmail || null;
+  if (input.profileAddress !== undefined) patch.profileAddress = input.profileAddress || null;
+  if (input.profileCnpj !== undefined) patch.profileCnpj = input.profileCnpj || null;
 
   return client.withTenant(ctx.tenantId, async (tx) => {
     const existing = await tx

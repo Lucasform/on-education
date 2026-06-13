@@ -33,8 +33,10 @@ export default async function PersonalizacaoPage() {
     <>
       <PageHeader
         title="Personalização da escola"
-        description="Identidade visual e documentos. Aplica em todo o sistema da sua escola."
+        description="Identidade visual, dados da instituição e documentos. Aplica em todo o sistema."
       />
+
+      {/* Logo */}
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Logo da escola</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -44,8 +46,66 @@ export default async function PersonalizacaoPage() {
       </div>
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
+        {/* Dados da escola */}
         <div className={cardClass}>
-          <h2 className="mb-1 text-sm font-medium">Nome do seu agente</h2>
+          <h2 className="mb-3 text-sm font-medium">Dados da escola</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              Nome da escola (exibido no sistema)
+              <input
+                name="profileName"
+                maxLength={120}
+                defaultValue={settings?.profileName ?? ''}
+                placeholder="Escola Estadual Dom Pedro II"
+                className={fieldClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              CNPJ
+              <input
+                name="profileCnpj"
+                maxLength={20}
+                defaultValue={settings?.profileCnpj ?? ''}
+                placeholder="00.000.000/0000-00"
+                className={fieldClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              Telefone
+              <input
+                name="profilePhone"
+                maxLength={30}
+                defaultValue={settings?.profilePhone ?? ''}
+                placeholder="(11) 99999-0000"
+                className={fieldClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+              E-mail institucional
+              <input
+                name="profileEmail"
+                type="email"
+                maxLength={200}
+                defaultValue={settings?.profileEmail ?? ''}
+                placeholder="secretaria@escola.edu.br"
+                className={fieldClass}
+              />
+            </label>
+          </div>
+          <label className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
+            Endereço completo
+            <input
+              name="profileAddress"
+              maxLength={300}
+              defaultValue={settings?.profileAddress ?? ''}
+              placeholder="Rua das Flores, 100 — Bairro Centro, São Paulo/SP — CEP 01000-000"
+              className={fieldClass}
+            />
+          </label>
+        </div>
+
+        <div className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Nome do agente WayOn</h2>
           <p className="mb-2 text-xs text-muted-foreground">
             Como o agente WayOn aparece para a sua escola. Padrão: WayOn.
           </p>

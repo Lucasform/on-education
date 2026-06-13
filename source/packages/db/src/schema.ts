@@ -945,6 +945,12 @@ export const tenantSettings = oe.table(
     // criptografada (AES-GCM). Quando configurado, usa a IA/tokens dele e pula a nossa cota.
     aiProvider: text('ai_provider').notNull().default('default'), // default | anthropic | openai | gemini
     aiApiKeyEnc: text('ai_api_key_enc'),
+    // Perfil público: nome de exibição (sobrescreve tenants.name no sidebar), contato e endereço.
+    profileName: text('profile_name'),
+    profilePhone: text('profile_phone'),
+    profileEmail: text('profile_email'),
+    profileAddress: text('profile_address'),
+    profileCnpj: text('profile_cnpj'),
     ...auditCols,
   },
   (t) => [

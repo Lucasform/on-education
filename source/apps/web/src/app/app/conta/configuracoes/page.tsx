@@ -46,6 +46,20 @@ export default async function ConfiguracoesPage() {
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         <div className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Seu nome de exibição</h2>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Aparece no topo do sistema no lugar do nome padrão da conta.
+          </p>
+          <input
+            name="profileName"
+            maxLength={120}
+            defaultValue={settings?.profileName ?? ''}
+            placeholder="Prof. João Silva"
+            className={fieldClass}
+          />
+        </div>
+
+        <div className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Nome do agente WayOn</h2>
           <p className="mb-2 text-xs text-muted-foreground">
             Como o assistente aparece para você. Padrão: WayOn.

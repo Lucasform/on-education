@@ -435,6 +435,12 @@ export const updateTenantSettingsSchema = z.object({
   // BYOK: provedor de IA do tenant + chave já criptografada (a action cuida da cripto).
   aiProvider: z.enum(['default', 'anthropic', 'openai', 'gemini']).optional(),
   aiApiKeyEnc: z.string().nullable().optional(),
+  // Perfil público
+  profileName: z.string().max(120).optional(),
+  profilePhone: z.string().max(30).optional(),
+  profileEmail: z.string().email().max(200).optional().or(z.literal('')),
+  profileAddress: z.string().max(300).optional(),
+  profileCnpj: z.string().max(20).optional(),
 });
 
 /** BYOK: escolha do provedor + chave crua (criptografada na action). */
