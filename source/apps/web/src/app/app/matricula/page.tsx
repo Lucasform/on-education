@@ -8,7 +8,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createStudentAction, enrollStudentsBulkAction } from '../actions';
+import { enrollStudentsBulkAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Matrícula · Edu On Way' };
@@ -35,20 +35,12 @@ export default async function MatriculaPage() {
           title="Matrícula"
           description="Secretaria: matrícula de alunos por turma e documentos."
         />
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/app/matricula/nova"
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            + Matrícula completa
-          </Link>
-          <Link
-            href="/app/documentos"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
-          >
-            Gerar documentos
-          </Link>
-        </div>
+        <Link
+          href="/app/documentos"
+          className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
+        >
+          Gerar documentos
+        </Link>
       </div>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -66,61 +58,50 @@ export default async function MatriculaPage() {
         </div>
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* Matrícula individual */}
-        <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Nova matrícula</h2>
-          <form action={createStudentAction} className="flex flex-col gap-2">
-            <input name="fullName" required placeholder="Nome do aluno" className={fieldClass} />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <select name="classId" className={fieldClass} defaultValue="">
-                <option value="">Turma (opcional)</option>
-                {turmas.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <input name="birthDate" type="date" aria-label="Nascimento" className={fieldClass} />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <input name="guardianName" placeholder="Responsável (opcional)" className={fieldClass} />
-              <input name="guardianPhone" type="tel" placeholder="Telefone do responsável" className={fieldClass} />
-            </div>
-            <SubmitButton type="submit" size="sm">
-              Matricular
-            </SubmitButton>
-          </form>
-        </div>
-
-        {/* Matrícula em lote por turma */}
-        <div className={cardClass}>
-          <h2 className="mb-1 text-sm font-medium">Matrícula em lote</h2>
-          <p className="mb-3 text-xs text-muted-foreground">
-            Escolha a turma e adicione vários alunos de uma vez, com o responsável de cada um.
+      {/* Matrícula de um aluno = onboarding completo (sem form reduzido). */}
+      <div className={`${cardClass} flex flex-wrap items-center justify-between gap-3`}>
+        <div>
+          <h2 className="text-sm font-medium">Matricular um aluno</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Cadastro completo: dados civis, endereço, saúde e responsável. Gera o contrato ao final.
           </p>
-          <form action={enrollStudentsBulkAction} className="flex flex-col gap-3">
-            <select name="classId" className={fieldClass} defaultValue="">
-              <option value="">Sem turma</option>
-              {turmas.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <BulkAddRows
-              fields={[
-                { name: 'fullName', placeholder: 'Nome do aluno', className: 'flex-[2]' },
-                { name: 'birthDate', placeholder: 'Nascimento', type: 'date' },
-                { name: 'guardianName', placeholder: 'Responsável' },
-                { name: 'guardianPhone', placeholder: 'Telefone' },
-              ]}
-            />
-            <SubmitButton type="submit" size="sm" variant="outline">
-              Matricular turma
-            </SubmitButton>
-          </form>
         </div>
+        <Link
+          href="/app/matricula/nova"
+          className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          + Matrícula completa
+        </Link>
+      </div>
+
+      {/* Matrícula em lote por turma (cadastro em massa). */}
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Matrícula em lote (massa)</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Para cadastrar uma turma inteira de uma vez. Dados essenciais por aluno; os detalhes e o
+          contrato podem ser completados depois na ficha de cada um.
+        </p>
+        <form action={enrollStudentsBulkAction} className="flex flex-col gap-3">
+          <select name="classId" className={fieldClass} defaultValue="">
+            <option value="">Sem turma</option>
+            {turmas.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+          <BulkAddRows
+            fields={[
+              { name: 'fullName', placeholder: 'Nome do aluno', className: 'flex-[2]' },
+              { name: 'birthDate', placeholder: 'Nascimento', type: 'date' },
+              { name: 'guardianName', placeholder: 'Responsável' },
+              { name: 'guardianPhone', placeholder: 'Telefone' },
+            ]}
+          />
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Matricular turma
+          </SubmitButton>
+        </form>
       </div>
 
       <div className="flex flex-col gap-5">
