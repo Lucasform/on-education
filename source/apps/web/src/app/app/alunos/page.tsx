@@ -3,6 +3,7 @@ import { listClasses, listStudents } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { BulkAddRows } from '@/components/bulk-add-rows';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -146,16 +147,17 @@ export default async function AlunosPage({
             </form>
           </div>
           <div className={cardClass}>
-            <h2 className="mb-1 text-sm font-medium">Importar em lote</h2>
-            <p className="mb-2 text-xs text-muted-foreground">
-              Um aluno por linha. Opcional: nome e turma separados por ponto e vírgula.
+            <h2 className="mb-1 text-sm font-medium">Adicionar em lote</h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Um aluno por linha. Clique em "+" para adicionar mais.
             </p>
-            <form action={importStudentsAction} className="flex flex-col gap-2">
-              <textarea
-                name="lista"
-                rows={4}
-                placeholder={'Ana Souza; 6º A\nBruno Lima; 6º A\nCarla Dias'}
-                className={fieldClass}
+            <form action={importStudentsAction} className="flex flex-col gap-3">
+              <BulkAddRows
+                fields={[
+                  { name: 'fullName', placeholder: 'Nome do aluno', className: 'flex-[2]' },
+                  { name: 'className', placeholder: 'Turma (opcional)' },
+                  { name: 'birthDate', placeholder: 'Nascimento (opcional)', type: 'date' },
+                ]}
               />
               <SubmitButton type="submit" size="sm" variant="outline">
                 Importar alunos

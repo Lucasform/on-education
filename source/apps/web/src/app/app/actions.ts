@@ -961,10 +961,12 @@ export async function importStudentsAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const names = formData.getAll('fullName') as string[];
   const classes = formData.getAll('className') as string[];
+  const births = formData.getAll('birthDate') as string[];
   const items = names
     .map((fullName, i) => ({
       fullName: fullName.trim(),
       className: classes[i]?.trim() || undefined,
+      birthDate: births[i]?.trim() || undefined,
     }))
     .filter((i) => i.fullName);
   if (items.length) await createStudentsBulk(db(), ctx, items);
