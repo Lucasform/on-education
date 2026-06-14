@@ -293,7 +293,26 @@ export async function createStudentAction(formData: FormData): Promise<void> {
     classId: (formData.get('classId') as string) || undefined,
     birthDate: (formData.get('birthDate') as string) || undefined,
   });
-  await createStudent(db(), ctx, input);
+  const student = await createStudent(db(), ctx, input);
+
+  // Padrão escolar: já no cadastro, vincula um responsável quando o nome é informado.
+  // Cria o responsável e o vínculo (financeiro/busca/emergência) num único passo.
+  const guardianName = String(formData.get('guardianName') ?? '').trim();
+  if (guardianName) {
+    const guardian = await createGuardian(db(), ctx, {
+      fullName: guardianName,
+      phone: String(formData.get('guardianPhone') ?? '').trim() || undefined,
+      email: String(formData.get('guardianEmail') ?? '').trim() || undefined,
+    });
+    await linkGuardian(db(), ctx, {
+      studentId: student.id,
+      guardianId: guardian.id,
+      relation: String(formData.get('guardianRelation') ?? '').trim() || undefined,
+      isFinancial: formData.get('guardianFinancial') === 'on',
+      canPickup: formData.get('guardianPickup') === 'on',
+      isEmergency: formData.get('guardianEmergency') === 'on',
+    });
+  }
   revalidatePath('/app', 'layout');
 }
 
@@ -881,19 +900,27 @@ export async function updateStudentProfileAction(formData: FormData): Promise<vo
   const ctx = await requireCtx();
   const id = String(formData.get('id') ?? '');
   if (!id) return;
-  const str = (key: string) => (formData.get(key) as string) || null;
-  await updateStudentProfile(db(), ctx, id, {
-    address: str('address'),
-    city: str('city'),
-    state: str('state'),
-    zipCode: str('zipCode'),
-    bloodType: str('bloodType'),
-    allergies: str('allergies'),
-    medicalNotes: str('medicalNotes'),
-    emergencyName: str('emergencyName'),
-    emergencyPhone: str('emergencyPhone'),
-    emergencyRelation: str('emergencyRelation'),
-  });
+  // Update PARCIAL: a ficha tem 3 formulários separados (endereço, saúde, emergência) que
+  // chamam esta action. Só gravamos os campos REALMENTE enviados — senão salvar uma seção
+  // apagaria as outras (campo ausente vira null). `formData.has` delimita cada seção.
+  const keys = [
+    'address',
+    'city',
+    'state',
+    'zipCode',
+    'bloodType',
+    'allergies',
+    'medicalNotes',
+    'emergencyName',
+    'emergencyPhone',
+    'emergencyRelation',
+  ] as const;
+  const patch: Partial<Record<(typeof keys)[number], string | null>> = {};
+  for (const k of keys) {
+    if (formData.has(k)) patch[k] = String(formData.get(k) ?? '').trim() || null;
+  }
+  if (Object.keys(patch).length === 0) return;
+  await updateStudentProfile(db(), ctx, id, patch);
   revalidatePath(`/app/alunos/${id}`, 'page');
 }
 

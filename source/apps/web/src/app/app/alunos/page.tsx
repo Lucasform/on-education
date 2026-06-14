@@ -130,23 +130,80 @@ export default async function AlunosPage({
         <div className="flex flex-col gap-5">
           <div className={cardClass}>
             <h2 className="mb-3 text-sm font-medium">Novo aluno</h2>
-            <form action={createStudentAction} className="flex flex-col gap-2">
-              <input name="fullName" required placeholder="Nome do aluno" className={fieldClass} />
-              <select name="classId" className={fieldClass} defaultValue="">
-                <option value="">Sem turma</option>
-                {turmas.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                Nascimento (opcional)
-                <input name="birthDate" type="date" className={fieldClass} />
-              </label>
+            <form action={createStudentAction} className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <input name="fullName" required placeholder="Nome completo do aluno" className={fieldClass} />
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                    Data de nascimento *
+                    <input name="birthDate" type="date" required className={fieldClass} />
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                    Turma
+                    <select name="classId" className={fieldClass} defaultValue="">
+                      <option value="">Sem turma</option>
+                      {turmas.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              {/* Responsável: padrão escolar — vincula já no cadastro. */}
+              <fieldset className="flex flex-col gap-2 rounded-md border border-border/70 p-3">
+                <legend className="px-1 text-xs font-medium text-muted-foreground">
+                  Responsável (opcional)
+                </legend>
+                <input
+                  name="guardianName"
+                  placeholder="Nome do responsável"
+                  className={fieldClass}
+                />
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <input
+                    name="guardianPhone"
+                    type="tel"
+                    placeholder="Telefone / WhatsApp"
+                    className={fieldClass}
+                  />
+                  <input
+                    name="guardianRelation"
+                    placeholder="Parentesco (mãe, pai…)"
+                    className={fieldClass}
+                  />
+                </div>
+                <input
+                  name="guardianEmail"
+                  type="email"
+                  placeholder="E-mail (opcional)"
+                  className={fieldClass}
+                />
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-0.5 text-xs">
+                  <label className="flex items-center gap-1.5">
+                    <input type="checkbox" name="guardianFinancial" className="h-3.5 w-3.5" />
+                    Responsável financeiro
+                  </label>
+                  <label className="flex items-center gap-1.5">
+                    <input type="checkbox" name="guardianPickup" className="h-3.5 w-3.5" />
+                    Pode buscar
+                  </label>
+                  <label className="flex items-center gap-1.5">
+                    <input type="checkbox" name="guardianEmergency" className="h-3.5 w-3.5" />
+                    Contato de emergência
+                  </label>
+                </div>
+              </fieldset>
+
               <SubmitButton type="submit" size="sm">
                 Adicionar aluno
               </SubmitButton>
+              <p className="text-[11px] text-muted-foreground">
+                * Idade é obrigatória. Você pode completar endereço, dados médicos e mais
+                responsáveis na ficha do aluno.
+              </p>
             </form>
           </div>
           <div className={cardClass}>
