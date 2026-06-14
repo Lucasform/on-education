@@ -1039,6 +1039,63 @@ export async function importStudentsAction(formData: FormData): Promise<void> {
 }
 
 /**
+ * Matrícula COMPLETA (onboarding enterprise): dados civis do aluno + endereço + saúde +
+ * responsável completo (CPF/RG/endereço/profissão) + turma. Cria tudo e leva ao contrato.
+ */
+export async function enrollFullAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const s = (k: string) => (String(formData.get(k) ?? '').trim() || undefined);
+  const studentInput = createStudentSchema.parse({
+    fullName: formData.get('fullName'),
+    classId: s('classId'),
+    birthDate: s('birthDate'),
+    cpf: s('cpf'),
+    rg: s('rg'),
+    gender: s('gender'),
+    nationality: s('nationality'),
+    shift: s('shift'),
+  });
+  const student = await createStudent(db(), ctx, studentInput);
+
+  // Endereço, saúde e emergência do aluno.
+  await updateStudentProfile(db(), ctx, student.id, {
+    address: s('address') ?? null,
+    city: s('city') ?? null,
+    state: s('state') ?? null,
+    zipCode: s('zipCode') ?? null,
+    bloodType: s('bloodType') ?? null,
+    allergies: s('allergies') ?? null,
+    medicalNotes: s('medicalNotes') ?? null,
+    emergencyName: s('emergencyName') ?? null,
+    emergencyPhone: s('emergencyPhone') ?? null,
+    emergencyRelation: s('emergencyRelation') ?? null,
+  });
+
+  // Responsável completo (contratante do contrato).
+  const guardianName = s('guardianName');
+  if (guardianName) {
+    const guardian = await createGuardian(db(), ctx, {
+      fullName: guardianName,
+      email: s('guardianEmail'),
+      phone: s('guardianPhone'),
+      cpf: s('guardianCpf'),
+      rg: s('guardianRg'),
+      address: s('guardianAddress'),
+      profession: s('guardianProfession'),
+    });
+    await linkGuardian(db(), ctx, {
+      studentId: student.id,
+      guardianId: guardian.id,
+      relation: s('guardianRelation'),
+      isFinancial: formData.get('guardianFinancial') === 'on',
+      canPickup: formData.get('guardianPickup') === 'on',
+      isEmergency: formData.get('guardianEmergency') === 'on',
+    });
+  }
+  redirect(`/app/matricula/${student.id}/contrato`);
+}
+
+/**
  * Matrícula em lote: uma turma escolhida + várias linhas de aluno (nome, nascimento,
  * responsável, telefone). Cria cada aluno na turma e, quando há responsável, cria e vincula
  * (financeiro/busca/emergência como contato principal). Padrão de secretaria.

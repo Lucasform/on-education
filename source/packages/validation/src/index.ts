@@ -56,6 +56,11 @@ export const createStudentSchema = z.object({
   fullName: z.string().min(1).max(200),
   classId: uuidSchema.optional(),
   birthDate: z.string().date().optional(),
+  cpf: z.string().max(20).optional(),
+  rg: z.string().max(30).optional(),
+  gender: z.string().max(20).optional(),
+  nationality: z.string().max(60).optional(),
+  shift: z.string().max(20).optional(),
 });
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 
@@ -183,6 +188,10 @@ export const createGuardianSchema = z.object({
   fullName: z.string().min(1).max(200),
   email: emailSchema.optional(),
   phone: z.string().max(40).optional(),
+  cpf: z.string().max(20).optional(),
+  rg: z.string().max(30).optional(),
+  address: z.string().max(300).optional(),
+  profession: z.string().max(120).optional(),
 });
 export type CreateGuardianInput = z.infer<typeof createGuardianSchema>;
 

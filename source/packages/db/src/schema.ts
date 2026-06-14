@@ -295,6 +295,12 @@ export const students = oe.table(
     emergencyRelation: text('emergency_relation'),
     // Foto do aluno (public-assets bucket)
     photoUrl: text('photo_url'),
+    // Documentos e dados civis (matrícula completa)
+    cpf: text('cpf'),
+    rg: text('rg'),
+    gender: text('gender'), // sexo: 'F' | 'M' | 'outro' (texto livre, sem enum rígido)
+    nationality: text('nationality'), // nacionalidade (default 'Brasileira' na UI)
+    shift: text('shift'), // turno: manhã/tarde/noite/integral
     ...auditCols,
   },
   (t) => [
@@ -570,6 +576,11 @@ export const guardians = oe.table(
     fullName: text('full_name').notNull(),
     email: text('email'),
     phone: text('phone'),
+    // Dados civis do responsável (contratante do contrato de matrícula)
+    cpf: text('cpf'),
+    rg: text('rg'),
+    address: text('address'),
+    profession: text('profession'),
     ...auditCols,
   },
   (t) => [index('guardians_tenant_idx').on(t.tenantId), tenantPolicy('guardians_tenant_isolation')],

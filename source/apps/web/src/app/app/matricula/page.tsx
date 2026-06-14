@@ -35,12 +35,20 @@ export default async function MatriculaPage() {
           title="Matrícula"
           description="Secretaria: matrícula de alunos por turma e documentos."
         />
-        <Link
-          href="/app/documentos"
-          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
-        >
-          Gerar documentos
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/app/matricula/nova"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            + Matrícula completa
+          </Link>
+          <Link
+            href="/app/documentos"
+            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
+          >
+            Gerar documentos
+          </Link>
+        </div>
       </div>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -130,12 +138,20 @@ export default async function MatriculaPage() {
                     <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                       {a.fullName}
                     </Link>
-                    <Link
-                      href={`/app/matricula/${a.id}/ficha`}
-                      className="shrink-0 text-xs text-primary underline-offset-4 hover:underline"
-                    >
-                      Ficha (PDF)
-                    </Link>
+                    <span className="flex shrink-0 gap-2 text-xs">
+                      <Link
+                        href={`/app/matricula/${a.id}/ficha`}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
+                        Ficha
+                      </Link>
+                      <Link
+                        href={`/app/matricula/${a.id}/contrato`}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
+                        Contrato
+                      </Link>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -151,12 +167,20 @@ export default async function MatriculaPage() {
                   <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                     {a.fullName}
                   </Link>
-                  <Link
-                    href={`/app/matricula/${a.id}/ficha`}
-                    className="shrink-0 text-xs text-primary underline-offset-4 hover:underline"
-                  >
-                    Ficha (PDF)
-                  </Link>
+                  <span className="flex shrink-0 gap-2 text-xs">
+                    <Link
+                      href={`/app/matricula/${a.id}/ficha`}
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      Ficha
+                    </Link>
+                    <Link
+                      href={`/app/matricula/${a.id}/contrato`}
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      Contrato
+                    </Link>
+                  </span>
                 </li>
               ))}
             </ul>

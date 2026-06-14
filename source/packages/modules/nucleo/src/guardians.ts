@@ -21,6 +21,10 @@ export async function createGuardian(
         fullName: input.fullName,
         email: input.email ?? null,
         phone: input.phone ?? null,
+        cpf: input.cpf ?? null,
+        rg: input.rg ?? null,
+        address: input.address ?? null,
+        profession: input.profession ?? null,
         createdBy: ctx.userId,
       })
       .returning();

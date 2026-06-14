@@ -98,6 +98,11 @@ export async function createStudent(client: DbClient, ctx: AuthContext, input: C
         fullName: input.fullName,
         classId: input.classId ?? null,
         birthDate: input.birthDate ?? null,
+        cpf: input.cpf ?? null,
+        rg: input.rg ?? null,
+        gender: input.gender ?? null,
+        nationality: input.nationality ?? null,
+        shift: input.shift ?? null,
         createdBy: ctx.userId,
       })
       .returning();
