@@ -1096,38 +1096,21 @@ export async function enrollFullAction(formData: FormData): Promise<void> {
 }
 
 /**
- * Matrícula em lote: uma turma escolhida + várias linhas de aluno (nome, nascimento,
- * responsável, telefone). Cria cada aluno na turma e, quando há responsável, cria e vincula
- * (financeiro/busca/emergência como contato principal). Padrão de secretaria.
+ * Vinculação em lote: turma escolhida + lista de alunos (nome + nascimento).
+ * Cria cada aluno e já o associa à turma. Responsáveis e dados completos
+ * são preenchidos depois na ficha individual de cada aluno.
  */
 export async function enrollStudentsBulkAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const classId = String(formData.get('classId') || '').trim() || undefined;
   const names = formData.getAll('fullName') as string[];
   const births = formData.getAll('birthDate') as string[];
-  const gNames = formData.getAll('guardianName') as string[];
-  const gPhones = formData.getAll('guardianPhone') as string[];
   for (let i = 0; i < names.length; i++) {
     const fullName = String(names[i] ?? '').trim();
     if (!fullName) continue;
     const birthDate = String(births[i] ?? '').trim() || undefined;
     const input = createStudentSchema.parse({ fullName, classId, birthDate });
-    const student = await createStudent(db(), ctx, input);
-    const gName = String(gNames[i] ?? '').trim();
-    if (gName) {
-      const guardian = await createGuardian(db(), ctx, {
-        fullName: gName,
-        phone: String(gPhones[i] ?? '').trim() || undefined,
-      });
-      await linkGuardian(db(), ctx, {
-        studentId: student.id,
-        guardianId: guardian.id,
-        relation: undefined,
-        isFinancial: true,
-        canPickup: true,
-        isEmergency: true,
-      });
-    }
+    await createStudent(db(), ctx, input);
   }
   revalidatePath('/app', 'layout');
 }

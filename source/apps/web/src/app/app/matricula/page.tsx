@@ -74,12 +74,13 @@ export default async function MatriculaPage() {
         </Link>
       </div>
 
-      {/* Matrícula em lote por turma (cadastro em massa). */}
+      {/* Vinculação em lote: cria os alunos e associa à turma. Dados completos pela ficha individual. */}
       <div className={cardClass}>
-        <h2 className="mb-1 text-sm font-medium">Matrícula em lote (massa)</h2>
+        <h2 className="mb-1 text-sm font-medium">Vincular alunos a uma turma em lote</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Para cadastrar uma turma inteira de uma vez. Dados essenciais por aluno; os detalhes e o
-          contrato podem ser completados depois na ficha de cada um.
+          Crie vários alunos de uma vez e já os coloque na turma certa. Nome e data de nascimento
+          são suficientes aqui; dados completos, responsáveis e contrato ficam para a ficha
+          individual de cada aluno.
         </p>
         <form action={enrollStudentsBulkAction} className="flex flex-col gap-3">
           <select name="classId" className={fieldClass} defaultValue="">
@@ -92,14 +93,12 @@ export default async function MatriculaPage() {
           </select>
           <BulkAddRows
             fields={[
-              { name: 'fullName', placeholder: 'Nome do aluno', className: 'flex-[2]' },
+              { name: 'fullName', placeholder: 'Nome completo do aluno', className: 'flex-[3]' },
               { name: 'birthDate', placeholder: 'Nascimento', type: 'date' },
-              { name: 'guardianName', placeholder: 'Responsável' },
-              { name: 'guardianPhone', placeholder: 'Telefone' },
             ]}
           />
           <SubmitButton type="submit" size="sm" variant="outline">
-            Matricular turma
+            Adicionar à turma
           </SubmitButton>
         </form>
       </div>
