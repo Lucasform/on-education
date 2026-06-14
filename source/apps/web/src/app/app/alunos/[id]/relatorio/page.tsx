@@ -46,17 +46,14 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 print:hidden">
-        <Link
-          href={`/app/alunos/${id}`}
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar ao aluno
-        </Link>
+      <div className="flex items-start justify-between gap-2 print:hidden">
+        <PageHeader
+          title={`Relatório · ${resumo.studentName}`}
+          description="Resumo para os pais."
+          back={{ href: `/app/alunos/${id}`, label: 'Voltar ao aluno' }}
+        />
         <PrintButton label="Imprimir / PDF" />
       </div>
-
-      <PageHeader title={`Relatório · ${resumo.studentName}`} description="Resumo para os pais." />
 
       {flash && (
         <div className="rounded-md border border-border bg-muted p-3 text-sm print:hidden">

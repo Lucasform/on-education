@@ -3,11 +3,10 @@ import {
   listConversationMessages,
   markConversationRead,
 } from '@on-education/module-nucleo';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { AutoRefresh } from '@/components/auto-refresh';
-import { cardClass, fieldClass } from '@/components/form';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -30,13 +29,10 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <AutoRefresh seconds={8} />
-      <Link
-        href="/app/whatsapp/inbox"
-        className="text-xs text-primary underline-offset-4 hover:underline"
-      >
-        ← Voltar para o inbox
-      </Link>
-      <h1 className="text-xl font-semibold tracking-tight">{conv.contactName || conv.phone}</h1>
+      <PageHeader
+        title={conv.contactName || conv.phone}
+        back={{ href: '/app/whatsapp/inbox', label: 'Voltar para o inbox' }}
+      />
 
       <div className={`${cardClass} flex max-h-[55vh] flex-col gap-2 overflow-y-auto`}>
         {mensagens.length === 0 ? (

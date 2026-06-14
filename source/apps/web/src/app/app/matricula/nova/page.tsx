@@ -1,5 +1,4 @@
 import { listClasses } from '@on-education/module-nucleo';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -24,18 +23,11 @@ export default async function MatriculaNovaPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2">
-        <PageHeader
-          title="Matrícula completa"
-          description="Onboarding do aluno com dados civis, endereço, saúde e responsável. Ao salvar, geramos o contrato."
-        />
-        <Link
-          href="/app/matricula"
-          className="shrink-0 text-sm text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar
-        </Link>
-      </div>
+      <PageHeader
+        title="Matrícula completa"
+        description="Onboarding do aluno com dados civis, endereço, saúde e responsável. Ao salvar, geramos o contrato."
+        back={{ href: '/app/matricula', label: 'Voltar para matrícula' }}
+      />
 
       <form action={enrollFullAction} className="flex flex-col gap-5">
         {/* Dados do aluno */}

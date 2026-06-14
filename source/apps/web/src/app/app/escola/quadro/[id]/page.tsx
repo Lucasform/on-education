@@ -2,7 +2,7 @@ import { listTeachers, listTeachingAssignments } from '@on-education/module-nucl
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { cardClass } from '@/components/form';
+import { cardClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -38,22 +38,18 @@ export default async function MembroDetailPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <Link
-        href="/app/escola/quadro"
-        className="text-xs text-primary underline-offset-4 hover:underline"
-      >
-        ← Voltar para o quadro
-      </Link>
-
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{membro.fullName || membro.email}</h1>
-        <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
-            {ROLE_LABEL[membro.role] ?? membro.role}
+      <PageHeader
+        title={membro.fullName || membro.email}
+        description={
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
+              {ROLE_LABEL[membro.role] ?? membro.role}
+            </span>
+            {membro.email}
           </span>
-          {membro.email}
-        </p>
-      </div>
+        }
+        back={{ href: '/app/escola/quadro', label: 'Voltar para o quadro' }}
+      />
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div className={cardClass}>

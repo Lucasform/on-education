@@ -23,13 +23,11 @@ export default async function SimuladoDetailPage({ params }: { params: Promise<{
 
   return (
     <>
-      <PageHeader title={quiz.title} description={quiz.description ?? 'Simulado'} />
-      <Link
-        href="/app/simulados"
-        className="text-sm text-primary underline-offset-4 hover:underline"
-      >
-        ← Voltar aos simulados
-      </Link>
+      <PageHeader
+        title={quiz.title}
+        description={quiz.description ?? 'Simulado'}
+        back={{ href: '/app/simulados', label: 'Voltar aos simulados' }}
+      />
 
       <section className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Questões ({questions.length})</h2>

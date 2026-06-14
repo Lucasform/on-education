@@ -101,15 +101,16 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <PageHeader title={turma.name} description="Detalhes da turma, alunos e grade de matérias." />
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link href="/app/turmas" className="text-sm text-primary underline-offset-4 hover:underline">
-          ← Voltar para turmas
-        </Link>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader
+          title={turma.name}
+          description="Detalhes da turma, alunos e grade de matérias."
+          back={{ href: '/app/turmas', label: 'Voltar para turmas' }}
+        />
         {daTurma.length > 0 && (
           <Link
             href={`/app/turmas/${id}/boletim`}
-            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
           >
             Boletim consolidado →
           </Link>

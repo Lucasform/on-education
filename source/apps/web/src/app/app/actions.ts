@@ -262,7 +262,7 @@ export async function createClassAction(formData: FormData): Promise<void> {
     ? String(nameRaw).trim()
     : serie
       ? secao
-        ? `${serie} - ${secao}`
+        ? `${serie} Turma ${secao}`
         : serie
       : '';
   if (!name) return;
@@ -280,7 +280,7 @@ export async function importClassesStructuredAction(formData: FormData): Promise
   const secoes = (formData.getAll('secao') as string[]).map((s) => s.trim()).filter(Boolean);
   if (!serie || secoes.length === 0) return;
   const ageRange = faixaForSerie(serie) || undefined;
-  const names = secoes.map((s) => `${serie} - ${s}`);
+  const names = secoes.map((s) => `${serie} Turma ${s}`);
   await createClassesBulk(db(), ctx, names.map((n) => n));
   void ageRange; // gradeLevel/ageRange update happens via updateClassDetails if needed
   revalidatePath('/app', 'layout');

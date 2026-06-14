@@ -98,15 +98,13 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <PageHeader title={aluno.fullName} description="Histórico do aluno." />
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link
-          href="/app/alunos"
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar para alunos
-        </Link>
-        <span className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader
+          title={aluno.fullName}
+          description="Histórico do aluno."
+          back={{ href: '/app/alunos', label: 'Voltar para alunos' }}
+        />
+        <span className="flex shrink-0 flex-wrap gap-2">
           <Link
             href={`/app/alunos/${id}/relatorio`}
             className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"

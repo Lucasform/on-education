@@ -70,18 +70,12 @@ export default async function BoletimPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <PageHeader
-        title={`Boletim — ${turma.name}`}
-        description="Médias consolidadas por aluno e matéria."
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
-        <Link
-          href={`/app/turmas/${id}`}
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar para a turma
-        </Link>
+      <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
+        <PageHeader
+          title={`Boletim · ${turma.name}`}
+          description="Médias consolidadas por aluno e matéria."
+          back={{ href: `/app/turmas/${id}`, label: 'Voltar para a turma' }}
+        />
         <PrintButton label="Imprimir boletim" />
       </div>
 

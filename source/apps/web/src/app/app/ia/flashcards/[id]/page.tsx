@@ -1,6 +1,5 @@
 import { imagesLeftForTenant, isImageConfigured } from '@on-education/module-ia';
 import { getFlashcardDeck } from '@on-education/module-pedagogico';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
@@ -26,17 +25,12 @@ export default async function FlashcardDeckPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <Link
-        href="/app/ia/flashcards"
-        className="text-sm text-primary underline-offset-4 hover:underline"
-      >
-        ← Voltar aos baralhos
-      </Link>
       <PageHeader
         title={deck.title}
         description={[deck.subject, deck.gradeLevel, deck.ageBand && `${deck.ageBand} anos`]
           .filter(Boolean)
           .join(' · ')}
+        back={{ href: '/app/ia/flashcards', label: 'Voltar aos baralhos' }}
       />
       <FlashcardStudy cards={deck.cards} />
 

@@ -1,11 +1,10 @@
 import { getTenantSettings } from '@on-education/module-nucleo';
 import { getActivity } from '@on-education/module-pedagogico';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
-import { cardClass, fieldClass } from '@/components/form';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
 import { PrintButton } from '@/components/print-button';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
@@ -50,14 +49,12 @@ export default async function AtividadeDetalhePage({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
-        <Link
-          href="/app/atividades"
-          className="text-sm text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar ao banco
-        </Link>
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
+        <PageHeader
+          title={atividade.title}
+          back={{ href: '/app/atividades', label: 'Voltar ao banco' }}
+        />
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           <a
             href={`/app/atividades/${id}/word`}
             className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
