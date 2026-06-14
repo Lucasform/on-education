@@ -2,6 +2,7 @@
 
 import {
   purgeTenant,
+  removeMembership,
   restoreTenant,
   setTenantClient,
   softDeleteTenant,
@@ -11,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 import { db } from '@/server/db';
+import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
 import { IMPERSONATION_COOKIE } from '@/server/session';
 
 /**
@@ -50,6 +52,42 @@ export async function softDeleteTenantAction(formData: FormData): Promise<void> 
 export async function restoreTenantAction(formData: FormData): Promise<void> {
   await restoreTenant(db(), String(formData.get('tenantId')));
   revalidatePath('/admin');
+}
+
+/**
+ * Remove o acesso de um usuário a uma conta (membership). Opcionalmente avisa por e-mail.
+ * Recusa silenciosamente remover o dono (a função de domínio protege contra orfanar a conta).
+ */
+export async function removeUserAction(formData: FormData): Promise<void> {
+  const tenantId = String(formData.get('tenantId') ?? '');
+  const userId = String(formData.get('userId') ?? '');
+  if (!tenantId || !userId) return;
+
+  const result = await removeMembership(db(), tenantId, userId);
+  if (!result.ok) {
+    // Dono: não removido (evita orfanar a conta). Recarrega sem alterar.
+    revalidatePath('/admin/usuarios');
+    return;
+  }
+
+  const notify = String(formData.get('notify') ?? '') === 'on';
+  const email = String(formData.get('email') ?? '').trim();
+  if (notify && email && isEmailConfigured()) {
+    const name = String(formData.get('name') ?? '').trim();
+    const tenantName = String(formData.get('tenantName') ?? '').trim() || 'a instituição';
+    await sendEmail({
+      to: email,
+      subject: 'Seu acesso ao Edu On Way foi removido',
+      html: emailHtml(
+        'Acesso removido',
+        `<p>Olá${name ? ` ${escapeHtml(name)}` : ''},</p>` +
+          `<p>Seu acesso a <strong>${escapeHtml(tenantName)}</strong> no Edu On Way foi removido pela administração.</p>` +
+          `<p>Se você acredita que foi um engano, fale com a sua instituição.</p>`,
+      ),
+      text: `Seu acesso a ${tenantName} no Edu On Way foi removido pela administração.`,
+    });
+  }
+  revalidatePath('/admin/usuarios');
 }
 
 /** Marca/desmarca o tenant como cliente pagante (CRM do super-admin). */

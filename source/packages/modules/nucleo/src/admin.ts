@@ -180,6 +180,33 @@ export async function setTenantClient(client: DbClient, tenantId: string, isClie
   await client.db.update(tenants).set({ isClient }).where(eq(tenants.id, tenantId));
 }
 
+/**
+ * Remove o ACESSO de um usuário a um tenant (apaga as memberships dele naquela conta).
+ * NÃO apaga a conta de auth do Supabase (compartilhada com outros apps). Recusa remover
+ * o DONO (owner) para não orfanar o tenant — nesse caso use a exclusão da conta inteira.
+ */
+export async function removeMembership(
+  client: DbClient,
+  tenantId: string,
+  userId: string,
+): Promise<{ ok: boolean; reason?: 'owner' }> {
+  const owner = await client.db
+    .select({ id: memberships.id })
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.tenantId, tenantId),
+        eq(memberships.userId, userId),
+        eq(memberships.role, 'owner'),
+      ),
+    );
+  if (owner.length > 0) return { ok: false, reason: 'owner' };
+  await client.db
+    .delete(memberships)
+    .where(and(eq(memberships.tenantId, tenantId), eq(memberships.userId, userId)));
+  return { ok: true };
+}
+
 // --- Drill-down do admin: listas reais de um tenant (cross-tenant, super-admin) ----------
 
 export interface AdminMember {
