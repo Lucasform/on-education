@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 export const fieldClass =
@@ -8,10 +9,29 @@ export const cardClass = 'rounded-lg border border-border bg-card p-5';
 /** Envolve uma <table> para rolar na horizontal no mobile sem estourar o layout. */
 export const tableWrapClass = 'w-full overflow-x-auto';
 
-/** Cabeçalho padrão de página dentro do app (título + descrição). */
-export function PageHeader({ title, description }: { title: string; description?: string | ReactNode }) {
+/**
+ * Cabeçalho padrão de página (título + descrição). `back` opcional renderiza um link de
+ * voltar consistente acima do título (padrão único em todo o app).
+ */
+export function PageHeader({
+  title,
+  description,
+  back,
+}: {
+  title: string;
+  description?: string | ReactNode;
+  back?: { href: string; label?: string };
+}) {
   return (
     <div>
+      {back && (
+        <Link
+          href={back.href}
+          className="mb-1 inline-flex items-center gap-1 text-sm text-primary underline-offset-4 hover:underline"
+        >
+          ← {back.label ?? 'Voltar'}
+        </Link>
+      )}
       <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
       {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
     </div>

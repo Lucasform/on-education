@@ -210,7 +210,9 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 pb-20 md:p-8 md:pb-8 print:max-w-none print:p-0">
+      {/* Largura total da tela (sem cap centralizado), no padrão do OnWay Condomínio.
+          A leitura de documentos imprimíveis fica a cargo da própria página (article). */}
+      <main className="flex w-full flex-col gap-6 p-4 pb-20 md:p-8 md:pb-8 print:p-0">
         {children}
       </main>
 
