@@ -60,7 +60,7 @@ export default async function ConfiguracoesPage() {
         </div>
 
         <div className={cardClass}>
-          <h2 className="mb-1 text-sm font-medium">Nome do agente WayOn</h2>
+          <h2 className="mb-1 text-sm font-medium">Nome do assistente de IA</h2>
           <p className="mb-2 text-xs text-muted-foreground">
             Como o assistente aparece para você. Padrão: WayOn.
           </p>
