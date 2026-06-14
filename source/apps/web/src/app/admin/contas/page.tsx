@@ -92,6 +92,11 @@ export default async function ContasPage({
                       {t.name}
                     </a>
                   )}
+                  {t.isClient && (
+                    <span className="ml-2 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600">
+                      ★ cliente
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-2">
                   <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">

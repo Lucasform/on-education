@@ -1,6 +1,11 @@
 'use server';
 
-import { purgeTenant, restoreTenant, softDeleteTenant } from '@on-education/module-nucleo';
+import {
+  purgeTenant,
+  restoreTenant,
+  setTenantClient,
+  softDeleteTenant,
+} from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -45,6 +50,16 @@ export async function softDeleteTenantAction(formData: FormData): Promise<void> 
 export async function restoreTenantAction(formData: FormData): Promise<void> {
   await restoreTenant(db(), String(formData.get('tenantId')));
   revalidatePath('/admin');
+}
+
+/** Marca/desmarca o tenant como cliente pagante (CRM do super-admin). */
+export async function toggleTenantClientAction(formData: FormData): Promise<void> {
+  const tenantId = String(formData.get('tenantId') ?? '');
+  if (!tenantId) return;
+  const next = String(formData.get('isClient') ?? '') === 'true';
+  await setTenantClient(db(), tenantId, next);
+  revalidatePath('/admin/contas');
+  revalidatePath(`/admin/contas/${tenantId}`);
 }
 
 /** Exclusão DEFINITIVA: exige o nome digitado bater com o nome da escola. */

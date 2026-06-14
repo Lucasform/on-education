@@ -1,5 +1,5 @@
 import { getTenantPlanId } from '@on-education/module-nucleo';
-import { getPlan, PLANS } from '@on-education/entitlements';
+import { getPlan } from '@on-education/entitlements';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';

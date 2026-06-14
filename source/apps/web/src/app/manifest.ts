@@ -15,6 +15,14 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#130f1f',
     theme_color: '#130f1f',
     lang: 'pt-BR',
-    icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+    icons: [
+      // SVG vetorial (favicon/abas e plataformas que aceitam vetor).
+      { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+      // PNGs reais: Android/desktop usam estes na instalação e na home screen.
+      { src: '/pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      // Maskable: ícone adaptável (Android recorta em círculo/squircle sem cortar o "ON").
+      { src: '/pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+    ],
   };
 }

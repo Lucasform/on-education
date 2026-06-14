@@ -70,6 +70,8 @@ export const tenants = oe.table(
     tenantType: tenantTypeEnum('tenant_type').notNull(),
     name: text('name').notNull(),
     status: text('status').notNull().default('active'),
+    // Marcação de CRM do super-admin: distingue cliente pagante de conta de teste/trial.
+    isClient: boolean('is_client').notNull().default(false),
     ...auditCols,
   },
   () => [

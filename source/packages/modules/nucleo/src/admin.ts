@@ -5,9 +5,10 @@ import {
   memberships,
   students,
   tenants,
+  users,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { count, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -20,6 +21,7 @@ export interface TenantOverview {
   tenantType: TenantType;
   createdAt: Date;
   deletedAt: Date | null;
+  isClient: boolean;
   members: number;
   students: number;
 }
@@ -48,6 +50,7 @@ export async function listAllTenants(
       ${tenants.tenantType} as tenant_type,
       ${tenants.createdAt} as created_at,
       ${tenants.deletedAt} as deleted_at,
+      ${tenants.isClient} as is_client,
       (select count(distinct ${memberships.userId}) from ${memberships}
         where ${memberships.tenantId} = ${tenants.id}) as members,
       (select count(*) from ${students}
@@ -61,6 +64,7 @@ export async function listAllTenants(
     tenant_type: TenantType;
     created_at: Date;
     deleted_at: Date | null;
+    is_client: boolean;
     members: number | string;
     students: number | string;
   }>;
@@ -71,6 +75,7 @@ export async function listAllTenants(
     tenantType: t.tenant_type,
     createdAt: new Date(t.created_at),
     deletedAt: t.deleted_at ? new Date(t.deleted_at) : null,
+    isClient: Boolean(t.is_client),
     members: Number(t.members ?? 0),
     students: Number(t.students ?? 0),
   }));
@@ -125,6 +130,7 @@ export async function getTenantDetail(
         ${tenants.tenantType} as tenant_type,
         ${tenants.createdAt} as created_at,
         ${tenants.deletedAt} as deleted_at,
+        ${tenants.isClient} as is_client,
         (select count(distinct ${memberships.userId}) from ${memberships}
           where ${memberships.tenantId} = ${tenants.id}) as members,
         (select count(*) from ${students} where ${students.tenantId} = ${tenants.id}) as students,
@@ -139,6 +145,7 @@ export async function getTenantDetail(
       tenant_type: TenantType;
       created_at: Date;
       deleted_at: Date | null;
+      is_client: boolean;
       members: number | string;
       students: number | string;
       classes: number | string;
@@ -159,11 +166,156 @@ export async function getTenantDetail(
     tenantType: t.tenant_type,
     createdAt: new Date(t.created_at),
     deletedAt: t.deleted_at ? new Date(t.deleted_at) : null,
+    isClient: Boolean(t.is_client),
     members: Number(t.members ?? 0),
     students: Number(t.students ?? 0),
     classes: Number(t.classes ?? 0),
     activities: Number(t.activities ?? 0),
     roles: rolesRows.map((r) => ({ role: String(r.role), count: Number(r.c) })),
+  };
+}
+
+/** Marca/desmarca o tenant como cliente pagante (CRM do super-admin). */
+export async function setTenantClient(client: DbClient, tenantId: string, isClient: boolean) {
+  await client.db.update(tenants).set({ isClient }).where(eq(tenants.id, tenantId));
+}
+
+// --- Drill-down do admin: listas reais de um tenant (cross-tenant, super-admin) ----------
+
+export interface AdminMember {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+}
+
+/** Membros (equipe) de um tenant: nome, e-mail e papel. */
+export async function listTenantMembers(
+  client: DbClient,
+  tenantId: string,
+): Promise<AdminMember[]> {
+  const rows = await client.db
+    .select({
+      userId: memberships.userId,
+      role: memberships.role,
+      name: users.fullName,
+      email: users.email,
+    })
+    .from(memberships)
+    .leftJoin(users, eq(users.id, memberships.userId))
+    .where(eq(memberships.tenantId, tenantId));
+  return rows.map((r) => ({
+    userId: r.userId,
+    name: r.name ?? null,
+    email: r.email ?? null,
+    role: String(r.role),
+  }));
+}
+
+export interface AdminClass {
+  id: string;
+  name: string;
+  gradeLevel: string | null;
+  students: number;
+}
+
+/** Turmas de um tenant com a contagem de alunos de cada uma. */
+export async function listTenantClasses(
+  client: DbClient,
+  tenantId: string,
+): Promise<AdminClass[]> {
+  const rows = (await client.db.execute(sql`
+    select
+      ${classes.id} as id,
+      ${classes.name} as name,
+      ${classes.gradeLevel} as grade_level,
+      (select count(*) from ${students}
+        where ${students.classId} = ${classes.id} and ${students.deletedAt} is null) as students
+    from ${classes}
+    where ${classes.tenantId} = ${tenantId} and ${classes.deletedAt} is null
+    order by ${classes.name}
+  `)) as unknown as Array<{
+    id: string;
+    name: string;
+    grade_level: string | null;
+    students: number | string;
+  }>;
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    gradeLevel: r.grade_level ?? null,
+    students: Number(r.students ?? 0),
+  }));
+}
+
+export interface AdminActivity {
+  id: string;
+  title: string;
+  kind: string;
+  subject: string | null;
+  approved: boolean;
+  createdAt: Date;
+}
+
+/** Atividades de um tenant (lista). O conteúdo completo vem em getTenantActivity. */
+export async function listTenantActivities(
+  client: DbClient,
+  tenantId: string,
+): Promise<AdminActivity[]> {
+  const rows = await client.db
+    .select({
+      id: activities.id,
+      title: activities.title,
+      kind: activities.kind,
+      subject: activities.subject,
+      approved: activities.approved,
+      createdAt: activities.createdAt,
+    })
+    .from(activities)
+    .where(eq(activities.tenantId, tenantId))
+    .orderBy(desc(activities.createdAt));
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    kind: String(r.kind),
+    subject: r.subject ?? null,
+    approved: Boolean(r.approved),
+    createdAt: new Date(r.createdAt),
+  }));
+}
+
+export interface AdminActivityDetail extends AdminActivity {
+  content: string;
+  gradeLevel: string | null;
+  ageBand: string | null;
+  aiGenerated: boolean;
+  tags: string[];
+}
+
+/** Conteúdo completo de UMA atividade de um tenant (para "abrir tudo" no admin). */
+export async function getTenantActivity(
+  client: DbClient,
+  tenantId: string,
+  activityId: string,
+): Promise<AdminActivityDetail | null> {
+  const rows = await client.db
+    .select()
+    .from(activities)
+    .where(and(eq(activities.id, activityId), eq(activities.tenantId, tenantId)));
+  const a = rows[0];
+  if (!a) return null;
+  return {
+    id: a.id,
+    title: a.title,
+    kind: String(a.kind),
+    subject: a.subject ?? null,
+    approved: Boolean(a.approved),
+    createdAt: new Date(a.createdAt),
+    content: a.content ?? '',
+    gradeLevel: a.gradeLevel ?? null,
+    ageBand: a.ageBand ?? null,
+    aiGenerated: Boolean(a.aiGenerated),
+    tags: Array.isArray(a.tags) ? (a.tags as string[]) : [],
   };
 }
 
