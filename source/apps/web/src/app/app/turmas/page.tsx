@@ -32,7 +32,7 @@ export default async function TurmasPage({
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const sp = await searchParams;
-  const turmas = await listClasses(db(), ctx);
+  const turmas = await listClasses(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listClasses>>);
   const termo = (sp.q ?? '').trim().toLowerCase();
   const filtradas = termo ? turmas.filter((t) => t.name.toLowerCase().includes(termo)) : turmas;
 

@@ -21,7 +21,7 @@ export default async function DisciplinasPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
-  const disciplinas = await listSubjects(db(), ctx);
+  const disciplinas = await listSubjects(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listSubjects>>);
 
   return (
     <>

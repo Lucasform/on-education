@@ -1,6 +1,5 @@
 import { getTenantPlanId } from '@on-education/module-nucleo';
-import { canUse, FEATURES, getPlan, PLANS } from '@on-education/entitlements';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { getPlan, PLANS } from '@on-education/entitlements';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
@@ -10,39 +9,71 @@ import { getAuthContext } from '@/server/session';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Planos · Edu On Way' };
 
-const FEATURE_LABELS: Record<string, string> = {
-  'ai.lessonPlan': 'Geração de planos de aula (WayOn)',
-  'ai.activities': 'Geração de atividades e provas (WayOn)',
-  'ai.essayGrading': 'Correção de redação e em lote (WayOn)',
-  'ai.images': 'Geração de imagens (WayOn)',
-  'activities.bank': 'Banco de atividades',
-  'marketplace': 'Marketplace de conteúdo',
-  'classes.manage': 'Turmas e alunos',
-  'communication.light': 'Mensagens e comunicados',
-  'communication.mass': 'Comunicação em massa (WhatsApp)',
-  'finance.institutional': 'Gestão financeira (mensalidades)',
-  'enrollment.official': 'Matrícula oficial',
-  'analytics.director': 'Relatórios e dashboards avançados',
-};
+const TEACHER_PLANS = [
+  {
+    id: 'teacher_free',
+    name: 'Professor Gratuito',
+    badge: 'Grátis',
+    color: 'border-border bg-card',
+    badgeColor: 'bg-muted text-muted-foreground',
+    benefits: [
+      'Turmas e alunos ilimitados',
+      'Banco de atividades completo',
+      'Calendário e comunicados',
+      'Geração de conteúdo com IA (cota mensal)',
+      'Chamada e diário de classe',
+    ],
+  },
+  {
+    id: 'teacher_pro',
+    name: 'Professor Pro',
+    badge: 'Pro',
+    color: 'border-primary/40 bg-primary/5',
+    badgeColor: 'bg-primary/15 text-primary',
+    benefits: [
+      'Tudo do plano Gratuito',
+      'Geração de IA ampliada (muito mais conteúdo por mês)',
+      'Correção de redação e provas em lote com IA',
+      'Geração de imagens didáticas',
+      'Flashcards e simulados com IA',
+      'Suporte prioritário',
+    ],
+  },
+];
 
-const PLAN_LABELS: Record<string, { name: string; badge: string; color: string }> = {
-  teacher_free: { name: 'Professor Gratuito', badge: 'Grátis', color: 'bg-muted text-muted-foreground' },
-  teacher_pro:  { name: 'Professor Pro',      badge: 'Pro',    color: 'bg-primary/15 text-primary' },
-  school_starter: { name: 'Escola Starter',   badge: 'Starter', color: 'bg-blue-500/15 text-blue-600' },
-  school_full:    { name: 'Escola Full',       badge: 'Full',    color: 'bg-emerald-500/15 text-emerald-600' },
-};
-
-const LIMITS_LABELS: Record<string, string> = {
-  aiTokensPerMonth: 'Tokens IA/mês',
-  students: 'Alunos',
-  imagesPerMonth: 'Imagens/mês',
-};
-
-function fmt(val: number | undefined): string {
-  if (val === undefined) return '—';
-  if (val === -1) return 'Ilimitado';
-  return val.toLocaleString('pt-BR');
-}
+const SCHOOL_PLANS = [
+  {
+    id: 'school_starter',
+    name: 'Escola Starter',
+    badge: 'Starter',
+    color: 'border-blue-500/30 bg-blue-500/5',
+    badgeColor: 'bg-blue-500/15 text-blue-600',
+    benefits: [
+      'Alunos, turmas e professores ilimitados',
+      'Banco coletivo de atividades para toda a equipe',
+      'Comunicados e mural dos pais',
+      'Matrículas e gestão financeira',
+      'Geração de conteúdo com IA para todos os professores',
+      'Calendário letivo com contagem de dias MEC',
+    ],
+  },
+  {
+    id: 'school_full',
+    name: 'Escola Full',
+    badge: 'Full',
+    color: 'border-emerald-500/30 bg-emerald-500/5',
+    badgeColor: 'bg-emerald-500/15 text-emerald-600',
+    benefits: [
+      'Tudo do plano Starter',
+      'IA para toda a escola sem limite mensal',
+      'Correção em lote e geração de imagens para todos',
+      'Dashboards e relatórios da direção',
+      'Auditoria de operações sensíveis',
+      'Comunicação em massa via WhatsApp',
+      'Suporte dedicado',
+    ],
+  },
+];
 
 export default async function PlanosPage() {
   const ctx = await getAuthContext();
@@ -51,98 +82,53 @@ export default async function PlanosPage() {
   const planId = await getTenantPlanId(db(), ctx.tenantId).catch(() => null);
   const currentPlan = planId ? getPlan(planId) : null;
 
-  const relevantPlanIds = ctx.tenantType === 'individual'
-    ? ['teacher_free', 'teacher_pro']
-    : ['school_starter', 'school_full'];
-
-  const plans = relevantPlanIds.map((id) => ({ id, def: PLANS[id]! }));
+  const plans = ctx.tenantType === 'individual' ? TEACHER_PLANS : SCHOOL_PLANS;
+  const isOnHighest = planId === plans[plans.length - 1]?.id;
 
   return (
     <>
       <PageHeader
         title="Planos"
-        description="Compare os recursos disponíveis em cada plano e solicite um upgrade."
+        description="Veja o que seu plano inclui e como crescer quando precisar."
       />
 
-      {/* Plano atual */}
-      {currentPlan && (
+      {currentPlan && planId && (
         <div className={`${cardClass} border-primary/40 bg-primary/5`}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm text-muted-foreground">Seu plano atual</p>
-              <p className="text-xl font-semibold">{PLAN_LABELS[planId!]?.name ?? planId}</p>
-            </div>
-            <span className={`rounded-full px-3 py-1 text-sm font-medium ${PLAN_LABELS[planId!]?.color ?? 'bg-muted'}`}>
-              {PLAN_LABELS[planId!]?.badge ?? planId}
-            </span>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-4 text-sm">
-            {Object.entries(currentPlan.limits).map(([k, v]) => (
-              <span key={k} className="text-muted-foreground">
-                {LIMITS_LABELS[k] ?? k}: <span className="font-medium text-foreground">{fmt(v)}</span>
-              </span>
-            ))}
-          </div>
+          <p className="text-xs text-muted-foreground">Seu plano atual</p>
+          <p className="mt-0.5 text-lg font-semibold">
+            {plans.find((p) => p.id === planId)?.name ?? planId}
+          </p>
         </div>
       )}
 
-      {/* Tabela comparativa */}
-      <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-medium">Comparativo de planos</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="pb-3 pr-4 text-left font-medium text-muted-foreground">Recurso</th>
-                {plans.map(({ id }) => (
-                  <th key={id} className="pb-3 px-3 text-center font-medium">
-                    <div className="flex flex-col items-center gap-1">
-                      <span>{PLAN_LABELS[id]?.name ?? id}</span>
-                      {id === planId && (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">
-                          atual
-                        </span>
-                      )}
-                    </div>
-                  </th>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {plans.map((plan) => {
+          const isCurrentPlan = plan.id === planId;
+          return (
+            <div
+              key={plan.id}
+              className={`relative rounded-xl border p-5 ${plan.color} ${isCurrentPlan ? 'ring-2 ring-primary/40' : ''}`}
+            >
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h2 className="font-semibold">{plan.name}</h2>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${plan.badgeColor}`}>
+                  {isCurrentPlan ? 'Seu plano' : plan.badge}
+                </span>
+              </div>
+              <ul className="space-y-1.5">
+                {plan.benefits.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-sm">
+                    <span className="mt-0.5 text-emerald-500">✓</span>
+                    <span>{b}</span>
+                  </li>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {FEATURES.map((feature) => (
-                <tr key={feature} className="border-b border-border/50 last:border-0">
-                  <td className="py-2 pr-4 text-muted-foreground">
-                    {FEATURE_LABELS[feature] ?? feature}
-                  </td>
-                  {plans.map(({ id }) => (
-                    <td key={id} className="py-2 px-3 text-center">
-                      {canUse(id, feature) ? (
-                        <CheckCircle2 className="mx-auto h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <XCircle className="mx-auto h-4 w-4 text-muted-foreground/30" />
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-              {/* Limites */}
-              {Object.keys(LIMITS_LABELS).map((metric) => (
-                <tr key={metric} className="border-b border-border/50 last:border-0 bg-muted/30">
-                  <td className="py-2 pr-4 font-medium">{LIMITS_LABELS[metric]}</td>
-                  {plans.map(({ id }) => (
-                    <td key={id} className="py-2 px-3 text-center font-medium">
-                      {fmt(PLANS[id]?.limits[metric])}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
-      {/* CTA de upgrade */}
-      {planId !== relevantPlanIds[relevantPlanIds.length - 1] && (
+      {!isOnHighest && (
         <div className={`${cardClass} text-center`}>
           <p className="text-base font-semibold">Quer mais recursos?</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -153,7 +139,7 @@ export default async function PlanosPage() {
               href="mailto:contato@onway.com.br?subject=Upgrade de plano"
               className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Solicitar upgrade por e-mail
+              Solicitar por e-mail
             </a>
             <a
               href="https://wa.me/5511999999999?text=Quero+fazer+upgrade+do+meu+plano+Edu+On+Way"
@@ -167,10 +153,10 @@ export default async function PlanosPage() {
         </div>
       )}
 
-      {planId === relevantPlanIds[relevantPlanIds.length - 1] && (
+      {isOnHighest && (
         <div className={`${cardClass} border-emerald-500/30 bg-emerald-500/5 text-center`}>
           <p className="text-sm font-medium text-emerald-600">
-            Você está no plano mais completo. Aproveite todos os recursos!
+            Você está no plano mais completo. Aproveite tudo!
           </p>
         </div>
       )}

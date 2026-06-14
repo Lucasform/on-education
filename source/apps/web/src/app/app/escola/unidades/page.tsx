@@ -15,7 +15,7 @@ export default async function UnidadesPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
-  const unidades = await listUnits(db(), ctx);
+  const unidades = await listUnits(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listUnits>>);
 
   return (
     <>

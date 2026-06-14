@@ -1215,15 +1215,23 @@ export async function uploadLogoAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const file = formData.get('file');
   if (!(file instanceof File) || file.size === 0) return;
-  const logoUrl = await uploadPublicLogo(ctx.tenantId, file);
-  await upsertTenantSettings(db(), ctx, { logoUrl });
+  try {
+    const logoUrl = await uploadPublicLogo(ctx.tenantId, file);
+    await upsertTenantSettings(db(), ctx, { logoUrl });
+  } catch {
+    // Storage upload failed — swallow so the error boundary is not triggered
+  }
   revalidatePath('/app', 'layout');
 }
 
 /** Remove a logo da escola (seta null no banco; não deleta o arquivo do storage). */
 export async function removeLogoAction(): Promise<void> {
   const ctx = await requireCtx();
-  await upsertTenantSettings(db(), ctx, { logoUrl: '' });
+  try {
+    await upsertTenantSettings(db(), ctx, { logoUrl: '' });
+  } catch {
+    // Swallow — don't trigger error boundary
+  }
   revalidatePath('/app', 'layout');
 }
 

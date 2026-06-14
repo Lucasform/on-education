@@ -26,7 +26,7 @@ export default async function ConfiguracoesPage() {
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'individual') redirect('/app/escola/personalizacao');
 
-  const settings = await getTenantSettings(db(), ctx);
+  const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
 
   return (

@@ -24,7 +24,7 @@ export default async function NotasConfigPage() {
 
   const [settings, componentes] = await Promise.all([
     getTenantSettings(client, ctx).catch(() => null),
-    listGradeComponents(client, ctx),
+    listGradeComponents(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listGradeComponents>>),
   ]);
   const escala = settings?.gradeScale ?? 10;
   const somaPesos = componentes.reduce((a, c) => a + c.weight, 0);

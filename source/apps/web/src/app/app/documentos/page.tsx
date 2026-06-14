@@ -41,7 +41,7 @@ export default async function DocumentosPage({
   const client = db();
   const [settings, alunos] = await Promise.all([
     getTenantSettings(client, ctx).catch(() => null),
-    listStudents(client, ctx),
+    listStudents(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listStudents>>),
   ]);
 
   const modelo = MODELOS[model] ?? MODELOS.declaracao_matricula!;

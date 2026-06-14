@@ -37,7 +37,7 @@ export default async function IaPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const [rascunhos, settings, turmas, planId, usedTokens] = await Promise.all([
-    listDrafts(db(), ctx),
+    listDrafts(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listDrafts>>),
     getTenantSettings(db(), ctx).catch(() => null),
     listClasses(db(), ctx).catch(() => []),
     getTenantPlanId(db(), ctx.tenantId).catch(() => null),

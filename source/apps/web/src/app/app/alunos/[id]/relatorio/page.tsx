@@ -30,7 +30,7 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
   const client = db();
 
   const [resumo, settings, vinculos] = await Promise.all([
-    buildStudentSummary(client, ctx, id),
+    buildStudentSummary(client, ctx, id).catch(() => null),
     getTenantSettings(client, ctx).catch(() => null),
     listStudentGuardians(client, ctx, id).catch(() => []),
   ]);

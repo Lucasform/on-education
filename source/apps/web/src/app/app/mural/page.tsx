@@ -17,7 +17,7 @@ export default async function MuralPage() {
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
 
-  const todos = await listCommunications(db(), ctx);
+  const todos = await listCommunications(db(), ctx).catch(() => []);
   const publicados = todos
     .filter((c) => c.status === 'published')
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
