@@ -4,6 +4,7 @@ import { cache } from 'react';
 
 import type { AuthContext } from '@on-education/auth';
 import { loadEnv } from '@on-education/config';
+import { logger } from '@on-education/core';
 import { getDbClient } from '@on-education/db';
 import {
   adminTenantContext,
@@ -58,8 +59,12 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
     if (email) void syncUserFromAuth(getDbClient(), userId, email, fullName);
 
     return await resolveContextForUser(getDbClient(), userId);
-  } catch {
-    // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página.
+  } catch (e) {
+    // Falha transitória (Supabase/DB): trata como "sem sessão" em vez de derrubar a página,
+    // mas registra para não sumir silenciosamente (era um ponto cego de observabilidade).
+    logger.warn('getAuthContext falhou, tratando como sem sessão', {
+      error: e instanceof Error ? e.message : String(e),
+    });
     return null;
   }
 });
@@ -92,7 +97,10 @@ export const getSuperAdminEmail = cache(async (): Promise<string | null> => {
     const email = session?.user?.email?.toLowerCase();
     if (!email) return null;
     return allow.includes(email) ? email : null;
-  } catch {
+  } catch (e) {
+    logger.warn('getSuperAdminEmail falhou', {
+      error: e instanceof Error ? e.message : String(e),
+    });
     return null;
   }
 });

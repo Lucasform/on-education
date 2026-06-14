@@ -1,9 +1,26 @@
 import { requireEnv } from '@on-education/config';
+import { logger } from '@on-education/core';
 import { sql } from 'drizzle-orm';
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import { schema } from './schema';
+
+/**
+ * Erros TRANSITÓRIOS de conexão (pooler reciclando, queda de rede): seguros para retry
+ * porque a transação inteira aborta antes de commitar. NÃO inclui erros de query/constraint
+ * (esses são bugs e devem falhar alto). Cobre códigos SQLSTATE de conexão + erros de socket.
+ */
+const TRANSIENT_RE =
+  /(ECONNRESET|ETIMEDOUT|ECONNREFUSED|EPIPE|connection|terminating connection|too many clients|08006|08003|08000|08001|57P01|57P03)/i;
+
+function isTransient(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  const code = (e as { code?: unknown })?.code;
+  return TRANSIENT_RE.test(msg) || (code != null && TRANSIENT_RE.test(String(code)));
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export type Database = PostgresJsDatabase<typeof schema>;
 
@@ -55,16 +72,39 @@ export function createDbClient(
   // no SET abaixo (combina os dois SETs num round-trip só, reduzindo latência por query).
   const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
+  const MAX_ATTEMPTS = 3;
   const withTenant = async <T>(tenantId: string, fn: (tx: Database) => Promise<T>): Promise<T> => {
     if (!UUID_RE.test(tenantId)) throw new Error('tenantId inválido (esperado UUID).');
-    return db.transaction(async (tx) => {
-      // `authenticated` (papel SEM bypass de RLS) + tenant da sessão, ambos LOCAIS à transação,
-      // num único statement (protocolo simples) → metade dos round-trips de antes.
-      await tx.execute(
-        sql.raw(`set local role authenticated; set local app.tenant_id = '${tenantId}'`),
-      );
-      return fn(tx as unknown as Database);
-    });
+    const run = () =>
+      db.transaction(async (tx) => {
+        // `authenticated` (papel SEM bypass de RLS) + tenant da sessão, ambos LOCAIS à transação,
+        // num único statement (protocolo simples) → metade dos round-trips de antes.
+        await tx.execute(
+          sql.raw(`set local role authenticated; set local app.tenant_id = '${tenantId}'`),
+        );
+        return fn(tx as unknown as Database);
+      });
+
+    // Resiliência: erro transitório de conexão (pooler/rede) faz retry com backoff curto;
+    // a transação aborta inteira, então re-executar é seguro (não há commit parcial).
+    // Observabilidade: toda falha é logada de forma central aqui (mesmo que a página engula
+    // o erro e degrade), então nada some silenciosamente.
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        return await run();
+      } catch (e) {
+        lastError = e;
+        if (attempt < MAX_ATTEMPTS && isTransient(e)) {
+          logger.warn('db.withTenant erro transitório, repetindo', { tenantId, attempt });
+          await sleep(attempt * 150);
+          continue;
+        }
+        logger.error('db.withTenant falhou', e, { tenantId, attempt });
+        throw e;
+      }
+    }
+    throw lastError;
   };
 
   return { db, sql: sqlClient, withTenant, close: () => sqlClient.end({ timeout: 5 }) };
