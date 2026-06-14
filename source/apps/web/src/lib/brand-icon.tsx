@@ -44,3 +44,46 @@ export function iconResponse(size: number, opts?: { maskable?: boolean }): Image
     { width: size, height: size },
   );
 }
+
+/**
+ * Ícone do PWA a partir do LOGO da escola (white-label dinâmico). Pré-busca os bytes do
+ * logo e embute como data URI — assim uma URL quebrada falha AQUI (e o chamador cai no
+ * ícone "ON"), em vez de gerar um PNG corrompido. Fundo branco para logos transparentes
+ * aparecerem; `maskable` reserva zona de segurança contra o recorte do Android.
+ */
+export async function logoIconResponse(
+  size: number,
+  logoUrl: string,
+  opts?: { maskable?: boolean },
+): Promise<ImageResponse> {
+  const res = await fetch(logoUrl);
+  if (!res.ok) throw new Error(`logo fetch falhou: ${res.status}`);
+  const contentType = res.headers.get('content-type') || 'image/png';
+  const base64 = Buffer.from(await res.arrayBuffer()).toString('base64');
+  const dataUri = `data:${contentType};base64,${base64}`;
+  const pad = Math.round(size * (opts?.maskable ? 0.16 : 0.08));
+  const inner = size - pad * 2;
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          display: 'flex',
+          width: size,
+          height: size,
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#ffffff',
+        }}
+      >
+        <img
+          src={dataUri}
+          width={inner}
+          height={inner}
+          alt="Logo"
+          style={{ objectFit: 'contain' }}
+        />
+      </div>
+    ),
+    { width: size, height: size },
+  );
+}
