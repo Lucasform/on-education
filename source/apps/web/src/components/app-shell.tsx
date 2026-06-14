@@ -13,6 +13,68 @@ import { BottomNav } from './bottom-nav';
 import { LogoMark } from './logo-mark';
 import { ThemeToggle } from './theme-toggle';
 
+function NavGroupBlock({
+  group,
+  pathname,
+  onNavigate,
+  badges,
+  upgradeBadge,
+}: {
+  group: ReturnType<typeof navFor>[number];
+  pathname: string;
+  onNavigate: () => void;
+  badges?: Record<string, number>;
+  upgradeBadge: string;
+}) {
+  return (
+    <div>
+      {!group.hideLabel && (
+        <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {group.label}
+        </p>
+      )}
+      <ul className="space-y-0.5">
+        {group.items.map((item) => {
+          const active = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+                  item.locked
+                    ? 'text-muted-foreground/50 hover:bg-accent hover:text-muted-foreground'
+                    : active
+                      ? 'bg-primary/15 font-medium text-foreground'
+                      : 'text-foreground/75 hover:bg-accent hover:text-foreground'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0 opacity-80" />
+                <span className="truncate">{item.label}</span>
+                {item.locked ? (
+                  <span className="ml-auto flex items-center gap-0.5 rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    <Lock className="h-2.5 w-2.5" />
+                    {upgradeBadge}
+                  </span>
+                ) : badges?.[item.href] ? (
+                  <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+                    {badges[item.href]}
+                  </span>
+                ) : item.soon ? (
+                  <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    em breve
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * Casca do app com sidebar de funcionalidades (padrão On Condomínio): grupos + itens, cada
  * um com sua rota. Destaca o item ativo (usePathname) e tem drawer no mobile.
@@ -41,6 +103,8 @@ export function AppShell({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const groups = navFor(tenantType, planId);
+  const mainGroups = groups.filter((g) => !g.pinBottom);
+  const bottomGroups = groups.filter((g) => g.pinBottom);
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
   return (
@@ -68,54 +132,33 @@ export function AppShell({
           </button>
         </div>
 
-        <nav className="flex h-[calc(100vh-3.5rem)] flex-col gap-5 overflow-y-auto px-3 py-4">
-          {groups.map((g) => (
-            <div key={g.label}>
-              {!g.hideLabel && (
-                <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {g.label}
-                </p>
-              )}
-              <ul className="space-y-0.5">
-                {g.items.map((item) => {
-                  const active = pathname === item.href;
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
-                          item.locked
-                            ? 'text-muted-foreground/50 hover:bg-accent hover:text-muted-foreground'
-                            : active
-                              ? 'bg-primary/15 font-medium text-foreground'
-                              : 'text-foreground/75 hover:bg-accent hover:text-foreground'
-                        }`}
-                      >
-                        <Icon className="h-4 w-4 shrink-0 opacity-80" />
-                        <span className="truncate">{item.label}</span>
-                        {item.locked ? (
-                          <span className="ml-auto flex items-center gap-0.5 rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            <Lock className="h-2.5 w-2.5" />
-                            {upgradeBadge}
-                          </span>
-                        ) : badges?.[item.href] ? (
-                          <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-                            {badges[item.href]}
-                          </span>
-                        ) : item.soon ? (
-                          <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            em breve
-                          </span>
-                        ) : null}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+        <nav className="flex h-[calc(100vh-3.5rem)] flex-col px-3 py-4">
+          <div className="flex flex-1 flex-col gap-5 overflow-y-auto">
+            {mainGroups.map((g) => (
+              <NavGroupBlock
+                key={g.label}
+                group={g}
+                pathname={pathname}
+                onNavigate={() => setOpen(false)}
+                badges={badges}
+                upgradeBadge={upgradeBadge}
+              />
+            ))}
+          </div>
+          {bottomGroups.length > 0 && (
+            <div className="mt-2 border-t border-border pt-2">
+              {bottomGroups.map((g) => (
+                <NavGroupBlock
+                  key={g.label}
+                  group={g}
+                  pathname={pathname}
+                  onNavigate={() => setOpen(false)}
+                  badges={badges}
+                  upgradeBadge={upgradeBadge}
+                />
+              ))}
             </div>
-          ))}
+          )}
         </nav>
       </aside>
 

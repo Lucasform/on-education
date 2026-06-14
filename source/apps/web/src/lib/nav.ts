@@ -65,6 +65,8 @@ export interface NavGroup {
   only?: TenantType;
   /** Oculta o título do grupo no sidebar (ex.: grupo de utilitários no rodapé). */
   hideLabel?: boolean;
+  /** Fixa o grupo no rodapé do sidebar, fora da área de scroll. */
+  pinBottom?: boolean;
   items: NavItem[];
 }
 
@@ -174,6 +176,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'Sistema',
     hideLabel: true,
+    pinBottom: true,
     items: [{ label: 'Lixeira', href: '/app/lixeira', icon: Trash2 }],
   },
 ];
