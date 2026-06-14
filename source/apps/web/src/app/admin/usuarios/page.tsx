@@ -58,13 +58,22 @@ export default async function AdminUsuariosPage() {
                 </td>
               </tr>
             ) : (
-              usuarios.map((u) => (
+              usuarios.map((u) => {
+                const isOwner = u.roles.includes('owner');
+                return (
                 <tr key={`${u.tenantId}-${u.userId}`} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-2 font-medium">{u.name ?? '—'}</td>
                   <td className="px-4 py-2 text-muted-foreground">{u.email ?? '—'}</td>
                   <td className="px-4 py-2">
-                    <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                      {ROLE_LABEL[u.role] ?? u.role}
+                    <span className="flex flex-wrap gap-1">
+                      {u.roles.map((role) => (
+                        <span
+                          key={role}
+                          className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground"
+                        >
+                          {ROLE_LABEL[role] ?? role}
+                        </span>
+                      ))}
                     </span>
                   </td>
                   <td className="px-4 py-2">
@@ -76,7 +85,7 @@ export default async function AdminUsuariosPage() {
                     </a>
                   </td>
                   <td className="px-4 py-2">
-                    {u.role === 'owner' ? (
+                    {isOwner ? (
                       <span className="block text-right text-[11px] text-muted-foreground">
                         dono (não removível)
                       </span>
@@ -107,7 +116,8 @@ export default async function AdminUsuariosPage() {
                     )}
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

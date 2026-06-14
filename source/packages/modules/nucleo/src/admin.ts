@@ -391,7 +391,8 @@ export interface GlobalUser {
   userId: string;
   name: string | null;
   email: string | null;
-  role: string;
+  /** Todos os papéis da pessoa NAQUELA conta (ex.: dono + professor). */
+  roles: string[];
   tenantId: string;
   tenantName: string;
 }
@@ -410,14 +411,29 @@ export async function listAllUsers(client: DbClient): Promise<GlobalUser[]> {
     .leftJoin(users, eq(users.id, memberships.userId))
     .leftJoin(tenants, eq(tenants.id, memberships.tenantId))
     .limit(ADMIN_LIST_CAP);
-  return rows.map((r) => ({
-    userId: r.userId,
-    name: r.name ?? null,
-    email: r.email ?? null,
-    role: String(r.role),
-    tenantId: r.tenantId,
-    tenantName: r.tenantName ?? '—',
-  }));
+  // Agrupa por (conta, pessoa): quem tem vários papéis (dono + professor) vira UMA linha.
+  const byPerson = new Map<string, GlobalUser>();
+  for (const r of rows) {
+    const key = `${r.tenantId}:${r.userId}`;
+    const existing = byPerson.get(key);
+    if (existing) {
+      if (!existing.roles.includes(String(r.role))) existing.roles.push(String(r.role));
+    } else {
+      byPerson.set(key, {
+        userId: r.userId,
+        name: r.name ?? null,
+        email: r.email ?? null,
+        roles: [String(r.role)],
+        tenantId: r.tenantId,
+        tenantName: r.tenantName ?? '—',
+      });
+    }
+  }
+  // Dono primeiro na lista de papéis (clareza visual).
+  for (const u of byPerson.values()) {
+    u.roles.sort((a, b) => (a === 'owner' ? -1 : b === 'owner' ? 1 : 0));
+  }
+  return [...byPerson.values()];
 }
 
 export interface GlobalClass {
