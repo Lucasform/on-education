@@ -93,8 +93,11 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
 
   // Link de download temporário (signed URL) por material — gerado no servidor.
   const materiaisComLink = await Promise.all(
-    materiais.map(async (m) => ({ ...m, url: await signedUrlForTenantFile(m.storagePath) })),
-  );
+    materiais.map(async (m) => ({
+      ...m,
+      url: await signedUrlForTenantFile(m.storagePath).catch(() => ''),
+    })),
+  ).catch(() => [] as (typeof materiais[number] & { url: string })[]);
 
   return (
     <>

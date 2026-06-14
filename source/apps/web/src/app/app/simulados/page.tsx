@@ -19,7 +19,7 @@ export const metadata = { title: 'Simulados · Edu On Way' };
 export default async function SimuladosPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const simulados = await listQuizzes(db(), ctx);
+  const simulados = await listQuizzes(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listQuizzes>>);
   const aiOn = isAiConfigured();
 
   return (

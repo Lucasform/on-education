@@ -16,7 +16,7 @@ export default async function ConvitesPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
-  const convites = await listInvitations(db(), ctx);
+  const convites = await listInvitations(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listInvitations>>);
 
   return (
     <>

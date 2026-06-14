@@ -16,10 +16,10 @@ export default async function SimuladoDetailPage({ params }: { params: Promise<{
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
 
-  const data = await getQuiz(db(), ctx, id);
+  const data = await getQuiz(db(), ctx, id).catch(() => null);
   if (!data) notFound();
   const { quiz, questions } = data;
-  const attempts = await listQuizAttempts(db(), ctx, id);
+  const attempts = await listQuizAttempts(db(), ctx, id).catch(() => []);
 
   return (
     <>

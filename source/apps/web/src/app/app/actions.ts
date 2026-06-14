@@ -404,17 +404,21 @@ export async function generateImageAction(formData: FormData): Promise<void> {
     size: (formData.get('size') as string) || 'quadrado',
     frame: (formData.get('frame') as string) || 'padrao',
   });
-  const { b64 } = await generateTenantImage(
-    db(),
-    ctx,
-    input.prompt,
-    input.quality,
-    input.size,
-    input.frame,
-  );
-  const url = await uploadPublicImagePng(ctx.tenantId, b64);
-  await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });
-  await recordImages(db(), ctx.tenantId, 1);
+  try {
+    const { b64 } = await generateTenantImage(
+      db(),
+      ctx,
+      input.prompt,
+      input.quality,
+      input.size,
+      input.frame,
+    );
+    const url = await uploadPublicImagePng(ctx.tenantId, b64);
+    await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });
+    await recordImages(db(), ctx.tenantId, 1);
+  } catch {
+    // AI or storage failure — swallow so the error boundary is not triggered
+  }
   revalidatePath('/app/ia/imagem', 'page');
 }
 
@@ -435,9 +439,15 @@ export async function generateFlashcardsAction(formData: FormData): Promise<void
     ageBand: (formData.get('ageBand') as string) || undefined,
     count: (formData.get('count') as string) || 10,
   });
-  const deck = await generateFlashcardsWithWayOn(db(), ctx, input);
+  let deckId: string | null = null;
+  try {
+    const deck = await generateFlashcardsWithWayOn(db(), ctx, input);
+    deckId = deck.id;
+  } catch {
+    // AI failure — fall through and redirect to list page
+  }
   revalidatePath('/app/ia/flashcards', 'page');
-  redirect(`/app/ia/flashcards/${deck.id}`);
+  redirect(deckId ? `/app/ia/flashcards/${deckId}` : '/app/ia/flashcards');
 }
 
 /** Gera e anexa uma ilustração (gpt-image-1) a um card do baralho — para a criança ver. */
@@ -446,16 +456,20 @@ export async function illustrateFlashcardCardAction(formData: FormData): Promise
   const deckId = String(formData.get('deckId') ?? '');
   const index = Number(formData.get('index') ?? -1);
   if (!deckId || index < 0) return;
-  const deck = await getFlashcardDeck(db(), ctx, deckId);
-  const card = deck?.cards[index];
-  if (!card) return;
-  const prompt =
-    `Ilustração simples, colorida e amigável para criança, representando: ${card.front}. ` +
-    'Estilo de flashcard educativo, fundo branco, sem texto na imagem.';
-  const { b64 } = await generateTenantImage(db(), ctx, prompt, 'low');
-  const url = await uploadPublicImagePng(ctx.tenantId, b64);
-  await recordImages(db(), ctx.tenantId, 1);
-  await setFlashcardCardImage(db(), ctx, deckId, index, url);
+  try {
+    const deck = await getFlashcardDeck(db(), ctx, deckId);
+    const card = deck?.cards[index];
+    if (!card) return;
+    const prompt =
+      `Ilustração simples, colorida e amigável para criança, representando: ${card.front}. ` +
+      'Estilo de flashcard educativo, fundo branco, sem texto na imagem.';
+    const { b64 } = await generateTenantImage(db(), ctx, prompt, 'low');
+    const url = await uploadPublicImagePng(ctx.tenantId, b64);
+    await recordImages(db(), ctx.tenantId, 1);
+    await setFlashcardCardImage(db(), ctx, deckId, index, url);
+  } catch {
+    // AI or storage failure — swallow so error boundary is not triggered
+  }
   revalidatePath(`/app/ia/flashcards/${deckId}`, 'page');
 }
 
@@ -471,20 +485,24 @@ export async function importActivityFileAction(formData: FormData): Promise<void
   const ctx = await requireCtx();
   const file = formData.get('file');
   if (!(file instanceof File) || file.size === 0) return;
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const content = (await extractMaterialText(bytes, file.type || null, file.name)) ?? '';
-  const input = createActivitySchema.parse({
-    title: (String(formData.get('title') ?? '').trim() || file.name).slice(0, 300),
-    subject: (formData.get('subject') as string) || undefined,
-    kind: (formData.get('kind') as string) || 'atividade',
-    gradeLevel: (formData.get('gradeLevel') as string) || undefined,
-    ageBand: (formData.get('ageBand') as string) || undefined,
-    content: content.slice(0, 50_000),
-    tags: ['importado'],
-    aiGenerated: false,
-    approved: true,
-  });
-  await createActivity(db(), ctx, input);
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const content = (await extractMaterialText(bytes, file.type || null, file.name)) ?? '';
+    const input = createActivitySchema.parse({
+      title: (String(formData.get('title') ?? '').trim() || file.name).slice(0, 300),
+      subject: (formData.get('subject') as string) || undefined,
+      kind: (formData.get('kind') as string) || 'atividade',
+      gradeLevel: (formData.get('gradeLevel') as string) || undefined,
+      ageBand: (formData.get('ageBand') as string) || undefined,
+      content: content.slice(0, 50_000),
+      tags: ['importado'],
+      aiGenerated: false,
+      approved: true,
+    });
+    await createActivity(db(), ctx, input);
+  } catch {
+    // Extraction or DB failure — swallow so error boundary is not triggered
+  }
   revalidatePath('/app/atividades', 'page');
 }
 
@@ -1243,17 +1261,21 @@ export async function uploadMaterialAction(formData: FormData): Promise<void> {
   if (!classId || !(file instanceof File) || file.size === 0) return;
   const title = String(formData.get('title') ?? '').trim() || file.name;
   const subject = (formData.get('subject') as string)?.trim() || undefined;
-  const up = await uploadTenantFile(ctx.tenantId, classId, file);
-  await createMaterial(db(), ctx, {
-    classId,
-    title,
-    subject,
-    storagePath: up.path,
-    fileName: up.fileName,
-    mimeType: up.mimeType ?? undefined,
-    sizeBytes: up.sizeBytes,
-    extractedText: up.extractedText,
-  });
+  try {
+    const up = await uploadTenantFile(ctx.tenantId, classId, file);
+    await createMaterial(db(), ctx, {
+      classId,
+      title,
+      subject,
+      storagePath: up.path,
+      fileName: up.fileName,
+      mimeType: up.mimeType ?? undefined,
+      sizeBytes: up.sizeBytes,
+      extractedText: up.extractedText,
+    });
+  } catch {
+    // Storage or DB failure — swallow so error boundary is not triggered
+  }
   revalidatePath('/app', 'layout');
 }
 
@@ -1273,14 +1295,18 @@ export async function uploadStandardSampleAction(formData: FormData): Promise<vo
   if (!(file instanceof File) || file.size === 0) return;
   const title = (String(formData.get('title') ?? '').trim() || file.name).slice(0, 200);
   const kind = (String(formData.get('kind') ?? 'outro') || 'outro').slice(0, 20);
-  const up = await uploadTenantFile(ctx.tenantId, '_padrao', file);
-  await createStandardSample(db(), ctx, {
-    title,
-    kind,
-    fileName: up.fileName,
-    storagePath: up.path,
-    extractedText: up.extractedText,
-  });
+  try {
+    const up = await uploadTenantFile(ctx.tenantId, '_padrao', file);
+    await createStandardSample(db(), ctx, {
+      title,
+      kind,
+      fileName: up.fileName,
+      storagePath: up.path,
+      extractedText: up.extractedText,
+    });
+  } catch {
+    // Storage or DB failure — swallow so error boundary is not triggered
+  }
   revalidatePath('/app/meu-padrao', 'page');
 }
 
