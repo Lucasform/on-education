@@ -68,8 +68,10 @@ import {
   unlinkClassSubject,
   unlinkGuardian,
   getConversation,
+  getPublicTenantBrand,
   getTenantSettings,
   getWhatsappConnection,
+  purgeTenant,
   recordAudit,
   canBroadcast,
   recordBroadcast,
@@ -214,6 +216,24 @@ async function requireCtx(): Promise<AuthContext> {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   return ctx;
+}
+
+/**
+ * Autoexclusão da conta pelo DONO (zona de perigo). Só o owner; exige digitar o nome exato
+ * da conta para confirmar. Apaga a conta inteira (as atividades são preservadas no Banco
+ * Geral pelo purgeTenant), encerra a sessão e leva ao login. No-op seguro se não for dono
+ * ou se o nome não conferir.
+ */
+export async function deleteOwnAccountAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  if (!ctx.roles.includes('owner')) return;
+  const brand = await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null);
+  const realName = (brand?.name ?? '').trim();
+  const confirmName = String(formData.get('confirmName') ?? '').trim();
+  if (!realName || confirmName !== realName) return; // confirmação não confere
+  await purgeTenant(db(), ctx.tenantId);
+  await signOut();
+  redirect('/login?conta=excluida');
 }
 
 /**

@@ -37,6 +37,10 @@ const TEACHING_RESOURCES: readonly string[] = [
  * O super-admin do app NÃO passa por aqui (opera via /admin, fora do contexto de tenant).
  */
 export function can(ctx: AuthContext, action: Action, resource: string): boolean {
+  // Decisão de produto: EXCLUIR é exclusivo do dono. Nenhum outro papel apaga dados da conta
+  // (membros, alunos, turmas, atividades). Num tenant `individual` o professor é o owner,
+  // então ele segue podendo excluir o que é dele. A impersonação do super-admin também tem owner.
+  if (action === 'delete') return ctx.roles.includes('owner');
   if (ctx.roles.some((r) => FULL_ACCESS_ROLES.includes(r))) return true;
   if (ctx.roles.includes('teacher') && TEACHING_RESOURCES.includes(resource)) return true;
   return action === 'read';

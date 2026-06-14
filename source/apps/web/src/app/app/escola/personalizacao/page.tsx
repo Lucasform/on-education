@@ -1,8 +1,9 @@
 import { SubmitButton } from '@/components/submit-button';
-import { getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { DeleteAccountForm } from '@/components/delete-account-form';
 import { LogoUpload } from '@/components/logo-upload';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -28,6 +29,8 @@ export default async function PersonalizacaoPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
+  const isOwner = ctx.roles.includes('owner');
+  const brand = isOwner ? await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null) : null;
 
   return (
     <>
@@ -236,6 +239,18 @@ export default async function PersonalizacaoPage() {
           </SubmitButton>
         </div>
       </form>
+
+      {isOwner && (
+        <div className={`${cardClass} border-danger/40`}>
+          <h2 className="mb-1 text-sm font-medium text-danger">Zona de perigo</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Excluir a conta apaga a escola e todos os dados (alunos, turmas, notas, eventos...). As
+            atividades são preservadas no Banco Geral. Esta ação não pode ser desfeita e só o dono
+            pode fazê-la.
+          </p>
+          <DeleteAccountForm expectedName={brand?.name ?? ''} />
+        </div>
+      )}
     </>
   );
 }
