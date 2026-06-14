@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd source && pnpm --filter @on-education/web... run build",
+  "outputDirectory": "source/apps/web/.next",
+  "installCommand": "cd source && pnpm install",
+  "framework": "nextjs"
+}
