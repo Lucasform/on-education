@@ -36,10 +36,10 @@ export default async function ProfessoresPage() {
 
   const client = db();
   const [professores, turmas, disciplinas, vinculos] = await Promise.all([
-    listTeachers(client, ctx),
-    listClasses(client, ctx),
-    listSubjects(client, ctx),
-    listTeachingAssignments(client, ctx),
+    listTeachers(client, ctx).catch(() => []),
+    listClasses(client, ctx).catch(() => []),
+    listSubjects(client, ctx).catch(() => []),
+    listTeachingAssignments(client, ctx).catch(() => []),
   ]);
 
   return (

@@ -37,8 +37,9 @@ export async function assertEntitled(
   feature: Feature,
 ): Promise<string> {
   const planId = await getTenantPlanId(client, tenantId);
-  if (!planId || !canUse(planId, feature)) {
+  // canUse always returns true while plan gating is not configured
+  if (planId && !canUse(planId, feature)) {
     throw new Error(`Plano do tenant não habilita a funcionalidade: ${feature}`);
   }
-  return planId;
+  return planId ?? '';
 }

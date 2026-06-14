@@ -27,8 +27,8 @@ export default async function MembroDetailPage({ params }: { params: Promise<{ i
   const client = db();
 
   const [membros, vinculos] = await Promise.all([
-    listTeachers(client, ctx),
-    listTeachingAssignments(client, ctx),
+    listTeachers(client, ctx).catch(() => []),
+    listTeachingAssignments(client, ctx).catch(() => []),
   ]);
   const membro = membros.find((m) => m.membershipId === id);
   if (!membro) redirect('/app/escola/quadro');

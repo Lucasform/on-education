@@ -23,10 +23,10 @@ export default async function BoletimPage({ params }: { params: Promise<{ id: st
   const client = db();
 
   const [turma, todosAlunos, materias, todasNotas, componentes] = await Promise.all([
-    getClass(client, ctx, id),
-    listStudents(client, ctx),
-    listClassSubjects(client, ctx, id),
-    listGrades(client, ctx),
+    getClass(client, ctx, id).catch(() => null),
+    listStudents(client, ctx).catch(() => []),
+    listClassSubjects(client, ctx, id).catch(() => []),
+    listGrades(client, ctx).catch(() => []),
     listGradeComponents(client, ctx).catch(() => []),
   ]);
   if (!turma) redirect('/app/turmas');

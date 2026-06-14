@@ -25,9 +25,9 @@ export default async function OcorrenciasPage() {
   if (!ctx) redirect('/login');
   const client = db();
   const [ocorrencias, vinculos, alunos] = await Promise.all([
-    listOccurrences(client, ctx),
-    listOccurrenceLinks(client, ctx),
-    listStudents(client, ctx),
+    listOccurrences(client, ctx).catch(() => []),
+    listOccurrenceLinks(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
   ]);
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));
   const alunosPorOcorrencia = new Map<string, string[]>();

@@ -38,16 +38,16 @@ export default async function PlanoCursoPage({
   const isSchool = ctx.tenantType === 'organization';
   const hoje = hojeISO();
 
-  const turmas = await listClasses(client, ctx);
+  const turmas = await listClasses(client, ctx).catch(() => []);
   const turmaId = classId || turmas[0]?.id || '';
-  const disciplinas = isSchool ? await listSubjects(client, ctx) : [];
+  const disciplinas = isSchool ? await listSubjects(client, ctx).catch(() => []) : [];
   // Numa escola, o plano de curso é por matéria; escolhe a primeira por padrão.
   const matId = isSchool ? subjectId || disciplinas[0]?.id || '' : '';
   const matNome = disciplinas.find((s) => s.id === matId)?.name ?? '';
 
   const [unidades, aulas] = await Promise.all([
-    turmaId ? listCurriculumUnits(client, ctx, turmaId, matId || null) : Promise.resolve([]),
-    turmaId ? listLessonsForDiary(client, ctx, { classId: turmaId }) : Promise.resolve([]),
+    turmaId ? listCurriculumUnits(client, ctx, turmaId, matId || null).catch(() => []) : Promise.resolve([]),
+    turmaId ? listLessonsForDiary(client, ctx, { classId: turmaId }).catch(() => []) : Promise.resolve([]),
   ]);
 
   const planejado = unidades.reduce((s, u) => s + u.lessonsPlanned, 0);

@@ -18,9 +18,9 @@ export default async function MensagensPage() {
   if (!ctx) redirect('/login');
   const client = db();
   const [mensagens, responsaveis, alunos] = await Promise.all([
-    listMessages(client, ctx),
-    listGuardians(client, ctx),
-    listStudents(client, ctx),
+    listMessages(client, ctx).catch(() => []),
+    listGuardians(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
   ]);
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));

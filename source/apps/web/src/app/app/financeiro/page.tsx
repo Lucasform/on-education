@@ -42,9 +42,9 @@ export default async function FinanceiroPage({
     return <UpgradeGate feature="finance.institutional" tenantType={ctx.tenantType} />;
   }
   const [todas, responsaveis, alunos] = await Promise.all([
-    listInvoices(client, ctx),
-    listGuardians(client, ctx),
-    listStudents(client, ctx),
+    listInvoices(client, ctx).catch(() => []),
+    listGuardians(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
   ]);
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));

@@ -52,14 +52,14 @@ export default async function RelatoriosPage({
   }
   const [turmas, alunosAll, notas, presencas, atividades, simulados, ocorrencias, componentes] =
     await Promise.all([
-      listClasses(client, ctx),
-      listStudents(client, ctx),
-      listGrades(client, ctx),
-      listAttendance(client, ctx),
-      listActivities(client, ctx, {}),
-      listQuizzes(client, ctx),
-      listOccurrences(client, ctx),
-      listGradeComponents(client, ctx),
+      listClasses(client, ctx).catch(() => []),
+      listStudents(client, ctx).catch(() => []),
+      listGrades(client, ctx).catch(() => []),
+      listAttendance(client, ctx).catch(() => []),
+      listActivities(client, ctx, {}).catch(() => []),
+      listQuizzes(client, ctx).catch(() => []),
+      listOccurrences(client, ctx).catch(() => []),
+      listGradeComponents(client, ctx).catch(() => []),
     ]);
 
   // Média ponderada por aluno (pesos definidos pela escola). Cacheada por id.

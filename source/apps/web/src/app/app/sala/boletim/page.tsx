@@ -16,10 +16,10 @@ export default async function BoletimPage() {
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
   const [alunos, notas, presencas, componentes] = await Promise.all([
-    listStudents(client, ctx),
-    listGrades(client, ctx),
-    listAttendance(client, ctx),
-    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
+    listStudents(client, ctx).catch(() => []),
+    listGrades(client, ctx).catch(() => []),
+    listAttendance(client, ctx).catch(() => []),
+    isSchool ? listGradeComponents(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
 
   // Média ponderada por componente (pesos definidos pela escola). Sem componentes → simples.

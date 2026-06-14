@@ -51,8 +51,8 @@ export default async function PlanoDiarioPage({
   const fim = addDays(hoje, 13); // próximos 14 dias
 
   const [turmas, disciplinas] = await Promise.all([
-    listClasses(client, ctx),
-    ctx.tenantType === 'organization' ? listSubjects(client, ctx) : Promise.resolve([]),
+    listClasses(client, ctx).catch(() => []),
+    ctx.tenantType === 'organization' ? listSubjects(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
   const turmaId = classId || turmas[0]?.id || '';
 
@@ -60,8 +60,8 @@ export default async function PlanoDiarioPage({
   type PlanoItem = Awaited<ReturnType<typeof listLessonPlans>>[number];
   const [aulas, planos]: [AulaItem[], PlanoItem[]] = turmaId
     ? await Promise.all([
-        listUpcomingLessons(client, ctx, { classId: turmaId, from: hoje, to: fim }),
-        listLessonPlans(client, ctx, turmaId),
+        listUpcomingLessons(client, ctx, { classId: turmaId, from: hoje, to: fim }).catch(() => []),
+        listLessonPlans(client, ctx, turmaId).catch(() => []),
       ])
     : [[], []];
 

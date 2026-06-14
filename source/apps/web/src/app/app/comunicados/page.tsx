@@ -35,8 +35,8 @@ export default async function ComunicadosPage({
   const sp = await searchParams;
   const client = db();
   const [comunicados, turmas, wa] = await Promise.all([
-    listCommunications(client, ctx),
-    ctx.tenantType === 'organization' ? listClasses(client, ctx) : Promise.resolve([]),
+    listCommunications(client, ctx).catch(() => []),
+    ctx.tenantType === 'organization' ? listClasses(client, ctx).catch(() => []) : Promise.resolve([]),
     getWhatsappConnection(client, ctx).catch(() => null),
   ]);
   const aiOn = isAiConfigured();

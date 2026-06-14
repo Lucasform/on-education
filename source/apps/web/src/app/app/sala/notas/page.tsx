@@ -18,10 +18,10 @@ export default async function NotasPage() {
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
   const [notas, alunos, turmas, componentes] = await Promise.all([
-    listGrades(client, ctx),
-    listStudents(client, ctx),
-    listClasses(client, ctx),
-    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
+    listGrades(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
+    listClasses(client, ctx).catch(() => []),
+    isSchool ? listGradeComponents(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
   const compNome = new Map(componentes.map((c) => [c.id, c.name]));

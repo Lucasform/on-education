@@ -18,7 +18,10 @@ export default async function MatriculaPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
-  const [turmas, alunos] = await Promise.all([listClasses(client, ctx), listStudents(client, ctx)]);
+  const [turmas, alunos] = await Promise.all([
+    listClasses(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
+  ]);
   const semTurma = alunos.filter((a) => !a.classId);
   const porTurma = turmas
     .map((t) => ({ turma: t, alunos: alunos.filter((a) => a.classId === t.id) }))

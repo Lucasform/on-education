@@ -45,10 +45,10 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
   const isSchool = ctx.tenantType === 'organization';
 
   const [turma, alunos, materias, disciplinas, materiais, totais, settings, todasNotas, todasFaltas, componentes] = await Promise.all([
-    getClass(client, ctx, id),
-    listStudents(client, ctx),
-    listClassSubjects(client, ctx, id),
-    isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
+    getClass(client, ctx, id).catch(() => null),
+    listStudents(client, ctx).catch(() => []),
+    listClassSubjects(client, ctx, id).catch(() => []),
+    isSchool ? listSubjects(client, ctx).catch(() => []) : Promise.resolve([]),
     listMaterials(client, ctx, id).catch(() => []),
     pointsTotals(client, ctx).catch(() => new Map<string, number>()),
     getTenantSettings(client, ctx).catch(() => null),

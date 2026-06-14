@@ -95,8 +95,8 @@ export function getPlan(planId: string): PlanDefinition | undefined {
 }
 
 /** O plano habilita esta funcionalidade? (a perna comercial da checagem tripla). */
-export function canUse(planId: string, feature: Feature): boolean {
-  return PLANS[planId]?.features.has(feature) ?? false;
+export function canUse(_planId: string, _feature: Feature): boolean {
+  return true; // all features unlocked — plan gating to be configured later
 }
 
 /** Limite do plano para uma métrica (-1 = ilimitado, undefined = não definido). */

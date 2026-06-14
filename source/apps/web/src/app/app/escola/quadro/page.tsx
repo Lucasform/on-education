@@ -40,8 +40,8 @@ export default async function QuadroPage() {
   const client = db();
 
   const [membros, vinculos] = await Promise.all([
-    listTeachers(client, ctx),
-    listTeachingAssignments(client, ctx),
+    listTeachers(client, ctx).catch(() => []),
+    listTeachingAssignments(client, ctx).catch(() => []),
   ]);
 
   // Quantos vínculos turma/matéria cada membership tem (para a coluna "leciona").

@@ -39,8 +39,8 @@ export default async function BancoColetivoPage({
   const { faixa } = await searchParams;
   const client = db();
   const [coletivas, minhas] = await Promise.all([
-    listCollective(client, faixa || undefined),
-    listActivities(client, ctx, {}),
+    listCollective(client, faixa || undefined).catch(() => []),
+    listActivities(client, ctx, {}).catch(() => []),
   ]);
 
   return (

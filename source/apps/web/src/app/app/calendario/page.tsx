@@ -45,9 +45,9 @@ export default async function CalendarioPage({
   if (!ctx) redirect('/login');
   const client = db();
   const [eventos, turmas, cal] = await Promise.all([
-    listEvents(client, ctx),
-    listClasses(client, ctx),
-    buildSchoolCalendar(client, ctx),
+    listEvents(client, ctx).catch(() => []),
+    listClasses(client, ctx).catch(() => []),
+    buildSchoolCalendar(client, ctx).catch(() => null),
   ]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 

@@ -28,10 +28,10 @@ export default async function RelatorioFaltasPage({
     return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
   }
   const [turmas, alunos, disciplinas, registros] = await Promise.all([
-    listClasses(client, ctx),
-    listStudents(client, ctx),
-    listSubjects(client, ctx),
-    listAttendance(client, ctx),
+    listClasses(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
+    listSubjects(client, ctx).catch(() => []),
+    listAttendance(client, ctx).catch(() => []),
   ]);
 
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));

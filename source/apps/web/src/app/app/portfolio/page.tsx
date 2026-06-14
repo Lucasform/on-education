@@ -17,8 +17,8 @@ export default async function PortfolioPage() {
   if (!ctx) redirect('/login');
   const client = db();
   const [entradas, alunos] = await Promise.all([
-    listPortfolioEntries(client, ctx),
-    listStudents(client, ctx),
+    listPortfolioEntries(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
 

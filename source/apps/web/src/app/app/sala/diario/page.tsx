@@ -36,9 +36,9 @@ export default async function DiarioPage({
   const client = db();
   const hoje = hojeISO();
   const [todas, turmas, planos] = await Promise.all([
-    listLessonsForDiary(client, ctx),
-    listClasses(client, ctx),
-    listLessonPlans(client, ctx),
+    listLessonsForDiary(client, ctx).catch(() => []),
+    listClasses(client, ctx).catch(() => []),
+    listLessonPlans(client, ctx).catch(() => []),
   ]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
   const planoTitulo = new Map(planos.map((p) => [p.id, p.title]));

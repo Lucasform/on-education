@@ -56,8 +56,8 @@ export default async function AtividadesPage({
     ageBand: sp.ageBand || undefined,
   };
   const [atividades, rascunhos, turmas] = await Promise.all([
-    listActivities(db(), ctx, search),
-    listActivities(db(), ctx, { approved: false }),
+    listActivities(db(), ctx, search).catch(() => []),
+    listActivities(db(), ctx, { approved: false }).catch(() => []),
     listClasses(db(), ctx).catch(() => []),
   ]);
   const aiOn = isAiConfigured();

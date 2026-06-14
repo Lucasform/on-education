@@ -23,10 +23,10 @@ export default async function FaltasPage({
   if (!ctx) redirect('/login');
   const client = db();
   const [todosRegistros, alunos, turmas, disciplinas] = await Promise.all([
-    listAttendance(client, ctx),
-    listStudents(client, ctx),
-    listClasses(client, ctx),
-    listSubjects(client, ctx),
+    listAttendance(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
+    listClasses(client, ctx).catch(() => []),
+    listSubjects(client, ctx).catch(() => []),
   ]);
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
   const subjNome = new Map(disciplinas.map((s) => [s.id, s.name]));

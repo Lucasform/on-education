@@ -42,7 +42,7 @@ export default async function AtividadeDetalhePage({
   if (!ctx) redirect('/login');
   const client = db();
   const [atividade, settings] = await Promise.all([
-    getActivity(client, ctx, id),
+    getActivity(client, ctx, id).catch(() => null),
     getTenantSettings(client, ctx).catch(() => null),
   ]);
   if (!atividade) notFound();

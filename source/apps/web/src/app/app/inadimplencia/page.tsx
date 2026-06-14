@@ -33,8 +33,8 @@ export default async function InadimplenciaPage() {
   }
   const hoje = hojeISO();
   const [todas, responsaveis, wa] = await Promise.all([
-    listInvoices(client, ctx),
-    listGuardians(client, ctx),
+    listInvoices(client, ctx).catch(() => []),
+    listGuardians(client, ctx).catch(() => []),
     getWhatsappConnection(client, ctx).catch(() => null),
   ]);
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));

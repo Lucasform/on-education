@@ -39,11 +39,11 @@ export default async function PlanejamentoPage({
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const turmas = await listClasses(client, ctx);
+  const turmas = await listClasses(client, ctx).catch(() => []);
   const turmaId = classId || turmas[0]?.id || '';
   const [planos, disciplinas] = await Promise.all([
-    turmaId ? listLessonPlans(client, ctx, turmaId) : Promise.resolve([]),
-    isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
+    turmaId ? listLessonPlans(client, ctx, turmaId).catch(() => []) : Promise.resolve([]),
+    isSchool ? listSubjects(client, ctx).catch(() => []) : Promise.resolve([]),
   ]);
   const aiOn = isAiConfigured();
 

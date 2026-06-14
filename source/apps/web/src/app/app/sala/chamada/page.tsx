@@ -22,9 +22,9 @@ export default async function ChamadaPage({
   if (!ctx) redirect('/login');
   const client = db();
   const [turmas, alunos, disciplinas] = await Promise.all([
-    listClasses(client, ctx),
-    listStudents(client, ctx),
-    listSubjects(client, ctx),
+    listClasses(client, ctx).catch(() => []),
+    listStudents(client, ctx).catch(() => []),
+    listSubjects(client, ctx).catch(() => []),
   ]);
 
   const turmaId = classId || turmas[0]?.id || '';

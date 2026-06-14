@@ -44,12 +44,12 @@ export default async function CronogramaPage({
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 
-  const turmas = await listClasses(client, ctx);
+  const turmas = await listClasses(client, ctx).catch(() => []);
   const turmaId = classId || turmas[0]?.id || '';
   const [slots, disciplinas, excecoes, anos] = await Promise.all([
-    turmaId ? listScheduleSlots(client, ctx, turmaId) : Promise.resolve([]),
-    isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
-    turmaId ? listScheduleExceptions(client, ctx, turmaId) : Promise.resolve([]),
+    turmaId ? listScheduleSlots(client, ctx, turmaId).catch(() => []) : Promise.resolve([]),
+    isSchool ? listSubjects(client, ctx).catch(() => []) : Promise.resolve([]),
+    turmaId ? listScheduleExceptions(client, ctx, turmaId).catch(() => []) : Promise.resolve([]),
     listAcademicYears(client, ctx).catch(() => []),
   ]);
 
