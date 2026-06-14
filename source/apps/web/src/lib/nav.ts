@@ -67,6 +67,8 @@ export interface NavGroup {
   hideLabel?: boolean;
   /** Fixa o grupo no rodapé do sidebar, fora da área de scroll. */
   pinBottom?: boolean;
+  /** Label exibida é o nome do agente IA (substitui "WayOn" pelo nome personalizado). */
+  isAgentGroup?: boolean;
   items: NavItem[];
 }
 
@@ -128,6 +130,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'WayOn',
+    isAgentGroup: true,
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks, requiresFeature: 'ai.essayGrading' },

@@ -8,6 +8,7 @@ import { type ReactNode, useState } from 'react';
 
 import { navFor } from '@/lib/nav';
 
+import { useAgentName } from './agent-name-provider';
 import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
 import { LogoMark } from './logo-mark';
@@ -19,18 +20,21 @@ function NavGroupBlock({
   onNavigate,
   badges,
   upgradeBadge,
+  agentName,
 }: {
   group: ReturnType<typeof navFor>[number];
   pathname: string;
   onNavigate: () => void;
   badges?: Record<string, number>;
   upgradeBadge: string;
+  agentName: string;
 }) {
+  const label = group.isAgentGroup ? agentName : group.label;
   return (
     <div>
       {!group.hideLabel && (
         <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {group.label}
+          {label}
         </p>
       )}
       <ul className="space-y-0.5">
@@ -102,6 +106,7 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const agentName = useAgentName();
   const groups = navFor(tenantType, planId);
   const mainGroups = groups.filter((g) => !g.pinBottom);
   const bottomGroups = groups.filter((g) => g.pinBottom);
@@ -142,6 +147,7 @@ export function AppShell({
                 onNavigate={() => setOpen(false)}
                 badges={badges}
                 upgradeBadge={upgradeBadge}
+                agentName={agentName}
               />
             ))}
           </div>
@@ -155,6 +161,7 @@ export function AppShell({
                   onNavigate={() => setOpen(false)}
                   badges={badges}
                   upgradeBadge={upgradeBadge}
+                  agentName={agentName}
                 />
               ))}
             </div>
