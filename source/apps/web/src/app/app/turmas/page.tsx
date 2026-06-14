@@ -114,10 +114,10 @@ export default async function TurmasPage({
               </select>
               <div className="flex gap-2">
                 <select name="secao" className={fieldClass} defaultValue="">
-                  <option value="">Sem seção</option>
+                  <option value="">Turma única (sem letra)</option>
                   {SECOES.map((s) => (
                     <option key={s} value={s}>
-                      Seção {s}
+                      Turma {s}
                     </option>
                   ))}
                 </select>
@@ -133,7 +133,7 @@ export default async function TurmasPage({
           <div className={cardClass}>
             <h2 className="mb-1 text-sm font-medium">Criar turmas em lote</h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              Escolha a série e marque as seções. Cria uma turma por seção.
+              Escolha a série e marque as turmas. Cria uma turma por letra.
             </p>
             <form action={importClassesStructuredAction} className="flex flex-col gap-3">
               <select name="serie" className={fieldClass} defaultValue="">
@@ -147,7 +147,7 @@ export default async function TurmasPage({
                 ))}
               </select>
               <div>
-                <p className="mb-1.5 text-xs text-muted-foreground">Seções:</p>
+                <p className="mb-1.5 text-xs text-muted-foreground">Turmas:</p>
                 <div className="flex flex-wrap gap-2">
                   {SECOES.map((s) => (
                     <label
@@ -155,12 +155,12 @@ export default async function TurmasPage({
                       className="flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/10"
                     >
                       <input type="checkbox" name="secao" value={s} className="sr-only" />
-                      {s}
+                      Turma {s}
                     </label>
                   ))}
                 </div>
                 <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  Ou digitar seções personalizadas:
+                  Ou digitar turmas personalizadas:
                 </p>
                 <BulkAddRows
                   fields={[{ name: 'secao', placeholder: 'Ex.: Integral, Noturno' }]}
