@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
 import { exitImpersonationAction } from '@/app/admin/actions';
+import { AgentNameProvider } from '@/components/agent-name-provider';
 import { AppShell } from '@/components/app-shell';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
@@ -26,6 +27,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     countPendingDrafts(db(), ctx).catch(() => 0),
   ]);
   const workspaceName = brand?.name ?? null;
+  const agentName = settings?.agentName?.trim() || 'WayOn';
 
   const headerActions = impersonating ? (
     <form action={exitImpersonationAction}>
@@ -47,7 +49,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     : null;
 
   return (
-    <>
+    <AgentNameProvider name={agentName}>
       {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
       <AppShell
         tenantType={ctx.tenantType}
@@ -84,6 +86,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         )}
         {children}
       </AppShell>
-    </>
+    </AgentNameProvider>
   );
 }

@@ -5,6 +5,7 @@ import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
@@ -62,7 +63,7 @@ export default async function SimuladosPage() {
           <div className={cardClass}>
             <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
-              Gerar com o WayOn
+              Gerar com o <AgentNameText />
             </h2>
             <p className="mb-2 text-xs text-muted-foreground">
               O agente cria as questões. Você revisa e ajusta o gabarito.
@@ -103,7 +104,7 @@ export default async function SimuladosPage() {
               </form>
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar simulados.
+                <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar simulados.
               </p>
             )}
           </div>

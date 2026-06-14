@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { AuthContext } from '@on-education/auth';
 import { isAiConfigured, listDrafts } from '@on-education/module-ia';
 import { Button } from '@on-education/ui';
@@ -13,13 +14,15 @@ export async function IaGenerator({
   kind,
   promptPlaceholder,
   generateLabel,
+  agentName = 'WayOn',
   students,
   classes,
 }: {
   ctx: AuthContext;
   kind: string;
   promptPlaceholder: string;
-  generateLabel: string;
+  generateLabel: ReactNode;
+  agentName?: string;
   /** Quando fornecido, mostra um seletor para vincular o rascunho a um aluno. */
   students?: { id: string; fullName: string }[];
   /** Quando fornecido, mostra um seletor para basear a resposta nos materiais de uma turma. */
@@ -69,7 +72,7 @@ export async function IaGenerator({
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para usar.
+            {agentName} indisponível. Configure <code>ANTHROPIC_API_KEY</code> para usar.
           </p>
         )}
       </div>

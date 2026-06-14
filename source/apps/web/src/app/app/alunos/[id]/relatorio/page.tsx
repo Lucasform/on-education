@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
 import { PrintButton } from '@/components/print-button';
@@ -115,7 +116,7 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
       <div className={`${cardClass} print:hidden`}>
         <h2 className="mb-1 text-sm font-medium">Recado aos pais</h2>
         <p className="mb-2 text-xs text-muted-foreground">
-          O WayOn escreve um recado curto a partir dos números acima. Revise antes de enviar.
+          O <AgentNameText /> escreve um recado curto a partir dos números acima. Revise antes de enviar.
         </p>
         {aiOn ? (
           <form action={escreverRecadoPaisAction} className="flex flex-col gap-2">
@@ -126,12 +127,12 @@ export default async function RelatorioPaisPage({ params }: { params: Promise<{ 
               className={fieldClass}
             />
             <SubmitButton type="submit" size="sm">
-              {recado ? 'Gerar outro recado' : 'Escrever com o WayOn'}
+              {recado ? 'Gerar outro recado' : <span>Escrever com o <AgentNameText /></span>}
             </SubmitButton>
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            Configure <code>ANTHROPIC_API_KEY</code> para o WayOn escrever o recado.
+            Configure <code>ANTHROPIC_API_KEY</code> para o <AgentNameText /> escrever o recado.
           </p>
         )}
       </div>

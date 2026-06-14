@@ -9,7 +9,7 @@ export const cardClass = 'rounded-lg border border-border bg-card p-5';
 export const tableWrapClass = 'w-full overflow-x-auto';
 
 /** Cabeçalho padrão de página dentro do app (título + descrição). */
-export function PageHeader({ title, description }: { title: string; description?: string }) {
+export function PageHeader({ title, description }: { title: string; description?: string | ReactNode }) {
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>

@@ -4,6 +4,7 @@ import type { EssayGap } from '@on-education/module-ia';
 import { useState } from 'react';
 
 import { generateDraftAction } from '@/app/app/actions';
+import { useAgentName } from '@/components/agent-name-provider';
 import { cardClass, fieldClass } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 
@@ -27,6 +28,7 @@ async function downscale(file: File): Promise<Blob> {
 }
 
 export function RedacaoFoto({ students = [] }: { students?: { id: string; fullName: string }[] }) {
+  const agentName = useAgentName();
   const [studentId, setStudentId] = useState('');
   const [previews, setPreviews] = useState<{ url: string; blob: Blob }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -92,7 +94,7 @@ export function RedacaoFoto({ students = [] }: { students?: { id: string; fullNa
     <div className={cardClass}>
       <h2 className="mb-1 text-sm font-medium">Corrigir a partir de uma foto</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Tire a foto da folha (ou envie a imagem). O WayOn transcreve sem inventar: o que não der
+        Tire a foto da folha (ou envie a imagem). O {agentName} transcreve sem inventar: o que não der
         para ler fica marcado para você completar antes de corrigir.
       </p>
 
@@ -221,7 +223,7 @@ export function RedacaoFoto({ students = [] }: { students?: { id: string; fullNa
             <input type="hidden" name="prompt" value={promptFinal} />
             <input type="hidden" name="studentId" value={studentId} />
             <SubmitButton type="submit" size="sm">
-              Corrigir com o WayOn
+              Corrigir com o {agentName}
             </SubmitButton>
             <span className="ml-2 text-xs text-muted-foreground">
               A correção aparece na lista abaixo.

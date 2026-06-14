@@ -2,6 +2,7 @@ import { listCommunications } from '@on-education/module-comunicacao';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, PageHeader } from '@/components/form';
 import { CopyLink } from '@/components/copy-link';
 import { PrintButton } from '@/components/print-button';
@@ -70,7 +71,7 @@ export default async function MuralPage() {
               )}
               {c.aiGenerated && (
                 <span className="mt-3 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                  gerado com WayOn
+                  gerado com <AgentNameText />
                 </span>
               )}
             </article>

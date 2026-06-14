@@ -5,6 +5,7 @@ import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
@@ -65,13 +66,13 @@ export default async function AtividadesPage({
     <>
       <PageHeader
         title="Banco de atividades"
-        description="Atividades, provas, trabalhos e roteiros. Rascunhos do WayOn esperam o seu OK."
+        description={<>Atividades, provas, trabalhos e roteiros. Rascunhos do <AgentNameText /> esperam o seu OK.</>}
       />
 
       {rascunhos.length > 0 && (
         <div className={`${cardClass} border-warning/40`}>
           <h2 className="mb-3 text-sm font-medium text-warning">
-            Rascunhos do WayOn a revisar ({rascunhos.length})
+            Rascunhos do <AgentNameText /> a revisar ({rascunhos.length})
           </h2>
           <ul className="space-y-2 text-sm">
             {rascunhos.map((a) => (
@@ -207,17 +208,17 @@ export default async function AtividadesPage({
           <div className={cardClass}>
             <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
-              Gerar com o WayOn
+              Gerar com o <AgentNameText />
             </h2>
             <p className="mb-2 text-xs text-muted-foreground">
-              O WayOn cria e deixa como <strong>rascunho</strong>. Você revisa e dá OK pra ir ao
+              O <AgentNameText /> cria e deixa como <strong>rascunho</strong>. Você revisa e dá OK pra ir ao
               banco.
             </p>
             {aiOn ? (
               <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
             ) : (
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar atividades.
+                <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar atividades.
               </p>
             )}
           </div>

@@ -3,6 +3,7 @@ import { listFlashcardDecks } from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
@@ -25,7 +26,7 @@ export default async function FlashcardsPage() {
     <>
       <PageHeader
         title="Flashcards"
-        description="O WayOn cria baralhos de estudo (frente e verso) no seu padrão. Clique para estudar."
+        description={<>O <AgentNameText /> cria baralhos de estudo (frente e verso) no seu padrão. Clique para estudar.</>}
       />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
@@ -58,7 +59,7 @@ export default async function FlashcardsPage() {
         </div>
 
         <div className={cardClass}>
-          <h2 className="mb-2 text-sm font-medium">Gerar com o WayOn</h2>
+          <h2 className="mb-2 text-sm font-medium">Gerar com o <AgentNameText /></h2>
           {aiOn ? (
             <form action={generateFlashcardsAction} className="flex flex-col gap-2">
               <input
@@ -86,7 +87,7 @@ export default async function FlashcardsPage() {
             </form>
           ) : (
             <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-              WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code>.
+              <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code>.
             </p>
           )}
         </div>

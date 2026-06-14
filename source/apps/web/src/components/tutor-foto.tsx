@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { generateDraftAction } from '@/app/app/actions';
+import { useAgentName } from '@/components/agent-name-provider';
 import { cardClass, fieldClass } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 
@@ -24,6 +25,7 @@ async function downscale(file: File): Promise<Blob> {
 
 /** Tira foto do enunciado → o WayOn transcreve → vira a pergunta do tutor (sem resolver na foto). */
 export function TutorFoto() {
+  const agentName = useAgentName();
   const [previews, setPreviews] = useState<{ url: string; blob: Blob }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export function TutorFoto() {
     <div className={cardClass}>
       <h2 className="mb-1 text-sm font-medium">Ler o enunciado por foto</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Tire a foto do exercício. O WayOn transcreve (sem resolver na foto) e você pede a
+        Tire a foto do exercício. O {agentName} transcreve (sem resolver na foto) e você pede a
         explicação.
       </p>
 

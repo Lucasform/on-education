@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 
 import { UpgradeGate } from '@/components/upgrade-gate';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, PageHeader } from '@/components/form';
 import { CorrecaoLote } from '@/components/correcao-lote';
 import { db } from '@/server/db';
@@ -39,13 +40,13 @@ export default async function CorrecaoPage() {
     <>
       <PageHeader
         title="Correção em lote"
-        description="Fotografe a pilha de provas/trabalhos. O WayOn corrige um a um e sugere a nota; você confirma e lança tudo no diário."
+        description={<>Fotografe a pilha de provas/trabalhos. O <AgentNameText /> corrige um a um e sugere a nota; você confirma e lança tudo no diário.</>}
       />
 
       {!aiOn ? (
         <div className={cardClass}>
           <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para corrigir por foto.
+            <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code> para corrigir por foto.
           </p>
         </div>
       ) : (

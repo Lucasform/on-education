@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { generateActivityAction } from '@/app/app/actions';
+import { useAgentName } from '@/components/agent-name-provider';
 import { fieldClass } from '@/components/form';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
 import { SubmitButton } from '@/components/submit-button';
@@ -12,6 +13,7 @@ import { SubmitButton } from '@/components/submit-button';
  * individual ou em grupo (com nº de alunos) e os materiais sugeridos para os alunos usarem.
  */
 export function GerarAtividadeForm({ turmas }: { turmas: { id: string; name: string }[] }) {
+  const agentName = useAgentName();
   const [kind, setKind] = useState('atividade');
   const [workMode, setWorkMode] = useState('individual');
   const isTrabalho = kind === 'trabalho';
@@ -93,7 +95,7 @@ export function GerarAtividadeForm({ turmas }: { turmas: { id: string; name: str
       )}
 
       <SubmitButton type="submit" size="sm">
-        Gerar com o WayOn
+        Gerar com o {agentName}
       </SubmitButton>
     </form>
   );

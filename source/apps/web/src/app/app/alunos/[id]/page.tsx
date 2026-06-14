@@ -122,7 +122,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         <div className="flex flex-wrap items-center gap-4">
           {aluno.photoUrl ? (
             /* Foto do aluno: URL pública do bucket, não requer next/image */
-            <img  // eslint-disable-line
+            <img
               src={aluno.photoUrl}
               alt={aluno.fullName}
               className="h-20 w-20 rounded-full object-cover ring-2 ring-border"

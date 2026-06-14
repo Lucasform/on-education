@@ -4,26 +4,25 @@ import { CalendarDays, GraduationCap, Home, Sparkles, Users, type LucideIcon } f
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-/**
- * Navegação inferior no mobile (item 16, primeiro passo de app mobile). Atalhos para as
- * seções mais usadas; some no desktop (a sidebar assume) e na impressão. Comum aos dois
- * segmentos — destinos que existem tanto para escola quanto para professor autônomo.
- */
-const ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
+import { useAgentName } from './agent-name-provider';
+
+const NAV_ITEMS: { label?: string; agentLabel?: true; href: string; icon: LucideIcon }[] = [
   { label: 'Início', href: '/app', icon: Home },
   { label: 'Turmas', href: '/app/turmas', icon: Users },
   { label: 'Alunos', href: '/app/alunos', icon: GraduationCap },
-  { label: 'WayOn', href: '/app/ia', icon: Sparkles },
+  { agentLabel: true, href: '/app/ia', icon: Sparkles },
   { label: 'Agenda', href: '/app/calendario', icon: CalendarDays },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const agentName = useAgentName();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden">
-      {ITEMS.map((item) => {
+      {NAV_ITEMS.map((item) => {
         const active = item.href === '/app' ? pathname === '/app' : pathname.startsWith(item.href);
         const Icon = item.icon;
+        const label = item.agentLabel ? agentName : item.label!;
         return (
           <Link
             key={item.href}
@@ -40,7 +39,7 @@ export function BottomNav() {
             >
               <Icon className="h-5 w-5" />
             </span>
-            <span>{item.label}</span>
+            <span>{label}</span>
           </Link>
         );
       })}

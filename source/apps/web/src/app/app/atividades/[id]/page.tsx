@@ -3,6 +3,7 @@ import { getActivity } from '@on-education/module-pedagogico';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
@@ -79,7 +80,7 @@ export default async function AtividadeDetalhePage({
             <h1 className="text-xl font-bold leading-tight">{atividade.title}</h1>
             <p className="text-xs text-muted-foreground">
               {atividade.subject ? `${atividade.subject} · ` : ''}
-              {atividade.aiGenerated ? 'Gerado pelo WayOn' : 'Atividade'}
+              {atividade.aiGenerated ? <span>Gerado pelo <AgentNameText /></span> : 'Atividade'}
             </p>
           </div>
         </header>
@@ -109,7 +110,7 @@ export default async function AtividadeDetalhePage({
           className={`${cardClass} flex flex-wrap items-center justify-between gap-2 border-warning/40 print:hidden`}
         >
           <p className="text-sm text-warning">
-            Este é um rascunho do WayOn. Revise e dê OK para ir ao banco.
+            Este é um rascunho do <AgentNameText />. Revise e dê OK para ir ao banco.
           </p>
           <form action={approveActivityAction}>
             <input type="hidden" name="id" value={atividade.id} />
@@ -154,7 +155,7 @@ export default async function AtividadeDetalhePage({
                 </select>
               </div>
               <SubmitButton type="submit" size="sm">
-                Duplicar e adaptar com o WayOn
+                Duplicar e adaptar com o <AgentNameText />
               </SubmitButton>
               <p className="text-[11px] text-muted-foreground">
                 Gera um rascunho pra você revisar antes de salvar no banco.
@@ -162,7 +163,7 @@ export default async function AtividadeDetalhePage({
             </form>
           ) : (
             <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-              Configure <code>ANTHROPIC_API_KEY</code> para adaptar com o WayOn.
+              Configure <code>ANTHROPIC_API_KEY</code> para adaptar com o <AgentNameText />.
             </p>
           )}
         </div>

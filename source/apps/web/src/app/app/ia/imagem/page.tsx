@@ -5,6 +5,7 @@ import {
 } from '@on-education/module-ia';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
@@ -32,7 +33,7 @@ export default async function ImagemPage() {
     <>
       <PageHeader
         title="Gerar imagem"
-        description="O WayOn cria ilustrações para flashcards, enunciados e capas. Imagem em texto legível."
+        description={<>O <AgentNameText /> cria ilustrações para flashcards, enunciados e capas. Imagem em texto legível.</>}
       />
 
       <div className={cardClass}>
@@ -47,7 +48,7 @@ export default async function ImagemPage() {
             </p>
             {semCota ? (
               <p className="rounded-md border border-warning/30 bg-warning/10 p-2 text-sm text-warning">
-                Cota de imagens do mês atingida (ou plano sem imagem). O texto do WayOn segue
+                Cota de imagens do mês atingida (ou plano sem imagem). O texto do <AgentNameText /> segue
                 normal.
               </p>
             ) : (

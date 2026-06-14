@@ -6,6 +6,7 @@ import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
@@ -132,10 +133,10 @@ export default async function PlanejamentoPage({
               <div className={cardClass}>
                 <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  Gerar plano com o WayOn
+                  Gerar plano com o <AgentNameText />
                 </h2>
                 <p className="mb-2 text-xs text-muted-foreground">
-                  Diga o tema; o WayOn monta objetivos, passo a passo, recursos e avaliação. Vai
+                  Diga o tema; o <AgentNameText /> monta objetivos, passo a passo, recursos e avaliação. Vai
                   direto pro planejamento desta turma e usa os materiais dela como referência.
                 </p>
                 {aiOn ? (
@@ -198,7 +199,7 @@ export default async function PlanejamentoPage({
                   </form>
                 ) : (
                   <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                    WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar planos.
+                    <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar planos.
                   </p>
                 )}
               </div>

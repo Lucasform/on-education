@@ -9,6 +9,7 @@ import { BookOpen, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -208,7 +209,7 @@ export default async function PlanoDiarioPage({
                               <div>
                                 <p className="mb-2 flex items-center gap-1 text-xs font-medium">
                                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                                  Gerar plano com o WayOn
+                                  Gerar plano com o <AgentNameText />
                                 </p>
                                 <form
                                   action={generateLessonPlanAction}
@@ -275,7 +276,7 @@ export default async function PlanoDiarioPage({
                               </div>
                             ) : (
                               <p className="text-xs text-muted-foreground">
-                                WayOn indisponível. Configure{' '}
+                                <AgentNameText /> indisponível. Configure{' '}
                                 <code>ANTHROPIC_API_KEY</code> para gerar planos.
                               </p>
                             )}

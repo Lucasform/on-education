@@ -114,7 +114,7 @@ export default async function IaPage() {
               </select>
             )}
             <SubmitButton type="submit" size="sm">
-              Gerar com o WayOn
+              Gerar com o {agente}
             </SubmitButton>
             <p className="text-xs text-muted-foreground">
               Flashcards abrem direto na tela de estudo. O resto vira rascunho para você revisar.
@@ -122,7 +122,7 @@ export default async function IaPage() {
           </form>
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar.
+            {agente} indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar.
           </p>
         )}
       </div>
@@ -137,7 +137,7 @@ export default async function IaPage() {
           <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-            WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code>.
+            {agente} indisponível. Configure <code>ANTHROPIC_API_KEY</code>.
           </p>
         )}
       </div>

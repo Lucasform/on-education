@@ -58,6 +58,7 @@ export default async function OverviewPage() {
       isSchool ? getTenantSettings(client, ctx).catch(() => null) : Promise.resolve(null),
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
+  const agenteName = configuracoes?.agentName?.trim() || 'WayOn';
 
   // Alertas de dados incompletos
   const alertas: { msg: string; href: string }[] = [];
@@ -132,7 +133,7 @@ export default async function OverviewPage() {
         ]
       : []),
     { label: 'Montar o banco de atividades', href: '/app/atividades', done: atividades.length > 0 },
-    { label: 'Gerar conteúdo com o WayOn', href: '/app/ia', done: rascunhos.length > 0 },
+    { label: `Gerar conteúdo com o ${agenteName}`, href: '/app/ia', done: rascunhos.length > 0 },
   ];
   const feitos = passos.filter((p) => p.done).length;
 
@@ -193,7 +194,7 @@ export default async function OverviewPage() {
             { label: '+ Nova turma', href: '/app/turmas' },
             { label: '+ Novo aluno', href: '/app/alunos' },
             { label: 'Fazer chamada', href: '/app/sala/chamada' },
-            { label: 'Gerar com WayOn', href: '/app/ia' },
+            { label: `Gerar com ${agenteName}`, href: '/app/ia' },
             ...(isSchool
               ? [
                   { label: 'Novo comunicado', href: '/app/comunicados' },

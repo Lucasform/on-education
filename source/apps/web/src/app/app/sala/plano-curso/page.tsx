@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Sparkles, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
@@ -162,7 +163,7 @@ export default async function PlanoCursoPage({
               <h2 className="mb-3 text-sm font-medium">Sequência ({unidades.length})</h2>
               {unidades.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nenhuma unidade ainda. Gere com o WayOn ou adicione manualmente.
+                  Nenhuma unidade ainda. Gere com o <AgentNameText /> ou adicione manualmente.
                 </p>
               ) : (
                 <ol className="space-y-2 text-sm">
@@ -276,10 +277,10 @@ export default async function PlanoCursoPage({
               <section className={cardClass}>
                 <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  Gerar ementa com o WayOn
+                  Gerar ementa com o <AgentNameText />
                 </h2>
                 <p className="mb-2 text-xs text-muted-foreground">
-                  O WayOn propõe as unidades do ano em ordem, com a quantidade de aulas de cada uma.
+                  O <AgentNameText /> propõe as unidades do ano em ordem, com a quantidade de aulas de cada uma.
                   Você revê e ajusta. As unidades entram no fim da sequência.
                 </p>
                 {isAiConfigured() ? (
@@ -324,7 +325,7 @@ export default async function PlanoCursoPage({
                   </form>
                 ) : (
                   <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-                    WayOn indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar a ementa.
+                    <AgentNameText /> indisponível. Configure <code>ANTHROPIC_API_KEY</code> para gerar a ementa.
                   </p>
                 )}
               </section>
