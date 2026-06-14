@@ -8,7 +8,7 @@ import {
   users,
 } from '@on-education/db';
 import type { TenantType } from '@on-education/core';
-import { and, count, desc, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, sql } from 'drizzle-orm';
 
 /**
  * Visão de ADMIN do app (super-admin do SaaS, à la `admin_onway`). Lê dados de TODOS os
@@ -317,6 +317,153 @@ export async function getTenantActivity(
     aiGenerated: Boolean(a.aiGenerated),
     tags: Array.isArray(a.tags) ? (a.tags as string[]) : [],
   };
+}
+
+// --- Visão GLOBAL do admin: tudo do produto, cross-tenant, com a conta de origem ----------
+// Cap defensivo: até 1000 linhas por lista (o painel admin não pagina ainda; evita estourar).
+
+const ADMIN_LIST_CAP = 1000;
+
+export interface GlobalActivity {
+  id: string;
+  title: string;
+  kind: string;
+  subject: string | null;
+  tenantId: string;
+  tenantName: string;
+  createdAt: Date;
+}
+
+export async function listAllActivities(client: DbClient): Promise<GlobalActivity[]> {
+  const rows = await client.db
+    .select({
+      id: activities.id,
+      title: activities.title,
+      kind: activities.kind,
+      subject: activities.subject,
+      tenantId: activities.tenantId,
+      tenantName: tenants.name,
+      createdAt: activities.createdAt,
+    })
+    .from(activities)
+    .leftJoin(tenants, eq(tenants.id, activities.tenantId))
+    .orderBy(desc(activities.createdAt))
+    .limit(ADMIN_LIST_CAP);
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    kind: String(r.kind),
+    subject: r.subject ?? null,
+    tenantId: r.tenantId,
+    tenantName: r.tenantName ?? '—',
+    createdAt: new Date(r.createdAt),
+  }));
+}
+
+export interface GlobalUser {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+  tenantId: string;
+  tenantName: string;
+}
+
+export async function listAllUsers(client: DbClient): Promise<GlobalUser[]> {
+  const rows = await client.db
+    .select({
+      userId: memberships.userId,
+      role: memberships.role,
+      name: users.fullName,
+      email: users.email,
+      tenantId: memberships.tenantId,
+      tenantName: tenants.name,
+    })
+    .from(memberships)
+    .leftJoin(users, eq(users.id, memberships.userId))
+    .leftJoin(tenants, eq(tenants.id, memberships.tenantId))
+    .limit(ADMIN_LIST_CAP);
+  return rows.map((r) => ({
+    userId: r.userId,
+    name: r.name ?? null,
+    email: r.email ?? null,
+    role: String(r.role),
+    tenantId: r.tenantId,
+    tenantName: r.tenantName ?? '—',
+  }));
+}
+
+export interface GlobalClass {
+  id: string;
+  name: string;
+  gradeLevel: string | null;
+  tenantId: string;
+  tenantName: string;
+  students: number;
+}
+
+export async function listAllClasses(client: DbClient): Promise<GlobalClass[]> {
+  const rows = (await client.db.execute(sql`
+    select
+      ${classes.id} as id,
+      ${classes.name} as name,
+      ${classes.gradeLevel} as grade_level,
+      ${classes.tenantId} as tenant_id,
+      ${tenants.name} as tenant_name,
+      (select count(*) from ${students}
+        where ${students.classId} = ${classes.id} and ${students.deletedAt} is null) as students
+    from ${classes}
+    left join ${tenants} on ${tenants.id} = ${classes.tenantId}
+    where ${classes.deletedAt} is null
+    order by ${tenants.name}, ${classes.name}
+    limit ${ADMIN_LIST_CAP}
+  `)) as unknown as Array<{
+    id: string;
+    name: string;
+    grade_level: string | null;
+    tenant_id: string;
+    tenant_name: string | null;
+    students: number | string;
+  }>;
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    gradeLevel: r.grade_level ?? null,
+    tenantId: r.tenant_id,
+    tenantName: r.tenant_name ?? '—',
+    students: Number(r.students ?? 0),
+  }));
+}
+
+export interface GlobalStudent {
+  id: string;
+  fullName: string;
+  tenantId: string;
+  tenantName: string;
+  className: string | null;
+}
+
+export async function listAllStudents(client: DbClient): Promise<GlobalStudent[]> {
+  const rows = await client.db
+    .select({
+      id: students.id,
+      fullName: students.fullName,
+      tenantId: students.tenantId,
+      tenantName: tenants.name,
+      className: classes.name,
+    })
+    .from(students)
+    .leftJoin(tenants, eq(tenants.id, students.tenantId))
+    .leftJoin(classes, eq(classes.id, students.classId))
+    .where(isNull(students.deletedAt))
+    .limit(ADMIN_LIST_CAP);
+  return rows.map((r) => ({
+    id: r.id,
+    fullName: r.fullName,
+    tenantId: r.tenantId,
+    tenantName: r.tenantName ?? '—',
+    className: r.className ?? null,
+  }));
 }
 
 /** Tabelas tenant-scoped que devem ser purgadas ao apagar uma escola definitivamente. */

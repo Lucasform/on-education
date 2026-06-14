@@ -8,13 +8,24 @@ import { enterTenantAction } from './actions';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Visão geral · Admin' };
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
+function StatCard({ label, value, href }: { label: string; value: number; href?: string }) {
+  const inner = (
+    <>
       <div className="text-2xl font-semibold">{value}</div>
       <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent"
+      >
+        {inner}
+      </a>
+    );
+  }
+  return <div className="rounded-lg border border-border bg-card p-4">{inner}</div>;
 }
 
 const EMPTY_STATS = {
@@ -66,13 +77,13 @@ export default async function AdminOverviewPage() {
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-        <StatCard label="Tenants" value={stats.tenants} />
-        <StatCard label="Escolas" value={stats.organizations} />
-        <StatCard label="Professores" value={stats.individuals} />
-        <StatCard label="Usuários" value={stats.users} />
-        <StatCard label="Alunos" value={stats.students} />
-        <StatCard label="Turmas" value={stats.classes} />
-        <StatCard label="Atividades" value={stats.activities} />
+        <StatCard label="Clientes" value={stats.tenants} href="/admin/contas" />
+        <StatCard label="Escolas" value={stats.organizations} href="/admin/contas?tipo=escola" />
+        <StatCard label="Professores" value={stats.individuals} href="/admin/contas?tipo=professor" />
+        <StatCard label="Usuários" value={stats.users} href="/admin/usuarios" />
+        <StatCard label="Alunos" value={stats.students} href="/admin/alunos" />
+        <StatCard label="Turmas" value={stats.classes} href="/admin/turmas" />
+        <StatCard label="Atividades" value={stats.activities} href="/admin/atividades" />
       </section>
 
       <section className="flex flex-col gap-3">

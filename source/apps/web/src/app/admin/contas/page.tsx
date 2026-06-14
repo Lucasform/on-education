@@ -19,9 +19,9 @@ export const metadata = { title: 'Contas · Admin' };
 export default async function ContasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string }>;
+  searchParams: Promise<{ deleted?: string; tipo?: string }>;
 }) {
-  const { deleted } = await searchParams;
+  const { deleted, tipo } = await searchParams;
   const showDeleted = deleted === '1';
   // Blindagem: lentidão do banco não pode deixar a página girando pra sempre (degrada em ~7s).
   const tenants = await Promise.race([
@@ -30,7 +30,11 @@ export default async function ContasPage({
     ),
     new Promise<Awaited<ReturnType<typeof listAllTenants>>>((r) => setTimeout(() => r([]), 7000)),
   ]);
-  const lista = showDeleted ? tenants.filter((t) => t.deletedAt) : tenants;
+  const tipoFiltro =
+    tipo === 'escola' ? 'organization' : tipo === 'professor' ? 'individual' : null;
+  const lista = (showDeleted ? tenants.filter((t) => t.deletedAt) : tenants).filter(
+    (t) => !tipoFiltro || t.tenantType === tipoFiltro,
+  );
 
   return (
     <>
