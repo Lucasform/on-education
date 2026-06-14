@@ -1,7 +1,6 @@
 import { isAiConfigured } from '@on-education/module-ia';
 import { getTenantSettings, listStudentGuardians } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';

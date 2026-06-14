@@ -39,7 +39,7 @@ export default async function MembroDetailPage({ params }: { params: Promise<{ i
   return (
     <>
       <PageHeader
-        title={membro.fullName || membro.email}
+        title={membro.fullName || membro.email || 'Membro'}
         description={
           <span className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">

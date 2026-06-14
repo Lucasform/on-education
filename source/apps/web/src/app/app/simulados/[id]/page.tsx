@@ -1,6 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
 import { getQuiz, listQuizAttempts } from '@on-education/module-pedagogico';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
