@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 
 import { removeLogoAction, uploadLogoAction } from '@/app/app/actions';
-
 import { SubmitButton } from './submit-button';
 
 export function LogoUpload({ currentUrl }: { currentUrl: string | null }) {
@@ -34,11 +33,8 @@ export function LogoUpload({ currentUrl }: { currentUrl: string | null }) {
           className="text-xs file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs"
         />
         <span className="text-[11px] text-muted-foreground">
-          PNG, JPG, SVG ou WEBP, até 2 MB. Envia ao escolher.
+          PNG, JPG, SVG ou WEBP, até 2 MB. Envia ao escolher o arquivo.
         </span>
-        <SubmitButton type="submit" size="sm" variant="outline" className="w-fit">
-          Enviar
-        </SubmitButton>
       </form>
       {currentUrl && (
         <form action={removeLogoAction}>
