@@ -31,8 +31,8 @@ export default async function AnoLetivoPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
   const client = db();
   const [anos, periodos] = await Promise.all([
-    listAcademicYears(client, ctx),
-    listTerms(client, ctx),
+    listAcademicYears(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listAcademicYears>>),
+    listTerms(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listTerms>>),
   ]);
 
   const periodosPorAno = (anoId: string) => periodos.filter((p) => p.academicYearId === anoId);

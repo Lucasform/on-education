@@ -32,7 +32,7 @@ export default async function ResponsaveisPage({
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const { portalToken, guardianId: tokenGuardianId } = await searchParams;
-  const responsaveis = await listGuardians(db(), ctx);
+  const responsaveis = await listGuardians(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listGuardians>>);
   const nomeGuardian = tokenGuardianId
     ? (responsaveis.find((g) => g.id === tokenGuardianId)?.fullName ?? '')
     : '';

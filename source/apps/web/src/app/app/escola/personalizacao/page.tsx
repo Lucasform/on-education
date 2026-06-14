@@ -26,7 +26,7 @@ export default async function PersonalizacaoPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
-  const settings = await getTenantSettings(db(), ctx);
+  const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
 
   return (

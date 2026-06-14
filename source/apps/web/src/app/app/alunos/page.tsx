@@ -29,7 +29,10 @@ export default async function AlunosPage({
   if (!ctx) redirect('/login');
   const client = db();
   const sp = await searchParams;
-  const [alunos, turmas] = await Promise.all([listStudents(client, ctx), listClasses(client, ctx)]);
+  const [alunos, turmas] = await Promise.all([
+    listStudents(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listStudents>>),
+    listClasses(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listClasses>>),
+  ]);
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 
   const termo = (sp.q ?? '').trim().toLowerCase();
