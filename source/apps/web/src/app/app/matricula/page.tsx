@@ -2,12 +2,13 @@ import { listClasses, listStudents } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { BulkAddRows } from '@/components/bulk-add-rows';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createStudentAction } from '../actions';
+import { createStudentAction, enrollStudentsBulkAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Matrícula · Edu On Way' };
@@ -57,26 +58,61 @@ export default async function MatriculaPage() {
         </div>
       </section>
 
-      <div className={cardClass}>
-        <h2 className="mb-3 text-sm font-medium">Nova matrícula</h2>
-        <form action={createStudentAction} className="flex flex-wrap items-end gap-2">
-          <input name="fullName" required placeholder="Nome do aluno" className={fieldClass} />
-          <select name="classId" className={`${fieldClass} sm:w-56`} defaultValue="">
-            <option value="">Turma (opcional)</option>
-            {turmas.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-          <input name="birthDate" type="date" aria-label="Nascimento" className={fieldClass} />
-          <SubmitButton type="submit" size="sm">
-            Matricular
-          </SubmitButton>
-        </form>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Vincular responsável e mais detalhes no perfil do aluno.
-        </p>
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* Matrícula individual */}
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Nova matrícula</h2>
+          <form action={createStudentAction} className="flex flex-col gap-2">
+            <input name="fullName" required placeholder="Nome do aluno" className={fieldClass} />
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <select name="classId" className={fieldClass} defaultValue="">
+                <option value="">Turma (opcional)</option>
+                {turmas.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <input name="birthDate" type="date" aria-label="Nascimento" className={fieldClass} />
+            </div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <input name="guardianName" placeholder="Responsável (opcional)" className={fieldClass} />
+              <input name="guardianPhone" type="tel" placeholder="Telefone do responsável" className={fieldClass} />
+            </div>
+            <SubmitButton type="submit" size="sm">
+              Matricular
+            </SubmitButton>
+          </form>
+        </div>
+
+        {/* Matrícula em lote por turma */}
+        <div className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Matrícula em lote</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Escolha a turma e adicione vários alunos de uma vez, com o responsável de cada um.
+          </p>
+          <form action={enrollStudentsBulkAction} className="flex flex-col gap-3">
+            <select name="classId" className={fieldClass} defaultValue="">
+              <option value="">Sem turma</option>
+              {turmas.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <BulkAddRows
+              fields={[
+                { name: 'fullName', placeholder: 'Nome do aluno', className: 'flex-[2]' },
+                { name: 'birthDate', placeholder: 'Nascimento', type: 'date' },
+                { name: 'guardianName', placeholder: 'Responsável' },
+                { name: 'guardianPhone', placeholder: 'Telefone' },
+              ]}
+            />
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Matricular turma
+            </SubmitButton>
+          </form>
+        </div>
       </div>
 
       <div className="flex flex-col gap-5">
@@ -90,9 +126,15 @@ export default async function MatriculaPage() {
             ) : (
               <ul className="grid gap-1 text-sm sm:grid-cols-2">
                 {daTurma.map((a) => (
-                  <li key={a.id}>
+                  <li key={a.id} className="flex items-center justify-between gap-2">
                     <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                       {a.fullName}
+                    </Link>
+                    <Link
+                      href={`/app/matricula/${a.id}/ficha`}
+                      className="shrink-0 text-xs text-primary underline-offset-4 hover:underline"
+                    >
+                      Ficha (PDF)
                     </Link>
                   </li>
                 ))}
@@ -105,9 +147,15 @@ export default async function MatriculaPage() {
             <h2 className="mb-3 text-sm font-medium">Sem turma ({semTurma.length})</h2>
             <ul className="grid gap-1 text-sm sm:grid-cols-2">
               {semTurma.map((a) => (
-                <li key={a.id}>
+                <li key={a.id} className="flex items-center justify-between gap-2">
                   <Link href={`/app/alunos/${a.id}`} className="hover:underline">
                     {a.fullName}
+                  </Link>
+                  <Link
+                    href={`/app/matricula/${a.id}/ficha`}
+                    className="shrink-0 text-xs text-primary underline-offset-4 hover:underline"
+                  >
+                    Ficha (PDF)
                   </Link>
                 </li>
               ))}
