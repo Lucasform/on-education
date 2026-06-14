@@ -42,7 +42,10 @@ export async function listAllTenants(
 ): Promise<TenantOverview[]> {
   // UMA consulta só (subqueries por linha) — antes eram 3 round-trips que, no pool max:1,
   // enfileiravam e travavam o painel admin. As contagens viram subselects correlacionados.
-  const where = opts.includeDeleted ? sql`` : sql`where ${tenants.deletedAt} is null`;
+  // Tenants de sistema (Banco Geral) nunca aparecem nas listas normais.
+  const where = opts.includeDeleted
+    ? sql`where ${tenants.isSystem} = false`
+    : sql`where ${tenants.deletedAt} is null and ${tenants.isSystem} = false`;
   const rows = (await client.db.execute(sql`
     select
       ${tenants.id} as id,
@@ -86,11 +89,14 @@ export async function getAppStats(client: DbClient): Promise<AppStats> {
   // enfileiravam e deixavam o painel lento. Agora é 1 ida ao banco.
   const rows = (await client.db.execute(sql`
     select
-      (select count(*) from ${tenants} where ${tenants.deletedAt} is null) as tenants,
       (select count(*) from ${tenants}
-        where ${tenants.deletedAt} is null and ${tenants.tenantType} = 'organization') as organizations,
+        where ${tenants.deletedAt} is null and ${tenants.isSystem} = false) as tenants,
       (select count(*) from ${tenants}
-        where ${tenants.deletedAt} is null and ${tenants.tenantType} = 'individual') as individuals,
+        where ${tenants.deletedAt} is null and ${tenants.isSystem} = false
+          and ${tenants.tenantType} = 'organization') as organizations,
+      (select count(*) from ${tenants}
+        where ${tenants.deletedAt} is null and ${tenants.isSystem} = false
+          and ${tenants.tenantType} = 'individual') as individuals,
       (select count(distinct ${memberships.userId}) from ${memberships}) as users,
       (select count(*) from ${students}) as students,
       (select count(*) from ${classes}) as classes,
@@ -509,6 +515,29 @@ export async function listAllStudents(client: DbClient): Promise<GlobalStudent[]
   }));
 }
 
+/**
+ * Tenant de sistema "Banco Geral": recebe as atividades de contas excluidas para que o
+ * conteudo pedagogico nao se perca. Criado sob demanda; fica fora das listas normais.
+ */
+export async function getOrCreateGeneralBank(client: DbClient): Promise<string> {
+  const existing = await client.db
+    .select({ id: tenants.id })
+    .from(tenants)
+    .where(eq(tenants.isSystem, true))
+    .limit(1);
+  if (existing[0]) return existing[0].id;
+  const rows = await client.db
+    .insert(tenants)
+    .values({ tenantType: 'organization', name: 'Banco Geral', status: 'active', isSystem: true })
+    .returning({ id: tenants.id });
+  return rows[0]!.id;
+}
+
+/** Exclui DEFINITIVAMENTE uma atividade (limpeza do admin, ex.: no Banco Geral). */
+export async function deleteActivityAdmin(client: DbClient, activityId: string) {
+  await client.db.delete(activities).where(eq(activities.id, activityId));
+}
+
 /** Tabelas tenant-scoped que devem ser purgadas ao apagar uma escola definitivamente. */
 const TENANT_TABLES = [
   'memberships',
@@ -550,6 +579,24 @@ export async function restoreTenant(client: DbClient, tenantId: string) {
  * Irreversível: a UI exige confirmação forte.
  */
 export async function purgeTenant(client: DbClient, tenantId: string) {
+  // Protege o tenant de sistema (Banco Geral) de ser apagado.
+  const sys = await client.db
+    .select({ isSystem: tenants.isSystem })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId));
+  if (sys[0]?.isSystem) return;
+
+  // Preserva o conteudo: move as atividades para o Banco Geral em vez de apaga-las.
+  const bank = await getOrCreateGeneralBank(client);
+  if (bank !== tenantId) {
+    await client.db
+      .update(activities)
+      .set({ tenantId: bank })
+      .where(eq(activities.tenantId, tenantId));
+  }
+
+  // O resto dos dados do tenant e apagado (o delete de activities abaixo nao acha nada,
+  // pois ja foram movidas).
   for (const table of TENANT_TABLES) {
     await client.sql.unsafe(`delete from on_education.${table} where tenant_id = $1`, [tenantId]);
   }

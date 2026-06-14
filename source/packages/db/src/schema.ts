@@ -72,6 +72,9 @@ export const tenants = oe.table(
     status: text('status').notNull().default('active'),
     // Marcação de CRM do super-admin: distingue cliente pagante de conta de teste/trial.
     isClient: boolean('is_client').notNull().default(false),
+    // Tenant de SISTEMA (ex.: "Banco Geral" que recebe atividades de contas excluídas).
+    // Fica fora das listas/contagens normais e não pode ser excluído.
+    isSystem: boolean('is_system').notNull().default(false),
     ...auditCols,
   },
   () => [

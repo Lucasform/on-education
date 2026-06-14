@@ -85,35 +85,34 @@ export default async function AdminUsuariosPage() {
                     </a>
                   </td>
                   <td className="px-4 py-2">
-                    {isOwner ? (
-                      <span className="block text-right text-[11px] text-muted-foreground">
-                        dono (não removível)
-                      </span>
-                    ) : (
-                      <form
-                        action={removeUserAction}
-                        className="flex flex-wrap items-center justify-end gap-2"
+                    <form
+                      action={removeUserAction}
+                      className="flex flex-wrap items-center justify-end gap-2"
+                    >
+                      <input type="hidden" name="tenantId" value={u.tenantId} />
+                      <input type="hidden" name="userId" value={u.userId} />
+                      <input type="hidden" name="owner" value={isOwner.toString()} />
+                      <input type="hidden" name="email" value={u.email ?? ''} />
+                      <input type="hidden" name="name" value={u.name ?? ''} />
+                      <input type="hidden" name="tenantName" value={u.tenantName} />
+                      {emailOn && u.email && (
+                        <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <input type="checkbox" name="notify" className="h-3 w-3" />
+                          avisar por e-mail
+                        </label>
+                      )}
+                      <ConfirmButton
+                        size="sm"
+                        variant="ghost"
+                        message={
+                          isOwner
+                            ? `ATENÇÃO: ${u.name ?? u.email ?? 'este usuário'} é o DONO de "${u.tenantName}". Excluir vai APAGAR a conta inteira e todos os dados dela (alunos, turmas, notas...). As ATIVIDADES são preservadas no Banco Geral. Não dá para desfazer.`
+                            : `Remover o acesso de ${u.name ?? u.email ?? 'este usuário'} a ${u.tenantName}? O login não é apagado; apenas o acesso a esta conta.`
+                        }
                       >
-                        <input type="hidden" name="tenantId" value={u.tenantId} />
-                        <input type="hidden" name="userId" value={u.userId} />
-                        <input type="hidden" name="email" value={u.email ?? ''} />
-                        <input type="hidden" name="name" value={u.name ?? ''} />
-                        <input type="hidden" name="tenantName" value={u.tenantName} />
-                        {emailOn && u.email && (
-                          <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                            <input type="checkbox" name="notify" className="h-3 w-3" />
-                            avisar por e-mail
-                          </label>
-                        )}
-                        <ConfirmButton
-                          size="sm"
-                          variant="ghost"
-                          message={`Remover o acesso de ${u.name ?? u.email ?? 'este usuário'} a ${u.tenantName}? A conta de login não é apagada; apenas o acesso a esta escola.`}
-                        >
-                          Excluir
-                        </ConfirmButton>
-                      </form>
-                    )}
+                        {isOwner ? 'Excluir conta' : 'Excluir'}
+                      </ConfirmButton>
+                    </form>
                   </td>
                 </tr>
                 );
@@ -123,9 +122,9 @@ export default async function AdminUsuariosPage() {
         </table>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Excluir remove o acesso do usuário àquela conta (não apaga o login do Supabase, que é
-        compartilhado). O dono da conta não pode ser removido aqui; para isso, exclua a conta
-        inteira em Contas.
+        Para membros, Excluir remove só o acesso àquela conta (o login do Supabase, compartilhado,
+        não é apagado). Para o dono, Excluir conta apaga a conta inteira e seus dados; as atividades
+        são preservadas no Banco Geral (visível em Atividades).
         {!emailOn && ' O aviso por e-mail aparece quando o envio (Resend) estiver configurado.'}
       </p>
     </>

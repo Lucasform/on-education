@@ -1,6 +1,9 @@
 import { listAllActivities } from '@on-education/module-nucleo';
 
+import { ConfirmButton } from '@/components/confirm-button';
 import { db } from '@/server/db';
+
+import { deleteActivityAdminAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Atividades · Admin' };
@@ -30,12 +33,13 @@ export default async function AdminAtividadesPage() {
               <th className="px-4 py-2 font-medium">Disciplina</th>
               <th className="px-4 py-2 font-medium">Conta</th>
               <th className="px-4 py-2 font-medium">Criada</th>
+              <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
             {atividades.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   Nenhuma atividade.
                 </td>
               </tr>
@@ -62,6 +66,18 @@ export default async function AdminAtividadesPage() {
                   </td>
                   <td className="px-4 py-2 text-muted-foreground">
                     {new Date(a.createdAt).toLocaleDateString('pt-BR')}
+                  </td>
+                  <td className="px-4 py-2">
+                    <form action={deleteActivityAdminAction} className="flex justify-end">
+                      <input type="hidden" name="id" value={a.id} />
+                      <ConfirmButton
+                        size="sm"
+                        variant="ghost"
+                        message={`Excluir definitivamente a atividade "${a.title}"? Não dá para desfazer.`}
+                      >
+                        Excluir
+                      </ConfirmButton>
+                    </form>
                   </td>
                 </tr>
               ))

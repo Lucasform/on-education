@@ -1,6 +1,7 @@
 'use server';
 
 import {
+  deleteActivityAdmin,
   purgeTenant,
   removeMembership,
   restoreTenant,
@@ -63,31 +64,57 @@ export async function removeUserAction(formData: FormData): Promise<void> {
   const userId = String(formData.get('userId') ?? '');
   if (!tenantId || !userId) return;
 
-  const result = await removeMembership(db(), tenantId, userId);
-  if (!result.ok) {
-    // Dono: não removido (evita orfanar a conta). Recarrega sem alterar.
-    revalidatePath('/admin/usuarios');
-    return;
-  }
-
+  const isOwner = String(formData.get('owner') ?? '') === 'true';
   const notify = String(formData.get('notify') ?? '') === 'on';
   const email = String(formData.get('email') ?? '').trim();
-  if (notify && email && isEmailConfigured()) {
-    const name = String(formData.get('name') ?? '').trim();
-    const tenantName = String(formData.get('tenantName') ?? '').trim() || 'a instituição';
-    await sendEmail({
-      to: email,
-      subject: 'Seu acesso ao Edu On Way foi removido',
-      html: emailHtml(
-        'Acesso removido',
-        `<p>Olá${name ? ` ${escapeHtml(name)}` : ''},</p>` +
-          `<p>Seu acesso a <strong>${escapeHtml(tenantName)}</strong> no Edu On Way foi removido pela administração.</p>` +
-          `<p>Se você acredita que foi um engano, fale com a sua instituição.</p>`,
-      ),
-      text: `Seu acesso a ${tenantName} no Edu On Way foi removido pela administração.`,
-    });
+  const name = String(formData.get('name') ?? '').trim();
+  const tenantName = String(formData.get('tenantName') ?? '').trim() || 'a instituição';
+  const canEmail = notify && email && isEmailConfigured();
+
+  if (isOwner) {
+    // Excluir o dono = apagar a CONTA inteira. As atividades sao preservadas no Banco Geral
+    // (purgeTenant move antes de apagar o resto).
+    await purgeTenant(db(), tenantId);
+    if (canEmail) {
+      await sendEmail({
+        to: email,
+        subject: 'Sua conta no Edu On Way foi removida',
+        html: emailHtml(
+          'Conta removida',
+          `<p>Olá${name ? ` ${escapeHtml(name)}` : ''},</p>` +
+            `<p>A conta <strong>${escapeHtml(tenantName)}</strong> no Edu On Way foi removida pela administração.</p>` +
+            `<p>Se você acredita que foi um engano, entre em contato conosco.</p>`,
+        ),
+        text: `A conta ${tenantName} no Edu On Way foi removida pela administração.`,
+      });
+    }
+  } else {
+    const result = await removeMembership(db(), tenantId, userId);
+    if (result.ok && canEmail) {
+      await sendEmail({
+        to: email,
+        subject: 'Seu acesso ao Edu On Way foi removido',
+        html: emailHtml(
+          'Acesso removido',
+          `<p>Olá${name ? ` ${escapeHtml(name)}` : ''},</p>` +
+            `<p>Seu acesso a <strong>${escapeHtml(tenantName)}</strong> no Edu On Way foi removido pela administração.</p>` +
+            `<p>Se você acredita que foi um engano, fale com a sua instituição.</p>`,
+        ),
+        text: `Seu acesso a ${tenantName} no Edu On Way foi removido pela administração.`,
+      });
+    }
   }
   revalidatePath('/admin/usuarios');
+  revalidatePath('/admin');
+  revalidatePath('/admin/contas');
+}
+
+/** Exclui definitivamente uma atividade (limpeza do admin, ex.: no Banco Geral). */
+export async function deleteActivityAdminAction(formData: FormData): Promise<void> {
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  await deleteActivityAdmin(db(), id);
+  revalidatePath('/admin/atividades');
 }
 
 /** Marca/desmarca o tenant como cliente pagante (CRM do super-admin). */
