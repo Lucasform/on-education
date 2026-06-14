@@ -46,13 +46,13 @@ export default async function OverviewPage() {
   const hoje = new Date().toISOString().slice(0, 10);
   const [turmas, alunos, atividades, rascunhos, proximosEventos, disciplinas, responsaveis, anosLetivos, periodos, configuracoes] =
     await Promise.all([
-      listClasses(client, ctx),
-      listStudents(client, ctx),
-      listActivities(client, ctx, {}),
-      listDrafts(client, ctx),
-      listUpcomingEvents(client, ctx, hoje),
-      isSchool ? listSubjects(client, ctx) : Promise.resolve([]),
-      isSchool ? listGuardians(client, ctx) : Promise.resolve([]),
+      listClasses(client, ctx).catch(() => []),
+      listStudents(client, ctx).catch(() => []),
+      listActivities(client, ctx, {}).catch(() => []),
+      listDrafts(client, ctx).catch(() => []),
+      listUpcomingEvents(client, ctx, hoje).catch(() => []),
+      isSchool ? listSubjects(client, ctx).catch(() => []) : Promise.resolve([]),
+      isSchool ? listGuardians(client, ctx).catch(() => []) : Promise.resolve([]),
       isSchool ? listAcademicYears(client, ctx).catch(() => []) : Promise.resolve([]),
       isSchool ? listTerms(client, ctx).catch(() => []) : Promise.resolve([]),
       isSchool ? getTenantSettings(client, ctx).catch(() => null) : Promise.resolve(null),
