@@ -3,15 +3,19 @@ import { canUse, type Feature } from '@on-education/entitlements';
 import {
   AlertCircle,
   BarChart3,
+  BookMarked,
   BookOpen,
   Building2,
+  CalendarCheck,
   CalendarClock,
   CalendarDays,
   CalendarX,
   ClipboardList,
   Contact,
   CreditCard,
+  DoorOpen,
   FileBarChart,
+  FileQuestion,
   FileSignature,
   FileText,
   FolderOpen,
@@ -29,6 +33,7 @@ import {
   MessagesSquare,
   Network,
   NotebookPen,
+  Package,
   Palette,
   PenLine,
   Phone,
@@ -41,6 +46,7 @@ import {
   Users,
   Wallet,
   Wand2,
+  Webhook,
 } from 'lucide-react';
 
 export { Lock };
@@ -116,6 +122,9 @@ export const NAV: NavGroup[] = [
       { label: 'Faltas', href: '/app/sala/faltas', icon: CalendarX },
       { label: 'Boletim', href: '/app/sala/boletim', icon: FileText },
       { label: 'Ocorrências', href: '/app/ocorrencias', icon: AlertCircle, only: 'organization' },
+      { label: 'Conselho de Classe', href: '/app/conselho-classe', icon: CalendarCheck, only: 'organization' },
+      { label: 'Diário Infantil', href: '/app/diario-infantil', icon: BookMarked },
+      { label: 'Autorização de Saída', href: '/app/autorizacao-saida', icon: DoorOpen, only: 'organization' },
     ],
   },
   {
@@ -150,6 +159,8 @@ export const NAV: NavGroup[] = [
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
       { label: 'WhatsApp', href: '/app/whatsapp', icon: Phone },
       { label: 'Inbox WhatsApp', href: '/app/whatsapp/inbox', icon: MessagesSquare },
+      { label: 'Justificativas de Falta', href: '/app/justificativas', icon: FileQuestion },
+      { label: 'Agendamento de Reunião', href: '/app/reunioes', icon: CalendarCheck },
     ],
   },
   {
@@ -161,6 +172,7 @@ export const NAV: NavGroup[] = [
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3, requiresFeature: 'analytics.director' },
       { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck, requiresFeature: 'analytics.director' },
       { label: 'Segurança (MFA)', href: '/app/conta/mfa', icon: ShieldCheck },
+      { label: 'Inventário', href: '/app/inventario', icon: Package },
     ],
   },
   {
@@ -174,7 +186,10 @@ export const NAV: NavGroup[] = [
   {
     label: 'Integrações',
     only: 'organization',
-    items: [{ label: 'API aberta', href: '/app/api', icon: Plug }],
+    items: [
+      { label: 'API aberta', href: '/app/api', icon: Plug },
+      { label: 'Webhooks', href: '/app/escola/webhooks', icon: Webhook },
+    ],
   },
   {
     label: 'Sistema',

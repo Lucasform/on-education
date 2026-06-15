@@ -85,6 +85,25 @@ import {
   updateClassDetails,
   updateStudentProfile,
   upsertTenantSettings,
+  createAbsenceJustification,
+  reviewAbsenceJustification,
+  createMeetingSlot,
+  deleteMeetingSlot,
+  createMeetingBooking,
+  confirmMeetingBooking,
+  cancelMeetingBooking,
+  createCouncil,
+  closeCouncil,
+  upsertCouncilRemark,
+  createDiaryEntry,
+  deleteDiaryEntry,
+  createExitAuthorization,
+  updateExitAuthorizationStatus,
+  deleteExitAuthorization,
+  createEquipment,
+  createEquipmentLoan,
+  returnEquipmentLoan,
+  deleteEquipment,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -2180,4 +2199,217 @@ export async function unlinkGuardianAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await unlinkGuardian(db(), ctx, String(formData.get('id')));
   revalidatePath(`/app/alunos/${String(formData.get('studentId'))}`, 'page');
+}
+
+// --- Justificativas de Falta ---------------------------------------------------
+
+export async function createAbsenceJustificationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const date = String(formData.get('date') ?? '');
+  const reason = String(formData.get('reason') ?? '').trim();
+  const submittedByName = (formData.get('submittedByName') as string) || undefined;
+  if (!studentId || !date || !reason) return;
+  await createAbsenceJustification(db(), ctx, { studentId, date, reason, submittedByName });
+  revalidatePath('/app/justificativas', 'page');
+}
+
+export async function reviewAbsenceJustificationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  const status = formData.get('status') as 'approved' | 'denied';
+  const reviewNote = (formData.get('reviewNote') as string) || undefined;
+  if (!id || (status !== 'approved' && status !== 'denied')) return;
+  await reviewAbsenceJustification(db(), ctx, id, status, reviewNote);
+  revalidatePath('/app/justificativas', 'page');
+}
+
+// --- Reunioes ------------------------------------------------------------------
+
+export async function createMeetingSlotAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const date = String(formData.get('date') ?? '');
+  const startTime = String(formData.get('startTime') ?? '');
+  const durationMinutes = Number(formData.get('durationMinutes') ?? 30) || 30;
+  const title = (formData.get('title') as string) || undefined;
+  if (!date || !startTime) return;
+  await createMeetingSlot(db(), ctx, { date, startTime, durationMinutes, title });
+  revalidatePath('/app/reunioes', 'page');
+}
+
+export async function deleteMeetingSlotAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteMeetingSlot(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/reunioes', 'page');
+}
+
+export async function createMeetingBookingAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const slotId = String(formData.get('slotId') ?? '');
+  const guardianName = String(formData.get('guardianName') ?? '').trim();
+  const guardianPhone = (formData.get('guardianPhone') as string) || undefined;
+  const studentId = (formData.get('studentId') as string) || undefined;
+  const notes = (formData.get('notes') as string) || undefined;
+  if (!slotId || !guardianName) return;
+  await createMeetingBooking(db(), ctx, { slotId, guardianName, guardianPhone, studentId, notes });
+  revalidatePath('/app/reunioes', 'page');
+}
+
+export async function confirmMeetingBookingAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await confirmMeetingBooking(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/reunioes', 'page');
+}
+
+export async function cancelMeetingBookingAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await cancelMeetingBooking(
+    db(),
+    ctx,
+    String(formData.get('id')),
+    String(formData.get('slotId')),
+  );
+  revalidatePath('/app/reunioes', 'page');
+}
+
+// --- Conselho de Classe -------------------------------------------------------
+
+export async function createCouncilAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const classId = String(formData.get('classId') ?? '').trim();
+  const title = String(formData.get('title') ?? '').trim();
+  const date = String(formData.get('date') ?? '').trim();
+  if (!classId || !title || !date) return;
+  await createCouncil(db(), ctx, { classId, title, date });
+  revalidatePath('/app/conselho-classe');
+}
+
+export async function closeCouncilAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return;
+  await closeCouncil(db(), ctx, id);
+  revalidatePath('/app/conselho-classe');
+  revalidatePath(`/app/conselho-classe/${id}`);
+}
+
+export async function saveCouncilRemarkAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const councilId = String(formData.get('councilId') ?? '').trim();
+  const studentId = String(formData.get('studentId') ?? '').trim();
+  if (!councilId || !studentId) return;
+  await upsertCouncilRemark(db(), ctx, {
+    councilId,
+    studentId,
+    remark: (formData.get('remark') as string) || undefined,
+    recommendation: (formData.get('recommendation') as string) || undefined,
+  });
+  revalidatePath(`/app/conselho-classe/${councilId}`);
+}
+
+// --- Diário Infantil ----------------------------------------------------------
+
+export async function createDiaryEntryAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '').trim();
+  const date = String(formData.get('date') ?? '').trim();
+  const category = String(formData.get('category') ?? 'observation').trim();
+  if (!studentId || !date) return;
+  await createDiaryEntry(db(), ctx, {
+    studentId,
+    date,
+    category,
+    content: (formData.get('content') as string) || undefined,
+  });
+  revalidatePath(`/app/diario-infantil/${studentId}`);
+}
+
+export async function deleteDiaryEntryAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  const studentId = String(formData.get('studentId') ?? '').trim();
+  if (!id) return;
+  await deleteDiaryEntry(db(), ctx, id);
+  revalidatePath(`/app/diario-infantil/${studentId}`);
+}
+
+// --- Autorização de Saída ----------------------------------------------------
+
+export async function createExitAuthorizationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '').trim();
+  const date = String(formData.get('date') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '').trim();
+  if (!studentId || !date || !reason) return;
+  await createExitAuthorization(db(), ctx, {
+    studentId,
+    date,
+    reason,
+    time: (formData.get('time') as string) || undefined,
+    authorizedByName: (formData.get('authorizedByName') as string) || undefined,
+  });
+  revalidatePath('/app/autorizacao-saida');
+}
+
+export async function updateExitAuthorizationStatusAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  const status = String(formData.get('status') ?? '') as 'approved' | 'denied' | 'executed';
+  if (!id || !['approved', 'denied', 'executed'].includes(status)) return;
+  await updateExitAuthorizationStatus(db(), ctx, id, status);
+  revalidatePath('/app/autorizacao-saida');
+}
+
+export async function deleteExitAuthorizationAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return;
+  await deleteExitAuthorization(db(), ctx, id);
+  revalidatePath('/app/autorizacao-saida');
+}
+
+// --- Inventário de Equipamentos ----------------------------------------------
+
+export async function createEquipmentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const name = String(formData.get('name') ?? '').trim();
+  if (!name) return;
+  await createEquipment(db(), ctx, {
+    name,
+    category: (formData.get('category') as string) || undefined,
+    serialNumber: (formData.get('serialNumber') as string) || undefined,
+    description: (formData.get('description') as string) || undefined,
+  });
+  revalidatePath('/app/inventario');
+}
+
+export async function createEquipmentLoanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const equipmentId = String(formData.get('equipmentId') ?? '').trim();
+  const loanedTo = String(formData.get('loanedTo') ?? '').trim();
+  if (!equipmentId || !loanedTo) return;
+  await createEquipmentLoan(db(), ctx, {
+    equipmentId,
+    loanedTo,
+    expectedReturn: (formData.get('expectedReturn') as string) || undefined,
+    notes: (formData.get('notes') as string) || undefined,
+  });
+  revalidatePath('/app/inventario');
+}
+
+export async function returnEquipmentLoanAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const loanId = String(formData.get('loanId') ?? '').trim();
+  const equipmentId = String(formData.get('equipmentId') ?? '').trim();
+  if (!loanId || !equipmentId) return;
+  await returnEquipmentLoan(db(), ctx, loanId, equipmentId);
+  revalidatePath('/app/inventario');
+}
+
+export async function deleteEquipmentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return;
+  await deleteEquipment(db(), ctx, id);
+  revalidatePath('/app/inventario');
 }

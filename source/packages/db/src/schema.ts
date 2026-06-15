@@ -75,6 +75,8 @@ export const tenants = oe.table(
     // Tenant de SISTEMA (ex.: "Banco Geral" que recebe atividades de contas excluídas).
     // Fica fora das listas/contagens normais e não pode ser excluído.
     isSystem: boolean('is_system').notNull().default(false),
+    // Opcional: rede de escolas à qual este tenant pertence (multi-escola).
+    networkId: uuid('network_id'),
     ...auditCols,
   },
   () => [
@@ -1268,6 +1270,243 @@ export const guardianAccessTokens = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// networks — grupo de escolas (rede/franquia). Não tenant-scoped: é uma entidade global
+// que agrega múltiplos tenants. Vínculo: tenants.network_id → networks.id.
+// ---------------------------------------------------------------------------
+export const networks = oe.table('networks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  ownerUserId: uuid('owner_user_id').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// class_councils — Conselho de classe por turma. Cada conselho agrega pareceres
+// por aluno (council_remarks). Status: draft → closed.
+// ---------------------------------------------------------------------------
+export const classCouncils = oe.table(
+  'class_councils',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    classId: uuid('class_id').notNull(),
+    title: text('title').notNull(),
+    date: date('date').notNull(),
+    status: text('status').notNull().default('draft'), // draft | closed
+    ...auditCols,
+  },
+  (t) => [
+    index('class_councils_tenant_idx').on(t.tenantId),
+    index('class_councils_class_idx').on(t.classId),
+    tenantPolicy('class_councils_tenant_isolation'),
+  ],
+);
+
+// council_remarks — Parecer individual de um aluno dentro de um conselho de classe.
+export const councilRemarks = oe.table(
+  'council_remarks',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    councilId: uuid('council_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    remark: text('remark'),
+    recommendation: text('recommendation'), // aprovado | reforço | reprovado | transferido
+    ...auditCols,
+  },
+  (t) => [
+    index('council_remarks_tenant_idx').on(t.tenantId),
+    index('council_remarks_council_idx').on(t.councilId),
+    tenantPolicy('council_remarks_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// infant_diary_entries — Diário infantil: registros diários por aluno (EI/1º anos).
+// Categorias: observation | milestone | health | photo.
+// ---------------------------------------------------------------------------
+export const infantDiaryEntries = oe.table(
+  'infant_diary_entries',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    date: date('date').notNull(),
+    category: text('category').notNull().default('observation'),
+    content: text('content'),
+    photoUrl: text('photo_url'),
+    ...auditCols,
+  },
+  (t) => [
+    index('infant_diary_entries_tenant_idx').on(t.tenantId),
+    index('infant_diary_entries_student_idx').on(t.studentId),
+    tenantPolicy('infant_diary_entries_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// exit_authorizations — Autorização de saída antecipada do aluno.
+// Status: pending → approved | denied → executed.
+// ---------------------------------------------------------------------------
+export const exitAuthorizations = oe.table(
+  'exit_authorizations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    date: date('date').notNull(),
+    time: text('time'), // hora prevista 'HH:MM'
+    reason: text('reason').notNull(),
+    authorizedByName: text('authorized_by_name'),
+    status: text('status').notNull().default('pending'),
+    notes: text('notes'),
+    ...auditCols,
+  },
+  (t) => [
+    index('exit_authorizations_tenant_idx').on(t.tenantId),
+    index('exit_authorizations_student_idx').on(t.studentId),
+    tenantPolicy('exit_authorizations_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// equipment + equipment_loans — Inventário de equipamentos escolares.
+// equipment: cadastro. equipment_loans: empréstimo por professor/funcionário.
+// ---------------------------------------------------------------------------
+export const equipment = oe.table(
+  'equipment',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    category: text('category'), // tablet | projetor | notebook | livro | outro
+    serialNumber: text('serial_number'),
+    status: text('status').notNull().default('available'), // available | loaned | maintenance
+    description: text('description'),
+    purchaseDate: date('purchase_date'),
+    ...auditCols,
+  },
+  (t) => [
+    index('equipment_tenant_idx').on(t.tenantId),
+    tenantPolicy('equipment_tenant_isolation'),
+  ],
+);
+
+export const equipmentLoans = oe.table(
+  'equipment_loans',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    equipmentId: uuid('equipment_id').notNull(),
+    loanedTo: text('loaned_to').notNull(),
+    loanedAt: timestamp('loaned_at', { withTimezone: true }).defaultNow().notNull(),
+    expectedReturn: date('expected_return'),
+    returnedAt: timestamp('returned_at', { withTimezone: true }),
+    notes: text('notes'),
+    ...auditCols,
+  },
+  (t) => [
+    index('equipment_loans_tenant_idx').on(t.tenantId),
+    index('equipment_loans_equipment_idx').on(t.equipmentId),
+    tenantPolicy('equipment_loans_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// absence_justifications — Justificativas de falta enviadas pelo responsável.
+// Escola analisa (reviewed_by/reviewed_at) e aprova ou nega.
+// ---------------------------------------------------------------------------
+export const absenceJustifications = oe.table(
+  'absence_justifications',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    date: date('date').notNull(),
+    reason: text('reason').notNull(),
+    documentUrl: text('document_url'),
+    submittedByName: text('submitted_by_name'),
+    status: text('status').notNull().default('pending'), // pending | approved | denied
+    reviewedBy: uuid('reviewed_by'),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewNote: text('review_note'),
+    ...auditCols,
+  },
+  (t) => [
+    index('absence_justifications_tenant_idx').on(t.tenantId),
+    index('absence_justifications_student_idx').on(t.studentId),
+    tenantPolicy('absence_justifications_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// meeting_slots + meeting_bookings — Agendamento de reunião escola-responsável.
+// Professor/coordenador cria slots; responsável agenda via portal (ou secretaria).
+// ---------------------------------------------------------------------------
+export const meetingSlots = oe.table(
+  'meeting_slots',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    hostId: uuid('host_id').notNull(), // membership_id do professor/coordenador
+    date: date('date').notNull(),
+    startTime: text('start_time').notNull(), // 'HH:MM'
+    durationMinutes: integer('duration_minutes').notNull().default(30),
+    title: text('title').notNull().default('Reunião com responsável'),
+    available: boolean('available').notNull().default(true),
+    ...auditCols,
+  },
+  (t) => [
+    index('meeting_slots_tenant_idx').on(t.tenantId),
+    index('meeting_slots_date_idx').on(t.tenantId, t.date),
+    tenantPolicy('meeting_slots_tenant_isolation'),
+  ],
+);
+
+export const meetingBookings = oe.table(
+  'meeting_bookings',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    slotId: uuid('slot_id').notNull(),
+    studentId: uuid('student_id'),
+    guardianName: text('guardian_name').notNull(),
+    guardianPhone: text('guardian_phone'),
+    notes: text('notes'),
+    confirmed: boolean('confirmed').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    index('meeting_bookings_tenant_idx').on(t.tenantId),
+    index('meeting_bookings_slot_idx').on(t.slotId),
+    tenantPolicy('meeting_bookings_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// webhook_endpoints — Endpoints de integração (Webhooks). A escola configura URLs
+// que recebem eventos (student.created, grade.posted, attendance.recorded…).
+// O campo `secret` guarda o HMAC secret para assinar o payload.
+// ---------------------------------------------------------------------------
+export const webhookEndpoints = oe.table(
+  'webhook_endpoints',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    url: text('url').notNull(),
+    secret: text('secret'),
+    events: text('events').array().notNull().default([]),
+    active: boolean('active').notNull().default(true),
+    lastTriggeredAt: timestamp('last_triggered_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('webhook_endpoints_tenant_idx').on(t.tenantId),
+    tenantPolicy('webhook_endpoints_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1320,4 +1559,16 @@ export const schema = {
   studentPoints,
   guardianAccessTokens,
   curriculumUnits,
+  // Onda 1–3 (2026-06-15)
+  networks,
+  classCouncils,
+  councilRemarks,
+  infantDiaryEntries,
+  exitAuthorizations,
+  equipment,
+  equipmentLoans,
+  absenceJustifications,
+  meetingSlots,
+  meetingBookings,
+  webhookEndpoints,
 };

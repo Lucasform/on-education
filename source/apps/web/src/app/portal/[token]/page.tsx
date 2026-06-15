@@ -1,117 +1,94 @@
+﻿import { db } from '@/server/db';
 import { resolvePortalToken } from '@on-education/module-nucleo';
-import { BookOpen, Calendar, GraduationCap, Megaphone, XCircle } from 'lucide-react';
-
-import { db } from '@/server/db';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Portal do Responsável · Edu On Way' };
 
-function fmt(iso: string) {
-  const [a = 0, m = 1, d = 1] = iso.split('-').map(Number);
-  return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${a}`;
-}
-
-export default async function PortalPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function PortalPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
   const { token } = await params;
-  const data = await resolvePortalToken(db(), token);
+  const data = await resolvePortalToken(db(), token).catch(() => null);
 
   if (!data) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-        <XCircle className="h-12 w-12 text-destructive" />
-        <h1 className="text-xl font-semibold">Link inválido ou expirado</h1>
-        <p className="max-w-sm text-sm text-muted-foreground">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
+        <h1 className="text-2xl font-semibold">Link inválido ou expirado</h1>
+        <p className="text-muted-foreground">
           Este link de acesso não é mais válido. Solicite um novo link à escola.
         </p>
-      </main>
+        <Link
+          href="/login"
+          className="text-primary underline-offset-4 hover:underline"
+        >
+          Acessar como membro da escola
+        </Link>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-8 p-4 py-8 md:p-8">
+    <div className="mx-auto max-w-3xl space-y-8 p-6">
       <div>
-        <p className="text-sm text-muted-foreground">Portal do responsável</p>
-        <h1 className="mt-1 text-2xl font-semibold">{data.guardian.fullName}</h1>
+        <h1 className="text-2xl font-semibold">Olá, {data.guardian.fullName}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Acompanhamento escolar dos seus filhos
+        </p>
       </div>
 
-      {data.students.map((s) => (
-        <section key={s.id} className="flex flex-col gap-4 rounded-xl border border-border p-4">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">{s.fullName}</h2>
+      {data.students.map((student) => (
+        <section
+          key={student.id}
+          className="space-y-4 rounded-lg border border-border p-6"
+        >
+          <h2 className="text-lg font-semibold">{student.fullName}</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="rounded-md border border-border p-3 text-center">
+              <div className="text-2xl font-bold text-red-500">{student.absences}</div>
+              <div className="text-xs text-muted-foreground">Faltas</div>
+            </div>
+            <div className="rounded-md border border-border p-3 text-center">
+              <div className="text-2xl font-bold">{student.grades.length}</div>
+              <div className="text-xs text-muted-foreground">Notas lançadas</div>
+            </div>
           </div>
 
-          {/* Notas */}
-          <div>
-            <p className="mb-2 flex items-center gap-1.5 text-sm font-medium">
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-              Notas
-            </p>
-            {s.grades.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhuma nota lançada ainda.</p>
-            ) : (
-              <div className="overflow-x-auto rounded-md border border-border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-medium">Atividade</th>
-                      <th className="px-3 py-2 text-left font-medium">Matéria</th>
-                      <th className="px-3 py-2 text-left font-medium">Período</th>
-                      <th className="px-3 py-2 text-right font-medium">Nota</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {s.grades.map((g, i) => (
-                      <tr key={i} className="border-t border-border/60">
-                        <td className="px-3 py-2">{g.label}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{g.subjectName ?? '-'}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{g.termName ?? '-'}</td>
-                        <td className="px-3 py-2 text-right font-medium">
-                          {g.kind === 'anotacao' ? (
-                            <span className="text-muted-foreground">Anotação</span>
-                          ) : g.value != null ? (
-                            g.value.toFixed(1)
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Faltas */}
-          <div>
-            <p className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              Frequência
-            </p>
-            <p className="text-sm">
-              {s.absences === 0 ? (
-                <span className="text-success">Sem faltas registradas.</span>
-              ) : (
-                <span>
-                  <span className="font-semibold text-warning">{s.absences}</span>{' '}
-                  falta(s) registrada(s).
-                </span>
-              )}
-            </p>
-          </div>
-
-          {/* Aulas recentes */}
-          {s.recentLessons.length > 0 && (
+          {student.grades.length > 0 && (
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-sm font-medium">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                Últimas aulas
-              </p>
+              <h3 className="mb-2 text-sm font-medium">Notas</h3>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                    <th className="pb-1 pr-4">Avaliação</th>
+                    <th className="pb-1 pr-4">Matéria</th>
+                    <th className="pb-1">Nota</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {student.grades.map((g, i) => (
+                    <tr key={i} className="border-b border-border/50 last:border-0">
+                      <td className="py-1 pr-4">{g.label}</td>
+                      <td className="py-1 pr-4 text-muted-foreground">
+                        {g.subjectName ?? '-'}
+                      </td>
+                      <td className="py-1 font-medium">{g.value ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {student.recentLessons.length > 0 && (
+            <div>
+              <h3 className="mb-2 text-sm font-medium">Aulas recentes</h3>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                {s.recentLessons.map((l, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="shrink-0">{fmt(l.date)}</span>
-                    <span>{l.subjectName ? `${l.subjectName} — ` : ''}{l.topic || 'Sem tema registrado'}</span>
+                {student.recentLessons.slice(0, 5).map((l, i) => (
+                  <li key={i}>
+                    {l.date.split('-').reverse().join('/')} · {l.topic}
                   </li>
                 ))}
               </ul>
@@ -120,25 +97,23 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
         </section>
       ))}
 
-      {/* Comunicados */}
+      {data.students.length === 0 && (
+        <p className="text-center text-sm text-muted-foreground">
+          Nenhum aluno vinculado a este responsável.
+        </p>
+      )}
+
       {data.communications.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h2 className="flex items-center gap-2 text-sm font-medium">
-            <Megaphone className="h-4 w-4 text-muted-foreground" />
-            Comunicados recentes
-          </h2>
+        <section className="space-y-3 rounded-lg border border-border p-6">
+          <h2 className="text-lg font-semibold">Comunicados recentes</h2>
           {data.communications.map((c, i) => (
-            <div key={i} className="rounded-lg border border-border p-4">
+            <div key={i} className="border-b border-border/50 pb-3 last:border-0">
               <p className="font-medium">{c.title}</p>
-              <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{c.body}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
             </div>
           ))}
         </section>
       )}
-
-      <p className="text-center text-xs text-muted-foreground">
-        Portal gerado pelo Edu On Way. Para dúvidas, entre em contato com a escola.
-      </p>
-    </main>
+    </div>
   );
 }
