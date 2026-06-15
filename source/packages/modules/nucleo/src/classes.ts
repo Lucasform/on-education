@@ -204,6 +204,11 @@ export async function updateStudentProfile(
     emergencyPhone?: string | null;
     emergencyRelation?: string | null;
     photoUrl?: string | null;
+    cpf?: string | null;
+    rg?: string | null;
+    gender?: string | null;
+    nationality?: string | null;
+    shift?: string | null;
   },
 ) {
   assertCan(ctx, 'update', 'student');

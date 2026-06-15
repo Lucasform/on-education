@@ -3,6 +3,7 @@ import {
   getStudent,
   getTenantSettings,
   listClasses,
+  listExitAuthorizationsForStudent,
   listGradeComponents,
   listGuardians,
   listOccurrenceLinks,
@@ -27,10 +28,12 @@ import { getAuthContext } from '@/server/session';
 
 import {
   awardPointsAction,
+  createExitAuthorizationAction,
   deleteStudentPointAction,
   linkGuardianAction,
   transferStudentClassAction,
   unlinkGuardianAction,
+  updateExitAuthorizationStatusAction,
   updateStudentProfileAction,
   uploadStudentPhotoAction,
 } from '../../actions';
@@ -57,6 +60,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     todasOcorrencias,
     linksOcorrencias,
     turmas,
+    autorizacoesSaida,
   ] = await Promise.all([
     getStudent(client, ctx, id).catch(() => null),
     listGradesForStudent(client, ctx, id).catch(() => []),
@@ -70,6 +74,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     isSchool ? listOccurrences(client, ctx).catch(() => []) : Promise.resolve([]),
     isSchool ? listOccurrenceLinks(client, ctx).catch(() => []) : Promise.resolve([]),
     listClasses(client, ctx).catch(() => [] as { id: string; name: string }[]),
+    isSchool ? listExitAuthorizationsForStudent(client, ctx, id).catch(() => []) : Promise.resolve([]),
   ]);
   if (!aluno) redirect('/app/alunos');
 
@@ -439,9 +444,68 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
-      {/* Perfil completo — endereço e dados gerais */}
+      {/* Dados pessoais completos */}
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Dados pessoais</h2>
+        <form action={updateStudentProfileAction} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={aluno.id} />
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">CPF</label>
+              <input
+                name="cpf"
+                placeholder="000.000.000-00"
+                defaultValue={(aluno as { cpf?: string | null }).cpf ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">RG</label>
+              <input
+                name="rg"
+                placeholder="00.000.000-0"
+                defaultValue={(aluno as { rg?: string | null }).rg ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Gênero</label>
+              <select name="gender" defaultValue={(aluno as { gender?: string | null }).gender ?? ''} className={fieldClass}>
+                <option value="">Não informado</option>
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Nacionalidade</label>
+              <input
+                name="nationality"
+                placeholder="Brasileira"
+                defaultValue={(aluno as { nationality?: string | null }).nationality ?? ''}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Turno</label>
+              <select name="shift" defaultValue={(aluno as { shift?: string | null }).shift ?? ''} className={fieldClass}>
+                <option value="">Não informado</option>
+                <option value="manhã">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+                <option value="integral">Integral</option>
+              </select>
+            </div>
+          </div>
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Salvar dados pessoais
+          </SubmitButton>
+        </form>
+      </div>
+
+      {/* Endereço */}
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Endereço</h2>
         <form action={updateStudentProfileAction} className="flex flex-col gap-3">
           <input type="hidden" name="id" value={aluno.id} />
           <div className="grid gap-2 sm:grid-cols-2">
@@ -570,10 +634,10 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </form>
       </div>
 
-      {/* Transferência de turma */}
-      {turmas.length > 1 && (
+      {/* Turma */}
+      {isSchool && (
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Transferir de turma</h2>
+          <h2 className="mb-3 text-sm font-medium">Turma</h2>
           <p className="mb-3 text-xs text-muted-foreground">
             Turma atual:{' '}
             <span className="font-medium text-foreground">
@@ -589,7 +653,115 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
               ))}
             </select>
             <SubmitButton type="submit" size="sm" variant="outline">
-              Transferir
+              Salvar turma
+            </SubmitButton>
+          </form>
+        </div>
+      )}
+
+      {/* Autorizações de saída */}
+      {isSchool && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">
+            Autorizações de saída ({autorizacoesSaida.length})
+          </h2>
+
+          {autorizacoesSaida.length > 0 && (
+            <ul className="mb-4 space-y-2 text-sm">
+              {autorizacoesSaida.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-start justify-between gap-2 border-b border-border/50 pb-2 last:border-0 last:pb-0"
+                >
+                  <div>
+                    <span
+                      className={`mr-2 rounded-full px-2 py-0.5 text-xs ${
+                        a.status === 'approved'
+                          ? 'bg-success/15 text-success'
+                          : a.status === 'denied'
+                            ? 'bg-danger/15 text-danger'
+                            : a.status === 'executed'
+                              ? 'bg-muted text-muted-foreground'
+                              : 'bg-warning/15 text-warning'
+                      }`}
+                    >
+                      {a.status === 'approved'
+                        ? 'aprovada'
+                        : a.status === 'denied'
+                          ? 'negada'
+                          : a.status === 'executed'
+                            ? 'executada'
+                            : 'pendente'}
+                    </span>
+                    <span>{a.reason}</span>
+                    {a.authorizedByName && (
+                      <span className="ml-1 text-xs text-muted-foreground">· por {a.authorizedByName}</span>
+                    )}
+                    {a.time && (
+                      <span className="ml-1 text-xs text-muted-foreground">às {a.time}</span>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">
+                      {a.date.split('-').reverse().join('/')}
+                    </span>
+                    {a.status === 'pending' && (
+                      <>
+                        <form action={updateExitAuthorizationStatusAction}>
+                          <input type="hidden" name="id" value={a.id} />
+                          <input type="hidden" name="status" value="approved" />
+                          <input type="hidden" name="studentId" value={aluno.id} />
+                          <button
+                            type="submit"
+                            className="rounded-md bg-success/15 px-2 py-0.5 text-xs text-success hover:bg-success/25"
+                          >
+                            Aprovar
+                          </button>
+                        </form>
+                        <form action={updateExitAuthorizationStatusAction}>
+                          <input type="hidden" name="id" value={a.id} />
+                          <input type="hidden" name="status" value="denied" />
+                          <input type="hidden" name="studentId" value={aluno.id} />
+                          <button
+                            type="submit"
+                            className="rounded-md bg-danger/15 px-2 py-0.5 text-xs text-danger hover:bg-danger/25"
+                          >
+                            Negar
+                          </button>
+                        </form>
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <form
+            action={createExitAuthorizationAction}
+            className="flex flex-col gap-2 border-t border-border pt-3"
+          >
+            <input type="hidden" name="studentId" value={aluno.id} />
+            <div className="grid gap-2 sm:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Data</label>
+                <input type="date" name="date" required className={fieldClass} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Horário</label>
+                <input type="time" name="time" className={fieldClass} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Autorizado por</label>
+                <input name="authorizedByName" placeholder="Nome do responsável" className={fieldClass} />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Motivo</label>
+              <input name="reason" placeholder="Ex.: consulta médica" required className={fieldClass} />
+            </div>
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Registrar autorização
             </SubmitButton>
           </form>
         </div>

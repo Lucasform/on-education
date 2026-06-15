@@ -953,6 +953,11 @@ export async function updateStudentProfileAction(formData: FormData): Promise<vo
     'emergencyName',
     'emergencyPhone',
     'emergencyRelation',
+    'cpf',
+    'rg',
+    'gender',
+    'nationality',
+    'shift',
   ] as const;
   const patch: Partial<Record<(typeof keys)[number], string | null>> = {};
   for (const k of keys) {
@@ -2349,15 +2354,18 @@ export async function createExitAuthorizationAction(formData: FormData): Promise
     authorizedByName: (formData.get('authorizedByName') as string) || undefined,
   });
   revalidatePath('/app/autorizacao-saida');
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
 }
 
 export async function updateExitAuthorizationStatusAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id') ?? '').trim();
   const status = String(formData.get('status') ?? '') as 'approved' | 'denied' | 'executed';
+  const studentId = (formData.get('studentId') as string) || null;
   if (!id || !['approved', 'denied', 'executed'].includes(status)) return;
   await updateExitAuthorizationStatus(db(), ctx, id, status);
   revalidatePath('/app/autorizacao-saida');
+  if (studentId) revalidatePath(`/app/alunos/${studentId}`, 'page');
 }
 
 export async function deleteExitAuthorizationAction(formData: FormData): Promise<void> {

@@ -1,6 +1,6 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { type DbClient, exitAuthorizations } from '@on-education/db';
-import { desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 
 export async function listExitAuthorizations(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'occurrence');
@@ -9,6 +9,21 @@ export async function listExitAuthorizations(client: DbClient, ctx: AuthContext)
       .select()
       .from(exitAuthorizations)
       .where(isNull(exitAuthorizations.deletedAt))
+      .orderBy(desc(exitAuthorizations.date), desc(exitAuthorizations.createdAt)),
+  );
+}
+
+export async function listExitAuthorizationsForStudent(
+  client: DbClient,
+  ctx: AuthContext,
+  studentId: string,
+) {
+  assertCan(ctx, 'read', 'occurrence');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(exitAuthorizations)
+      .where(and(eq(exitAuthorizations.studentId, studentId), isNull(exitAuthorizations.deletedAt)))
       .orderBy(desc(exitAuthorizations.date), desc(exitAuthorizations.createdAt)),
   );
 }
