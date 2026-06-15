@@ -77,6 +77,9 @@ export const tenants = oe.table(
     isSystem: boolean('is_system').notNull().default(false),
     // Opcional: rede de escolas à qual este tenant pertence (multi-escola).
     networkId: uuid('network_id'),
+    // Ano letivo: início e fim para cálculo de dias letivos.
+    schoolYearStart: date('school_year_start'),
+    schoolYearEnd: date('school_year_end'),
     ...auditCols,
   },
   () => [
@@ -1509,6 +1512,24 @@ export const webhookEndpoints = oe.table(
   ],
 );
 
+// school_calendar_events — feriados, datas comemorativas, dias não letivos.
+export const schoolCalendarEvents = oe.table(
+  'school_calendar_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    date: date('date').notNull(),
+    name: text('name').notNull(),
+    type: text('type').notNull().default('holiday'),
+    recurring: boolean('recurring').notNull().default(false),
+    ...auditCols,
+  },
+  (t) => [
+    index('calendar_events_tenant_idx').on(t.tenantId),
+    tenantPolicy('calendar_events_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1573,4 +1594,5 @@ export const schema = {
   meetingSlots,
   meetingBookings,
   webhookEndpoints,
+  schoolCalendarEvents,
 };
