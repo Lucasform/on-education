@@ -104,6 +104,7 @@ import {
   createEquipmentLoan,
   returnEquipmentLoan,
   deleteEquipment,
+  setGuardianPortalPassword,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -738,6 +739,16 @@ export async function generateGuardianTokenAction(formData: FormData): Promise<v
   if (!guardianId) return;
   const token = await generateGuardianToken(db(), ctx, guardianId);
   redirect(`/app/escola/responsaveis?portalToken=${encodeURIComponent(token)}&guardianId=${guardianId}`);
+}
+
+/** Define a senha do portal do responsável (admin). */
+export async function setGuardianPortalPasswordAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const guardianId = String(formData.get('guardianId') ?? '').trim();
+  const password = String(formData.get('password') ?? '').trim();
+  if (!guardianId || password.length < 6) return;
+  await setGuardianPortalPassword(db(), ctx, guardianId, password);
+  revalidatePath('/app/escola/responsaveis');
 }
 
 export async function revokeGuardianTokensAction(formData: FormData): Promise<void> {

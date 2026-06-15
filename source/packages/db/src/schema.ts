@@ -583,6 +583,8 @@ export const guardians = oe.table(
     rg: text('rg'),
     address: text('address'),
     profession: text('profession'),
+    portalPasswordHash: text('portal_password_hash'),
+    mustChangePassword: boolean('must_change_password').notNull().default(false),
     ...auditCols,
   },
   (t) => [index('guardians_tenant_idx').on(t.tenantId), tenantPolicy('guardians_tenant_isolation')],

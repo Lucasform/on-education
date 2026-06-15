@@ -1,7 +1,29 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { type DbClient, guardians, studentGuardians } from '@on-education/db';
 import type { CreateGuardianInput, LinkGuardianInput } from '@on-education/validation';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { promisify } from 'node:util';
+import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+
+const scryptAsync = promisify(scrypt) as (
+  password: string | Buffer,
+  salt: string | Buffer,
+  keylen: number,
+) => Promise<Buffer>;
+
+export async function hashPortalPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString('hex');
+  const hash = await scryptAsync(password, salt, 64);
+  return `${salt}:${hash.toString('hex')}`;
+}
+
+export async function verifyPortalPassword(stored: string, input: string): Promise<boolean> {
+  const [salt, hashHex] = stored.split(':');
+  if (!salt || !hashHex) return false;
+  const hash = Buffer.from(hashHex, 'hex');
+  const inputHash = await scryptAsync(input, salt, 64);
+  return timingSafeEqual(hash, inputHash);
+}
 
 /**
  * Responsáveis (Fase 1A.1b). `full_name`/contato são PII (Master Spec §7.4): nunca logar.
@@ -126,4 +148,62 @@ export async function deleteGuardian(client: DbClient, ctx: AuthContext, id: str
     await tx.delete(studentGuardians).where(eq(studentGuardians.guardianId, id));
     await tx.delete(guardians).where(eq(guardians.id, id));
   });
+}
+
+/** Define (ou redefine) a senha do portal de um responsável. */
+export async function setGuardianPortalPassword(
+  client: DbClient,
+  ctx: AuthContext,
+  guardianId: string,
+  rawPassword: string,
+) {
+  assertCan(ctx, 'update', 'guardian');
+  const hash = await hashPortalPassword(rawPassword);
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(guardians)
+      .set({ portalPasswordHash: hash, mustChangePassword: true })
+      .where(and(eq(guardians.id, guardianId), eq(guardians.tenantId, ctx.tenantId))),
+  );
+}
+
+/**
+ * Busca responsável por e-mail sem contexto de tenant (usado no login do portal).
+ * Usa `client.db` diretamente, sem GUC de tenant — a senha é verificada antes de qualquer acesso.
+ */
+export async function findGuardianForPortalLogin(
+  client: DbClient,
+  email: string,
+): Promise<{
+  id: string;
+  tenantId: string;
+  fullName: string;
+  portalPasswordHash: string | null;
+  mustChangePassword: boolean;
+} | null> {
+  const rows = await client.db
+    .select({
+      id: guardians.id,
+      tenantId: guardians.tenantId,
+      fullName: guardians.fullName,
+      portalPasswordHash: guardians.portalPasswordHash,
+      mustChangePassword: guardians.mustChangePassword,
+    })
+    .from(guardians)
+    .where(eq(guardians.email, email))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/** Atualiza a senha do portal após o responsável trocar no primeiro acesso. */
+export async function updateGuardianPortalPassword(
+  client: DbClient,
+  guardianId: string,
+  rawPassword: string,
+) {
+  const hash = await hashPortalPassword(rawPassword);
+  await client.db
+    .update(guardians)
+    .set({ portalPasswordHash: hash, mustChangePassword: false })
+    .where(eq(guardians.id, guardianId));
 }

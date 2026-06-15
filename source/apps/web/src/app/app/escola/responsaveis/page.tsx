@@ -17,6 +17,7 @@ import {
   generateGuardianTokenAction,
   importGuardiansAction,
   importGuardiansCsvAction,
+  setGuardianPortalPasswordAction,
 } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -85,7 +86,7 @@ export default async function ResponsaveisPage({
                   {g.email && <span className="ml-2 text-xs text-muted-foreground">{g.email}</span>}
                   {g.phone && <span className="ml-2 text-xs text-muted-foreground">{g.phone}</span>}
                 </span>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex shrink-0 flex-wrap items-center gap-1">
                   <form action={generateGuardianTokenAction}>
                     <input type="hidden" name="guardianId" value={g.id} />
                     <SubmitButton
@@ -95,7 +96,21 @@ export default async function ResponsaveisPage({
                       className="flex items-center gap-1"
                     >
                       <Link2 className="h-3.5 w-3.5" />
-                      Portal
+                      Link portal
+                    </SubmitButton>
+                  </form>
+                  <form action={setGuardianPortalPasswordAction} className="flex items-center gap-1">
+                    <input type="hidden" name="guardianId" value={g.id} />
+                    <input
+                      name="password"
+                      type="text"
+                      placeholder="Senha portal"
+                      minLength={6}
+                      className="h-7 rounded-md border border-border bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                      style={{ width: '110px' }}
+                    />
+                    <SubmitButton type="submit" size="sm" variant="outline">
+                      Definir
                     </SubmitButton>
                   </form>
                   <form action={deleteGuardianAction}>

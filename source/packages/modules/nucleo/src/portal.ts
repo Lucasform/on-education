@@ -208,6 +208,126 @@ export async function resolvePortalToken(
   };
 }
 
+/**
+ * Resolve dados do portal para um responsável autenticado por senha (sem token de URL).
+ * Retorna null se o guardianId não existir no tenant.
+ */
+export async function resolvePortalForGuardian(
+  client: DbClient,
+  guardianId: string,
+  tenantId: string,
+): Promise<PortalData | null> {
+  const [guardianRows, vinculosRows, allTerms] = await Promise.all([
+    client.withTenant(tenantId, (tx) =>
+      tx.select().from(guardians).where(eq(guardians.id, guardianId)).limit(1),
+    ),
+    client.withTenant(tenantId, (tx) =>
+      tx.select().from(studentGuardians).where(eq(studentGuardians.guardianId, guardianId)),
+    ),
+    client.withTenant(tenantId, (tx) => tx.select().from(terms)),
+  ]);
+
+  const guardian = guardianRows[0];
+  if (!guardian) return null;
+
+  const termMap = new Map(allTerms.map((t) => [t.id, t.name]));
+  const studentIds = vinculosRows.map((v) => v.studentId);
+
+  if (studentIds.length === 0) {
+    return {
+      guardian: { id: guardian.id, fullName: guardian.fullName },
+      students: [],
+      communications: [],
+    };
+  }
+
+  const [allStudents, allGrades, allAttendance, allLessons, allComms] = await Promise.all([
+    client.withTenant(tenantId, (tx) =>
+      tx.select().from(students).where(isNull(students.deletedAt)),
+    ),
+    client.withTenant(tenantId, (tx) =>
+      tx
+        .select({
+          studentId: grades.studentId,
+          label: grades.label,
+          subjectId: grades.subjectId,
+          subjectName: subjects.name,
+          termId: grades.termId,
+          value: grades.value,
+          kind: grades.kind,
+        })
+        .from(grades)
+        .leftJoin(subjects, eq(subjects.id, grades.subjectId))
+        .where(isNull(grades.deletedAt))
+        .orderBy(desc(grades.createdAt)),
+    ),
+    client.withTenant(tenantId, (tx) =>
+      tx
+        .select({ studentId: attendance.studentId, present: attendance.present })
+        .from(attendance),
+    ),
+    client.withTenant(tenantId, (tx) =>
+      tx
+        .select({
+          classId: lessons.classId,
+          date: lessons.date,
+          topic: lessons.topic,
+          subjectName: subjects.name,
+        })
+        .from(lessons)
+        .leftJoin(subjects, eq(subjects.id, lessons.subjectId))
+        .where(and(isNull(lessons.deletedAt), lte(lessons.date, new Date().toISOString().slice(0, 10))))
+        .orderBy(desc(lessons.date))
+        .limit(30),
+    ),
+    client.withTenant(tenantId, (tx) =>
+      tx
+        .select({ title: communications.title, body: communications.body, createdAt: communications.createdAt })
+        .from(communications)
+        .where(eq(communications.status, 'published'))
+        .orderBy(desc(communications.createdAt))
+        .limit(5),
+    ),
+  ]);
+
+  const studentMap = new Map(allStudents.map((s) => [s.id, s]));
+
+  const studentsData = studentIds
+    .map((sid) => {
+      const s = studentMap.get(sid);
+      if (!s) return null;
+      const myGrades = allGrades
+        .filter((g) => g.studentId === sid)
+        .map((g) => ({
+          label: g.label,
+          subjectName: g.subjectName ?? null,
+          termName: g.termId ? (termMap.get(g.termId) ?? null) : null,
+          value: g.value,
+          kind: g.kind,
+        }));
+      const absences = allAttendance.filter((a) => a.studentId === sid && !a.present).length;
+      const myLessons = allLessons
+        .filter((l) => l.classId === s.classId)
+        .slice(0, 10)
+        .map((l) => ({ date: l.date, topic: l.topic, subjectName: l.subjectName ?? null }));
+      return {
+        id: s.id,
+        fullName: s.fullName,
+        className: undefined as string | undefined,
+        grades: myGrades,
+        absences,
+        recentLessons: myLessons,
+      };
+    })
+    .filter(Boolean) as PortalData['students'];
+
+  return {
+    guardian: { id: guardian.id, fullName: guardian.fullName },
+    students: studentsData,
+    communications: allComms,
+  };
+}
+
 /** Lista os tokens ativos de um responsável. */
 export async function listGuardianTokens(
   client: DbClient,
