@@ -99,7 +99,7 @@ export const NAV: NavGroup[] = [
       { label: 'Quadro de funcionários', href: '/app/escola/quadro', icon: Users },
       { label: 'Convites e membros', href: '/app/escola/convites', icon: UserPlus },
       { label: 'Ano letivo e períodos', href: '/app/escola/ano-letivo', icon: CalendarDays },
-      { label: 'Calendário escolar', href: '/app/escola/calendario', icon: CalendarClock },
+      { label: 'Calendário escolar', href: '/app/calendario', icon: CalendarClock },
       { label: 'Disciplinas', href: '/app/escola/disciplinas', icon: Library },
       { label: 'Professores e vínculos', href: '/app/escola/professores', icon: Network },
       { label: 'Responsáveis', href: '/app/escola/responsaveis', icon: Contact },

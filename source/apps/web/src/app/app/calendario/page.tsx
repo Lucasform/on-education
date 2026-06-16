@@ -1,40 +1,68 @@
-import { SubmitButton } from '@/components/submit-button';
-import { listCalendarEvents, listClasses, listEvents } from '@on-education/module-nucleo';
-import { Button } from '@on-education/ui';
+import {
+  calculateSchoolDays,
+  getSchoolYear,
+  listCalendarEvents,
+  listClasses,
+  listEvents,
+} from '@on-education/module-nucleo';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
-import { buildSchoolCalendar } from '@/server/school-calendar';
 import { getAuthContext } from '@/server/session';
 
 import { hojeISO } from '@/lib/date';
 
+import { CalendarAiUpload } from '../escola/calendario/CalendarAiUpload';
+import { deleteCalendarEventAction, setSchoolYearAction } from '../escola/calendario/actions';
 import { createEventAction, deleteEventAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Calendário · Edu On Way' };
 
 const MESES = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
+  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
 ];
 const SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
 const pad = (n: number) => String(n).padStart(2, '0');
+
+// Tipo unificado para renderização na grade
+interface UnifiedEvent {
+  id: string;
+  date: string;
+  title: string;
+  kind: 'feriado' | 'recesso' | 'commemorative' | 'school_day' | 'evento';
+  time?: string | null;
+  classId?: string | null;
+  source: 'event' | 'calendar'; // qual tabela originou
+}
+
+const CELL_COLORS: Record<string, string> = {
+  feriado:       'border-l-4 border-l-red-500 bg-red-500/5',
+  recesso:       'border-l-4 border-l-orange-400 bg-orange-400/5',
+  commemorative: 'border-l-4 border-l-blue-500 bg-blue-500/5',
+  school_day:    'border-l-4 border-l-green-500 bg-green-500/5',
+  evento:        'border-l-4 border-l-primary bg-primary/5',
+};
+const LABEL_COLORS: Record<string, string> = {
+  feriado:       'bg-red-500/15 text-red-500',
+  recesso:       'bg-orange-400/15 text-orange-500',
+  commemorative: 'bg-blue-500/15 text-blue-500',
+  school_day:    'bg-green-500/15 text-green-600',
+  evento:        'bg-primary/15 text-primary',
+};
+const KIND_LABEL: Record<string, string> = {
+  feriado:       'Feriado',
+  recesso:       'Sem aula',
+  commemorative: 'Data comemorativa',
+  school_day:    'Dia letivo esp.',
+  evento:        'Evento',
+};
 
 export default async function CalendarioPage({
   searchParams,
@@ -44,43 +72,58 @@ export default async function CalendarioPage({
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [eventosBase, calEvents, turmas, cal] = await Promise.all([
+  const isSchool = ctx.tenantType === 'organization';
+
+  const [eventosBase, calEvents, turmas, schoolYear] = await Promise.all([
     listEvents(client, ctx).catch(() => []),
-    ctx.tenantType === 'organization' ? listCalendarEvents(client, ctx).catch(() => []) : Promise.resolve([]),
+    isSchool ? listCalendarEvents(client, ctx).catch(() => []) : Promise.resolve([]),
     listClasses(client, ctx).catch(() => []),
-    buildSchoolCalendar(client, ctx).catch(() => null),
+    isSchool ? getSchoolYear(client, ctx).catch(() => ({ schoolYearStart: null, schoolYearEnd: null })) : Promise.resolve({ schoolYearStart: null, schoolYearEnd: null }),
   ]);
 
-  // Mapeia school_calendar_events → shape do events para unificação na grade.
-  const TYPE_TO_KIND: Record<string, 'feriado' | 'recesso' | 'evento'> = {
-    holiday: 'feriado',
-    no_school: 'recesso',
-    commemorative: 'evento',
-    school_day: 'evento',
-  };
-  const calEventsNormalized = calEvents.map((e) => ({
-    id: `cal_${e.id}`,
+  // Normaliza eventos da tabela `events`
+  const eventsNorm: UnifiedEvent[] = eventosBase.map((e) => ({
+    id: e.id,
     date: e.date,
-    kind: TYPE_TO_KIND[e.type] ?? 'evento',
-    title: e.name,
-    time: null,
-    classId: null,
-    description: null,
-    tenantId: ctx.tenantId,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    createdBy: null,
-    deletedAt: null,
+    title: e.title,
+    kind: e.kind as UnifiedEvent['kind'],
+    time: e.time,
+    classId: e.classId,
+    source: 'event' as const,
   }));
 
-  // Merge: eventos manuais + eventos do calendário escolar (deduplica por data+título).
-  const seen = new Set(eventosBase.map((e) => `${e.date}|${e.title}`));
-  const extras = calEventsNormalized.filter((e) => !seen.has(`${e.date}|${e.title}`));
-  const eventos = [...eventosBase, ...extras].sort(
-    (a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''),
-  );
-  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
+  // Normaliza school_calendar_events
+  const TYPE_MAP: Record<string, UnifiedEvent['kind']> = {
+    holiday: 'feriado',
+    no_school: 'recesso',
+    commemorative: 'commemorative',
+    school_day: 'school_day',
+  };
+  const calNorm: UnifiedEvent[] = calEvents.map((e) => ({
+    id: e.id,
+    date: e.date,
+    title: e.name,
+    kind: TYPE_MAP[e.type] ?? 'evento',
+    time: null,
+    classId: null,
+    source: 'calendar' as const,
+  }));
 
+  // Merge sem duplicatas (mesmo dia+título)
+  const seen = new Set(eventsNorm.map((e) => `${e.date}|${e.title}`));
+  const merged = [...eventsNorm, ...calNorm.filter((e) => !seen.has(`${e.date}|${e.title}`))];
+  const eventos = merged.sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''));
+
+  // Dias letivos (exclui feriado+recesso+fins de semana)
+  const nonSchoolSet = new Set(
+    eventos.filter((e) => e.kind === 'feriado' || e.kind === 'recesso').map((e) => e.date),
+  );
+  const schoolDays =
+    schoolYear.schoolYearStart && schoolYear.schoolYearEnd
+      ? calculateSchoolDays(schoolYear.schoolYearStart, schoolYear.schoolYearEnd, nonSchoolSet)
+      : null;
+
+  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
   const hoje = new Date();
   const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
 
@@ -89,30 +132,23 @@ export default async function CalendarioPage({
     mes && /^\d{4}-\d{2}$/.test(mes)
       ? (mes.split('-').map(Number) as [number, number])
       : [hoje.getFullYear(), hoje.getMonth() + 1];
-  // Dia selecionado (clicado), se válido e dentro do mês exibido.
   const diaSel =
     dia && /^\d{4}-\d{2}-\d{2}$/.test(dia) && dia.startsWith(`${ano}-${pad(m)}-`) ? dia : null;
 
   const prev = m === 1 ? `${ano - 1}-12` : `${ano}-${pad(m - 1)}`;
   const next = m === 12 ? `${ano + 1}-01` : `${ano}-${pad(m + 1)}`;
 
-  // Eventos do mês, agrupados por dia (YYYY-MM-DD).
   const prefixo = `${ano}-${pad(m)}-`;
-  const porDia = new Map<string, typeof eventos>();
-  // Dias não letivos (feriado/recesso) — destacados na grade e base do futuro motor de aulas.
-  const naoLetivos = new Set<string>();
+  const porDia = new Map<string, UnifiedEvent[]>();
   for (const e of eventos) {
-    if (e.kind === 'feriado' || e.kind === 'recesso') naoLetivos.add(e.date);
     if (!e.date.startsWith(prefixo)) continue;
     const arr = porDia.get(e.date) ?? [];
     arr.push(e);
     porDia.set(e.date, arr);
   }
-  const doMes = eventos
-    .filter((e) => e.date.startsWith(prefixo))
-    .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''));
+  const doMes = eventos.filter((e) => e.date.startsWith(prefixo));
 
-  // Monta as células da grade (espaços em branco antes do dia 1 e depois do último).
+  // Grade
   const primeiroDow = new Date(ano, m - 1, 1).getDay();
   const diasNoMes = new Date(ano, m, 0).getDate();
   const celulas: (number | null)[] = [];
@@ -122,239 +158,224 @@ export default async function CalendarioPage({
 
   return (
     <>
-      <PageHeader title="Calendário" description="Eventos e agendamentos da escola." />
+      <PageHeader title="Calendário" description="Eventos, feriados e dias letivos." />
 
-      {cal ? (
-        <section className={cardClass}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-sm font-medium">Ano letivo {cal.yearName}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {cal.start.split('-').reverse().join('/')} a{' '}
-                {cal.end.split('-').reverse().join('/')} · {cal.feriados} feriados ·{' '}
-                {cal.recessos} recessos
-              </p>
-              <p className="mt-1 text-sm">
-                <span className="font-semibold">{cal.letivos}</span>
-                <span className="text-muted-foreground"> / {cal.required} dias letivos</span>{' '}
-                {cal.faltam === 0 ? (
-                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                    ✓ atinge o mínimo do MEC
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                    faltam {cal.faltam} dias letivos
-                  </span>
-                )}
-              </p>
-            </div>
-            <a href="/app/calendario/escolar/word" download>
-              <Button size="sm" variant="outline">
-                Baixar calendário (Word)
-              </Button>
-            </a>
+      {/* Contadores do ano letivo */}
+      {isSchool && schoolDays && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className={cardClass}>
+            <div className="text-2xl font-semibold">{schoolDays.total}</div>
+            <div className="text-xs text-muted-foreground">Dias letivos planejados</div>
           </div>
-        </section>
-      ) : (
-        <section className={cardClass}>
-          <p className="text-sm text-muted-foreground">
-            Configure o ano letivo (início e fim) em{' '}
-            <Link href="/app/escola/ano-letivo" className="text-primary hover:underline">
-              Escola › Ano letivo
-            </Link>{' '}
-            para contar os dias letivos e gerar o calendário em Word.
-          </p>
-        </section>
+          <div className={cardClass}>
+            <div className="text-2xl font-semibold text-success">{schoolDays.passed}</div>
+            <div className="text-xs text-muted-foreground">Cumpridos até hoje</div>
+          </div>
+          <div className={cardClass}>
+            <div className="text-2xl font-semibold text-primary">{schoolDays.remaining}</div>
+            <div className="text-xs text-muted-foreground">Restantes</div>
+          </div>
+        </div>
       )}
 
-      <section className={cardClass}>
+      {/* Configuração do ano letivo */}
+      {isSchool && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Ano letivo</h2>
+          <form action={setSchoolYearAction} className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Início</label>
+              <input name="schoolYearStart" type="date" defaultValue={schoolYear.schoolYearStart ?? ''} className={fieldClass} />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Fim</label>
+              <input name="schoolYearEnd" type="date" defaultValue={schoolYear.schoolYearEnd ?? ''} className={fieldClass} />
+            </div>
+            <SubmitButton type="submit" size="sm" variant="outline">Salvar</SubmitButton>
+          </form>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Dias letivos = dias úteis do período excluindo fins de semana, feriados e dias sem aula.
+          </p>
+        </div>
+      )}
+
+      {/* Legenda */}
+      {isSchool && (
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+          {Object.entries(KIND_LABEL).map(([k, label]) => (
+            <span key={k} className="flex items-center gap-1.5">
+              <span className={`inline-block h-2.5 w-2.5 rounded-full ${LABEL_COLORS[k]?.split(' ')[0]?.replace('bg-', 'bg-')}`} />
+              {label}
+            </span>
+          ))}
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+            Final de semana
+          </span>
+        </div>
+      )}
+
+      {/* Grade mensal */}
+      <div className={cardClass}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold">
             {MESES[m - 1]} <span className="text-muted-foreground">{ano}</span>
           </h2>
           <div className="flex items-center gap-1">
-            <Link href={`/app/calendario?mes=${prev}`} aria-label="Mês anterior">
-              <Button size="sm" variant="ghost">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+            <Link
+              href={`/app/calendario?mes=${prev}`}
+              aria-label="Mês anterior"
+              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent"
+            >
+              <ChevronLeft className="h-4 w-4" />
             </Link>
-            <Link href="/app/calendario">
-              <Button size="sm" variant="ghost">
-                Hoje
-              </Button>
+            <Link href="/app/calendario" className="rounded-md px-2 py-1 text-sm hover:bg-accent">
+              Hoje
             </Link>
-            <Link href={`/app/calendario?mes=${next}`} aria-label="Próximo mês">
-              <Button size="sm" variant="ghost">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+            <Link
+              href={`/app/calendario?mes=${next}`}
+              aria-label="Próximo mês"
+              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent"
+            >
+              <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-sm">
+        <div className="grid grid-cols-7 gap-1">
           {SEMANA.map((s) => (
-            <div
-              key={s}
-              className="bg-card px-2 py-1.5 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
-            >
+            <div key={s} className="py-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               {s}
             </div>
           ))}
           {celulas.map((d, i) => {
-            if (d === null)
-              return <div key={`v-${i}`} className="min-h-12 bg-muted/30 sm:min-h-20" />;
+            if (d === null) return <div key={`v-${i}`} className="min-h-[52px] rounded-md" />;
             const dataStr = `${ano}-${pad(m)}-${pad(d)}`;
-            const evs = porDia.get(dataStr) ?? [];
+            const isWeekend = i % 7 === 0 || i % 7 === 6;
             const isHoje = dataStr === hojeStr;
             const isSel = dataStr === diaSel;
-            const naoLetivo = naoLetivos.has(dataStr);
+            const evs = porDia.get(dataStr) ?? [];
+            const dominant = evs[0];
+
+            let cellCls = 'min-h-[52px] rounded-md border p-1 text-xs transition-colors cursor-pointer';
+            if (isHoje) cellCls += ' border-primary/60 ring-1 ring-primary/30';
+            else if (isSel) cellCls += ' border-primary ring-1 ring-primary/50';
+            else if (dominant) cellCls += ` ${CELL_COLORS[dominant.kind] ?? ''}`;
+            else if (isWeekend) cellCls += ' border-border/30 bg-muted/30 text-muted-foreground';
+            else cellCls += ' border-border/50';
+
             return (
-              <Link
-                key={dataStr}
-                href={`/app/calendario?mes=${ano}-${pad(m)}&dia=${dataStr}`}
-                scroll={false}
-                title={naoLetivo ? 'Dia não letivo' : undefined}
-                className={`min-h-12 p-1 transition-colors hover:bg-accent/50 sm:min-h-20 sm:p-1.5 ${
-                  naoLetivo ? 'bg-danger/10' : 'bg-card'
-                } ${isSel ? 'ring-2 ring-inset ring-primary' : ''}`}
-              >
-                <div
-                  className={`mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px] sm:h-6 sm:w-6 sm:text-xs ${
-                    isHoje
-                      ? 'bg-primary font-semibold text-primary-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {d}
-                </div>
-                {/* Mobile: bolinhas (evita estourar a célula estreita). */}
-                {evs.length > 0 && (
-                  <div className="flex flex-wrap gap-0.5 sm:hidden">
-                    {evs.slice(0, 4).map((e) => (
-                      <span key={e.id} className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    ))}
-                  </div>
-                )}
-                {/* sm+: rótulos dos eventos. */}
-                <div className="hidden space-y-0.5 sm:block">
-                  {evs.slice(0, 3).map((e) => (
+              <Link key={dataStr} href={`/app/calendario?mes=${ano}-${pad(m)}&dia=${dataStr}`} scroll={false}>
+                <div className={cellCls}>
+                  <div className={`font-medium ${isHoje ? 'text-primary' : ''}`}>{d}</div>
+                  {evs.slice(0, 2).map((e) => (
                     <div
                       key={e.id}
+                      className="mt-0.5 truncate rounded-sm px-0.5 py-px text-[10px] leading-tight"
                       title={e.title}
-                      className="truncate rounded bg-primary/10 px-1 py-0.5 text-[11px] text-primary"
                     >
-                      {e.time ? `${e.time.slice(0, 5)} ` : ''}
                       {e.title}
                     </div>
                   ))}
-                  {evs.length > 3 && (
-                    <div className="px-1 text-[10px] text-muted-foreground">+{evs.length - 3}</div>
+                  {evs.length > 2 && (
+                    <div className="px-0.5 text-[9px] text-muted-foreground">+{evs.length - 2}</div>
                   )}
                 </div>
               </Link>
             );
           })}
         </div>
-      </section>
+      </div>
 
+      {/* Eventos do dia/mês */}
       <div className="grid gap-5 md:grid-cols-2">
-        <section className={cardClass}>
+        <div className={cardClass}>
           <h2 className="mb-3 flex items-center justify-between text-sm font-medium">
             <span>
               {diaSel
-                ? `Eventos de ${diaSel.slice(8)}/${pad(m)} (${(porDia.get(diaSel) ?? []).length})`
-                : `Eventos de ${MESES[m - 1]} (${doMes.length})`}
+                ? `${diaSel.slice(8)}/${pad(m)} · ${(porDia.get(diaSel) ?? []).length} evento(s)`
+                : `${MESES[m - 1]} · ${doMes.length} evento(s)`}
             </span>
             {diaSel && (
-              <Link
-                href={`/app/calendario?mes=${ano}-${pad(m)}`}
-                className="text-xs font-normal text-primary hover:underline"
-              >
-                ver o mês
+              <Link href={`/app/calendario?mes=${ano}-${pad(m)}`} className="text-xs font-normal text-primary hover:underline">
+                ver mês
               </Link>
             )}
           </h2>
           {(diaSel ? (porDia.get(diaSel) ?? []) : doMes).length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {diaSel ? 'Nenhum evento neste dia.' : 'Nenhum evento neste mês.'}
-            </p>
+            <p className="text-sm text-muted-foreground">Nenhum evento.</p>
           ) : (
-            <ul className="space-y-1 text-sm">
+            <ul className="space-y-1.5 text-sm">
               {(diaSel ? (porDia.get(diaSel) ?? []) : doMes).map((e) => (
-                <li key={e.id} className="flex items-center justify-between gap-2">
-                  <span>
-                    <span className="text-muted-foreground">
-                      {e.date.slice(8)}/{pad(m)}
-                    </span>{' '}
-                    {e.time && (
-                      <span className="text-muted-foreground">{e.time.slice(0, 5)} · </span>
-                    )}
-                    {e.kind === 'feriado' && <span className="mr-1">🔴</span>}
-                    {e.kind === 'recesso' && <span className="mr-1">🟠</span>}
-                    {e.title}
-                    {(e.kind === 'feriado' || e.kind === 'recesso') && (
-                      <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                        {e.kind === 'feriado' ? 'feriado' : 'recesso'} · não letivo
-                      </span>
-                    )}
-                    {e.classId && (
-                      <span className="text-muted-foreground"> · {turmaNome.get(e.classId)}</span>
-                    )}
+                <li key={e.id} className={`flex items-center justify-between gap-2 rounded-md border-l-4 pl-2 py-1 ${CELL_COLORS[e.kind] ?? ''}`}>
+                  <span className="flex-1 min-w-0">
+                    <span className="text-muted-foreground text-xs">{e.date.slice(8)}/{pad(m)} </span>
+                    {e.time && <span className="text-muted-foreground text-xs">{e.time.slice(0, 5)} · </span>}
+                    <span className="truncate">{e.title}</span>
+                    <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${LABEL_COLORS[e.kind] ?? 'bg-muted text-muted-foreground'}`}>
+                      {KIND_LABEL[e.kind] ?? e.kind}
+                    </span>
+                    {e.classId && <span className="ml-1 text-xs text-muted-foreground">· {turmaNome.get(e.classId)}</span>}
                   </span>
-                  <form action={deleteEventAction}>
-                    <input type="hidden" name="id" value={e.id} />
-                    <ConfirmButton
-                      size="sm"
-                      variant="ghost"
-                      message={`Excluir o evento "${e.title}"? Vai para a Lixeira.`}
-                    >
-                      Excluir
-                    </ConfirmButton>
-                  </form>
+                  {e.source === 'calendar' ? (
+                    <form action={deleteCalendarEventAction}>
+                      <input type="hidden" name="id" value={e.id} />
+                      <ConfirmButton size="sm" variant="ghost" message={`Remover "${e.title}"?`}>
+                        ×
+                      </ConfirmButton>
+                    </form>
+                  ) : (
+                    <form action={deleteEventAction}>
+                      <input type="hidden" name="id" value={e.id} />
+                      <ConfirmButton size="sm" variant="ghost" message={`Excluir "${e.title}"?`}>
+                        ×
+                      </ConfirmButton>
+                    </form>
+                  )}
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </div>
 
-        <section className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Novo evento</h2>
-          <form action={createEventAction} className="flex flex-col gap-2">
-            <input name="title" required placeholder="Título do evento" className={fieldClass} />
-            <select name="kind" defaultValue="evento" className={fieldClass}>
-              <option value="evento">Evento normal</option>
-              <option value="feriado">Feriado (dia não letivo)</option>
-              <option value="recesso">Recesso (dias não letivos)</option>
-            </select>
-            <div className="flex gap-2">
-              <input
-                name="date"
-                type="date"
-                required
-                defaultValue={diaSel ?? hojeISO()}
-                className={fieldClass}
-              />
-              <input name="time" type="time" className={fieldClass} />
+        {/* Formulário: novo evento */}
+        <div className="flex flex-col gap-4">
+          <div className={cardClass}>
+            <h2 className="mb-3 text-sm font-medium">Adicionar evento</h2>
+            <form action={createEventAction} className="flex flex-col gap-2">
+              <input name="title" required placeholder="Título" className={fieldClass} />
+              <select name="kind" defaultValue="evento" className={fieldClass}>
+                <option value="evento">Evento</option>
+                <option value="feriado">Feriado (não letivo)</option>
+                <option value="recesso">Sem aula (não letivo)</option>
+              </select>
+              <div className="flex gap-2">
+                <input name="date" type="date" required defaultValue={diaSel ?? hojeISO()} className={fieldClass} />
+                <input name="time" type="time" className={fieldClass} />
+              </div>
+              {turmas.length > 0 && (
+                <select name="classId" className={fieldClass} defaultValue="">
+                  <option value="">Toda a escola</option>
+                  {turmas.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              )}
+              <SubmitButton type="submit" size="sm">Adicionar</SubmitButton>
+            </form>
+          </div>
+
+          {/* Upload IA */}
+          {isSchool && (
+            <div className={cardClass}>
+              <h2 className="mb-2 text-sm font-medium">Importar com IA</h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Envie foto ou PDF do calendário escolar para extrair feriados automaticamente.
+              </p>
+              <CalendarAiUpload />
             </div>
-            <select name="classId" className={fieldClass} defaultValue="">
-              <option value="">Toda a escola</option>
-              {turmas.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <textarea
-              name="description"
-              rows={2}
-              placeholder="Descrição (opcional)"
-              className={fieldClass}
-            />
-            <SubmitButton type="submit" size="sm">
-              Agendar
-            </SubmitButton>
-          </form>
-        </section>
+          )}
+        </div>
       </div>
     </>
   );
