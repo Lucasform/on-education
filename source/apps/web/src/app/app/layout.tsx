@@ -1,5 +1,5 @@
 import { countPendingDrafts } from '@on-education/module-ia';
-import { getPublicTenantBrand, getTenantPlanId, getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantFeatures, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -20,12 +20,13 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const impersonating = await isImpersonating();
   // Nome do tenant (workspace que o professor/escola escolheu): vai no topo e no banner de
   // impersonação. Conexão dona; falha não pode derrubar o app.
-  const [brand, settings, planId, pendingDrafts] = await Promise.all([
+  const [brand, settings, featureSet, pendingDrafts] = await Promise.all([
     getPublicTenantBrand(db(), ctx.tenantId).catch(() => null),
     getTenantSettings(db(), ctx).catch(() => null),
-    getTenantPlanId(db(), ctx.tenantId).catch(() => null),
+    getTenantFeatures(db(), ctx.tenantId).catch(() => null),
     countPendingDrafts(db(), ctx).catch(() => 0),
   ]);
+  const features = featureSet ? [...featureSet] : null;
   const workspaceName = brand?.name ?? null;
   const agentName = settings?.agentName?.trim() || 'WayOn';
 
@@ -53,7 +54,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
       <AppShell
         tenantType={ctx.tenantType}
-        planId={planId}
+        features={features}
         subtitle={
           ctx.tenantType === 'organization'
             ? 'Escola'

@@ -1,5 +1,5 @@
 import type { TenantType } from '@on-education/core';
-import { canUse, type Feature } from '@on-education/entitlements';
+import { type Feature } from '@on-education/entitlements';
 import {
   AlertCircle,
   BarChart3,
@@ -206,7 +206,16 @@ export const NAV: NavGroup[] = [
  * Integrações e itens marcados `only`), sobrando o essencial: turmas/alunos, sala de aula,
  * pedagógico, WayOn e agenda. A escola (`organization`) vê tudo.
  */
-export function navFor(tenantType: TenantType, planId?: string | null): NavGroup[] {
+/**
+ * @param enabledFeatures conjunto de funcionalidades habilitadas do tenant.
+ *   `null` = tenant sem plano definido (ungated) → nada é travado.
+ */
+export function navFor(
+  tenantType: TenantType,
+  enabledFeatures?: readonly Feature[] | null,
+): NavGroup[] {
+  const gated = enabledFeatures != null;
+  const enabled = new Set(enabledFeatures ?? []);
   const groups = NAV.filter((g) => !g.only || g.only === tenantType)
     .map((g) => ({
       ...g,
@@ -214,7 +223,7 @@ export function navFor(tenantType: TenantType, planId?: string | null): NavGroup
         .filter((i) => !i.only || i.only === tenantType)
         .map((i) => ({
           ...i,
-          locked: i.requiresFeature ? !canUse(planId ?? '', i.requiresFeature) : false,
+          locked: i.requiresFeature ? gated && !enabled.has(i.requiresFeature) : false,
         })),
     }))
     .filter((g) => g.items.length > 0);

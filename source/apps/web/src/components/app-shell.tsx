@@ -1,6 +1,7 @@
 'use client';
 
 import type { TenantType } from '@on-education/core';
+import type { Feature } from '@on-education/entitlements';
 import { Lock, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -85,7 +86,7 @@ function NavGroupBlock({
  */
 export function AppShell({
   tenantType,
-  planId,
+  features,
   subtitle,
   headerActions,
   logoUrl,
@@ -94,8 +95,8 @@ export function AppShell({
   children,
 }: {
   tenantType: TenantType;
-  /** Plano ativo do tenant — usado para marcar itens travados no menu. */
-  planId?: string | null;
+  /** Funcionalidades habilitadas do tenant (null = ungated) — marca itens travados no menu. */
+  features?: readonly Feature[] | null;
   subtitle?: string;
   headerActions?: ReactNode;
   logoUrl?: string | null;
@@ -107,7 +108,7 @@ export function AppShell({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const agentName = useAgentName();
-  const groups = navFor(tenantType, planId);
+  const groups = navFor(tenantType, features);
   const mainGroups = groups.filter((g) => !g.pinBottom);
   const bottomGroups = groups.filter((g) => g.pinBottom);
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
