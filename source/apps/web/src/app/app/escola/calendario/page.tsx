@@ -6,6 +6,8 @@ import {
 } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
+import { CalendarAiUpload } from './CalendarAiUpload';
+
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
@@ -266,9 +268,18 @@ export default async function CalendarioPage({
         )}
       </div>
 
+      {/* Importação via IA */}
+      <div className={cardClass}>
+        <h2 className="mb-2 text-sm font-medium">Importar calendário com IA</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Envie uma foto ou PDF do calendário escolar. A IA extrai feriados e dias não letivos automaticamente para você revisar antes de salvar.
+        </p>
+        <CalendarAiUpload />
+      </div>
+
       {/* Formulário de novo evento */}
       <div className={cardClass}>
-        <h2 className="mb-3 text-sm font-medium">Adicionar evento</h2>
+        <h2 className="mb-3 text-sm font-medium">Adicionar evento manualmente</h2>
         <form action={createCalendarEventAction} className="grid gap-2 sm:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs text-muted-foreground">Data</label>
