@@ -1,5 +1,11 @@
 import { SubmitButton } from '@/components/submit-button';
-import { isEntitled, listClasses, listStudents, listSubjects } from '@on-education/module-nucleo';
+import {
+  getTenantSettings,
+  isEntitled,
+  listClasses,
+  listStudents,
+  listSubjects,
+} from '@on-education/module-nucleo';
 import { listAttendance } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
@@ -27,12 +33,15 @@ export default async function RelatorioFaltasPage({
   if (!await isEntitled(client, ctx.tenantId, 'analytics.director')) {
     return <UpgradeGate feature="analytics.director" tenantType={ctx.tenantType} />;
   }
-  const [turmas, alunos, disciplinas, registros] = await Promise.all([
+  const [turmas, alunos, disciplinas, registros, settings] = await Promise.all([
     listClasses(client, ctx).catch(() => []),
     listStudents(client, ctx).catch(() => []),
     listSubjects(client, ctx).catch(() => []),
     listAttendance(client, ctx).catch(() => []),
+    getTenantSettings(client, ctx).catch(() => null),
   ]);
+  const fmt = (d: string) => d.split('-').reverse().join('/');
+  const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
   const alunoNome = new Map(alunos.map((a) => [a.id, a.fullName]));
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
@@ -113,12 +122,21 @@ export default async function RelatorioFaltasPage({
 
       {/* Documento imprimível */}
       <article className="rounded-lg border border-border bg-card p-6 print:border-0 print:p-0">
-        <header className="mb-4 border-b border-border pb-3">
-          <h2 className="text-lg font-semibold">Relatório de faltas</h2>
-          <p className="text-sm text-muted-foreground">{escopo}</p>
-          <p className="text-xs text-muted-foreground">
-            Total de faltas no escopo: {faltas.length}
-          </p>
+        <header className="mb-4 flex items-center gap-3 border-b border-border pb-3">
+          {settings?.logoUrl ? (
+            <img src={settings.logoUrl} alt="Logo" className="h-12 w-12 rounded-lg object-cover" />
+          ) : (
+            <span className="h-12 w-12 rounded-lg bg-primary" />
+          )}
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold leading-tight">
+              {settings?.profileName ?? 'Relatório de faltas'}
+            </h2>
+            <p className="text-sm text-muted-foreground">{escopo}</p>
+            <p className="text-xs text-muted-foreground">
+              Total de faltas no escopo: {faltas.length} · Emitido em {hoje}
+            </p>
+          </div>
         </header>
 
         {resumo.length > 0 && (
@@ -165,7 +183,7 @@ export default async function RelatorioFaltasPage({
                 <tbody>
                   {faltas.map((f) => (
                     <tr key={f.id} className="border-b border-border/50 last:border-0">
-                      <td className="py-1.5 pr-4">{f.date}</td>
+                      <td className="py-1.5 pr-4">{fmt(f.date)}</td>
                       <td className="py-1.5 pr-4">{alunoNome.get(f.studentId) ?? 'Aluno'}</td>
                       <td className="py-1.5 pr-4 text-muted-foreground">
                         {turmaNome.get(f.classId) ?? '—'}

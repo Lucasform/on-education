@@ -48,6 +48,88 @@ export async function buildStudentSummary(
   };
 }
 
+export interface BoletimComponent {
+  name: string;
+  weight: number;
+  average: string;
+}
+export interface StudentBoletim {
+  studentId: string;
+  studentName: string;
+  className: string | null;
+  components: BoletimComponent[];
+  finalAverage: string;
+  finalNum: number | null;
+  attendance: string;
+  absences: number;
+  status: 'aprovado' | 'recuperacao' | 'reprovado' | 'sem_nota';
+  grades: { label: string; value: number | null; kind: string; componentName: string | null }[];
+}
+
+/** Boletim completo de um aluno: média por componente, média final, frequência e situação. */
+export async function buildStudentBoletim(
+  client: DbClient,
+  ctx: AuthContext,
+  studentId: string,
+): Promise<StudentBoletim | null> {
+  const isSchool = ctx.tenantType === 'organization';
+  const [aluno, notas, presencas, componentes] = await Promise.all([
+    getStudent(client, ctx, studentId),
+    listGradesForStudent(client, ctx, studentId),
+    listAttendanceForStudent(client, ctx, studentId),
+    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
+  ]);
+  if (!aluno) return null;
+
+  const compName = new Map(componentes.map((c) => [c.id, c.name]));
+  const scale = 10;
+
+  const components: BoletimComponent[] = componentes.map((c) => {
+    const vs = notas
+      .filter((n) => n.componentId === c.id && n.value !== null)
+      .map((n) => n.value as number);
+    const avg = vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+    return { name: c.name, weight: c.weight, average: avg === null ? '—' : avg.toFixed(1) };
+  });
+
+  const finalNum = weightedAverage(notas, componentes);
+  const finalAverage = finalNum === null ? '—' : finalNum.toFixed(1);
+  const presentes = presencas.filter((p) => p.present).length;
+  const absences = presencas.length - presentes;
+  const attendance = presencas.length
+    ? `${Math.round((presentes / presencas.length) * 100)}%`
+    : '—';
+
+  const status: StudentBoletim['status'] =
+    finalNum === null
+      ? 'sem_nota'
+      : finalNum / scale >= 0.7
+        ? 'aprovado'
+        : finalNum / scale < 0.5
+          ? 'reprovado'
+          : 'recuperacao';
+
+  const grades = notas.map((n) => ({
+    label: n.label,
+    value: n.value,
+    kind: n.kind,
+    componentName: n.componentId ? (compName.get(n.componentId) ?? null) : null,
+  }));
+
+  return {
+    studentId,
+    studentName: aluno.fullName,
+    className: null,
+    components,
+    finalAverage,
+    finalNum,
+    attendance,
+    absences,
+    status,
+    grades,
+  };
+}
+
 /** Monta o texto do relatório pra enviar (WhatsApp/print), com recado opcional do WayOn. */
 export function buildReportText(s: StudentSummary, recado?: string | null): string {
   const linhas = [

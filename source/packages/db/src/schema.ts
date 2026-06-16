@@ -1530,6 +1530,58 @@ export const schoolCalendarEvents = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// communication_reads — confirmação de leitura de comunicado pelo responsável.
+// Um registro por (comunicado, responsável) que abriu no portal. Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const communicationReads = oe.table(
+  'communication_reads',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    communicationId: uuid('communication_id').notNull(),
+    guardianId: uuid('guardian_id').notNull(),
+    readAt: timestamp('read_at', { withTimezone: true }).defaultNow().notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('communication_reads_uq').on(t.tenantId, t.communicationId, t.guardianId),
+    index('communication_reads_comm_idx').on(t.communicationId),
+    tenantPolicy('communication_reads_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// enrollment_requests — solicitações de matrícula vindas do formulário PÚBLICO.
+// Ficam como 'pending' até a secretaria aprovar (vira aluno+responsável) ou rejeitar.
+// Tenant-scoped + RLS; inserção pública via service role (sem sessão).
+// ---------------------------------------------------------------------------
+export const enrollmentRequests = oe.table(
+  'enrollment_requests',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    // Dados do aluno
+    studentName: text('student_name').notNull(),
+    birthDate: date('birth_date'),
+    shift: text('shift'),
+    // Dados do responsável
+    guardianName: text('guardian_name').notNull(),
+    guardianEmail: text('guardian_email'),
+    guardianPhone: text('guardian_phone'),
+    guardianCpf: text('guardian_cpf'),
+    relation: text('relation'),
+    notes: text('notes'),
+    // pending | approved | rejected
+    status: text('status').notNull().default('pending'),
+    ...auditCols,
+  },
+  (t) => [
+    index('enrollment_requests_tenant_idx').on(t.tenantId),
+    tenantPolicy('enrollment_requests_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1595,4 +1647,6 @@ export const schema = {
   meetingBookings,
   webhookEndpoints,
   schoolCalendarEvents,
+  communicationReads,
+  enrollmentRequests,
 };

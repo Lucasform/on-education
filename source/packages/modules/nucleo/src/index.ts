@@ -26,3 +26,4 @@ export * from './absence-justifications';
 export * from './meetings';
 export * from './webhooks';
 export * from './school-calendar';
+export * from './enrollment';

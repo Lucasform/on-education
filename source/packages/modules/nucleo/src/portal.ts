@@ -56,9 +56,11 @@ export interface PortalData {
     className?: string;
     grades: { label: string; subjectName: string | null; termName: string | null; value: number | null; kind: string }[];
     absences: number;
+    /** Faltas recentes com data (para notificar o responsável). Mais recentes primeiro. */
+    recentAbsences: { date: string; subjectName: string | null }[];
     recentLessons: { date: string; topic: string; subjectName: string | null }[];
   }[];
-  communications: { title: string; body: string; createdAt: Date }[];
+  communications: { id: string; title: string; body: string; createdAt: Date }[];
 }
 
 /**
@@ -143,8 +145,15 @@ export async function resolvePortalToken(
     ),
     client.withTenant(tenantId, (tx) =>
       tx
-        .select({ studentId: attendance.studentId, present: attendance.present })
-        .from(attendance),
+        .select({
+          studentId: attendance.studentId,
+          present: attendance.present,
+          date: attendance.date,
+          subjectName: subjects.name,
+        })
+        .from(attendance)
+        .leftJoin(subjects, eq(subjects.id, attendance.subjectId))
+        .orderBy(desc(attendance.date)),
     ),
     client.withTenant(tenantId, (tx) =>
       tx
@@ -162,7 +171,7 @@ export async function resolvePortalToken(
     ),
     client.withTenant(tenantId, (tx) =>
       tx
-        .select({ title: communications.title, body: communications.body, createdAt: communications.createdAt })
+        .select({ id: communications.id, title: communications.title, body: communications.body, createdAt: communications.createdAt })
         .from(communications)
         .where(eq(communications.status, 'published'))
         .orderBy(desc(communications.createdAt))
@@ -185,7 +194,11 @@ export async function resolvePortalToken(
           value: g.value,
           kind: g.kind,
         }));
-      const absences = allAttendance.filter((a) => a.studentId === sid && !a.present).length;
+      const myAbsenceRows = allAttendance.filter((a) => a.studentId === sid && !a.present);
+      const absences = myAbsenceRows.length;
+      const recentAbsences = myAbsenceRows
+        .slice(0, 8)
+        .map((a) => ({ date: a.date, subjectName: a.subjectName ?? null }));
       const myLessons = allLessons
         .filter((l) => l.classId === s.classId)
         .slice(0, 10)
@@ -196,6 +209,7 @@ export async function resolvePortalToken(
         className: undefined as string | undefined,
         grades: myGrades,
         absences,
+        recentAbsences,
         recentLessons: myLessons,
       };
     })
@@ -263,8 +277,15 @@ export async function resolvePortalForGuardian(
     ),
     client.withTenant(tenantId, (tx) =>
       tx
-        .select({ studentId: attendance.studentId, present: attendance.present })
-        .from(attendance),
+        .select({
+          studentId: attendance.studentId,
+          present: attendance.present,
+          date: attendance.date,
+          subjectName: subjects.name,
+        })
+        .from(attendance)
+        .leftJoin(subjects, eq(subjects.id, attendance.subjectId))
+        .orderBy(desc(attendance.date)),
     ),
     client.withTenant(tenantId, (tx) =>
       tx
@@ -282,7 +303,7 @@ export async function resolvePortalForGuardian(
     ),
     client.withTenant(tenantId, (tx) =>
       tx
-        .select({ title: communications.title, body: communications.body, createdAt: communications.createdAt })
+        .select({ id: communications.id, title: communications.title, body: communications.body, createdAt: communications.createdAt })
         .from(communications)
         .where(eq(communications.status, 'published'))
         .orderBy(desc(communications.createdAt))
@@ -305,7 +326,11 @@ export async function resolvePortalForGuardian(
           value: g.value,
           kind: g.kind,
         }));
-      const absences = allAttendance.filter((a) => a.studentId === sid && !a.present).length;
+      const myAbsenceRows = allAttendance.filter((a) => a.studentId === sid && !a.present);
+      const absences = myAbsenceRows.length;
+      const recentAbsences = myAbsenceRows
+        .slice(0, 8)
+        .map((a) => ({ date: a.date, subjectName: a.subjectName ?? null }));
       const myLessons = allLessons
         .filter((l) => l.classId === s.classId)
         .slice(0, 10)
@@ -316,6 +341,7 @@ export async function resolvePortalForGuardian(
         className: undefined as string | undefined,
         grades: myGrades,
         absences,
+        recentAbsences,
         recentLessons: myLessons,
       };
     })

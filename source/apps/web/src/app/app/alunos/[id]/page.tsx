@@ -111,6 +111,12 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         />
         <span className="flex shrink-0 flex-wrap gap-2">
           <Link
+            href={`/app/alunos/${id}/boletim`}
+            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Boletim
+          </Link>
+          <Link
             href={`/app/alunos/${id}/relatorio`}
             className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
           >

@@ -1,4 +1,5 @@
 import { resolvePortalForGuardian } from '@on-education/module-nucleo';
+import { markCommunicationsRead } from '@on-education/module-comunicacao';
 import { redirect } from 'next/navigation';
 
 import { db } from '@/server/db';
@@ -12,8 +13,21 @@ export default async function PortalMePage() {
   const session = await getGuardianSession();
   if (!session) redirect('/portal/login');
 
-  const data = await resolvePortalForGuardian(db(), session.guardianId, session.tenantId).catch(() => null);
+  const client = db();
+  const data = await resolvePortalForGuardian(client, session.guardianId, session.tenantId).catch(
+    () => null,
+  );
   if (!data) redirect('/portal/login');
+
+  // Confirma leitura dos comunicados exibidos (idempotente).
+  if (data.communications.length > 0) {
+    await markCommunicationsRead(
+      client,
+      session.tenantId,
+      session.guardianId,
+      data.communications.map((c) => c.id),
+    ).catch(() => {});
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4 pt-8">
@@ -50,6 +64,28 @@ export default async function PortalMePage() {
                 <div className="text-lg font-semibold">{s.grades.length}</div>
               </div>
             </div>
+
+            {/* Notificação de faltas recentes */}
+            {s.recentAbsences.length > 0 && (
+              <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/5 p-3">
+                <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-red-500">
+                  ⚠ Faltas recentes
+                </h3>
+                <ul className="space-y-1 text-sm">
+                  {s.recentAbsences.map((a, i) => (
+                    <li key={i} className="flex justify-between gap-2">
+                      <span className="text-foreground">
+                        {a.date.split('-').reverse().join('/')}
+                        {a.subjectName && (
+                          <span className="ml-1 text-xs text-muted-foreground">· {a.subjectName}</span>
+                        )}
+                      </span>
+                      <span className="text-xs font-medium text-red-500">falta</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {s.grades.length > 0 && (
               <div className="mb-4">
@@ -96,8 +132,8 @@ export default async function PortalMePage() {
         <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
           <h2 className="mb-3 font-medium">Comunicados da escola</h2>
           <ul className="space-y-3 text-sm">
-            {data.communications.map((c, i) => (
-              <li key={i} className="border-b border-border/50 pb-3 last:border-0 last:pb-0">
+            {data.communications.map((c) => (
+              <li key={c.id} className="border-b border-border/50 pb-3 last:border-0 last:pb-0">
                 <p className="font-medium">{c.title}</p>
                 <p className="mt-0.5 text-muted-foreground">{c.body}</p>
               </li>

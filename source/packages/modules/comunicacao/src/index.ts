@@ -1,7 +1,7 @@
 export * from './messages';
 
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { communications, type DbClient } from '@on-education/db';
+import { communicationReads, communications, type DbClient } from '@on-education/db';
 import { assertEntitled } from '@on-education/module-nucleo';
 import {
   type AiProvider,
@@ -13,7 +13,7 @@ import type {
   CreateCommunicationInput,
   GenerateCommunicationInput,
 } from '@on-education/validation';
-import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
 
 /**
  * Mural PÚBLICO dos pais (item 12): comunicados publicados de um tenant, lidos pela conexão
@@ -84,6 +84,64 @@ export async function listCommunications(client: DbClient, ctx: AuthContext) {
       .where(isNull(communications.deletedAt))
       .orderBy(desc(communications.createdAt)),
   );
+}
+
+/**
+ * Registra que um responsável leu um comunicado (chamado quando ele abre o portal).
+ * Idempotente: unique (tenant, comunicado, responsável) com ON CONFLICT DO NOTHING.
+ * Usa `client.db` (sessão do portal não tem ctx autenticado de tenant via RBAC).
+ */
+export async function markCommunicationsRead(
+  client: DbClient,
+  tenantId: string,
+  guardianId: string,
+  communicationIds: string[],
+) {
+  if (communicationIds.length === 0) return;
+  await client.db
+    .insert(communicationReads)
+    .values(
+      communicationIds.map((communicationId) => ({ tenantId, communicationId, guardianId })),
+    )
+    .onConflictDoNothing();
+}
+
+/** Contagem de leituras por comunicado (para o painel da escola). Retorna Map<commId, total>. */
+export async function countCommunicationReads(
+  client: DbClient,
+  ctx: AuthContext,
+): Promise<Record<string, number>> {
+  assertCan(ctx, 'read', 'communication');
+  const rows = await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select({ communicationId: communicationReads.communicationId, total: sql<number>`count(*)::int` })
+      .from(communicationReads)
+      .groupBy(communicationReads.communicationId),
+  );
+  const out: Record<string, number> = {};
+  for (const r of rows) out[r.communicationId] = Number(r.total);
+  return out;
+}
+
+/** IDs de comunicados já lidos por um responsável (evita recontar no portal). */
+export async function listReadCommunicationIds(
+  client: DbClient,
+  tenantId: string,
+  guardianId: string,
+  communicationIds: string[],
+): Promise<Set<string>> {
+  if (communicationIds.length === 0) return new Set();
+  const rows = await client.db
+    .select({ communicationId: communicationReads.communicationId })
+    .from(communicationReads)
+    .where(
+      and(
+        eq(communicationReads.tenantId, tenantId),
+        eq(communicationReads.guardianId, guardianId),
+        inArray(communicationReads.communicationId, communicationIds),
+      ),
+    );
+  return new Set(rows.map((r) => r.communicationId));
 }
 
 export async function listDeletedCommunications(client: DbClient, ctx: AuthContext) {

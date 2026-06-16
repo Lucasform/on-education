@@ -1,6 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
-import { listCommunications } from '@on-education/module-comunicacao';
+import { countCommunicationReads, listCommunications } from '@on-education/module-comunicacao';
 import { getWhatsappConnection, listClasses } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -34,10 +34,11 @@ export default async function ComunicadosPage({
   if (!ctx) redirect('/login');
   const sp = await searchParams;
   const client = db();
-  const [comunicados, turmas, wa] = await Promise.all([
+  const [comunicados, turmas, wa, readCounts] = await Promise.all([
     listCommunications(client, ctx).catch(() => []),
     ctx.tenantType === 'organization' ? listClasses(client, ctx).catch(() => []) : Promise.resolve([]),
     getWhatsappConnection(client, ctx).catch(() => null),
+    countCommunicationReads(client, ctx).catch(() => ({}) as Record<string, number>),
   ]);
   const aiOn = isAiConfigured();
   const emailOn = isEmailConfigured();
@@ -151,6 +152,14 @@ export default async function ComunicadosPage({
                       {c.aiGenerated ? <> · <AgentNameText /></> : ''}
                       {classId && turmaNome.get(classId) ? ` · ${turmaNome.get(classId)}` : ''}
                     </span>
+                    {c.status === 'published' && (
+                      <span
+                        className="ml-2 rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-medium text-success"
+                        title="Responsáveis que abriram este comunicado no portal"
+                      >
+                        👁 {readCounts[c.id] ?? 0} {(readCounts[c.id] ?? 0) === 1 ? 'leitura' : 'leituras'}
+                      </span>
+                    )}
                   </span>
                   <span className="flex gap-2">
                     {c.status !== 'published' && (

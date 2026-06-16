@@ -1,14 +1,20 @@
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { listClasses, listEnrollmentRequests, listStudents } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { BulkAddRows } from '@/components/bulk-add-rows';
+import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { enrollStudentsBulkAction } from '../actions';
+import {
+  approveEnrollmentAction,
+  enrollStudentsBulkAction,
+  rejectEnrollmentAction,
+} from '../actions';
+import { PublicLinkBox } from './PublicLinkBox';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Matrícula · Edu On Way' };
@@ -19,9 +25,10 @@ export default async function MatriculaPage() {
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const client = db();
-  const [turmas, alunos] = await Promise.all([
+  const [turmas, alunos, pedidos] = await Promise.all([
     listClasses(client, ctx).catch(() => []),
     listStudents(client, ctx).catch(() => []),
+    listEnrollmentRequests(client, ctx, 'pending').catch(() => []),
   ]);
   const semTurma = alunos.filter((a) => !a.classId);
   const porTurma = turmas
@@ -57,6 +64,60 @@ export default async function MatriculaPage() {
           <div className="text-xs text-muted-foreground">Sem turma</div>
         </div>
       </section>
+
+      {/* Link público de pré-matrícula */}
+      <PublicLinkBox tenantId={ctx.tenantId} />
+
+      {/* Solicitações de pré-matrícula pendentes */}
+      {pedidos.length > 0 && (
+        <div className={`${cardClass} border-l-4 border-l-primary`}>
+          <h2 className="mb-1 text-sm font-medium">
+            Pré-matrículas a confirmar ({pedidos.length})
+          </h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Solicitações recebidas pelo formulário público. Aprovar cria o aluno e o responsável
+            automaticamente.
+          </p>
+          <ul className="space-y-3">
+            {pedidos.map((p) => (
+              <li key={p.id} className="rounded-md border border-border p-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">{p.studentName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {p.birthDate && <>Nasc.: {p.birthDate.split('-').reverse().join('/')} · </>}
+                      {p.shift && <>{p.shift} · </>}
+                      Resp.: {p.guardianName}
+                      {p.guardianPhone && <> · {p.guardianPhone}</>}
+                      {p.guardianEmail && <> · {p.guardianEmail}</>}
+                      {p.relation && <> · {p.relation}</>}
+                    </p>
+                    {p.notes && <p className="mt-1 text-xs text-muted-foreground">“{p.notes}”</p>}
+                  </div>
+                  <div className="flex shrink-0 items-end gap-2">
+                    <form action={approveEnrollmentAction} className="flex items-end gap-2">
+                      <input type="hidden" name="id" value={p.id} />
+                      <select name="classId" defaultValue="" className={`${fieldClass} text-xs`}>
+                        <option value="">Sem turma</option>
+                        {turmas.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                      <SubmitButton type="submit" size="sm">Aprovar</SubmitButton>
+                    </form>
+                    <form action={rejectEnrollmentAction}>
+                      <input type="hidden" name="id" value={p.id} />
+                      <ConfirmButton size="sm" variant="outline" message={`Rejeitar a pré-matrícula de ${p.studentName}?`}>
+                        Rejeitar
+                      </ConfirmButton>
+                    </form>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Matrícula de um aluno = onboarding completo (sem form reduzido). */}
       <div className={`${cardClass} flex flex-wrap items-center justify-between gap-3`}>

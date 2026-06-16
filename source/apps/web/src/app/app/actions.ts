@@ -35,6 +35,8 @@ import {
   createEvent,
   createGradeComponent,
   deleteGradeComponent,
+  approveEnrollmentRequest,
+  rejectEnrollmentRequest,
   createGuardian,
   createGuardiansBulk,
   deleteGuardian,
@@ -1164,6 +1166,23 @@ export async function importSubjectsAction(formData: FormData): Promise<void> {
   const names = (formData.getAll('name') as string[]).map((s) => s.trim()).filter(Boolean);
   if (names.length) await createSubjectsBulk(db(), ctx, names);
   revalidatePath('/app', 'layout');
+}
+
+export async function approveEnrollmentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  const classId = String(formData.get('classId') ?? '').trim() || null;
+  if (!id) return;
+  await approveEnrollmentRequest(db(), ctx, id, classId);
+  revalidatePath('/app/matricula', 'page');
+}
+
+export async function rejectEnrollmentAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return;
+  await rejectEnrollmentRequest(db(), ctx, id);
+  revalidatePath('/app/matricula', 'page');
 }
 
 export async function importGuardiansAction(formData: FormData): Promise<void> {
