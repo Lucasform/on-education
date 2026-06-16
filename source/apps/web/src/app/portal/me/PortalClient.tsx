@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 import { logoutGuardianAction } from '../login/actions';
 import {
   bookMeetingAction,
   changePasswordAction,
+  markChatReadAction,
   requestExitAction,
   requestReenrollmentAction,
   sendMessageAction,
@@ -32,7 +33,12 @@ interface Data {
   upcomingEvents: { date: string; name: string; type: string }[];
   meetingSlots: { id: string; date: string; startTime: string; durationMinutes: number; title: string }[];
   chat: { id: string; sender: string; subject: string; body: string; createdAt: string }[];
+  invoices: { id: string; competencia: string; description: string; amountCents: number; dueDate: string; status: string }[];
+  unread: { chat: number; communications: number };
 }
+
+const money = (cents: number) =>
+  (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const br = (d: string) => (d?.length >= 10 ? d.slice(0, 10).split('-').reverse().join('/') : d);
 const field =
@@ -43,6 +49,7 @@ const TABS = [
   { id: 'geral', label: 'Visão geral' },
   { id: 'notas', label: 'Notas & faltas' },
   { id: 'solicitacoes', label: 'Solicitações' },
+  { id: 'financeiro', label: 'Financeiro' },
   { id: 'chat', label: 'Mensagens' },
   { id: 'conta', label: 'Conta' },
 ] as const;
@@ -60,6 +67,7 @@ const ERR: Record<string, string> = {
   falha: 'Não foi possível concluir. Tente novamente.',
   reuniao: 'Horário indisponível, escolha outro.',
   senha: 'Senha inválida (mín. 6, e iguais).',
+  anexo: 'Não foi possível enviar o anexo (use imagem/PDF até 8 MB).',
 };
 
 function Badge({ status }: { status: string }) {
@@ -78,6 +86,19 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
   const [tab, setTab] = useState<(typeof TABS)[number]['id']>('geral');
   const [sid, setSid] = useState(data.students[0]?.id ?? '');
   const aluno = data.students.find((s) => s.id === sid) ?? data.students[0];
+  const [, startTransition] = useTransition();
+  const [chatSeen, setChatSeen] = useState(false);
+
+  // Ao abrir a aba de mensagens, marca as da escola como lidas.
+  useEffect(() => {
+    if (tab === 'chat' && data.unread.chat > 0 && !chatSeen) {
+      setChatSeen(true);
+      startTransition(() => {
+        void markChatReadAction();
+      });
+    }
+  }, [tab, data.unread.chat, chatSeen]);
+  const chatBadge = chatSeen ? 0 : data.unread.chat;
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 pt-6">
@@ -120,17 +141,25 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
 
       {/* Tabs */}
       <div className="flex gap-1 overflow-x-auto border-b border-border">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`shrink-0 border-b-2 px-3 py-2 text-sm transition-colors ${
-              tab === t.id ? 'border-primary font-medium text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const badge = t.id === 'chat' ? chatBadge : t.id === 'geral' ? data.unread.communications : 0;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition-colors ${
+                tab === t.id ? 'border-primary font-medium text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t.label}
+              {badge > 0 && (
+                <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+                  {badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* VISÃO GERAL */}
@@ -317,6 +346,10 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
               <input type="hidden" name="studentId" value={aluno.id} />
               <input name="date" type="date" required className={field} />
               <input name="reason" required placeholder="Motivo da falta" className={field} />
+              <label className="text-xs text-muted-foreground">
+                Anexar atestado (opcional, imagem ou PDF)
+                <input name="document" type="file" accept="image/*,application/pdf" className="mt-1 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-muted file:px-2 file:py-1" />
+              </label>
               <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Enviar justificativa</button>
             </form>
           </section>
@@ -354,6 +387,39 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
         </div>
       )}
 
+      {/* FINANCEIRO */}
+      {tab === 'financeiro' && (
+        <section className={card}>
+          <h2 className="mb-3 text-sm font-medium">Mensalidades</h2>
+          {data.invoices.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhuma fatura no momento.</p>
+          ) : (
+            <ul className="divide-y divide-border/50 text-sm">
+              {data.invoices.map((inv) => {
+                const overdue = inv.status === 'aberto' && inv.dueDate < new Date().toISOString().slice(0, 10);
+                return (
+                  <li key={inv.id} className="flex items-center justify-between gap-2 py-2">
+                    <div>
+                      <p className="font-medium">{inv.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Comp. {inv.competencia} · vence {br(inv.dueDate)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{money(inv.amountCents)}</p>
+                      <Badge status={inv.status === 'pago' ? 'pago' : overdue ? 'vencido' : 'aberto'} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            Pagamento online (2ª via Pix/boleto) chega em breve. Por ora, fale com a secretaria pela aba Mensagens.
+          </p>
+        </section>
+      )}
+
       {/* CHAT */}
       {tab === 'chat' && (
         <div id="chat" className="space-y-3">
@@ -385,6 +451,26 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
       {/* CONTA */}
       {tab === 'conta' && (
         <div id="conta" className="space-y-5">
+          {aluno && (
+            <section className={`${card} bg-gradient-to-br from-primary/10 to-transparent`}>
+              <h2 className="mb-3 text-sm font-medium">Carteirinha digital</h2>
+              <div className="flex items-center gap-4">
+                <img
+                  alt="QR da carteirinha"
+                  className="h-28 w-28 rounded-md border border-border bg-white p-1"
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                    `Edu On Way | Aluno: ${aluno.fullName} | ID: ${aluno.id}`,
+                  )}`}
+                />
+                <div>
+                  <p className="text-xs text-muted-foreground">Aluno</p>
+                  <p className="text-lg font-semibold leading-tight">{aluno.fullName}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Responsável: {data.guardian.fullName}</p>
+                  <p className="text-[11px] text-muted-foreground">Apresente o QR na portaria/eventos.</p>
+                </div>
+              </div>
+            </section>
+          )}
           <section className={card}>
             <h2 className="mb-2 text-sm font-medium">Meus dados</h2>
             <form action={updateContactAction} className="grid gap-2">

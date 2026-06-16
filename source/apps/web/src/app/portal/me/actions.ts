@@ -2,6 +2,7 @@
 
 import {
   guardianBookMeeting,
+  guardianMarkChatRead,
   guardianRequestExit,
   guardianRequestReenrollment,
   guardianSendMessage,
@@ -12,6 +13,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { uploadGuardianDocument } from '@/server/storage';
 import { db } from '@/server/db';
 import { getGuardianSession } from '@/server/guardian-session';
 
@@ -46,14 +48,33 @@ export async function submitJustificationAction(fd: FormData): Promise<void> {
   const date = str(fd, 'date');
   const reason = str(fd, 'reason');
   if (!studentId || !date || !reason) redirect('/portal/me?erro=campos');
+
+  // Anexo opcional (atestado): sobe ao storage e guarda a URL.
+  let documentUrl: string | null = null;
+  const file = fd.get('document');
+  if (file instanceof File && file.size > 0) {
+    try {
+      documentUrl = await uploadGuardianDocument(s.tenantId, file);
+    } catch {
+      redirect('/portal/me?erro=anexo#justificativa');
+    }
+  }
+
   await guardianSubmitJustification(db(), s.guardianId, s.tenantId, {
     studentId,
     date,
     reason,
+    documentUrl,
     submittedByName: str(fd, 'submittedByName') || null,
   }).catch(() => redirect('/portal/me?erro=falha'));
   revalidatePath('/portal/me');
   redirect('/portal/me?ok=justificativa#justificativa');
+}
+
+export async function markChatReadAction(): Promise<void> {
+  const s = await session();
+  await guardianMarkChatRead(db(), s.guardianId, s.tenantId).catch(() => {});
+  revalidatePath('/portal/me');
 }
 
 export async function bookMeetingAction(fd: FormData): Promise<void> {

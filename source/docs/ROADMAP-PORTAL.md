@@ -22,14 +22,15 @@ sessão do portal (sem AuthContext de staff), todas validando `student_guardians
 ## 🔜 Próximas fases
 
 ### Fase 2 — interação e finanças
-- [ ] Badges de não lidas (chat e comunicados) — coluna `messages.read_at` já existe.
+- [x] Badges de não lidas (chat e comunicados) + marca chat lido ao abrir a aba.
+- [x] Financeiro: faturas/mensalidades (competência, valor, vencimento, status, vencido). Falta só a 2ª via online (Pix/boleto), que depende do gateway de pagamento.
+- [x] Anexo de atestado na justificativa (upload Supabase Storage).
+- [x] Escola vê quem escreveu (tag "responsável") e responde pela página Mensagens.
 - [ ] Notificação por WhatsApp/e-mail quando há novidade no portal.
-- [ ] Financeiro: faturas, vencimentos, 2ª via (Pix/boleto), histórico de pagamentos.
-- [ ] Anexo de atestado na justificativa (upload Supabase Storage).
-- [ ] Escola responder o chat a partir do app (hoje a escola usa Mensagens/WhatsApp).
+- [ ] 2ª via Pix/boleto (depende do gateway — ligar junto do Stripe).
 
 ### Fase 3 — extras
-- [ ] Carteirinha digital do aluno (QR).
+- [x] Carteirinha digital do aluno (QR) — na aba Conta.
 - [ ] Cardápio da merenda da semana.
 - [ ] Lista de materiais.
 - [ ] Galeria de fotos de eventos da turma.

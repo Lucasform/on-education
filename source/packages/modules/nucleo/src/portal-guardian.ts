@@ -1,6 +1,7 @@
 import {
   absenceJustifications,
   attendance,
+  communicationReads,
   communications,
   type DbClient,
   enrollmentRequests,
@@ -8,6 +9,7 @@ import {
   gradeComponents,
   grades,
   guardians,
+  invoices,
   lessons,
   meetingBookings,
   meetingSlots,
@@ -20,7 +22,7 @@ import {
   subjects,
   terms,
 } from '@on-education/db';
-import { and, asc, desc, eq, gte, inArray, isNull, lte } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or } from 'drizzle-orm';
 
 import { weightedAverage } from './grade-components';
 
@@ -54,6 +56,8 @@ export interface PortalBundle {
   upcomingEvents: { date: string; name: string; type: string }[];
   meetingSlots: { id: string; date: string; startTime: string; durationMinutes: number; title: string }[];
   chat: { id: string; sender: string; subject: string; body: string; createdAt: Date }[];
+  invoices: { id: string; competencia: string; description: string; amountCents: number; dueDate: string; status: string }[];
+  unread: { chat: number; communications: number };
 }
 
 export interface PortalStudent {
@@ -94,6 +98,8 @@ export async function getPortalBundle(
       upcomingEvents: [],
       meetingSlots: [],
       chat: [],
+      invoices: [],
+      unread: { chat: 0, communications: 0 },
     };
 
     // Comunicados publicados
@@ -127,6 +133,34 @@ export async function getPortalBundle(
       .where(and(eq(messages.guardianId, guardianId), isNull(messages.deletedAt)))
       .orderBy(asc(messages.createdAt))
       .limit(100);
+    base.unread.chat = base.chat.filter((m) => m.sender === 'school').length === 0
+      ? 0
+      : (
+          await tx
+            .select({ id: messages.id })
+            .from(messages)
+            .where(and(eq(messages.guardianId, guardianId), eq(messages.sender, 'school'), isNull(messages.readAt), isNull(messages.deletedAt)))
+        ).length;
+
+    // Comunicados não lidos por este responsável
+    const readRows = await tx
+      .select({ communicationId: communicationReads.communicationId })
+      .from(communicationReads)
+      .where(eq(communicationReads.guardianId, guardianId));
+    const readSet = new Set(readRows.map((r) => r.communicationId));
+    base.unread.communications = base.communications.filter((c) => !readSet.has(c.id)).length;
+
+    // Faturas (mensalidades) do responsável e/ou dos seus alunos
+    const invWhere =
+      sids.length > 0
+        ? or(eq(invoices.guardianId, guardianId), inArray(invoices.studentId, sids))
+        : eq(invoices.guardianId, guardianId);
+    base.invoices = await tx
+      .select({ id: invoices.id, competencia: invoices.competencia, description: invoices.description, amountCents: invoices.amountCents, dueDate: invoices.dueDate, status: invoices.status })
+      .from(invoices)
+      .where(and(invWhere, isNull(invoices.deletedAt)))
+      .orderBy(desc(invoices.dueDate))
+      .limit(24);
 
     if (sids.length === 0) return base;
 
@@ -327,6 +361,16 @@ export async function guardianRequestReenrollment(
       status: 'pending',
     });
   });
+}
+
+/** Marca como lidas as mensagens da escola para este responsável. */
+export async function guardianMarkChatRead(client: DbClient, tenantId: string, guardianId: string) {
+  await client.withTenant(tenantId, (tx) =>
+    tx
+      .update(messages)
+      .set({ readAt: new Date() })
+      .where(and(eq(messages.guardianId, guardianId), eq(messages.sender, 'school'), isNull(messages.readAt))),
+  );
 }
 
 export async function guardianUpdateContact(

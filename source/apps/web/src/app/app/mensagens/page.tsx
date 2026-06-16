@@ -51,6 +51,11 @@ export default async function MensagensPage() {
                   <li key={mn.id} className="rounded-md border border-border p-3">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium">
+                        {(mn as { sender?: string }).sender === 'guardian' && (
+                          <span className="mr-1 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
+                            responsável
+                          </span>
+                        )}
                         {mn.subject}{' '}
                         <span className="text-muted-foreground">
                           · {nomeResp.get(mn.guardianId) ?? 'Responsável'}
