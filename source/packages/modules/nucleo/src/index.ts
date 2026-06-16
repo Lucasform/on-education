@@ -28,3 +28,4 @@ export * from './webhooks';
 export * from './school-calendar';
 export * from './enrollment';
 export * from './plan-management';
+export * from './portal-guardian';

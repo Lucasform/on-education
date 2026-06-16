@@ -946,6 +946,10 @@ export const messages = oe.table(
     studentId: uuid('student_id'),
     subject: text('subject').notNull(),
     body: text('body').notNull().default(''),
+    // Direção da mensagem no chat: 'school' (escola→responsável) | 'guardian' (responsável→escola).
+    sender: text('sender').notNull().default('school'),
+    // Quando a contraparte leu (badge de não lidas).
+    readAt: timestamp('read_at', { withTimezone: true }),
     ...auditCols,
   },
   (t) => [
