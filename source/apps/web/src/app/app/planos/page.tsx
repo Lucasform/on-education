@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
+import { isBillingConfigured } from '@/server/billing';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -48,6 +49,7 @@ export default async function PlanosPage({
   const combos = comboPlans(ctx.tenantType);
   const catalogo = featuresForSegment(ctx.tenantType);
   const min = ALACARTE_MIN[ctx.tenantType];
+  const billingOn = isBillingConfigured();
 
   return (
     <>
@@ -156,7 +158,10 @@ export default async function PlanosPage({
       </section>
 
       <p className="text-center text-xs text-muted-foreground">
-        Preços ilustrativos. Pagamento online em breve; por ora a ativação é imediata. Dúvidas?{' '}
+        {billingOn
+          ? 'Pagamento seguro via Stripe (cartão, Pix e boleto). '
+          : 'Preços ilustrativos. Ativação imediata enquanto o pagamento online não está ligado. '}
+        Dúvidas?{' '}
         <a href="mailto:contato@onway.com.br" className="text-primary underline-offset-4 hover:underline">
           contato@onway.com.br
         </a>

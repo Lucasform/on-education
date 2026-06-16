@@ -35,6 +35,15 @@ const envSchema = z.object({
   // E-mails autorizados a acessar o painel /admin (super-admin), separados por vírgula.
   // Vazio = /admin fica totalmente trancado (ninguém entra). Server-only.
   SUPER_ADMIN_EMAILS: z.string().optional(),
+
+  // Stripe (cobrança da assinatura do SaaS). Opcionais: sem STRIPE_SECRET_KEY o app fica
+  // em modo "ativação imediata" (sem cobrança). Os price IDs por plano/funcionalidade são
+  // lidos sob demanda de STRIPE_PRICE_* (ver server/billing.ts). Server-only.
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  // URL pública do app para as páginas de sucesso/cancelamento do checkout (ex.:
+  // https://on-education-seven.vercel.app). Se ausente, usa a origem da requisição.
+  APP_PUBLIC_URL: z.string().url().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

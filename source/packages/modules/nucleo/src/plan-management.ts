@@ -1,4 +1,5 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
+import type { TenantType } from '@on-education/core';
 import { type DbClient, entitlements, subscriptions } from '@on-education/db';
 import {
   ALACARTE_MIN,
@@ -12,7 +13,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 async function syncEntitlements(
   tx: DbClient['db'],
   tenantId: string,
-  userId: string,
+  userId: string | null,
   features: Feature[],
 ) {
   // Desliga tudo que existe; depois liga (upsert) só o conjunto desejado.
@@ -35,7 +36,7 @@ async function syncEntitlements(
 async function setActiveSubscription(
   tx: DbClient['db'],
   tenantId: string,
-  userId: string,
+  userId: string | null,
   planId: string,
 ) {
   const existing = await tx
@@ -52,6 +53,44 @@ async function setActiveSubscription(
   }
 }
 
+// --- Núcleo (service): sem RBAC. Uso server-only (webhook de pagamento, provisionamento). --
+
+/** Ativa um plano combo para um tenant pelo id (service-level, sem checagem de papel). */
+export async function applyComboPlanForTenant(
+  client: DbClient,
+  tenantId: string,
+  planId: string,
+  actorUserId: string | null = null,
+) {
+  const plan = getPlan(planId);
+  if (!plan) throw new Error(`Plano inexistente: ${planId}`);
+  await client.withTenant(tenantId, async (tx) => {
+    await setActiveSubscription(tx, tenantId, actorUserId, planId);
+    await syncEntitlements(tx, tenantId, actorUserId, [...plan.features]);
+  });
+}
+
+/** Ativa um pacote à la carte para um tenant pelo id (service-level). Valida mínimo/elegibilidade. */
+export async function setFeaturesForTenant(
+  client: DbClient,
+  tenantId: string,
+  tenantType: TenantType,
+  features: Feature[],
+  actorUserId: string | null = null,
+) {
+  const eligible = new Set(featuresForSegment(tenantType).map((m) => m.feature));
+  const chosen = [...new Set(features)].filter((f) => eligible.has(f));
+  const min = ALACARTE_MIN[tenantType];
+  if (chosen.length < min) throw new Error(`Selecione no mínimo ${min} funcionalidades.`);
+  const customPlan = tenantType === 'individual' ? 'teacher_custom' : 'school_custom';
+  await client.withTenant(tenantId, async (tx) => {
+    await setActiveSubscription(tx, tenantId, actorUserId, customPlan);
+    await syncEntitlements(tx, tenantId, actorUserId, chosen);
+  });
+}
+
+// --- UI (guarded): checagem de papel. ----------------------------------------
+
 /**
  * Ativa um plano COMBO: define a assinatura e liga exatamente as funcionalidades do plano.
  * O app passa a refletir o plano na hora (autônomo, sem liberação manual).
@@ -61,31 +100,11 @@ export async function applyComboPlan(client: DbClient, ctx: AuthContext, planId:
   const plan = getPlan(planId);
   if (!plan) throw new Error(`Plano inexistente: ${planId}`);
   if (plan.tenantType !== ctx.tenantType) throw new Error('Plano incompatível com o tipo de conta.');
-  await client.withTenant(ctx.tenantId, async (tx) => {
-    await setActiveSubscription(tx, ctx.tenantId, ctx.userId, planId);
-    await syncEntitlements(tx, ctx.tenantId, ctx.userId, [...plan.features]);
-  });
+  await applyComboPlanForTenant(client, ctx.tenantId, planId, ctx.userId);
 }
 
-/**
- * Ativa um pacote À LA CARTE: valida o mínimo do segmento e a elegibilidade, marca a
- * assinatura como `*_custom` e liga exatamente as funcionalidades escolhidas.
- */
-export async function setTenantFeatures(
-  client: DbClient,
-  ctx: AuthContext,
-  features: Feature[],
-) {
+/** Ativa um pacote À LA CARTE com checagem de papel. */
+export async function setTenantFeatures(client: DbClient, ctx: AuthContext, features: Feature[]) {
   assertCan(ctx, 'update', 'setting');
-  const eligible = new Set(featuresForSegment(ctx.tenantType).map((m) => m.feature));
-  const chosen = [...new Set(features)].filter((f) => eligible.has(f));
-  const min = ALACARTE_MIN[ctx.tenantType];
-  if (chosen.length < min) {
-    throw new Error(`Selecione no mínimo ${min} funcionalidades.`);
-  }
-  const customPlan = ctx.tenantType === 'individual' ? 'teacher_custom' : 'school_custom';
-  await client.withTenant(ctx.tenantId, async (tx) => {
-    await setActiveSubscription(tx, ctx.tenantId, ctx.userId, customPlan);
-    await syncEntitlements(tx, ctx.tenantId, ctx.userId, chosen);
-  });
+  await setFeaturesForTenant(client, ctx.tenantId, ctx.tenantType, features, ctx.userId);
 }
