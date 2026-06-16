@@ -1,5 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses, listEvents } from '@on-education/module-nucleo';
+import { listCalendarEvents, listClasses, listEvents } from '@on-education/module-nucleo';
 import { Button } from '@on-education/ui';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -44,11 +44,41 @@ export default async function CalendarioPage({
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const [eventos, turmas, cal] = await Promise.all([
+  const [eventosBase, calEvents, turmas, cal] = await Promise.all([
     listEvents(client, ctx).catch(() => []),
+    ctx.tenantType === 'organization' ? listCalendarEvents(client, ctx).catch(() => []) : Promise.resolve([]),
     listClasses(client, ctx).catch(() => []),
     buildSchoolCalendar(client, ctx).catch(() => null),
   ]);
+
+  // Mapeia school_calendar_events → shape do events para unificação na grade.
+  const TYPE_TO_KIND: Record<string, 'feriado' | 'recesso' | 'evento'> = {
+    holiday: 'feriado',
+    no_school: 'recesso',
+    commemorative: 'evento',
+    school_day: 'evento',
+  };
+  const calEventsNormalized = calEvents.map((e) => ({
+    id: `cal_${e.id}`,
+    date: e.date,
+    kind: TYPE_TO_KIND[e.type] ?? 'evento',
+    title: e.name,
+    time: null,
+    classId: null,
+    description: null,
+    tenantId: ctx.tenantId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: null,
+    deletedAt: null,
+  }));
+
+  // Merge: eventos manuais + eventos do calendário escolar (deduplica por data+título).
+  const seen = new Set(eventosBase.map((e) => `${e.date}|${e.title}`));
+  const extras = calEventsNormalized.filter((e) => !seen.has(`${e.date}|${e.title}`));
+  const eventos = [...eventosBase, ...extras].sort(
+    (a, b) => a.date.localeCompare(b.date) || (a.time ?? '').localeCompare(b.time ?? ''),
+  );
   const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
 
   const hoje = new Date();
