@@ -1,5 +1,5 @@
 import type { TenantType } from '@on-education/core';
-import { type Feature, FEATURES } from '@on-education/entitlements';
+import { type Feature, FEATURES, freePlanFor } from '@on-education/entitlements';
 import { applyComboPlanForTenant, setFeaturesForTenant } from '@on-education/module-nucleo';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -8,33 +8,46 @@ import { verifyStripeWebhook } from '@/server/billing';
 
 export const dynamic = 'force-dynamic';
 
+// Eventos que confirmam acesso pago → LIBERA o plano/pacote dos metadados.
+const GRANT = new Set([
+  'checkout.session.completed',
+  'customer.subscription.created',
+  'customer.subscription.updated',
+]);
+// Eventos que tiram acesso → rebaixa para o plano free do segmento.
+const REVOKE = new Set(['customer.subscription.deleted']);
+// Status de assinatura que, mesmo em `updated`, indicam acesso suspenso.
+const INACTIVE_STATUS = new Set(['canceled', 'unpaid', 'incomplete_expired', 'paused']);
+
 /**
- * Webhook do Stripe. Verifica a assinatura e, em eventos de assinatura paga/atualizada,
- * aplica o plano (combo) ou o pacote à la carte no tenant — a mesma operação da tela de
- * planos, mas disparada pelo pagamento. Idempotente: aplicar o mesmo conjunto repete o
- * estado final, sem efeito colateral.
+ * Webhook do Stripe. Verifica a assinatura e:
+ *  - libera o plano/pacote pago (combo ou à la carte) ao confirmar pagamento;
+ *  - rebaixa para o free do segmento ao cancelar/expirar/ficar inadimplente.
+ * Tudo idempotente: aplicar o mesmo estado repete o resultado, sem efeito colateral.
  */
 export async function POST(req: NextRequest) {
   const payload = await req.text();
   const event = verifyStripeWebhook(payload, req.headers.get('stripe-signature'));
   if (!event) return NextResponse.json({ error: 'Assinatura inválida.' }, { status: 400 });
 
-  // Eventos que confirmam acesso pago. Cancelamentos/expiração poderiam reverter para free
-  // num passo futuro; aqui focamos em LIBERAR o que foi pago.
-  const RELEVANT = new Set([
-    'checkout.session.completed',
-    'customer.subscription.created',
-    'customer.subscription.updated',
-  ]);
-  if (!RELEVANT.has(event.type)) return NextResponse.json({ received: true });
+  if (!GRANT.has(event.type) && !REVOKE.has(event.type)) {
+    return NextResponse.json({ received: true });
+  }
 
-  const obj = event.data.object as { metadata?: Record<string, string> };
+  const obj = event.data.object as { metadata?: Record<string, string>; status?: string };
   const meta = obj.metadata ?? {};
   const tenantId = meta.tenantId;
   if (!tenantId) return NextResponse.json({ received: true, skipped: 'sem tenantId' });
 
+  const tenantType = (meta.tenantType as TenantType) ?? 'organization';
+  // updated com status suspenso conta como revogação.
+  const revoke =
+    REVOKE.has(event.type) || (obj.status != null && INACTIVE_STATUS.has(obj.status));
+
   try {
-    if (meta.kind === 'combo' && meta.planId) {
+    if (revoke) {
+      await applyComboPlanForTenant(db(), tenantId, freePlanFor(tenantType));
+    } else if (meta.kind === 'combo' && meta.planId) {
       await applyComboPlanForTenant(db(), tenantId, meta.planId);
     } else if (meta.kind === 'alacarte') {
       const valid = new Set<string>(FEATURES);
@@ -42,7 +55,6 @@ export async function POST(req: NextRequest) {
         .split(',')
         .map((f) => f.trim())
         .filter((f) => valid.has(f)) as Feature[];
-      const tenantType = (meta.tenantType as TenantType) ?? 'organization';
       await setFeaturesForTenant(db(), tenantId, tenantType, features);
     }
   } catch (e) {

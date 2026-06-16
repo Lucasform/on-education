@@ -166,6 +166,8 @@ export interface PlanDefinition {
   limits: Readonly<Record<string, number>>;
   /** Preço mensal do combo em BRL (0 = grátis, -1 = sob consulta). */
   monthlyPrice: number;
+  /** Não aparece na lista de combos (ex.: free institucional, só alvo de downgrade). */
+  hidden?: boolean;
 }
 
 function plan(
@@ -175,8 +177,9 @@ function plan(
   features: Feature[],
   limits: Record<string, number>,
   monthlyPrice: number,
+  hidden = false,
 ): PlanDefinition {
-  return { id, name, tenantType, features: new Set(features), limits, monthlyPrice };
+  return { id, name, tenantType, features: new Set(features), limits, monthlyPrice, hidden };
 }
 
 const TEACHER_BASIC: Feature[] = [
@@ -221,6 +224,15 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 100 },
     -1,
   ),
+  school_free: plan(
+    'school_free',
+    'Escola Free',
+    'organization',
+    ['classes.manage', 'communication.light'],
+    { aiTokensPerMonth: 50_000, students: -1, imagesPerMonth: 0 },
+    0,
+    true, // oculto: serve como baseline pós-cancelamento, não como combo vendável
+  ),
   school_starter: plan(
     'school_starter',
     'Escola Starter',
@@ -257,9 +269,16 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
   ),
 };
 
-/** Planos combo (exclui os `*_custom`, que são montados pelo tenant) por segmento. */
+/** Planos combo (exclui `*_custom` e ocultos) por segmento. */
 export function comboPlans(tenantType: TenantType): PlanDefinition[] {
-  return Object.values(PLANS).filter((p) => p.tenantType === tenantType && !p.id.endsWith('_custom'));
+  return Object.values(PLANS).filter(
+    (p) => p.tenantType === tenantType && !p.id.endsWith('_custom') && !p.hidden,
+  );
+}
+
+/** Plano gratuito (baseline) do segmento — alvo do downgrade ao cancelar a assinatura. */
+export function freePlanFor(tenantType: TenantType): string {
+  return tenantType === 'individual' ? 'teacher_free' : 'school_free';
 }
 
 export function getPlan(planId: string): PlanDefinition | undefined {

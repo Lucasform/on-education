@@ -19,7 +19,7 @@ pagamento via **Stripe Checkout** (cartão, Pix e boleto) e o **webhook** libera
 5. **Configurar o webhook**: Developers > Webhooks > Add endpoint:
    - URL: `https://SEU-APP/api/billing/webhook`
    - Eventos: `checkout.session.completed`, `customer.subscription.created`,
-     `customer.subscription.updated`.
+     `customer.subscription.updated`, `customer.subscription.deleted`.
    - Copie o *Signing secret* (`whsec_...`) para `STRIPE_WEBHOOK_SECRET`.
 6. **Definir** `APP_PUBLIC_URL` com a URL pública (ex.: `https://on-education-seven.vercel.app`).
 7. **Redeploy**. Pronto: a tela de Planos passa a abrir o checkout do Stripe; ao pagar, o
@@ -33,7 +33,9 @@ pagamento via **Stripe Checkout** (cartão, Pix e boleto) e o **webhook** libera
   `applyComboPlanForTenant` / `setFeaturesForTenant`, que escrevem na tabela `entitlements`.
 - `entitlements` é a fonte de verdade: o app libera as telas conforme as flags do tenant.
 
-## Reverter acesso ao cancelar (passo futuro, ainda não implementado)
+## Reverter acesso ao cancelar (implementado)
 
-Hoje o webhook só **libera** o que foi pago. Para rebaixar para o Free quando a assinatura
-é cancelada/expira, tratar `customer.subscription.deleted` aplicando o plano free do segmento.
+O webhook rebaixa o tenant para o plano free do segmento (`teacher_free` / `school_free`)
+quando recebe `customer.subscription.deleted` — ou um `customer.subscription.updated` com
+status suspenso (`canceled`, `unpaid`, `incomplete_expired`, `paused`). As funcionalidades
+pagas somem do menu na hora, mantendo o básico (turmas/diário e comunicados).
