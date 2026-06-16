@@ -192,7 +192,7 @@ export async function recordGrade(client: DbClient, ctx: AuthContext, input: Rec
 export async function listGrades(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'grade');
   return client.withTenant(ctx.tenantId, (tx) =>
-    tx.select().from(grades).orderBy(desc(grades.createdAt)),
+    tx.select().from(grades).where(sql`${grades.deletedAt} IS NULL`).orderBy(desc(grades.createdAt)),
   );
 }
 
@@ -200,7 +200,11 @@ export async function listGrades(client: DbClient, ctx: AuthContext) {
 export async function listGradesForStudent(client: DbClient, ctx: AuthContext, studentId: string) {
   assertCan(ctx, 'read', 'grade');
   return client.withTenant(ctx.tenantId, (tx) =>
-    tx.select().from(grades).where(eq(grades.studentId, studentId)).orderBy(desc(grades.createdAt)),
+    tx
+      .select()
+      .from(grades)
+      .where(and(eq(grades.studentId, studentId), sql`${grades.deletedAt} IS NULL`))
+      .orderBy(desc(grades.createdAt)),
   );
 }
 
@@ -301,4 +305,38 @@ export async function recordAttendanceBulk(
     }
   });
   return entries.length;
+}
+
+/** Exclui um lançamento de nota pelo id (soft-delete via deletedAt). */
+export async function deleteGrade(client: DbClient, ctx: AuthContext, id: string) {
+  assertCan(ctx, 'update', 'grade');
+  await client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .update(grades)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(grades.id, id), eq(grades.tenantId, ctx.tenantId))),
+  );
+}
+
+/** Presenças de uma turma numa data específica (para pré-preencher a chamada). */
+export async function listAttendanceForDateClass(
+  client: DbClient,
+  ctx: AuthContext,
+  classId: string,
+  date: string,
+  subjectId?: string | null,
+) {
+  assertCan(ctx, 'read', 'attendance');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(attendance)
+      .where(
+        and(
+          eq(attendance.classId, classId),
+          eq(attendance.date, date),
+          subjectId ? eq(attendance.subjectId, subjectId) : sql`${attendance.subjectId} IS NULL`,
+        ),
+      ),
+  );
 }

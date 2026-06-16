@@ -143,6 +143,7 @@ import {
   deleteLessonPlan,
   createCurriculumUnit,
   deleteCurriculumUnit,
+  deleteGrade,
   deleteScheduleException,
   deleteScheduleSlot,
   distributeCurriculum,
@@ -864,6 +865,14 @@ export async function recordAttendanceAction(formData: FormData): Promise<void> 
   });
   await recordAttendance(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+export async function deleteGradeAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '').trim();
+  if (!id) return;
+  await deleteGrade(db(), ctx, id);
+  revalidatePath('/app/sala/notas', 'page');
 }
 
 // --- Comunicados -------------------------------------------------------------
