@@ -1,5 +1,3 @@
-'use server';
-
 import { loadEnv, modelFor } from '@on-education/config';
 import { NextResponse, type NextRequest } from 'next/server';
 
