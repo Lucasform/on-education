@@ -115,18 +115,18 @@ export function AppShell({
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-card md:block print:hidden">
-        <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+        <div className="flex h-14 items-center gap-3 border-b border-border px-4">
           {logoUrl ? (
-            <img src={logoUrl} alt="Logo da escola" className="h-7 w-7 rounded-lg object-cover" />
+            <img src={logoUrl} alt="Logo da escola" className="h-8 w-8 shrink-0 rounded-xl object-cover shadow-sm" />
           ) : (
-            <LogoMark size={28} />
+            <LogoMark size={32} />
           )}
-          <span className="font-semibold">Edu On Way</span>
-          {workspaceName && (
-            <span className="truncate text-sm text-muted-foreground" title={workspaceName}>
-              · {workspaceName}
-            </span>
-          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold leading-tight">
+              {workspaceName ?? 'Edu On Way'}
+            </p>
+            <p className="text-[11px] leading-tight text-muted-foreground">Edu On Way</p>
+          </div>
           <button
             type="button"
             aria-label="Fechar menu"
@@ -172,13 +172,18 @@ export function AppShell({
       {/* Launcher em tela cheia no mobile (sem sidebar): ícones grandes, escolha e abra. */}
       {open && (
         <div className="fixed inset-0 z-40 flex flex-col bg-background md:hidden print:hidden">
-          <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+          <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
             {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="h-7 w-7 rounded-lg object-cover" />
+              <img src={logoUrl} alt="Logo" className="h-8 w-8 shrink-0 rounded-xl object-cover shadow-sm" />
             ) : (
-              <LogoMark size={28} />
+              <LogoMark size={32} />
             )}
-            <span className="font-semibold">{workspaceName ?? 'Edu On Way'}</span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold leading-tight">
+                {workspaceName ?? 'Edu On Way'}
+              </p>
+              <p className="text-[11px] leading-tight text-muted-foreground">Edu On Way</p>
+            </div>
             <button
               type="button"
               aria-label="Fechar"
