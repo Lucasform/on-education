@@ -198,7 +198,7 @@ export default async function AtividadeDetalhePage({
             defaultFaixa={atividade.ageBand ?? ''}
           />
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            Aplicar em (opcional, vai pro calendário)
+            Data de aplicação (opcional, aparece no calendário)
             <input
               name="applyDate"
               type="date"
