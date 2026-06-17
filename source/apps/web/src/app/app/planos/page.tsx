@@ -90,14 +90,11 @@ export default async function PlanosPage({
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-primary/80">Seu plano atual</p>
             <h2 className="mt-1 text-2xl font-bold">{planNome}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {precoAtual}
-              {currentFeatures.length > 0 && ` · ${currentFeatures.length} funcionalidades ativas`}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{precoAtual}</p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2.5 py-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-success" /> {billingOn ? 'Pagamento via Stripe' : 'Ativação imediata'}
+              <ShieldCheck className="h-3.5 w-3.5 text-success" /> {billingOn ? 'Pagamento seguro' : 'Ativação imediata'}
             </span>
             {billingOn && (
               <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2.5 py-1">
@@ -153,7 +150,7 @@ export default async function PlanosPage({
       <p className="flex flex-wrap items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
         <ShieldCheck className="h-3.5 w-3.5 text-success" />
         {billingOn
-          ? 'Pagamento seguro processado pela Stripe (cartão, Pix e boleto).'
+          ? 'Pagamento seguro com cartão, Pix ou boleto.'
           : 'Ativação imediata enquanto o pagamento online não está ligado.'}{' '}
         Dúvidas?{' '}
         <a href="mailto:contato@onway.com.br" className="text-primary underline-offset-4 hover:underline">
