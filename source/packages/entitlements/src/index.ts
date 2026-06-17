@@ -249,7 +249,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
       'enrollment.official',
     ],
     { aiTokensPerMonth: 2_000_000, students: -1, imagesPerMonth: 300 },
-    -1,
+    249,
   ),
   school_full: plan(
     'school_full',
@@ -257,7 +257,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'organization',
     [...FEATURES],
     { aiTokensPerMonth: 10_000_000, students: -1, imagesPerMonth: 1000 },
-    -1,
+    499,
   ),
   school_custom: plan(
     'school_custom',
