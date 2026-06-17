@@ -56,7 +56,19 @@ export interface PortalBundle {
   upcomingEvents: { date: string; name: string; type: string }[];
   meetingSlots: { id: string; date: string; startTime: string; durationMinutes: number; title: string }[];
   chat: { id: string; sender: string; subject: string; body: string; createdAt: Date }[];
-  invoices: { id: string; competencia: string; description: string; amountCents: number; dueDate: string; status: string }[];
+  invoices: {
+    id: string;
+    competencia: string;
+    description: string;
+    amountCents: number;
+    dueDate: string;
+    status: string;
+    provider: string | null;
+    paymentMethod: string | null;
+    paymentUrl: string | null;
+    pixCode: string | null;
+    boletoLine: string | null;
+  }[];
   unread: { chat: number; communications: number };
 }
 
@@ -156,7 +168,7 @@ export async function getPortalBundle(
         ? or(eq(invoices.guardianId, guardianId), inArray(invoices.studentId, sids))
         : eq(invoices.guardianId, guardianId);
     base.invoices = await tx
-      .select({ id: invoices.id, competencia: invoices.competencia, description: invoices.description, amountCents: invoices.amountCents, dueDate: invoices.dueDate, status: invoices.status })
+      .select({ id: invoices.id, competencia: invoices.competencia, description: invoices.description, amountCents: invoices.amountCents, dueDate: invoices.dueDate, status: invoices.status, provider: invoices.provider, paymentMethod: invoices.paymentMethod, paymentUrl: invoices.paymentUrl, pixCode: invoices.pixCode, boletoLine: invoices.boletoLine })
       .from(invoices)
       .where(and(invWhere, isNull(invoices.deletedAt)))
       .orderBy(desc(invoices.dueDate))

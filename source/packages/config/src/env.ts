@@ -44,6 +44,15 @@ const envSchema = z.object({
   // URL pública do app para as páginas de sucesso/cancelamento do checkout (ex.:
   // https://on-education-seven.vercel.app). Se ausente, usa a origem da requisição.
   APP_PUBLIC_URL: z.string().url().optional(),
+
+  // Pagamento da MENSALIDADE (família -> escola), agnóstico de PSP. Distinto do Stripe
+  // (assinatura do SaaS). Sem PAYMENTS_PROVIDER + chave, o app fica como hoje (2ª via
+  // read-only, baixa manual). Ver apps/web/src/server/payments.ts. Server-only.
+  PAYMENTS_PROVIDER: z.enum(['asaas', 'iugu']).optional(),
+  ASAAS_API_KEY: z.string().min(1).optional(),
+  ASAAS_WEBHOOK_TOKEN: z.string().min(1).optional(),
+  IUGU_API_KEY: z.string().min(1).optional(),
+  IUGU_WEBHOOK_TOKEN: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

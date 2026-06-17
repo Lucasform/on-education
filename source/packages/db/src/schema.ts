@@ -1059,6 +1059,16 @@ export const invoices = oe.table(
     dueDate: date('due_date').notNull(),
     status: text('status').notNull().default('aberto'), // aberto | pago | cancelado
     paidAt: timestamp('paid_at', { withTimezone: true }),
+    // Camada de pagamento online (AGNÓSTICA): tudo opcional/nullable. Sem provider
+    // configurado, estes campos ficam null e o comportamento é o de hoje (2ª via
+    // read-only, baixa manual). Preenchidos ao gerar uma cobrança no PSP escolhido.
+    provider: text('provider'), // 'asaas' | 'iugu' | null
+    externalChargeId: text('external_charge_id'), // id da cobrança no PSP
+    paymentMethod: text('payment_method'), // 'pix' | 'boleto' | 'card' | null
+    paymentUrl: text('payment_url'), // URL hospedada de checkout/2ª via
+    pixCode: text('pix_code'), // Pix copia-e-cola
+    boletoLine: text('boleto_line'), // linha digitável do boleto
+    chargedAt: timestamp('charged_at', { withTimezone: true }), // quando a cobrança foi gerada
     ...auditCols,
   },
   (t) => [index('invoices_tenant_idx').on(t.tenantId), tenantPolicy('invoices_tenant_isolation')],

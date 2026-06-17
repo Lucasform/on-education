@@ -7,6 +7,7 @@ import {
   bookMeetingAction,
   changePasswordAction,
   markChatReadAction,
+  payInvoiceAction,
   requestExitAction,
   requestReenrollmentAction,
   sendMessageAction,
@@ -33,7 +34,19 @@ interface Data {
   upcomingEvents: { date: string; name: string; type: string }[];
   meetingSlots: { id: string; date: string; startTime: string; durationMinutes: number; title: string }[];
   chat: { id: string; sender: string; subject: string; body: string; createdAt: string }[];
-  invoices: { id: string; competencia: string; description: string; amountCents: number; dueDate: string; status: string }[];
+  invoices: {
+    id: string;
+    competencia: string;
+    description: string;
+    amountCents: number;
+    dueDate: string;
+    status: string;
+    provider: string | null;
+    paymentMethod: string | null;
+    paymentUrl: string | null;
+    pixCode: string | null;
+    boletoLine: string | null;
+  }[];
   unread: { chat: number; communications: number };
 }
 
@@ -61,6 +74,7 @@ const FLASH: Record<string, string> = {
   rematricula: 'Pedido de rematrícula enviado.',
   contato: 'Dados atualizados.',
   senha: 'Senha alterada.',
+  cobranca: 'Cobrança gerada. Use o Pix/boleto abaixo para pagar.',
 };
 const ERR: Record<string, string> = {
   campos: 'Preencha os campos obrigatórios.',
@@ -82,7 +96,17 @@ function Badge({ status }: { status: string }) {
   return <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>{status}</span>;
 }
 
-export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null; erro: string | null }) {
+export function PortalClient({
+  data,
+  ok,
+  erro,
+  paymentsEnabled = false,
+}: {
+  data: Data;
+  ok: string | null;
+  erro: string | null;
+  paymentsEnabled?: boolean;
+}) {
   const [tab, setTab] = useState<(typeof TABS)[number]['id']>('geral');
   const [sid, setSid] = useState(data.students[0]?.id ?? '');
   const aluno = data.students.find((s) => s.id === sid) ?? data.students[0];
@@ -397,26 +421,83 @@ export function PortalClient({ data, ok, erro }: { data: Data; ok: string | null
             <ul className="divide-y divide-border/50 text-sm">
               {data.invoices.map((inv) => {
                 const overdue = inv.status === 'aberto' && inv.dueDate < new Date().toISOString().slice(0, 10);
+                const hasCharge = Boolean(inv.pixCode || inv.paymentUrl || inv.boletoLine);
                 return (
-                  <li key={inv.id} className="flex items-center justify-between gap-2 py-2">
-                    <div>
-                      <p className="font-medium">{inv.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Comp. {inv.competencia} · vence {br(inv.dueDate)}
-                      </p>
+                  <li key={inv.id} className="space-y-2 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="font-medium">{inv.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Comp. {inv.competencia} · vence {br(inv.dueDate)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{money(inv.amountCents)}</p>
+                        <Badge status={inv.status === 'pago' ? 'pago' : overdue ? 'vencido' : 'aberto'} />
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{money(inv.amountCents)}</p>
-                      <Badge status={inv.status === 'pago' ? 'pago' : overdue ? 'vencido' : 'aberto'} />
-                    </div>
+
+                    {/* Cobrança já gerada: mostra Pix copia-e-cola / link / linha do boleto. */}
+                    {inv.status === 'aberto' && hasCharge && (
+                      <div className="rounded-md border border-border bg-muted/40 p-2 text-xs">
+                        {inv.pixCode && (
+                          <div className="space-y-1">
+                            <p className="font-medium">Pix copia-e-cola</p>
+                            <p className="break-all rounded bg-background px-2 py-1 font-mono text-[11px]">
+                              {inv.pixCode}
+                            </p>
+                          </div>
+                        )}
+                        {inv.boletoLine && (
+                          <div className="mt-1 space-y-1">
+                            <p className="font-medium">Linha digitável</p>
+                            <p className="break-all rounded bg-background px-2 py-1 font-mono text-[11px]">
+                              {inv.boletoLine}
+                            </p>
+                          </div>
+                        )}
+                        {inv.paymentUrl && (
+                          <a
+                            href={inv.paymentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-block font-medium text-primary underline"
+                          >
+                            Abrir 2ª via / pagar online
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Botão de gerar cobrança: só quando há PSP configurado e fatura aberta. */}
+                    {inv.status === 'aberto' && !hasCharge && paymentsEnabled && (
+                      <div className="flex gap-2">
+                        <form action={payInvoiceAction}>
+                          <input type="hidden" name="invoiceId" value={inv.id} />
+                          <input type="hidden" name="method" value="pix" />
+                          <button className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent">
+                            Pagar com Pix
+                          </button>
+                        </form>
+                        <form action={payInvoiceAction}>
+                          <input type="hidden" name="invoiceId" value={inv.id} />
+                          <input type="hidden" name="method" value="boleto" />
+                          <button className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent">
+                            Gerar boleto
+                          </button>
+                        </form>
+                      </div>
+                    )}
                   </li>
                 );
               })}
             </ul>
           )}
-          <p className="mt-3 text-xs text-muted-foreground">
-            Pagamento online (2ª via Pix/boleto) chega em breve. Por ora, fale com a secretaria pela aba Mensagens.
-          </p>
+          {!paymentsEnabled && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Pagamento online (2ª via Pix/boleto) chega em breve. Por ora, fale com a secretaria pela aba Mensagens.
+            </p>
+          )}
         </section>
       )}
 

@@ -13,6 +13,7 @@ export * from './events';
 export * from './settings';
 export * from './occurrences';
 export * from './finance';
+export * from './finance-payments';
 export * from './whatsapp';
 export * from './whatsapp-inbox';
 export * from './api-keys';

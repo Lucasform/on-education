@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { db } from '@/server/db';
 import { getGuardianSession } from '@/server/guardian-session';
+import { isPaymentsConfigured } from '@/server/payments';
 
 import { PortalClient } from './PortalClient';
 
@@ -40,5 +41,12 @@ export default async function PortalMePage({
     chat: bundle.chat.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() })),
   };
 
-  return <PortalClient data={data} ok={ok ?? null} erro={erro ?? null} />;
+  return (
+    <PortalClient
+      data={data}
+      ok={ok ?? null}
+      erro={erro ?? null}
+      paymentsEnabled={isPaymentsConfigured()}
+    />
+  );
 }

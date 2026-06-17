@@ -1,6 +1,8 @@
 'use server';
 
 import {
+  assertGuardianOwnsInvoice,
+  getGuardianContact,
   guardianBookMeeting,
   guardianMarkChatRead,
   guardianRequestExit,
@@ -8,6 +10,7 @@ import {
   guardianSendMessage,
   guardianSubmitJustification,
   guardianUpdateContact,
+  setInvoiceCharge,
   updateGuardianPortalPassword,
 } from '@on-education/module-nucleo';
 import { revalidatePath } from 'next/cache';
@@ -16,6 +19,11 @@ import { redirect } from 'next/navigation';
 import { uploadGuardianDocument } from '@/server/storage';
 import { db } from '@/server/db';
 import { getGuardianSession } from '@/server/guardian-session';
+import {
+  isPaymentsConfigured,
+  resolvePaymentProvider,
+  type PaymentMethod,
+} from '@/server/payments';
 
 async function session() {
   const s = await getGuardianSession();
@@ -127,6 +135,55 @@ export async function updateContactAction(fd: FormData): Promise<void> {
   }).catch(() => redirect('/portal/me?erro=falha#conta'));
   revalidatePath('/portal/me');
   redirect('/portal/me?ok=contato#conta');
+}
+
+/**
+ * Gera uma cobrança online (Pix/boleto) para uma fatura aberta do responsável.
+ * Orquestra: valida posse (nucleo) -> chama o PSP (camada de app) -> persiste (nucleo).
+ * Gateado por isPaymentsConfigured(): sem PSP, redireciona com aviso e nada muda.
+ */
+export async function payInvoiceAction(fd: FormData): Promise<void> {
+  const s = await session();
+  if (!isPaymentsConfigured()) redirect('/portal/me?erro=falha#financeiro');
+
+  const invoiceId = str(fd, 'invoiceId');
+  const method = (str(fd, 'method') || 'pix') as PaymentMethod;
+  if (!invoiceId) redirect('/portal/me?erro=campos#financeiro');
+
+  // Trabalho de IO num bloco isolado: qualquer falha do PSP/DB cai para `falha`.
+  // Os redirects de fluxo (sucesso/erro) ficam FORA do try (redirect() lança por design).
+  const ok = await (async () => {
+    // 1) Posse + dados mínimos da fatura (lança se não pertencer ao responsável).
+    const inv = await assertGuardianOwnsInvoice(db(), s.tenantId, s.guardianId, invoiceId);
+    if (inv.status !== 'aberto') return false;
+    const payer = await getGuardianContact(db(), s.tenantId, s.guardianId);
+    const provider = resolvePaymentProvider();
+
+    // 2) PSP gera a cobrança (camada de app; packages não importam de apps).
+    const charge = await provider.createCharge({
+      invoiceId: inv.id,
+      amountCents: inv.amountCents,
+      description: inv.description,
+      dueDate: inv.dueDate,
+      method,
+      payer: { name: payer?.fullName ?? 'Responsável', email: payer?.email ?? null },
+    });
+
+    // 3) Persiste os dados da cobrança na fatura.
+    await setInvoiceCharge(db(), s.tenantId, invoiceId, {
+      provider: provider.name,
+      externalChargeId: charge.externalChargeId,
+      paymentMethod: charge.method,
+      paymentUrl: charge.paymentUrl ?? null,
+      pixCode: charge.pixCode ?? null,
+      boletoLine: charge.boletoLine ?? null,
+    });
+    return true;
+  })().catch(() => false);
+
+  if (!ok) redirect('/portal/me?erro=falha#financeiro');
+  revalidatePath('/portal/me');
+  redirect('/portal/me?ok=cobranca#financeiro');
 }
 
 export async function changePasswordAction(fd: FormData): Promise<void> {
