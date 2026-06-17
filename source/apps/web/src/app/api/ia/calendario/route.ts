@@ -42,8 +42,6 @@ interface ExtractedEvent {
 export async function POST(req: NextRequest) {
   const ctx = await getAuthContext();
   if (!ctx) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
-  if (ctx.tenantType !== 'organization')
-    return NextResponse.json({ error: 'Apenas escolas podem usar este recurso.' }, { status: 403 });
 
   const apiKey = loadEnv().ANTHROPIC_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'IA não configurada.' }, { status: 503 });

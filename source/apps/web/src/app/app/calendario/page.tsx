@@ -72,13 +72,12 @@ export default async function CalendarioPage({
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   const client = db();
-  const isSchool = ctx.tenantType === 'organization';
-
+  // Feriados, dias letivos e importação por PDF disponíveis para TODOS (escola e professor).
   const [eventosBase, calEvents, turmas, schoolYear] = await Promise.all([
     listEvents(client, ctx).catch(() => []),
-    isSchool ? listCalendarEvents(client, ctx).catch(() => []) : Promise.resolve([]),
+    listCalendarEvents(client, ctx).catch(() => []),
     listClasses(client, ctx).catch(() => []),
-    isSchool ? getSchoolYear(client, ctx).catch(() => ({ schoolYearStart: null, schoolYearEnd: null })) : Promise.resolve({ schoolYearStart: null, schoolYearEnd: null }),
+    getSchoolYear(client, ctx).catch(() => ({ schoolYearStart: null, schoolYearEnd: null })),
   ]);
 
   // Normaliza eventos da tabela `events`
@@ -161,7 +160,7 @@ export default async function CalendarioPage({
       <PageHeader title="Calendário" description="Eventos, feriados e dias letivos." />
 
       {/* Contadores do ano letivo */}
-      {isSchool && schoolDays && (
+      {schoolDays && (
         <div className="grid grid-cols-3 gap-4">
           <div className={cardClass}>
             <div className="text-2xl font-semibold">{schoolDays.total}</div>
@@ -179,7 +178,7 @@ export default async function CalendarioPage({
       )}
 
       {/* Configuração do ano letivo */}
-      {isSchool && (
+      {(
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Ano letivo</h2>
           <form action={setSchoolYearAction} className="flex flex-wrap items-end gap-3">
@@ -200,7 +199,7 @@ export default async function CalendarioPage({
       )}
 
       {/* Legenda */}
-      {isSchool && (
+      {(
         <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
           {Object.entries(KIND_LABEL).map(([k, label]) => (
             <span key={k} className="flex items-center gap-1.5">
@@ -366,15 +365,13 @@ export default async function CalendarioPage({
           </div>
 
           {/* Upload IA */}
-          {isSchool && (
-            <div className={cardClass}>
-              <h2 className="mb-2 text-sm font-medium">Importar com IA</h2>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Envie foto ou PDF do calendário escolar para extrair feriados automaticamente.
-              </p>
-              <CalendarAiUpload />
-            </div>
-          )}
+          <div className={cardClass}>
+            <h2 className="mb-2 text-sm font-medium">Importar com IA</h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Envie foto ou PDF do calendário para extrair os feriados automaticamente.
+            </p>
+            <CalendarAiUpload />
+          </div>
         </div>
       </div>
     </>
