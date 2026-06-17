@@ -12,13 +12,12 @@ import { Check, CreditCard, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 import { cardClass, PageHeader } from '@/components/form';
-import { SubmitButton } from '@/components/submit-button';
 import { isBillingConfigured, priceIdForPlan } from '@/server/billing';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import { AlaCarteBuilder } from './AlaCarteBuilder';
-import { applyComboPlanAction } from './actions';
+import { ComboCards } from './ComboCards';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Planos · Edu On Way' };
@@ -114,77 +113,17 @@ export default async function PlanosPage({
         <h2 className="mb-4 flex items-center gap-2 text-base font-semibold">
           <Sparkles className="h-4 w-4 text-primary" /> Planos prontos
         </h2>
-        <div className="grid gap-5 lg:grid-cols-3">
-          {combos.map((plan) => {
-            const isCurrent = plan.id === planId;
-            const popular = POPULAR.has(plan.id);
-            const feats = [...plan.features];
-            const { valor, sufixo } = precoFmt(plan.monthlyPrice);
-            const temPreco = billingOn && plan.monthlyPrice > 0 && !!priceIdForPlan(plan.id);
-            const cta = isCurrent
-              ? 'Plano atual'
-              : plan.monthlyPrice === 0
-                ? 'Começar grátis'
-                : temPreco
-                  ? 'Assinar'
-                  : 'Ativar';
-            return (
-              <div
-                key={plan.id}
-                className={`relative flex flex-col rounded-2xl border p-6 transition-all ${
-                  popular && !isCurrent
-                    ? 'border-primary bg-primary/[0.04] shadow-lg shadow-primary/10 lg:-translate-y-1'
-                    : isCurrent
-                      ? 'border-primary/60 bg-primary/5 ring-2 ring-primary/30'
-                      : 'border-border bg-card hover:border-primary/40 hover:shadow-md'
-                }`}
-              >
-                {popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[11px] font-semibold text-primary-foreground shadow">
-                    ⭐ Mais popular
-                  </span>
-                )}
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
-                  {isCurrent && (
-                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
-                      Atual
-                    </span>
-                  )}
-                </div>
-                <div className="mb-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tracking-tight">{valor}</span>
-                  {sufixo && <span className="text-sm text-muted-foreground">{sufixo}</span>}
-                </div>
-                <ul className="mb-6 flex-1 space-y-2 text-sm">
-                  {feats.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                      <span>{FEATURE_CATALOG[f]?.label ?? f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <form action={applyComboPlanAction}>
-                  <input type="hidden" name="planId" value={plan.id} />
-                  <SubmitButton
-                    type="submit"
-                    size="sm"
-                    variant={isCurrent ? 'outline' : popular ? 'default' : 'outline'}
-                    disabled={isCurrent}
-                    className="w-full rounded-full"
-                  >
-                    {cta}
-                  </SubmitButton>
-                </form>
-                {temPreco && !isCurrent && (
-                  <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                    7 dias grátis · cancele quando quiser
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <ComboCards
+          currentPlanId={planId}
+          combos={combos.map((plan) => ({
+            id: plan.id,
+            name: plan.name,
+            monthlyPrice: plan.monthlyPrice,
+            labels: [...plan.features].map((f) => FEATURE_CATALOG[f]?.label ?? f),
+            hasPrice: billingOn && plan.monthlyPrice > 0 && !!priceIdForPlan(plan.id),
+            popular: POPULAR.has(plan.id),
+          }))}
+        />
       </section>
 
       {/* À la carte */}
