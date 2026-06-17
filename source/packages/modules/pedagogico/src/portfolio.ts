@@ -21,6 +21,7 @@ export async function createPortfolioEntry(
         studentId: input.studentId,
         title: input.title,
         description: input.description ?? null,
+        fileUrl: input.fileUrl ?? null,
         createdBy: ctx.userId,
       })
       .returning();

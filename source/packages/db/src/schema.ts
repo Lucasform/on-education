@@ -849,6 +849,8 @@ export const portfolioEntries = oe.table(
     studentId: uuid('student_id').notNull(),
     title: text('title').notNull(),
     description: text('description'),
+    // Anexo opcional (foto/arquivo da evidência) no bucket público.
+    fileUrl: text('file_url'),
     ...auditCols,
   },
   (t) => [

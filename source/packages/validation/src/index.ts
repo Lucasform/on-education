@@ -350,6 +350,7 @@ export const createPortfolioEntrySchema = z.object({
   studentId: uuidSchema,
   title: z.string().min(1).max(200),
   description: z.string().max(5000).optional(),
+  fileUrl: z.string().url().max(600).optional(),
 });
 export type CreatePortfolioEntryInput = z.infer<typeof createPortfolioEntrySchema>;
 

@@ -107,6 +107,22 @@ export async function uploadGuardianDocument(tenantId: string, file: File): Prom
   return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
 }
 
+/** Anexo de portfólio (foto/arquivo de evidência do aluno) no bucket público. */
+export async function uploadPortfolioFile(tenantId: string, file: File): Promise<string> {
+  if (!DOC_TYPES.includes(file.type)) throw new Error('Formato inválido. Use imagem ou PDF.');
+  if (file.size > DOC_MAX_BYTES) throw new Error('Arquivo muito grande (máx. 8 MB).');
+  const safe = (file.name.split('/').pop() ?? 'arquivo').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-60);
+  const ext = file.type === 'application/pdf' ? 'pdf' : (safe.split('.').pop() || 'jpg');
+  const path = `${tenantId}/portfolio/${Date.now()}-${safe || 'arquivo'}.${ext}`;
+  const sb = serviceClient();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { error } = await sb.storage
+    .from('public-assets')
+    .upload(path, bytes, { contentType: file.type, upsert: true });
+  if (error) throw new Error(`Falha no upload: ${error.message}`);
+  return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
+}
+
 const MATERIAL_MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
 export interface UploadedFile {

@@ -32,15 +32,39 @@ export default async function PortfolioPage() {
             <p className="text-sm text-muted-foreground">Nenhum registro ainda.</p>
           ) : (
             <ul className="space-y-2 text-sm">
-              {entradas.map((e) => (
-                <li key={e.id} className="rounded-md border border-border p-2">
-                  <div className="font-medium">{e.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {alunoNome.get(e.studentId) ?? 'Aluno'}
-                    {e.description ? ` · ${e.description}` : ''}
-                  </div>
-                </li>
-              ))}
+              {entradas.map((e) => {
+                const fileUrl = (e as { fileUrl?: string | null }).fileUrl ?? null;
+                const isImg = !!fileUrl && !/\.pdf($|\?)/i.test(fileUrl);
+                return (
+                  <li key={e.id} className="rounded-md border border-border p-2">
+                    <div className="font-medium">{e.title}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {alunoNome.get(e.studentId) ?? 'Aluno'}
+                      {e.description ? ` · ${e.description}` : ''}
+                    </div>
+                    {fileUrl &&
+                      (isImg ? (
+                        <a href={fileUrl} target="_blank" rel="noreferrer">
+                          <img
+                            src={fileUrl}
+                            alt={e.title}
+                            loading="lazy"
+                            className="mt-2 max-h-40 rounded-md border border-border object-contain"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 inline-block text-xs text-primary hover:underline"
+                        >
+                          📎 Ver anexo
+                        </a>
+                      ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -69,6 +93,15 @@ export default async function PortfolioPage() {
               placeholder="Descrição (opcional)"
               className={fieldClass}
             />
+            <label className="text-xs text-muted-foreground">
+              Foto ou arquivo da evidência (opcional, imagem ou PDF)
+              <input
+                type="file"
+                name="file"
+                accept="image/*,application/pdf"
+                className="mt-1 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-muted file:px-2 file:py-1"
+              />
+            </label>
             <SubmitButton type="submit" size="sm">
               Adicionar
             </SubmitButton>

@@ -226,6 +226,7 @@ import { getAuthContext, signOut } from '@/server/session';
 import {
   extractMaterialText,
   removeTenantFile,
+  uploadPortfolioFile,
   uploadPublicImagePng,
   uploadPublicLogo,
   uploadStudentPhoto,
@@ -958,10 +959,17 @@ export async function deleteCommunicationAction(formData: FormData): Promise<voi
 
 export async function createPortfolioEntryAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
+  // Anexo opcional (foto/PDF da evidência): sobe ao storage e guarda a URL.
+  let fileUrl: string | undefined;
+  const file = formData.get('file');
+  if (file instanceof File && file.size > 0) {
+    fileUrl = await uploadPortfolioFile(ctx.tenantId, file).catch(() => undefined);
+  }
   const input = createPortfolioEntrySchema.parse({
     studentId: formData.get('studentId'),
     title: formData.get('title'),
     description: (formData.get('description') as string) || undefined,
+    fileUrl,
   });
   await createPortfolioEntry(db(), ctx, input);
   revalidatePath('/app', 'layout');
