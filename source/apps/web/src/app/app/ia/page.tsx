@@ -133,8 +133,9 @@ export default async function IaPage() {
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Criar atividade, prova, trabalho ou roteiro</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Gera o material já no banco, classificado. Em <strong>Trabalho</strong>, escolha
-          individual ou em grupo (nº de alunos) e os materiais que os alunos devem usar.
+          O material é gerado e já fica salvo no seu banco de atividades, classificado por tipo.
+          Para trabalhos, você define se é individual ou em grupo (com o número de alunos) e quais
+          materiais os alunos devem usar como apoio.
         </p>
         {aiOn ? (
           <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
