@@ -1,10 +1,12 @@
 import { SubmitButton } from '@/components/submit-button';
+import { isEntitled } from '@on-education/module-nucleo';
 import { listActivities, listCollective } from '@on-education/module-pedagogico';
 import { Button } from '@on-education/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -38,6 +40,20 @@ export default async function BancoColetivoPage({
   if (!ctx) redirect('/login');
   const { faixa } = await searchParams;
   const client = db();
+
+  // Banco coletivo é recurso de plano pago (não disponível no Free).
+  if (!(await isEntitled(client, ctx.tenantId, 'marketplace'))) {
+    return (
+      <>
+        <PageHeader
+          title="Banco coletivo"
+          description="Biblioteca compartilhada de atividades por faixa etária."
+        />
+        <UpgradeGate feature="marketplace" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
+
   const [coletivas, minhas] = await Promise.all([
     listCollective(client, faixa || undefined).catch(() => []),
     listActivities(client, ctx, {}).catch(() => []),

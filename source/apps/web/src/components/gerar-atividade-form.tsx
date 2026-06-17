@@ -75,7 +75,7 @@ export function GerarAtividadeForm({ turmas }: { turmas: { id: string; name: str
         </div>
       )}
 
-      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+      <label className="flex flex-col gap-1 text-xs text-muted-foreground">
         Data de aplicação (opcional, aparece no calendário)
         <input name="applyDate" type="date" className={fieldClass} />
       </label>

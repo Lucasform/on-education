@@ -35,21 +35,22 @@ export default async function MeuPadraoPage() {
   if (!ctx) redirect('/login');
   const isSchool = ctx.tenantType === 'organization';
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  const agente = settings?.agentName?.trim() || 'WayOn';
   const aiProvider = settings?.aiProvider ?? 'default';
   const temChave = Boolean(settings?.aiApiKeyEnc);
   const aiFlash = (await cookies()).get('oe_ai_flash')?.value;
   // IA realmente ativa agora: a do professor só vale se houver chave salva; senão é a nossa.
   const usandoPropria = aiProvider !== 'default' && temChave;
   const aiAtivaLabel = usandoPropria
-    ? `${AI_PROVIDERS.find((p) => p.value === aiProvider)?.label.split(' —')[0] ?? aiProvider} (sua chave, sem cota nossa)`
-    : 'WayOn — nossa IA (usa a cota do seu plano)';
+    ? `${AI_PROVIDERS.find((p) => p.value === aiProvider)?.label.split(' —')[0] ?? aiProvider} (sua chave, não consome a cota do plano)`
+    : 'WayOn, a nossa IA (consome a cota do seu plano)';
   const modelos = await listStandardSamples(db(), ctx).catch(() => []);
 
   return (
     <>
       <PageHeader
-        title={isSchool ? 'Padrão do WayOn' : 'Meu padrão'}
-        description="Defina UMA vez o estilo e o formato. Todo conteúdo gerado pelo WayOn (planos, atividades, provas, redação, simulados) sai nesse padrão."
+        title={isSchool ? `Padrão do ${agente}` : 'Meu padrão'}
+        description={`Defina UMA vez o estilo e o formato. Todo conteúdo gerado pelo ${agente} (planos, atividades, provas, redação, simulados) sai nesse padrão.`}
       />
 
       <div className={cardClass}>
@@ -66,11 +67,11 @@ export default async function MeuPadraoPage() {
           </label>
           <p className="text-xs text-muted-foreground">
             Dica: descreva estilo, cabeçalho/rodapé, formato de prova/lição/roteiro/bilhete e o
-            nível de dificuldade preferido. O WayOn segue essas instruções em toda geração.
+            nível de dificuldade preferido. O {agente} segue essas instruções em toda geração.
           </p>
 
           <label className="flex flex-col gap-1.5 text-sm font-medium">
-            Estilo das imagens (aplicado a toda imagem gerada)
+            Estilo padrão das imagens
             <textarea
               name="imageStyle"
               rows={3}
@@ -80,8 +81,9 @@ export default async function MeuPadraoPage() {
             />
           </label>
           <p className="text-xs text-muted-foreground">
-            Não dá para &quot;treinar&quot; o gerador de imagem, mas esse estilo é colado em todo
-            prompt, deixando as figuras com a mesma cara.
+            Aplicado por padrão para manter as imagens com a mesma cara. Para uma imagem específica,
+            é só descrever o estilo que você quer na hora de gerar. Deixe em branco se não quiser um
+            padrão.
           </p>
 
           <div>
@@ -95,7 +97,7 @@ export default async function MeuPadraoPage() {
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Modelos de referência (provas / atividades)</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Suba exemplos de prova ou atividade do seu jeito (PDF ou texto). O WayOn lê e passa a
+          Suba exemplos de prova ou atividade do seu jeito (PDF ou texto). O {agente} lê e passa a
           imitar o FORMATO e o ESTILO deles em tudo que gerar.
         </p>
         <form action={uploadStandardSampleAction} className="flex flex-wrap items-end gap-2">
@@ -153,7 +155,8 @@ export default async function MeuPadraoPage() {
         <form action={updateGamificationAction} className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
           <p className="mb-3 text-xs text-muted-foreground">
-            Pontos e medalhas para os alunos. Desligue se não usar.
+            O aluno acumula pontos quando você premia (e, opcionalmente, ao tirar boas notas) e
+            desbloqueia as medalhas 🥉 🥈 🥇 ao atingir as faixas abaixo. Desligue se não usar.
           </p>
           <label className="mb-3 flex items-center gap-2 text-sm">
             <input
@@ -219,9 +222,9 @@ export default async function MeuPadraoPage() {
       <form action={updateAiProviderAction} className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Sua própria IA (avançado)</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Conecte a chave da IA que você preferir (GPT, Gemini ou Claude) e use os tokens dela — sem
-          limite da nossa cota. Seu padrão e suas regras continuam valendo. A chave é guardada
-          criptografada.
+          Tem conta no GPT, Gemini ou Claude? Conecte sua própria chave e use os tokens dela, sem
+          consumir a cota do seu plano. Tudo continua funcionando igual (seu padrão e suas regras
+          valem do mesmo jeito) e a chave fica guardada de forma criptografada.
         </p>
         <div
           className={`mb-3 rounded-md border p-2 text-xs ${usandoPropria ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted'}`}
@@ -249,10 +252,10 @@ export default async function MeuPadraoPage() {
             autoComplete="off"
           />
           <p className="text-[11px] text-muted-foreground">
-            Em &quot;WayOn&quot; usamos a nossa IA (cota do plano). Nos demais, a cobrança é direto
-            no seu provedor. {temChave ? 'Há uma chave salva.' : ''} Se a sua chave falhar numa
-            geração, o app avisa o erro (não usa a nossa por baixo dos panos) — aí é só corrigir a
-            chave ou voltar para &quot;WayOn&quot;.
+            Na opção &quot;WayOn&quot; você usa a nossa IA e gasta a cota do seu plano. Nas outras,
+            quem cobra é o seu provedor (GPT, Gemini ou Claude), pela chave que você conectou.
+            {temChave ? ' Você já tem uma chave salva.' : ''} Se a sua chave falhar, o app mostra o
+            erro e não usa a nossa no lugar. É só corrigir a chave ou voltar para &quot;WayOn&quot;.
           </p>
           <div>
             <SubmitButton type="submit" size="sm">
@@ -265,7 +268,7 @@ export default async function MeuPadraoPage() {
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Como funciona</h2>
         <p className="text-sm text-muted-foreground">
-          O padrão é aplicado automaticamente nas gerações do WayOn: Gerar conteúdo, Correção de
+          O padrão é aplicado automaticamente nas gerações do {agente}: Gerar conteúdo, Correção de
           redação, Tutor, Gerar atividade e Gerar simulado. Você pode ajustar quando quiser.
         </p>
       </div>

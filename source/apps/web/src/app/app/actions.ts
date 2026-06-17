@@ -13,16 +13,19 @@ import {
 import {
   approveDraft,
   deleteGeneratedImage,
+  assertWithinQuota,
   discardDraft,
   encryptSecret,
   generateDraft,
   generateTenantImage,
   recordImages,
+  recordUsage,
   resolveTenantProvider,
   saveGeneratedImage,
   writeParentNote,
 } from '@on-education/module-ia';
 import {
+  assertEntitled,
   assignTeaching,
   createApiKey,
   createStandardSample,
@@ -549,7 +552,32 @@ export async function importActivityFileAction(formData: FormData): Promise<void
   if (!(file instanceof File) || file.size === 0) return;
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
-    const content = (await extractMaterialText(bytes, file.type || null, file.name)) ?? '';
+    let content = (await extractMaterialText(bytes, file.type || null, file.name)) ?? '';
+
+    // Opcional: o agente reescreve o conteúdo extraído no padrão do professor (usa cota de IA).
+    // Se faltar cota/IA, mantém o texto cru (não derruba a importação).
+    if (formData.get('adaptarPadrao') === 'on' && content.trim()) {
+      try {
+        const planId = await assertEntitled(db(), ctx.tenantId, 'ai.activities');
+        await assertWithinQuota(db(), ctx.tenantId, planId);
+        const settings = await getTenantSettings(db(), ctx).catch(() => null);
+        const padrao = settings?.aiStandard?.trim();
+        const provider = await resolveTenantProvider(db(), ctx);
+        const r = await provider.generate({
+          system:
+            'Você reescreve material didático seguindo o padrão de formatação do professor. ' +
+            'NÃO invente conteúdo novo: apenas reorganize e formate o material fornecido nesse padrão. ' +
+            'Responda somente o material final, sem comentários.',
+          prompt: `PADRÃO DO PROFESSOR:\n${padrao || '(sem padrão definido; apenas organize de forma limpa e clara)'}\n\nMATERIAL A REESCREVER:\n${content}`,
+          maxTokens: 4000,
+        });
+        await recordUsage(db(), ctx.tenantId, r.tokensIn + r.tokensOut).catch(() => {});
+        if (r.text.trim()) content = r.text.trim();
+      } catch {
+        // cota esgotada, sem IA ou falha do provedor: segue com o conteúdo extraído cru.
+      }
+    }
+
     const input = createActivitySchema.parse({
       title: (String(formData.get('title') ?? '').trim() || file.name).slice(0, 300),
       subject: (formData.get('subject') as string) || undefined,

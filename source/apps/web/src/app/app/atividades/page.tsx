@@ -1,5 +1,5 @@
 import { isAiConfigured } from '@on-education/module-ia';
-import { listClasses } from '@on-education/module-nucleo';
+import { listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -55,12 +55,14 @@ export default async function AtividadesPage({
     gradeLevel: sp.gradeLevel || undefined,
     ageBand: sp.ageBand || undefined,
   };
-  const [atividades, rascunhos, turmas] = await Promise.all([
+  const [atividades, rascunhos, turmas, disciplinas] = await Promise.all([
     listActivities(db(), ctx, search).catch(() => []),
     listActivities(db(), ctx, { approved: false }).catch(() => []),
     listClasses(db(), ctx).catch(() => []),
+    listSubjects(db(), ctx).catch(() => []),
   ]);
   const aiOn = isAiConfigured();
+  const temDisciplinas = disciplinas.length > 0;
 
   return (
     <>
@@ -134,12 +136,23 @@ export default async function AtividadesPage({
                 </option>
               ))}
             </select>
-            <input
-              name="subject"
-              defaultValue={sp.subject ?? ''}
-              placeholder="Matéria"
-              className={`${fieldClass} w-28`}
-            />
+            {temDisciplinas ? (
+              <select name="subject" defaultValue={sp.subject ?? ''} className={`${fieldClass} w-36`}>
+                <option value="">Todas as matérias</option>
+                {disciplinas.map((d) => (
+                  <option key={d.id} value={d.name}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                name="subject"
+                defaultValue={sp.subject ?? ''}
+                placeholder="Matéria"
+                className={`${fieldClass} w-28`}
+              />
+            )}
             <select
               name="gradeLevel"
               defaultValue={sp.gradeLevel ?? ''}
@@ -238,8 +251,8 @@ export default async function AtividadesPage({
                 <input name="subject" placeholder="Disciplina" className={fieldClass} />
               </div>
               <SerieFaixaPicker />
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                Aplicar em (opcional)
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                Data de aplicação (opcional, aparece no calendário)
                 <input name="applyDate" type="date" className={fieldClass} />
               </label>
               <textarea name="content" placeholder="Conteúdo" rows={4} className={fieldClass} />
@@ -253,7 +266,8 @@ export default async function AtividadesPage({
           <div className={cardClass}>
             <h2 className="mb-1 text-sm font-medium">Importar de arquivo</h2>
             <p className="mb-2 text-xs text-muted-foreground">
-              Suba um PDF ou texto e nós extraímos o conteúdo pro banco.
+              Suba um PDF ou texto e nós extraímos o conteúdo pro banco. Marque a opção abaixo para o{' '}
+              <AgentNameText /> reescrever no seu padrão.
             </p>
             <form action={importActivityFileAction} className="flex flex-col gap-2">
               <input name="title" placeholder="Título (opcional)" className={fieldClass} />
@@ -265,7 +279,18 @@ export default async function AtividadesPage({
                     </option>
                   ))}
                 </select>
-                <input name="subject" placeholder="Disciplina" className={fieldClass} />
+                {temDisciplinas ? (
+                  <select name="subject" defaultValue="" className={fieldClass}>
+                    <option value="">Disciplina</option>
+                    {disciplinas.map((d) => (
+                      <option key={d.id} value={d.name}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input name="subject" placeholder="Disciplina" className={fieldClass} />
+                )}
               </div>
               <SerieFaixaPicker />
               <input
@@ -275,6 +300,12 @@ export default async function AtividadesPage({
                 required
                 className={`${fieldClass} cursor-pointer`}
               />
+              {aiOn && (
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" name="adaptarPadrao" defaultChecked className="h-4 w-4" />
+                  Adaptar ao meu padrão com o <AgentNameText /> (usa a cota de IA)
+                </label>
+              )}
               <SubmitButton type="submit" size="sm" variant="outline">
                 Importar pro banco
               </SubmitButton>

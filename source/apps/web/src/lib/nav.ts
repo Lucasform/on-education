@@ -132,7 +132,7 @@ export const NAV: NavGroup[] = [
     label: 'Pedagógico',
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
-      { label: 'Banco coletivo', href: '/app/banco-coletivo', icon: Library },
+      { label: 'Banco coletivo', href: '/app/banco-coletivo', icon: Library, requiresFeature: 'marketplace' },
       { label: 'Simulados e quizzes', href: '/app/simulados', icon: ClipboardList },
       { label: 'Portfólio', href: '/app/portfolio', icon: BookOpen },
       { label: 'Documentos', href: '/app/documentos', icon: FileSignature },
@@ -147,7 +147,7 @@ export const NAV: NavGroup[] = [
       { label: 'Correção de redação', href: '/app/ia/redacao', icon: PenLine, requiresFeature: 'ai.essayGrading' },
       { label: 'Tutor do aluno', href: '/app/ia/tutor', icon: MessageCircleQuestion },
       { label: 'Flashcards', href: '/app/ia/flashcards', icon: Layers },
-      { label: 'Gerar imagem', href: '/app/ia/imagem', icon: ImageIcon },
+      { label: 'Gerar imagem', href: '/app/ia/imagem', icon: ImageIcon, requiresFeature: 'ai.images' },
       { label: 'Meu padrão', href: '/app/meu-padrao', icon: Wand2 },
     ],
   },
