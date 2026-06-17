@@ -48,6 +48,8 @@ export default async function PlanosPage({
   const currentPlan = planId ? getPlan(planId) : null;
   const isCustom = planId?.endsWith('_custom') ?? false;
 
+  // À la carte desativado por ora (manter o código). Trocar para true para reexibir a seção.
+  const SHOW_ALACARTE: boolean = false;
   const combos = comboPlans(ctx.tenantType);
   const catalogo = featuresForSegment(ctx.tenantType);
   const min = ALACARTE_MIN[ctx.tenantType];
@@ -123,29 +125,31 @@ export default async function PlanosPage({
         />
       </section>
 
-      {/* À la carte */}
-      <section>
-        <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
-          <Zap className="h-4 w-4 text-primary" /> Monte o seu pacote
-        </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Pague só pelo que usar. Escolha no mínimo {min} funcionalidades; o preço é a soma dos itens
-          e elas ficam disponíveis assim que você ativar.
-        </p>
-        <div className={`${cardClass} rounded-2xl`}>
-          <AlaCarteBuilder
-            items={catalogo.map((m) => ({
-              feature: m.feature,
-              label: m.label,
-              description: m.description,
-              category: m.category,
-              price: m.price,
-            }))}
-            min={min}
-            initial={isCustom ? currentFeatures : []}
-          />
-        </div>
-      </section>
+      {/* À la carte (desativado por ora — SHOW_ALACARTE) */}
+      {SHOW_ALACARTE && (
+        <section>
+          <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
+            <Zap className="h-4 w-4 text-primary" /> Monte o seu pacote
+          </h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Pague só pelo que usar. Escolha no mínimo {min} funcionalidades; o preço é a soma dos itens
+            e elas ficam disponíveis assim que você ativar.
+          </p>
+          <div className={`${cardClass} rounded-2xl`}>
+            <AlaCarteBuilder
+              items={catalogo.map((m) => ({
+                feature: m.feature,
+                label: m.label,
+                description: m.description,
+                category: m.category,
+                price: m.price,
+              }))}
+              min={min}
+              initial={isCustom ? currentFeatures : []}
+            />
+          </div>
+        </section>
+      )}
 
       <p className="flex flex-wrap items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
         <ShieldCheck className="h-3.5 w-3.5 text-success" />
