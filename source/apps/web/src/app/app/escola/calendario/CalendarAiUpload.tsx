@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
+
+import { useAgentName } from '@/components/agent-name-provider';
+
 import { createCalendarEventAction } from './actions';
 
 interface ExtractedEvent {
@@ -24,6 +27,7 @@ const TYPE_DOT: Record<string, string> = {
 };
 
 export function CalendarAiUpload() {
+  const agentName = useAgentName();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [events, setEvents] = useState<ExtractedEvent[]>([]);
@@ -107,7 +111,7 @@ export function CalendarAiUpload() {
           disabled={uploading}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          {uploading ? 'Analisando...' : 'Analisar com IA'}
+          {uploading ? 'Analisando...' : `Analisar com ${agentName}`}
         </button>
       </div>
 

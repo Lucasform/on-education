@@ -12,6 +12,8 @@ import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { AgentNameText } from '@/components/agent-name-provider';
+
 import { CalendarAiUpload } from '../escola/calendario/CalendarAiUpload';
 import { setSchoolYearAction } from '../escola/calendario/actions';
 import { CalendarView, type UnifiedEvent } from './CalendarView';
@@ -150,9 +152,9 @@ export default async function CalendarioPage() {
 
       {/* Importar com IA */}
       <div className={cardClass}>
-        <h2 className="mb-2 text-sm font-medium">Importar com IA</h2>
+        <h2 className="mb-2 text-sm font-medium">Importar com o <AgentNameText /></h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Envie foto ou PDF do calendário para extrair os feriados automaticamente.
+          Envie foto ou PDF do calendário e o <AgentNameText /> extrai os feriados automaticamente.
         </p>
         <CalendarAiUpload />
       </div>
