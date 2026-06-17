@@ -154,7 +154,7 @@ export default async function PlanosPage({
       <p className="flex flex-wrap items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
         <ShieldCheck className="h-3.5 w-3.5 text-success" />
         {billingOn
-          ? 'Pagamento seguro com cartão, Pix ou boleto.'
+          ? 'Pagamento seguro (cartão, Pix e boleto).'
           : 'Ativação imediata enquanto o pagamento online não está ligado.'}{' '}
         Dúvidas?{' '}
         <a href="mailto:contato@onway.com.br" className="text-primary underline-offset-4 hover:underline">
