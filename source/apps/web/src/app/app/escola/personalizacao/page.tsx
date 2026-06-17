@@ -43,7 +43,8 @@ export default async function PersonalizacaoPage() {
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Logo da escola</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Aparece no topo do sistema, nos documentos e no mural dos pais.
+          Personalize seu app: coloque seu logo. Ele aparece no topo do sistema (no lugar do
+          logo padrão do Edu On Way), nos documentos e no mural dos pais.
         </p>
         <LogoUpload currentUrl={settings?.logoUrl ?? null} />
       </div>
@@ -54,7 +55,7 @@ export default async function PersonalizacaoPage() {
           <h2 className="mb-3 text-sm font-medium">Dados da escola</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-              Nome da escola (exibido no sistema)
+              Nome (seu nome ou o da sua empresa)
               <input
                 name="profileName"
                 maxLength={120}
