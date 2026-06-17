@@ -1,10 +1,11 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses, listStudents } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, listStudents } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { BulkAddRows } from '@/components/bulk-add-rows';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -27,6 +28,14 @@ export default async function AlunosPage({
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+    return (
+      <>
+        <PageHeader title="Alunos" description="Cadastro e histórico dos alunos." />
+        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const sp = await searchParams;
   const [alunos, turmas] = await Promise.all([

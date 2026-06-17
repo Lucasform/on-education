@@ -1,5 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses } from '@on-education/module-nucleo';
+import { isEntitled, listClasses } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -7,6 +7,7 @@ import { BulkAddRows } from '@/components/bulk-add-rows';
 import { ConfirmButton } from '@/components/confirm-button';
 import { CsvImport } from '@/components/csv-import';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { SERIES } from '@/lib/series';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -31,6 +32,14 @@ export default async function TurmasPage({
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+    return (
+      <>
+        <PageHeader title="Turmas" description="Organize suas turmas e alunos." />
+        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const sp = await searchParams;
   const turmas = await listClasses(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listClasses>>);
   const termo = (sp.q ?? '').trim().toLowerCase();

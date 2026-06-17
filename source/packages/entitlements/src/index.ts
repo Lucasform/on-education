@@ -16,6 +16,7 @@ export const FEATURES = [
   'activities.bank',
   'marketplace',
   'classes.manage',
+  'gamification',
   'communication.light',
   'communication.mass',
   'finance.institutional',
@@ -48,6 +49,14 @@ export const FEATURE_CATALOG: Readonly<Record<Feature, FeatureMeta>> = {
     category: 'Sala de aula',
     segment: 'both',
     price: 12,
+  },
+  gamification: {
+    feature: 'gamification',
+    label: 'Gamificação (pontos e medalhas)',
+    description: 'Pontos e medalhas para engajar os alunos.',
+    category: 'Sala de aula',
+    segment: 'both',
+    price: 5,
   },
   'activities.bank': {
     feature: 'activities.bank',
@@ -182,8 +191,9 @@ function plan(
   return { id, name, tenantType, features: new Set(features), limits, monthlyPrice, hidden };
 }
 
+// Free e Professor NÃO incluem sala de aula (classes.manage) nem gamificação:
+// esses recursos começam no Professor Pro.
 const TEACHER_BASIC: Feature[] = [
-  'classes.manage',
   'ai.lessonPlan',
   'ai.activities',
   'ai.images',
@@ -196,7 +206,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'teacher_free',
     'Free',
     'individual',
-    ['classes.manage', 'ai.lessonPlan', 'ai.activities', 'activities.bank', 'communication.light'],
+    ['ai.lessonPlan', 'ai.activities', 'activities.bank', 'communication.light'],
     { aiTokensPerMonth: 50_000, students: 30, imagesPerMonth: 5 },
     0,
   ),
@@ -212,7 +222,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'teacher_pro',
     'Professor Pro',
     'individual',
-    [...TEACHER_BASIC, 'ai.essayGrading', 'marketplace'],
+    [...TEACHER_BASIC, 'classes.manage', 'gamification', 'ai.essayGrading', 'marketplace'],
     { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 100 },
     79,
   ),
@@ -239,6 +249,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'organization',
     [
       'classes.manage',
+      'gamification',
       'ai.lessonPlan',
       'ai.activities',
       'ai.images',

@@ -1,5 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listAcademicYears, listClasses, listSubjects } from '@on-education/module-nucleo';
+import { isEntitled, listAcademicYears, listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listScheduleExceptions, listScheduleSlots } from '@on-education/module-sala-de-aula';
 import { CalendarClock } from 'lucide-react';
 import Link from 'next/link';
@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -41,6 +42,14 @@ export default async function CronogramaPage({
   const { classId, gen } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+    return (
+      <>
+        <PageHeader title="Cronograma" description="Horário semanal das turmas." />
+        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 

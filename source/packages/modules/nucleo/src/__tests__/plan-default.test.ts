@@ -9,8 +9,10 @@ describe('plano default do signup individual', () => {
     expect(PLANS[DEFAULT_INDIVIDUAL_PLAN]?.tenantType).toBe('individual');
   });
 
-  it('habilita gestão de turmas e impõe cota finita de alunos no free', () => {
-    expect(canUse(DEFAULT_INDIVIDUAL_PLAN, 'classes.manage')).toBe(true);
+  it('free habilita geração de conteúdo e impõe cota finita de alunos', () => {
+    // Sala de aula (classes.manage) e gamificação começam no Professor Pro; no free, não.
+    expect(canUse(DEFAULT_INDIVIDUAL_PLAN, 'ai.lessonPlan')).toBe(true);
+    expect(canUse(DEFAULT_INDIVIDUAL_PLAN, 'classes.manage')).toBe(false);
     const cap = limitFor(DEFAULT_INDIVIDUAL_PLAN, 'students') ?? 0;
     expect(cap).toBeGreaterThan(0);
   });

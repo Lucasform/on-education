@@ -5,6 +5,8 @@ import Link from 'next/link';
 const FEATURE_LABELS: Record<string, string> = {
   'ai.essayGrading': 'Correção avançada (redação e em lote)',
   'ai.images': 'Geração de imagens didáticas',
+  'classes.manage': 'Sala de aula (turmas, diário, chamada, notas, boletim)',
+  gamification: 'Gamificação (pontos e medalhas)',
   marketplace: 'Banco coletivo de atividades',
   'finance.institutional': 'Gestão financeira institucional',
   'analytics.director': 'Relatórios e dashboards avançados',

@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
-import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings, isEntitled } from '@on-education/module-nucleo';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
@@ -29,6 +30,7 @@ export default async function ConfiguracoesPage() {
 
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
+  const gamiOn = await isEntitled(db(), ctx.tenantId, 'gamification').catch(() => false);
   const isOwner = ctx.roles.includes('owner');
   const brand = isOwner ? await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null) : null;
 
@@ -103,6 +105,7 @@ export default async function ConfiguracoesPage() {
         </div>
       </form>
 
+      {gamiOn ? (
       <form action={updateGamificationAction} className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -156,6 +159,18 @@ export default async function ConfiguracoesPage() {
           </SubmitButton>
         </div>
       </form>
+      ) : (
+        <div className={cardClass}>
+          <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
+          <p className="text-xs text-muted-foreground">
+            Pontos e medalhas para os alunos estão disponíveis no plano Professor Pro.{' '}
+            <Link href="/app/planos" className="text-primary hover:underline">
+              Ver planos
+            </Link>
+            .
+          </p>
+        </div>
+      )}
 
       {isOwner && (
         <div className={`${cardClass} border-danger/40`}>

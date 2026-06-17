@@ -1,4 +1,4 @@
-import { getTenantSettings, listStandardSamples } from '@on-education/module-nucleo';
+import { getTenantSettings, isEntitled, listStandardSamples } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -36,6 +36,7 @@ export default async function MeuPadraoPage() {
   const isSchool = ctx.tenantType === 'organization';
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const agente = settings?.agentName?.trim() || 'WayOn';
+  const gamiOn = await isEntitled(db(), ctx.tenantId, 'gamification').catch(() => false);
   const aiProvider = settings?.aiProvider ?? 'default';
   const temChave = Boolean(settings?.aiApiKeyEnc);
   const aiFlash = (await cookies()).get('oe_ai_flash')?.value;
@@ -151,7 +152,7 @@ export default async function MeuPadraoPage() {
         )}
       </div>
 
-      {!isSchool && (
+      {!isSchool && gamiOn && (
         <form action={updateGamificationAction} className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
           <p className="mb-3 text-xs text-muted-foreground">
