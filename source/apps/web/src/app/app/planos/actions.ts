@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { createCheckoutSession, isBillingConfigured } from '@/server/billing';
+import { createCheckoutSession, isBillingConfigured, priceIdForPlan } from '@/server/billing';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -28,17 +28,26 @@ export async function applyComboPlanAction(formData: FormData): Promise<void> {
   const planId = String(formData.get('planId') ?? '').trim();
   if (!planId) return;
 
-  // Plano pago + Stripe configurado → checkout. Grátis ou sem Stripe → ativa direto.
+  // Vai pro checkout do Stripe SÓ se: billing ligado + plano pago + tem price id cadastrado.
+  // Caso contrário (grátis, sem Stripe, ou plano "sob consulta" sem price) ativa direto.
   const def = getPlanDef(planId);
-  if (isBillingConfigured() && def && def.monthlyPrice !== 0) {
-    const url = await createCheckoutSession({
-      tenantId: ctx.tenantId,
-      tenantType: ctx.tenantType,
-      kind: 'combo',
-      planId,
-      origin: await origin(),
-    });
-    redirect(url);
+  const canCheckout =
+    isBillingConfigured() && !!def && def.monthlyPrice > 0 && !!priceIdForPlan(planId);
+  if (canCheckout) {
+    try {
+      const url = await createCheckoutSession({
+        tenantId: ctx.tenantId,
+        tenantType: ctx.tenantType,
+        kind: 'combo',
+        planId,
+        origin: await origin(),
+      });
+      redirect(url);
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('NEXT_REDIRECT')) throw e;
+      const msg = e instanceof Error ? e.message : 'erro';
+      redirect(`/app/planos?erro=${encodeURIComponent(msg)}`);
+    }
   }
 
   await applyComboPlan(db(), ctx, planId);

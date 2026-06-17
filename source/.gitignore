@@ -30,3 +30,6 @@ Thumbs.db
 .idea/
 
 .vercel
+
+# credenciais locais (nunca commitar)
+*.local.md
