@@ -4,6 +4,7 @@ import { getUsedTokens, isAiConfigured, listDrafts } from '@on-education/module-
 import { getTenantPlanId, getTenantSettings, listClasses } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
+import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
 import { MarkdownView } from '@/components/markdown-view';
@@ -62,7 +63,7 @@ export default async function IaPage() {
       {aiOn && (
         <div className={cardClass}>
           <div className="mb-1.5 flex items-center justify-between text-sm">
-            <span className="font-medium">Uso de IA este mês</span>
+            <span className="font-medium">Uso do <AgentNameText /> este mês</span>
             <span className="text-xs text-muted-foreground">
               {ilimitado ? 'Plano ilimitado' : `${usoPct}% da cota`}
             </span>
@@ -117,7 +118,9 @@ export default async function IaPage() {
               Gerar com o {agente}
             </SubmitButton>
             <p className="text-xs text-muted-foreground">
-              Flashcards abrem direto na tela de estudo. O resto vira rascunho para você revisar.
+              Flashcards abrem direto na tela de estudo para usar com a turma. Os demais conteúdos
+              (plano de aula, atividade, prova, texto) viram rascunho para você revisar, editar e
+              publicar.
             </p>
           </form>
         ) : (
