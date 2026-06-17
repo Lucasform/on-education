@@ -51,13 +51,13 @@ export default async function ConfiguracoesPage() {
         <div className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Seu nome de exibição</h2>
           <p className="mb-2 text-xs text-muted-foreground">
-            Aparece no topo do sistema no lugar do nome padrão da conta.
+            Coloque seu nome ou o da sua empresa.
           </p>
           <input
             name="profileName"
             maxLength={120}
             defaultValue={settings?.profileName ?? ''}
-            placeholder="Prof. João Silva"
+            placeholder="Prof. Lucas Carvalho"
             className={fieldClass}
           />
         </div>
@@ -65,7 +65,7 @@ export default async function ConfiguracoesPage() {
         <div className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Nome do assistente de IA</h2>
           <p className="mb-2 text-xs text-muted-foreground">
-            Como o assistente aparece para você. Padrão: WayOn.
+            Dê um nome ao seu assistente. Padrão: WayOn.
           </p>
           <input
             name="agentName"
@@ -106,7 +106,8 @@ export default async function ConfiguracoesPage() {
       <form action={updateGamificationAction} className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Pontos e medalhas para os alunos.
+          O aluno acumula pontos quando você premia e, opcionalmente, ao tirar boas notas.
+          Ao atingir as faixas abaixo, ele desbloqueia as medalhas 🥉 🥈 🥇.
         </p>
         <label className="mb-3 flex items-center gap-2 text-sm">
           <input
