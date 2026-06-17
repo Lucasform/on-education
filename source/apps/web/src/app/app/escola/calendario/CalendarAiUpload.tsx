@@ -17,6 +17,7 @@ const TYPE_LABELS: Record<string, string> = {
   commemorative: 'Data comemorativa',
   no_school: 'Sem aula',
   school_day: 'Dia letivo especial',
+  event: 'Evento',
 };
 
 const TYPE_DOT: Record<string, string> = {
@@ -24,6 +25,7 @@ const TYPE_DOT: Record<string, string> = {
   no_school: 'bg-orange-400',
   commemorative: 'bg-blue-500',
   school_day: 'bg-green-500',
+  event: 'bg-primary',
 };
 
 export function CalendarAiUpload() {

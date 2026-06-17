@@ -6,31 +6,36 @@ import { getAuthContext } from '@/server/session';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const SYSTEM = `Você é um assistente especializado em extrair feriados e dias não letivos de calendários escolares.
+const SYSTEM = `Você é um assistente especializado em ler calendários escolares e extrair TODAS as datas marcadas.
 
-Analise o documento/imagem fornecido e extraia TODOS os feriados, recesses, dias sem aula e datas comemorativas.
+Analise o documento/imagem e extraia TUDO que estiver marcado/anotado: feriados, recessos, dias
+sem aula, datas comemorativas, provas/avaliações, reuniões, eventos, início e fim de bimestre/
+semestre/ano letivo, conselhos de classe, formaturas, passeios, e qualquer outra data destacada.
+Não deixe nenhuma data marcada de fora.
 
 Retorne SOMENTE um JSON válido no formato abaixo, sem texto antes ou depois:
 {
   "events": [
     {
       "date": "YYYY-MM-DD",
-      "name": "Nome do feriado ou evento",
+      "name": "Nome exatamente como aparece no calendário",
       "type": "holiday"
     }
   ]
 }
 
-Tipos possíveis:
+Tipos possíveis (escolha o mais adequado para cada data):
 - "holiday": feriado nacional, estadual ou municipal (dia não letivo obrigatório)
-- "no_school": recesso, emenda, semana pedagógica (dia sem aula mas não é feriado)
-- "commemorative": data comemorativa (aula ocorre mas é uma data especial)
+- "no_school": recesso, emenda, ponto facultativo, semana pedagógica (dia sem aula, não é feriado)
+- "commemorative": data comemorativa (há aula, mas é uma data especial)
+- "event": qualquer outra data marcada (prova, reunião, conselho, evento, início/fim de período, passeio, etc.)
 
 Regras importantes:
+- Capture TODAS as datas marcadas, não só feriados.
 - Se não tiver certeza do ano, use o ano que fizer mais sentido no contexto do calendário.
-- Datas de carnaval (segunda e terça) são "no_school".
-- Finais de semana NÃO devem ser incluídos.
-- Se uma data aparecer marcada como "recesso" ou "emenda", use type "no_school".
+- Carnaval (segunda e terça) = "no_school". Carnaval só se estiver marcado.
+- Finais de semana SEM marcação não devem ser incluídos (mas inclua um sábado/domingo se tiver evento marcado nele).
+- Eventos de vários dias: gere uma entrada por dia, com o mesmo nome.
 - Retorne APENAS o JSON, sem markdown, sem explicações.`;
 
 interface ExtractedEvent {

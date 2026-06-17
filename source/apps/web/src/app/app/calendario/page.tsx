@@ -154,7 +154,8 @@ export default async function CalendarioPage() {
       <div className={cardClass}>
         <h2 className="mb-2 text-sm font-medium">Importar com o <AgentNameText /></h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          Envie foto ou PDF do calendário e o <AgentNameText /> extrai os feriados automaticamente.
+          Envie foto ou PDF do calendário e o <AgentNameText /> extrai todas as datas marcadas
+          (feriados, recessos, provas, reuniões, eventos) automaticamente.
         </p>
         <CalendarAiUpload />
       </div>
