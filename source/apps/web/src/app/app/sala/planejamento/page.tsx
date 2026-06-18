@@ -1,6 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
-import { listClasses, listSubjects } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listLessonPlans } from '@on-education/module-sala-de-aula';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { MarkdownView } from '@/components/markdown-view';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -36,6 +37,14 @@ export default async function PlanejamentoPage({
   const { classId } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
+    return (
+      <>
+        <PageHeader title="Planejamento" description="Planos de aula, avaliações e trabalhos." />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
 

@@ -15,14 +15,16 @@ import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
 
 /**
  * Sala de aula (Fase 1A.2): diário, notas e faltas. Checagem tripla (RBAC + entitlement +
- * RLS). Reusa `classes`/`students` do núcleo. Feature-gate em `classes.manage`.
+ * RLS). Reusa `classes`/`students` do núcleo. Diário/vínculo de aula = `classes.planning`
+ * (Professor Pro); notas e chamada = `classes.manage` (Professor).
  */
-const FEATURE = 'classes.manage';
+const FEATURE = 'classes.manage'; // notas + chamada (Professor)
+const FEATURE_PLANNING = 'classes.planning'; // diário de classe / vínculo de plano (Pro)
 
 // --- Diário (lessons) --------------------------------------------------------
 export async function createLesson(client: DbClient, ctx: AuthContext, input: CreateLessonInput) {
   assertCan(ctx, 'create', 'lesson');
-  await assertEntitled(client, ctx.tenantId, FEATURE);
+  await assertEntitled(client, ctx.tenantId, FEATURE_PLANNING);
   return client.withTenant(ctx.tenantId, async (tx) => {
     const rows = await tx
       .insert(lessons)
@@ -96,7 +98,7 @@ export async function setLessonStatus(
   input: { status: 'prevista' | 'dada' | 'cancelada'; topic?: string; cancelReason?: string },
 ) {
   assertCan(ctx, 'update', 'lesson');
-  await assertEntitled(client, ctx.tenantId, FEATURE);
+  await assertEntitled(client, ctx.tenantId, FEATURE_PLANNING);
   return client.withTenant(ctx.tenantId, (tx) =>
     tx
       .update(lessons)
@@ -155,7 +157,7 @@ export async function linkLessonToPlan(
   planId: string | null,
 ) {
   assertCan(ctx, 'update', 'lesson');
-  await assertEntitled(client, ctx.tenantId, FEATURE);
+  await assertEntitled(client, ctx.tenantId, FEATURE_PLANNING);
   return client.withTenant(ctx.tenantId, (tx) =>
     tx
       .update(lessons)

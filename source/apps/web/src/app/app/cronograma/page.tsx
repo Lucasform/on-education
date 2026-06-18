@@ -42,11 +42,11 @@ export default async function CronogramaPage({
   const { classId, gen } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
     return (
       <>
         <PageHeader title="Cronograma" description="Horário semanal das turmas." />
-        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
       </>
     );
   }

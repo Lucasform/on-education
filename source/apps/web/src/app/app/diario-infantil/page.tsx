@@ -12,11 +12,11 @@ export const metadata = { title: 'Diário Infantil · Edu On Way' };
 export default async function DiarioInfantilPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
     return (
       <>
         <PageHeader title="Diário Infantil" description="Registro diário da educação infantil." />
-        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
       </>
     );
   }

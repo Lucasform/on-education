@@ -1,6 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
-import { listClasses, listSubjects } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, listSubjects } from '@on-education/module-nucleo';
 import {
   listLessonPlans,
   listUpcomingLessons,
@@ -11,6 +11,7 @@ import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 import { hojeISO } from '@/lib/date';
@@ -46,6 +47,14 @@ export default async function PlanoDiarioPage({
   const { classId, open } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
+    return (
+      <>
+        <PageHeader title="Plano de aulas" description="Aulas dos próximos dias por turma." />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const hoje = hojeISO();
   const fim = addDays(hoje, 13); // próximos 14 dias

@@ -1,6 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
 import { isAiConfigured } from '@on-education/module-ia';
-import { listClasses, listSubjects } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, listSubjects } from '@on-education/module-nucleo';
 import { listCurriculumUnits, listLessonsForDiary } from '@on-education/module-sala-de-aula';
 import { ArrowDown, ArrowUp, Sparkles, Wand2 } from 'lucide-react';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -34,6 +35,14 @@ export default async function PlanoCursoPage({
   const { classId, subjectId, dist } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
+    return (
+      <>
+        <PageHeader title="Plano de curso" description="Unidades e conteúdos por matéria." />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const isSchool = ctx.tenantType === 'organization';
   const hoje = hojeISO();

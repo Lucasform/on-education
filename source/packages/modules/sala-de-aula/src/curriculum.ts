@@ -20,7 +20,7 @@ import { and, asc, eq, gte, isNull, sql } from 'drizzle-orm';
  * O distribuidor espalha essas unidades pelas aulas previstas (geradas pelo cronograma),
  * preenchendo o tema de cada aula. Checagem tripla (RBAC `lesson` + entitlement + RLS).
  */
-const FEATURE = 'classes.manage';
+const FEATURE = 'classes.planning';
 
 /** Unidades da matéria na turma, em ordem. subjectId nulo = turma de matéria única. */
 export async function listCurriculumUnits(

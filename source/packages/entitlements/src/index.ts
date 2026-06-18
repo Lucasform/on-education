@@ -209,8 +209,9 @@ function plan(
   return { id, name, tenantType, features: new Set(features), limits, monthlyPrice, hidden };
 }
 
-// Professor (R$39): geração de conteúdo + imagens + comunicados + banco coletivo.
-// Sala de aula (classes.manage), gamificação e correção avançada começam no Professor Pro.
+// Professor (R$39): turmas, alunos, chamada, notas, faltas, boletim (classes.manage) +
+// geração de conteúdo + imagens + comunicados + banco coletivo. Planejamento/diário de classe
+// (classes.planning), gamificação e correção avançada começam no Professor Pro.
 const TEACHER_BASIC: Feature[] = [
   'ai.lessonPlan',
   'ai.activities',
@@ -218,6 +219,8 @@ const TEACHER_BASIC: Feature[] = [
   'activities.bank',
   'communication.light',
   'marketplace',
+  'students',
+  'classes.manage',
 ];
 
 export const PLANS: Readonly<Record<string, PlanDefinition>> = {
@@ -225,8 +228,9 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'teacher_free',
     'Free',
     'individual',
-    // Free é só para experimentar: gerar plano de aula/atividade e guardar no banco.
-    ['ai.lessonPlan', 'ai.activities', 'activities.bank'],
+    // Free: experimentar (gerar plano/atividade, guardar no banco) + cadastro de alunos.
+    // Sem turmas/chamada/notas/boletim (isso força o upgrade pro Professor).
+    ['ai.lessonPlan', 'ai.activities', 'activities.bank', 'students'],
     { aiTokensPerMonth: 30_000, students: 15, imagesPerMonth: 0, imageQualityMax: 0 },
     0,
   ),
@@ -242,7 +246,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'teacher_pro',
     'Professor Pro',
     'individual',
-    [...TEACHER_BASIC, 'classes.manage', 'gamification', 'ai.essayGrading'],
+    [...TEACHER_BASIC, 'classes.planning', 'gamification', 'ai.essayGrading'],
     { aiTokensPerMonth: 600_000, students: -1, imagesPerMonth: 30, imageQualityMax: 2 },
     79,
   ),
@@ -258,7 +262,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'school_free',
     'Escola Free',
     'organization',
-    ['classes.manage', 'communication.light'],
+    ['students', 'classes.manage', 'communication.light'],
     { aiTokensPerMonth: 50_000, students: -1, imagesPerMonth: 0, imageQualityMax: 0 },
     0,
     true, // oculto: serve como baseline pós-cancelamento, não como combo vendável
@@ -268,15 +272,15 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Escola Starter',
     'organization',
     [
+      'students',
       'classes.manage',
-      'gamification',
+      'classes.planning',
       'ai.lessonPlan',
       'ai.activities',
       'ai.images',
       'activities.bank',
       'marketplace',
       'communication.light',
-      'communication.mass',
       'enrollment.official',
     ],
     { aiTokensPerMonth: 3_000_000, students: -1, imagesPerMonth: 250, imageQualityMax: 2 },

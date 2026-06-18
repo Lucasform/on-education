@@ -11,7 +11,7 @@ import { asc, desc, eq } from 'drizzle-orm';
  * Cronograma/horário semanal da turma (item 7). Checagem tripla (RBAC `lesson` + entitlement
  * `classes.manage` + RLS). Reusa turmas/disciplinas. Um slot = matéria num dia/horário.
  */
-const FEATURE = 'classes.manage';
+const FEATURE = 'classes.planning';
 
 export async function createScheduleSlot(
   client: DbClient,

@@ -14,9 +14,11 @@ import {
 } from '../organization';
 
 describe('plano default da escola', () => {
-  it('é organization e habilita comunicação em massa, mas não financeiro no starter', () => {
+  it('é organization; starter tem matrícula e comunicação leve, mas não WhatsApp em massa nem financeiro', () => {
     expect(PLANS[DEFAULT_ORG_PLAN]?.tenantType).toBe('organization');
-    expect(canUse(DEFAULT_ORG_PLAN, 'communication.mass')).toBe(true);
+    expect(canUse(DEFAULT_ORG_PLAN, 'enrollment.official')).toBe(true);
+    expect(canUse(DEFAULT_ORG_PLAN, 'communication.light')).toBe(true);
+    expect(canUse(DEFAULT_ORG_PLAN, 'communication.mass')).toBe(false);
     expect(canUse(DEFAULT_ORG_PLAN, 'finance.institutional')).toBe(false);
   });
 });

@@ -15,7 +15,7 @@ import { and, eq, gte, lte, sql } from 'drizzle-orm';
  * depois só ajusta o que ainda vai acontecer.
  */
 
-const FEATURE = 'classes.manage';
+const FEATURE = 'classes.planning';
 
 export interface GenerateLessonsInput {
   classId: string;

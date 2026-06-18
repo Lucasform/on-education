@@ -76,7 +76,7 @@ export async function updateClassDetails(
 
 export async function createStudent(client: DbClient, ctx: AuthContext, input: CreateStudentInput) {
   assertCan(ctx, 'create', 'student');
-  const planId = await assertEntitled(client, ctx.tenantId, 'classes.manage');
+  const planId = await assertEntitled(client, ctx.tenantId, 'students');
   const cap = limitFor(planId, 'students');
 
   return client.withTenant(ctx.tenantId, async (tx) => {
@@ -246,7 +246,7 @@ export async function createStudentsBulk(
   items: { fullName: string; className?: string; birthDate?: string }[],
 ) {
   assertCan(ctx, 'create', 'student');
-  const planId = await assertEntitled(client, ctx.tenantId, 'classes.manage');
+  const planId = await assertEntitled(client, ctx.tenantId, 'students');
   const cap = limitFor(planId, 'students');
   const valid = items
     .map((i) => ({

@@ -1,10 +1,11 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listClasses } from '@on-education/module-nucleo';
+import { isEntitled, listClasses } from '@on-education/module-nucleo';
 import { listLessonPlans, listLessonsForDiary } from '@on-education/module-sala-de-aula';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -33,6 +34,14 @@ export default async function DiarioPage({
   const { periodo = 'mes' } = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  if (!(await isEntitled(db(), ctx.tenantId, 'classes.planning'))) {
+    return (
+      <>
+        <PageHeader title="Diário de classe" description="Registro das aulas dadas." />
+        <UpgradeGate feature="classes.planning" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const client = db();
   const hoje = hojeISO();
   const [todas, turmas, planos] = await Promise.all([

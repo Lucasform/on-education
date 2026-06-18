@@ -15,7 +15,7 @@ import { and, desc, eq, isNull } from 'drizzle-orm';
  * Planejamento (itens 7.1/7.3): plano de aula, avaliação ou trabalho por turma/matéria.
  * Checagem tripla (RBAC `lesson` + entitlement `classes.manage` + RLS). Soft delete.
  */
-const FEATURE = 'classes.manage';
+const FEATURE = 'classes.planning';
 
 export async function createLessonPlan(
   client: DbClient,

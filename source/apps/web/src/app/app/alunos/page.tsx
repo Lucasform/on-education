@@ -28,11 +28,11 @@ export default async function AlunosPage({
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  if (!(await isEntitled(db(), ctx.tenantId, 'classes.manage'))) {
+  if (!(await isEntitled(db(), ctx.tenantId, 'students'))) {
     return (
       <>
         <PageHeader title="Alunos" description="Cadastro e histórico dos alunos." />
-        <UpgradeGate feature="classes.manage" tenantType={ctx.tenantType} />
+        <UpgradeGate feature="students" tenantType={ctx.tenantType} />
       </>
     );
   }
