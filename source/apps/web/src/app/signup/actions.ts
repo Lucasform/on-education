@@ -1,11 +1,18 @@
 'use server';
 
-import { provisionIndividualTenant } from '@on-education/module-nucleo';
+import {
+  isSlugAvailable,
+  normalizeSlug,
+  provisionIndividualTenant,
+  slugFormatError,
+} from '@on-education/module-nucleo';
 import { individualSignupSchema } from '@on-education/validation';
 import { redirect } from 'next/navigation';
 
 import { db } from '@/server/db';
 import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supabase';
+
+const NIL_UUID = '00000000-0000-0000-0000-000000000000';
 
 /**
  * Signup do professor autônomo (Fase 1B.1) com Supabase Auth (e-mail+senha).
@@ -13,13 +20,21 @@ import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supaba
  * `individual` para esse usuário e abre a sessão.
  */
 export async function signupAction(formData: FormData): Promise<void> {
+  const rawSlug = String(formData.get('slug') ?? '').trim();
+  const slug = rawSlug ? normalizeSlug(rawSlug) : undefined;
   const input = individualSignupSchema.parse({
     ownerEmail: formData.get('ownerEmail'),
     ownerName: formData.get('ownerName'),
     workspaceName: (formData.get('workspaceName') as string) || undefined,
+    slug,
   });
   const password = String(formData.get('password') ?? '');
   if (password.length < 8) redirect('/signup?erro=senha');
+  // Valida o link público (se informado) ANTES de criar o usuário, pra não criar+apagar.
+  if (slug) {
+    if (slugFormatError(slug)) redirect('/signup?erro=link');
+    if (!(await isSlugAvailable(db(), slug, NIL_UUID))) redirect('/signup?erro=linkuso');
+  }
 
   const admin = createSupabaseAdmin();
   const { data, error } = await admin.auth.admin.createUser({

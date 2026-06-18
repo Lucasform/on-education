@@ -45,6 +45,7 @@ export async function provisionIndividualTenant(
       .values({
         tenantType: 'individual',
         name: input.workspaceName ?? input.ownerName,
+        slug: input.slug || null,
         createdBy: ownerUserId,
       })
       .returning({ id: tenants.id });

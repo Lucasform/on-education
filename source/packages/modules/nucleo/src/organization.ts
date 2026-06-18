@@ -45,7 +45,12 @@ export async function provisionOrganizationTenant(
   return client.db.transaction(async (tx) => {
     const tenantRows = await tx
       .insert(tenants)
-      .values({ tenantType: 'organization', name: input.schoolName, createdBy: ownerUserId })
+      .values({
+        tenantType: 'organization',
+        name: input.schoolName,
+        slug: input.slug || null,
+        createdBy: ownerUserId,
+      })
       .returning({ id: tenants.id });
     const tenantId = tenantRows[0]?.id;
     if (!tenantId) throw new Error('Falha ao criar tenant organization.');

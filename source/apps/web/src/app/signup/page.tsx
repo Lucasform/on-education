@@ -13,6 +13,8 @@ const ERROS: Record<string, string> = {
   senha: 'A senha precisa ter ao menos 8 caracteres.',
   config: 'Não foi possível criar o acesso (configuração do servidor). Já estamos verificando.',
   falha: 'Não foi possível criar a conta agora. Tente novamente em instantes.',
+  link: 'Link inválido. Use só letras minúsculas, números e hífen (3 a 40 caracteres).',
+  linkuso: 'Esse link já está em uso. Escolha outro.',
 };
 
 export default async function SignupPage({
@@ -67,6 +69,12 @@ export default async function SignupPage({
             placeholder="Ex.: Aulas da Profª Ana"
             className={fieldClass}
           />
+        </Field>
+        <Field label="Seu link público" hint="(opcional)">
+          <div className="flex items-center gap-1">
+            <span className="shrink-0 text-sm text-muted-foreground">eduonway.com/c/</span>
+            <input name="slug" maxLength={40} placeholder="prof-ana" className={fieldClass} />
+          </div>
         </Field>
         <Button type="submit" className="mt-2 w-full">
           Criar conta

@@ -1,11 +1,18 @@
 'use server';
 
-import { provisionOrganizationTenant } from '@on-education/module-nucleo';
+import {
+  isSlugAvailable,
+  normalizeSlug,
+  provisionOrganizationTenant,
+  slugFormatError,
+} from '@on-education/module-nucleo';
 import { organizationSignupSchema } from '@on-education/validation';
 import { redirect } from 'next/navigation';
 
 import { db } from '@/server/db';
 import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supabase';
+
+const NIL_UUID = '00000000-0000-0000-0000-000000000000';
 
 /**
  * Signup da escola (Fase 1A.1) com Supabase Auth (e-mail+senha). Cria o usuário já
@@ -13,13 +20,21 @@ import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supaba
  * e abre a sessão.
  */
 export async function signupSchoolAction(formData: FormData): Promise<void> {
+  const rawSlug = String(formData.get('slug') ?? '').trim();
+  const slug = rawSlug ? normalizeSlug(rawSlug) : undefined;
   const input = organizationSignupSchema.parse({
     ownerEmail: formData.get('ownerEmail'),
     ownerName: formData.get('ownerName'),
     schoolName: formData.get('schoolName'),
+    slug,
   });
   const password = String(formData.get('password') ?? '');
   if (password.length < 8) redirect('/signup/escola?erro=senha');
+  // Valida o link público (se informado) ANTES de criar o usuário, pra não criar+apagar.
+  if (slug) {
+    if (slugFormatError(slug)) redirect('/signup/escola?erro=link');
+    if (!(await isSlugAvailable(db(), slug, NIL_UUID))) redirect('/signup/escola?erro=linkuso');
+  }
 
   const admin = createSupabaseAdmin();
   const { data, error } = await admin.auth.admin.createUser({

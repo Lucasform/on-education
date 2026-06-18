@@ -25,6 +25,8 @@ export const individualSignupSchema = z.object({
   ownerName: z.string().min(2).max(200),
   /** Nome do workspace (obrigatório no cadastro). */
   workspaceName: z.string().min(2).max(200),
+  /** Link público opcional (já normalizado/validado pela action). */
+  slug: z.string().max(40).optional(),
 });
 export type IndividualSignupInput = z.infer<typeof individualSignupSchema>;
 
@@ -137,6 +139,8 @@ export const organizationSignupSchema = z.object({
   ownerEmail: emailSchema,
   ownerName: z.string().min(2).max(200),
   schoolName: z.string().min(2).max(200),
+  /** Link público opcional (já normalizado/validado pela action). */
+  slug: z.string().max(40).optional(),
 });
 export type OrganizationSignupInput = z.infer<typeof organizationSignupSchema>;
 
