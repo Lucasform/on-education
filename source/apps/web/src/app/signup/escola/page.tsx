@@ -28,7 +28,10 @@ export default async function SchoolSignupPage({
       footer={
         <>
           Já tem conta?{' '}
-          <a href="/login" className="font-medium text-foreground underline underline-offset-4">
+          <a
+            href="/login"
+            className="rounded-sm font-medium text-foreground underline underline-offset-4 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+          >
             Entrar
           </a>
         </>

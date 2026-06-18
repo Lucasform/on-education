@@ -29,7 +29,10 @@ export default async function LoginPage({
       footer={
         <>
           Não tem conta?{' '}
-          <a href="/signup" className="font-medium text-foreground underline underline-offset-4">
+          <a
+            href="/signup"
+            className="rounded-sm font-medium text-foreground underline underline-offset-4 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+          >
             Criar conta
           </a>
         </>
@@ -50,7 +53,7 @@ export default async function LoginPage({
         <div className="text-right">
           <a
             href="/esqueci-senha"
-            className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="rounded-sm text-xs text-muted-foreground outline-none underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             Esqueci a senha
           </a>

@@ -63,11 +63,17 @@ export default async function TurmasPage({
                 placeholder="Buscar turma…"
                 className={`${fieldClass} w-full sm:w-44`}
               />
-              <button type="submit" className="rounded-md border border-border px-3 text-sm">
+              <button
+                type="submit"
+                className="rounded-md border border-border px-3 py-2 text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+              >
                 Filtrar
               </button>
               {sp.q && (
-                <Link href="/app/turmas" className="px-2 text-sm text-muted-foreground">
+                <Link
+                  href="/app/turmas"
+                  className="inline-flex items-center rounded-md px-2 text-sm text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+                >
                   Limpar
                 </Link>
               )}
@@ -82,7 +88,10 @@ export default async function TurmasPage({
             <ul className="space-y-1 text-sm">
               {filtradas.map((t) => (
                 <li key={t.id} className="flex items-center justify-between gap-2">
-                  <Link href={`/app/turmas/${t.id}`} className="hover:underline">
+                  <Link
+                    href={`/app/turmas/${t.id}`}
+                    className="rounded-sm font-medium outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+                  >
                     {t.name}
                     {t.gradeLevel && (
                       <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -197,7 +206,7 @@ export default async function TurmasPage({
               <h2 className="mb-1 text-sm font-medium">Duplicar turmas para novo ano</h2>
               <p className="mb-3 text-xs text-muted-foreground">
                 Cria uma cópia de todas as {turmas.length} turmas ativas. Informe um sufixo para
-                diferenciar (ex.: 2027) — deixe em branco para copiar com o mesmo nome.
+                diferenciar (ex.: 2027). Deixe em branco para copiar com o mesmo nome.
               </p>
               <form action={duplicateClassesAction} className="flex flex-wrap gap-2">
                 <input

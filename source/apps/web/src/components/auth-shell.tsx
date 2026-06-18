@@ -27,7 +27,7 @@ export function AuthShell({
       <div className="absolute left-6 top-6">
         <Link
           href={backHref}
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="rounded-md text-sm text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           ← {backLabel}
         </Link>
@@ -37,7 +37,10 @@ export function AuthShell({
       </div>
 
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-xl">
-        <Link href={backHref} className="mb-6 flex items-center gap-2">
+        <Link
+          href={backHref}
+          className="mb-6 inline-flex items-center gap-2 rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
           <LogoMark size={28} />
           <span className="font-semibold">Edu On Way</span>
         </Link>

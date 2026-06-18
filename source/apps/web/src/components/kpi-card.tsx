@@ -29,7 +29,10 @@ export function KpiCard({
   );
   if (href) {
     return (
-      <Link href={href} className={`${cardClass} transition-colors hover:border-primary/50`}>
+      <Link
+        href={href}
+        className={`${cardClass} block outline-none transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+      >
         {body}
       </Link>
     );

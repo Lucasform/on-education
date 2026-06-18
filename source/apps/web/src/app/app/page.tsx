@@ -178,7 +178,7 @@ export default async function OverviewPage() {
             <Link
               key={a.href + a.msg}
               href={a.href}
-              className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900 transition-colors hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+              className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900 outline-none transition-colors hover:bg-amber-100 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
             >
               <span>⚠ {a.msg}</span>
               <span className="shrink-0 text-xs opacity-70">Ver →</span>
@@ -205,7 +205,7 @@ export default async function OverviewPage() {
             <Link
               key={a.href + a.label}
               href={a.href}
-              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:bg-accent"
+              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm outline-none transition-colors hover:border-primary/50 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
               {a.label}
             </Link>
@@ -253,7 +253,7 @@ export default async function OverviewPage() {
                   <tr key={a.id} className="border-b border-border/50 last:border-0">
                     <td className="py-1.5 pr-4 font-medium">{a.dia}</td>
                     <td className="py-1.5 pr-4">{a.nome}</td>
-                    <td className="py-1.5 text-muted-foreground">{a.turma || '—'}</td>
+                    <td className="py-1.5 text-muted-foreground">{a.turma || 'Sem turma'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -304,7 +304,7 @@ export default async function OverviewPage() {
               <li key={p.label}>
                 <Link
                   href={p.href}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent ${
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
                     p.done ? 'text-muted-foreground' : 'text-foreground'
                   }`}
                 >

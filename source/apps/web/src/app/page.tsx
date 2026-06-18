@@ -122,7 +122,11 @@ export default function HomePage() {
         </a>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
           {NAV.map((n) => (
-            <a key={n.label} href={n.href} className="transition-colors hover:text-foreground">
+            <a
+              key={n.label}
+              href={n.href}
+              className="rounded transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:underline"
+            >
               {n.label}
             </a>
           ))}
@@ -150,7 +154,7 @@ export default function HomePage() {
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 Conheça o <WayOn />
               </span>
-              <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-5 text-pretty text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Ensine com inteligência.
                 <br />
                 <span className="text-primary">Do plano de aula ao boletim.</span>
@@ -236,7 +240,10 @@ export default function HomePage() {
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {PASSOS.map((p) => (
-              <div key={p.n} className="rounded-2xl border border-border bg-card p-6">
+              <div
+                key={p.n}
+                className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+              >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
                   {p.n}
                 </span>
@@ -249,7 +256,7 @@ export default function HomePage() {
 
         {/* para quem */}
         <section className="mt-20 grid gap-6 md:grid-cols-2">
-          <div className="flex flex-col rounded-3xl border border-border bg-card p-8">
+          <div className="flex flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <UserRound className="h-5 w-5" />
             </span>
@@ -275,7 +282,7 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div className="flex flex-col rounded-3xl border border-border bg-card p-8">
+          <div className="flex flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <School className="h-5 w-5" />
             </span>
@@ -325,7 +332,7 @@ export default function HomePage() {
           <div className="mx-auto mt-8 max-w-3xl divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {FAQ.map((f) => (
               <details key={f.q} className="group p-5 [&_summary]:cursor-pointer">
-                <summary className="flex items-center justify-between gap-3 font-medium marker:content-['']">
+                <summary className="flex select-none items-center justify-between gap-3 rounded font-medium outline-none marker:content-[''] focus-visible:text-foreground focus-visible:underline">
                   {f.q}
                   <span className="text-muted-foreground transition-transform group-open:rotate-45">
                     +
