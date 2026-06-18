@@ -26,6 +26,7 @@ import {
 } from '@on-education/module-ia';
 import {
   assertEntitled,
+  setTenantSlug,
   assignTeaching,
   createApiKey,
   createStandardSample,
@@ -1446,6 +1447,26 @@ export async function updateGamificationAction(formData: FormData): Promise<void
   });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app', 'layout');
+}
+
+/**
+ * Define o link público (slug) do tenant: eduonway.com/c/<slug>. Valida formato e unicidade
+ * no service; volta à página de personalização com sucesso ou erro amigável.
+ */
+export async function updateTenantSlugAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const dest =
+    ctx.tenantType === 'organization' ? '/app/escola/personalizacao' : '/app/conta/configuracoes';
+  const raw = String(formData.get('slug') ?? '');
+  let slug: string;
+  try {
+    slug = await setTenantSlug(db(), ctx, raw);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Não foi possível salvar o link.';
+    redirect(`${dest}?slugErro=${encodeURIComponent(msg)}`);
+  }
+  revalidatePath('/app', 'layout');
+  redirect(`${dest}?slugOk=${slug}`);
 }
 
 /**

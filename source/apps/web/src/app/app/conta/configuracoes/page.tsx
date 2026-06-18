@@ -1,11 +1,17 @@
 import { SubmitButton } from '@/components/submit-button';
-import { getPublicTenantBrand, getTenantSettings, isEntitled } from '@on-education/module-nucleo';
+import {
+  getPublicTenantBrand,
+  getTenantSettings,
+  getTenantSlug,
+  isEntitled,
+} from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { DeleteAccountForm } from '@/components/delete-account-form';
 import { LogoUpload } from '@/components/logo-upload';
+import { SlugCard } from '@/components/slug-field';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -23,12 +29,18 @@ const CORES = [
   { nome: 'Vermelho', hsl: '0 72% 51%' },
 ];
 
-export default async function ConfiguracoesPage() {
+export default async function ConfiguracoesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ slugOk?: string; slugErro?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'individual') redirect('/app/escola/personalizacao');
 
+  const { slugOk, slugErro } = await searchParams;
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  const slug = await getTenantSlug(db(), ctx.tenantId).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
   const gamiOn = await isEntitled(db(), ctx.tenantId, 'gamification').catch(() => false);
   const isOwner = ctx.roles.includes('owner');
@@ -48,6 +60,8 @@ export default async function ConfiguracoesPage() {
         </p>
         <LogoUpload currentUrl={settings?.logoUrl ?? null} />
       </div>
+
+      <SlugCard current={slug} ok={slugOk} erro={slugErro} />
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         <div className={cardClass}>

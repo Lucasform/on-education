@@ -11,6 +11,7 @@ export * from './context';
 export * from './admin';
 export * from './events';
 export * from './settings';
+export * from './slug';
 export * from './occurrences';
 export * from './finance';
 export * from './finance-payments';

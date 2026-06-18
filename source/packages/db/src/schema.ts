@@ -69,6 +69,8 @@ export const tenants = oe.table(
     id: uuid('id').defaultRandom().primaryKey(),
     tenantType: tenantTypeEnum('tenant_type').notNull(),
     name: text('name').notNull(),
+    // Slug público (link de marca): eduonway.com/c/<slug>. Único (case-insensitive via índice).
+    slug: text('slug'),
     status: text('status').notNull().default('active'),
     // Marcação de CRM do super-admin: distingue cliente pagante de conta de teste/trial.
     isClient: boolean('is_client').notNull().default(false),

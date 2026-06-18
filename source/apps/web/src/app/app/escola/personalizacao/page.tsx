@@ -1,10 +1,11 @@
 import { SubmitButton } from '@/components/submit-button';
-import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings, getTenantSlug } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { DeleteAccountForm } from '@/components/delete-account-form';
 import { LogoUpload } from '@/components/logo-upload';
+import { SlugCard } from '@/components/slug-field';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -23,11 +24,17 @@ const CORES = [
   { nome: 'Vermelho', hsl: '0 72% 51%' },
 ];
 
-export default async function PersonalizacaoPage() {
+export default async function PersonalizacaoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ slugOk?: string; slugErro?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
+  const { slugOk, slugErro } = await searchParams;
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
+  const slug = await getTenantSlug(db(), ctx.tenantId).catch(() => null);
   const corAtual = settings?.themeColor ?? CORES[0]!.hsl;
   const isOwner = ctx.roles.includes('owner');
   const brand = isOwner ? await getPublicTenantBrand(db(), ctx.tenantId).catch(() => null) : null;
@@ -48,6 +55,8 @@ export default async function PersonalizacaoPage() {
         </p>
         <LogoUpload currentUrl={settings?.logoUrl ?? null} />
       </div>
+
+      <SlugCard current={slug} ok={slugOk} erro={slugErro} />
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         {/* Dados da escola */}
