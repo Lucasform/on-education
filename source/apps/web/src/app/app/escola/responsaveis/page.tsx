@@ -38,9 +38,7 @@ export default async function ResponsaveisPage({
     ? (responsaveis.find((g) => g.id === tokenGuardianId)?.fullName ?? '')
     : '';
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://eduonway.com';
 
   return (
     <>

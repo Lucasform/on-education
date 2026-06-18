@@ -14,7 +14,7 @@ export async function requestResetAction(formData: FormData): Promise<void> {
   const email = String(formData.get('email') ?? '').trim();
   if (!email) redirect('/esqueci-senha?status=enviado');
 
-  const origin = (await headers()).get('origin') ?? 'https://on-education-seven.vercel.app';
+  const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
   const supabase = await createSupabaseServerClient();
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/confirm?next=/nova-senha`,

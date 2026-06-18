@@ -102,7 +102,7 @@ export default async function ApiPage() {
         </p>
         <pre className="overflow-x-auto rounded-md bg-background p-3 text-xs">
           {`curl -H "Authorization: Bearer SUA_CHAVE" \\
-  https://on-education-seven.vercel.app/api/v1/students
+  https://eduonway.com/api/v1/students
 
 # Recursos: /api/v1/students  ·  /api/v1/classes`}
         </pre>
