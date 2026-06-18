@@ -188,8 +188,8 @@ export const NAV: NavGroup[] = [
     label: 'Integrações',
     only: 'organization',
     items: [
-      { label: 'API aberta', href: '/app/api', icon: Plug },
-      { label: 'Webhooks', href: '/app/escola/webhooks', icon: Webhook },
+      { label: 'API de integração', href: '/app/api', icon: Plug, requiresFeature: 'integrations.api' },
+      { label: 'Notificações (webhooks)', href: '/app/escola/webhooks', icon: Webhook, requiresFeature: 'integrations.api' },
     ],
   },
   {

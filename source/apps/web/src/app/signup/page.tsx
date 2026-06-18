@@ -26,7 +26,7 @@ export default async function SignupPage({
   return (
     <AuthShell
       title="Criar sua conta de professor"
-      subtitle="Sua área de trabalho pessoal gratuita. Valor já no primeiro uso."
+      subtitle="Sua área de trabalho pessoal, organizada e descomplicada, com muitos recursos para deixar sua aula ainda melhor."
       footer={
         <>
           É uma escola?{' '}
@@ -61,12 +61,12 @@ export default async function SignupPage({
         <Field label="Senha" hint="(mín. 8 caracteres)">
           <input name="password" type="password" required minLength={8} className={fieldClass} />
         </Field>
-        <Field label="Nome da área de trabalho">
+        <Field label="Nome do seu espaço" hint="(você, sua empresa ou projeto)">
           <input
             name="workspaceName"
             required
             minLength={2}
-            placeholder="Ex.: Aulas da Profª Ana"
+            placeholder="Ex.: Profª Ana · Reforço de Matemática"
             className={fieldClass}
           />
         </Field>

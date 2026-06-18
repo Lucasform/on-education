@@ -1,22 +1,34 @@
-import { listApiKeys } from '@on-education/module-nucleo';
+import { isEntitled, listApiKeys } from '@on-education/module-nucleo';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import { createApiKeyAction, revokeApiKeyAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'API aberta · Edu On Way' };
+export const metadata = { title: 'API de integração · Edu On Way' };
 
 export default async function ApiPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
+  if (!(await isEntitled(db(), ctx.tenantId, 'integrations.api'))) {
+    return (
+      <>
+        <PageHeader
+          title="API de integração"
+          description="Conecte a escola a sistemas externos via API REST."
+        />
+        <UpgradeGate feature="integrations.api" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
 
   const chaves = await listApiKeys(db(), ctx).catch(() => []);
   const novaChave = (await cookies()).get('oe_apikey_flash')?.value ?? null;
@@ -24,9 +36,28 @@ export default async function ApiPage() {
   return (
     <>
       <PageHeader
-        title="API aberta"
-        description="Chaves para sistemas externos lerem dados da escola via API REST."
+        title="API de integração"
+        description="Conecte a escola a sistemas externos via API REST, com chaves de acesso."
       />
+
+      <div className={cardClass}>
+        <h2 className="mb-2 text-sm font-medium">O que é</h2>
+        <p className="text-sm text-muted-foreground">
+          A API permite que outro sistema da escola (ERP, app próprio, planilha, BI) leia seus
+          dados automaticamente, sem ninguém digitar nada à mão. Em vez de exportar e importar
+          arquivos, o outro sistema pede os dados direto à plataforma e recebe na hora.
+        </p>
+        <h2 className="mb-2 mt-4 text-sm font-medium">Como funciona</h2>
+        <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>Você gera uma chave de acesso aqui embaixo (uma senha exclusiva da integração).</li>
+          <li>Quem desenvolve o outro sistema guarda essa chave em segurança.</li>
+          <li>
+            O sistema chama os endereços da API enviando a chave no cabeçalho{' '}
+            <code>Authorization</code>; a plataforma responde com os dados (somente leitura).
+          </li>
+          <li>Se a chave vazar ou não for mais usada, é só revogar — o acesso para na hora.</li>
+        </ol>
+      </div>
 
       {novaChave && (
         <div className="rounded-lg border border-success/40 bg-success/10 p-4">

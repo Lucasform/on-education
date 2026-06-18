@@ -1,9 +1,10 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listWebhookEndpoints } from '@on-education/module-nucleo';
+import { isEntitled, listWebhookEndpoints } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -14,7 +15,7 @@ import {
 } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Webhooks - Edu On Way' };
+export const metadata = { title: 'Notificações (webhooks) · Edu On Way' };
 
 const EVENTOS_DISPONIVEIS = [
   { value: 'student.created', label: 'Aluno criado' },
@@ -28,14 +29,45 @@ export default async function WebhooksPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
+  if (!(await isEntitled(db(), ctx.tenantId, 'integrations.api'))) {
+    return (
+      <>
+        <PageHeader
+          title="Notificações (webhooks)"
+          description="Avise sistemas externos automaticamente quando algo acontece na escola."
+        />
+        <UpgradeGate feature="integrations.api" tenantType={ctx.tenantType} />
+      </>
+    );
+  }
   const endpoints = await listWebhookEndpoints(db(), ctx).catch(() => []);
 
   return (
     <>
       <PageHeader
-        title="Webhooks"
-        description="URLs notificadas quando eventos ocorrem na plataforma."
+        title="Notificações (webhooks)"
+        description="Avise sistemas externos automaticamente quando algo acontece na escola."
       />
+
+      <div className={cardClass}>
+        <h2 className="mb-2 text-sm font-medium">O que é</h2>
+        <p className="text-sm text-muted-foreground">
+          Um webhook é um aviso automático: quando algo acontece na escola (uma matrícula, uma
+          nota lançada, um pagamento recebido), a plataforma envia uma mensagem na hora para o
+          endereço (URL) de outro sistema seu. É o caminho inverso da API: em vez de o outro
+          sistema perguntar, a plataforma avisa sozinha.
+        </p>
+        <h2 className="mb-2 mt-4 text-sm font-medium">Como funciona</h2>
+        <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>Você cadastra a URL do seu sistema e escolhe quais eventos quer receber.</li>
+          <li>Quando um desses eventos ocorre, enviamos os dados dele para a sua URL.</li>
+          <li>
+            O segredo HMAC (opcional) permite ao seu sistema confirmar que a mensagem veio
+            mesmo da plataforma, e não de um impostor.
+          </li>
+          <li>Pode pausar (Ativo/Inativo) ou excluir um endpoint quando quiser.</li>
+        </ol>
+      </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>

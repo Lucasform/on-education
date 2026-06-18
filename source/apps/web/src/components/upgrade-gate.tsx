@@ -12,6 +12,7 @@ const FEATURE_LABELS: Record<string, string> = {
   marketplace: 'Banco coletivo de atividades',
   'finance.institutional': 'Gestão financeira institucional',
   'analytics.director': 'Relatórios e dashboards avançados',
+  'integrations.api': 'API de integração e webhooks',
 };
 
 // Plano-alvo por funcionalidade (o mais barato que a inclui), por segmento.
@@ -26,6 +27,7 @@ const FEATURE_UPGRADE: Record<string, Partial<Record<TenantType, string>>> = {
   'enrollment.official': { organization: 'Escola Starter' },
   'finance.institutional': { organization: 'Escola Full' },
   'analytics.director': { organization: 'Escola Full' },
+  'integrations.api': { organization: 'Escola Full' },
 };
 
 const DEFAULT_UPGRADE: Record<TenantType, string> = {

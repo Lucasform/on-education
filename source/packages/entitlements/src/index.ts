@@ -24,6 +24,7 @@ export const FEATURES = [
   'finance.institutional',
   'enrollment.official',
   'analytics.director',
+  'integrations.api',
 ] as const;
 export type Feature = (typeof FEATURES)[number];
 
@@ -163,6 +164,14 @@ export const FEATURE_CATALOG: Readonly<Record<Feature, FeatureMeta>> = {
     category: 'Financeiro',
     segment: 'organization',
     price: 25,
+  },
+  'integrations.api': {
+    feature: 'integrations.api',
+    label: 'API e notificações (webhooks)',
+    description: 'Integração via API REST e webhooks para conectar a escola a sistemas externos.',
+    category: 'Integrações',
+    segment: 'organization',
+    price: 20,
   },
 };
 
