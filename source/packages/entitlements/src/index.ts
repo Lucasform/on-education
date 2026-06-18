@@ -191,14 +191,15 @@ function plan(
   return { id, name, tenantType, features: new Set(features), limits, monthlyPrice, hidden };
 }
 
-// Free e Professor NÃO incluem sala de aula (classes.manage) nem gamificação:
-// esses recursos começam no Professor Pro.
+// Professor (R$39): geração de conteúdo + imagens + comunicados + banco coletivo.
+// Sala de aula (classes.manage), gamificação e correção avançada começam no Professor Pro.
 const TEACHER_BASIC: Feature[] = [
   'ai.lessonPlan',
   'ai.activities',
   'ai.images',
   'activities.bank',
   'communication.light',
+  'marketplace',
 ];
 
 export const PLANS: Readonly<Record<string, PlanDefinition>> = {
@@ -206,8 +207,9 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'teacher_free',
     'Free',
     'individual',
-    ['ai.lessonPlan', 'ai.activities', 'activities.bank', 'communication.light'],
-    { aiTokensPerMonth: 50_000, students: 30, imagesPerMonth: 5 },
+    // Free é só para experimentar: gerar plano de aula/atividade e guardar no banco.
+    ['ai.lessonPlan', 'ai.activities', 'activities.bank'],
+    { aiTokensPerMonth: 30_000, students: 15, imagesPerMonth: 0 },
     0,
   ),
   teacher_basic: plan(
@@ -215,15 +217,15 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Professor',
     'individual',
     TEACHER_BASIC,
-    { aiTokensPerMonth: 300_000, students: -1, imagesPerMonth: 30 },
+    { aiTokensPerMonth: 400_000, students: -1, imagesPerMonth: 60 },
     39,
   ),
   teacher_pro: plan(
     'teacher_pro',
     'Professor Pro',
     'individual',
-    [...TEACHER_BASIC, 'classes.manage', 'gamification', 'ai.essayGrading', 'marketplace'],
-    { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 100 },
+    [...TEACHER_BASIC, 'classes.manage', 'gamification', 'ai.essayGrading'],
+    { aiTokensPerMonth: 1_200_000, students: -1, imagesPerMonth: 200 },
     79,
   ),
   teacher_custom: plan(

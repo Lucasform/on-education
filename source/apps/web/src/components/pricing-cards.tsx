@@ -25,12 +25,12 @@ const PLANOS: Plano[] = [
     anual: 'R$ 390',
     equiv: 'equivale a R$ 32,50/mês',
     nota: '7 dias grátis para testar',
-    resumo: 'Para o professor autônomo organizar suas turmas com o WayOn.',
+    resumo: 'Para o professor autônomo criar conteúdo e ganhar tempo com o WayOn.',
     recursos: [
-      'Turmas e alunos',
-      'WayOn pedagógico (cota mensal)',
-      'Banco de atividades e portfólio',
-      'Diário, chamada e boletim',
+      'WayOn: planos de aula, atividades e provas',
+      'Banco de atividades + banco coletivo',
+      'Geração de imagens didáticas',
+      'Comunicados e calendário',
     ],
     cta: 'Testar grátis',
     href: '/signup',
@@ -42,13 +42,13 @@ const PLANOS: Plano[] = [
     anual: 'R$ 790',
     equiv: 'equivale a R$ 65,80/mês',
     nota: '7 dias grátis para testar',
-    resumo: 'Para quem quer o WayOn sem limites e mais produtividade.',
+    resumo: 'Para quem dá aula: sala de aula completa e WayOn sem limites.',
     recursos: [
       'Tudo do plano Professor',
-      'WayOn sem limites',
-      'Simulados com correção automática',
-      'Comunicados e calendário',
-      'Sem marca Edu On Way',
+      'Sala de aula: turmas, diário, chamada, notas e boletim',
+      'Correção de redação e provas com IA',
+      'Gamificação (pontos e medalhas)',
+      'WayOn com cota ampliada',
     ],
     cta: 'Assinar o Pro',
     href: '/signup',
@@ -160,8 +160,8 @@ export function PricingCards() {
         })}
       </div>
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Anual com 2 meses grátis. Escola sob consulta. 7 dias grátis nos planos de professor. Sem
-        fidelidade no mensal.
+        Tem plano Free para começar. Anual com 2 meses grátis. Escola sob consulta. 7 dias grátis
+        nos planos de professor. Sem fidelidade no mensal.
       </p>
     </>
   );
