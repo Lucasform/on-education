@@ -115,7 +115,7 @@ export function ComboCards({
                 {cta}
               </SubmitButton>
             </form>
-            {plan.hasPrice && !isCurrent && (
+            {plan.hasPrice && !isCurrent && plan.id !== 'teacher_pro' && (
               <p className="mt-2 text-center text-[11px] text-muted-foreground">
                 7 dias grátis · cancele quando quiser
               </p>

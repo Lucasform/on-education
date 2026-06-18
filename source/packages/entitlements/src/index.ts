@@ -15,7 +15,9 @@ export const FEATURES = [
   'ai.images',
   'activities.bank',
   'marketplace',
+  'students',
   'classes.manage',
+  'classes.planning',
   'gamification',
   'communication.light',
   'communication.mass',
@@ -49,6 +51,22 @@ export const FEATURE_CATALOG: Readonly<Record<Feature, FeatureMeta>> = {
     category: 'Sala de aula',
     segment: 'both',
     price: 12,
+  },
+  students: {
+    feature: 'students',
+    label: 'Alunos',
+    description: 'Cadastro e ficha dos alunos.',
+    category: 'Sala de aula',
+    segment: 'both',
+    price: 5,
+  },
+  'classes.planning': {
+    feature: 'classes.planning',
+    label: 'Planejamento e diário',
+    description: 'Cronograma, planejamento, plano de curso/aulas, diário de classe e diário infantil.',
+    category: 'Sala de aula',
+    segment: 'both',
+    price: 10,
   },
   gamification: {
     feature: 'gamification',
@@ -209,7 +227,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'individual',
     // Free é só para experimentar: gerar plano de aula/atividade e guardar no banco.
     ['ai.lessonPlan', 'ai.activities', 'activities.bank'],
-    { aiTokensPerMonth: 30_000, students: 15, imagesPerMonth: 0 },
+    { aiTokensPerMonth: 30_000, students: 15, imagesPerMonth: 0, imageQualityMax: 0 },
     0,
   ),
   teacher_basic: plan(
@@ -217,7 +235,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Professor',
     'individual',
     TEACHER_BASIC,
-    { aiTokensPerMonth: 400_000, students: -1, imagesPerMonth: 60 },
+    { aiTokensPerMonth: 300_000, students: -1, imagesPerMonth: 20, imageQualityMax: 1 },
     39,
   ),
   teacher_pro: plan(
@@ -225,7 +243,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Professor Pro',
     'individual',
     [...TEACHER_BASIC, 'classes.manage', 'gamification', 'ai.essayGrading'],
-    { aiTokensPerMonth: 1_200_000, students: -1, imagesPerMonth: 200 },
+    { aiTokensPerMonth: 600_000, students: -1, imagesPerMonth: 30, imageQualityMax: 2 },
     79,
   ),
   teacher_custom: plan(
@@ -233,7 +251,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Professor à la carte',
     'individual',
     [],
-    { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 100 },
+    { aiTokensPerMonth: 1_000_000, students: -1, imagesPerMonth: 60, imageQualityMax: 2 },
     -1,
   ),
   school_free: plan(
@@ -241,7 +259,7 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
     'Escola Free',
     'organization',
     ['classes.manage', 'communication.light'],
-    { aiTokensPerMonth: 50_000, students: -1, imagesPerMonth: 0 },
+    { aiTokensPerMonth: 50_000, students: -1, imagesPerMonth: 0, imageQualityMax: 0 },
     0,
     true, // oculto: serve como baseline pós-cancelamento, não como combo vendável
   ),
@@ -261,23 +279,23 @@ export const PLANS: Readonly<Record<string, PlanDefinition>> = {
       'communication.mass',
       'enrollment.official',
     ],
-    { aiTokensPerMonth: 2_000_000, students: -1, imagesPerMonth: 300 },
-    249,
+    { aiTokensPerMonth: 3_000_000, students: -1, imagesPerMonth: 250, imageQualityMax: 2 },
+    549,
   ),
   school_full: plan(
     'school_full',
     'Escola Full',
     'organization',
     [...FEATURES],
-    { aiTokensPerMonth: 10_000_000, students: -1, imagesPerMonth: 1000 },
-    499,
+    { aiTokensPerMonth: 6_000_000, students: -1, imagesPerMonth: 300, imageQualityMax: 2 },
+    999,
   ),
   school_custom: plan(
     'school_custom',
     'Escola à la carte',
     'organization',
     [],
-    { aiTokensPerMonth: 5_000_000, students: -1, imagesPerMonth: 500 },
+    { aiTokensPerMonth: 4_000_000, students: -1, imagesPerMonth: 300, imageQualityMax: 2 },
     -1,
   ),
 };
@@ -300,7 +318,7 @@ export const PLAN_TAGLINES: Readonly<Record<string, string>> = {
   teacher_basic: 'Crie sem travas: IA ampliada, imagens, comunicados e banco coletivo da comunidade.',
   teacher_pro: 'Tudo para dar aula: turmas, diário, chamada, notas, boletim, gamificação e correção com IA.',
   school_starter: 'A escola começa aqui: turmas, comunicação com as famílias e IA para toda a equipe.',
-  school_full: 'Gestão completa: financeiro, relatórios da direção, auditoria e IA sem limite.',
+  school_full: 'Gestão completa: financeiro, relatórios da direção, auditoria e IA para toda a escola.',
 };
 
 export function getPlan(planId: string): PlanDefinition | undefined {

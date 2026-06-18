@@ -1,6 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { loadEnv, requireEnv } from '@on-education/config';
 import { type DbClient, generatedImages } from '@on-education/db';
+import { limitFor } from '@on-education/entitlements';
 import { assertEntitled, getImageStyle } from '@on-education/module-nucleo';
 import { desc, eq } from 'drizzle-orm';
 
@@ -9,6 +10,16 @@ import { assertImageQuota, imagesRemaining } from './quota';
 export type ImageQuality = 'low' | 'medium' | 'high';
 export type ImageSize = 'quadrado' | 'horizontal' | 'vertical';
 export type ImageFrame = 'padrao' | 'centralizado' | 'preenchido';
+
+// Teto de qualidade por plano (controle de custo: 'high' custa ~15x 'low').
+const QUALITY_BY_RANK = ['low', 'low', 'medium', 'high'] as const;
+const RANK_BY_QUALITY: Record<ImageQuality, number> = { low: 1, medium: 2, high: 3 };
+
+/** Rebaixa a qualidade pedida ao teto do plano (`imageQualityMax`: 1=low, 2=medium, 3=high). */
+function clampQuality(planId: string, requested: ImageQuality): ImageQuality {
+  const max = limitFor(planId, 'imageQualityMax') ?? 1;
+  return RANK_BY_QUALITY[requested] > max ? QUALITY_BY_RANK[max] ?? 'low' : requested;
+}
 
 const SIZE_MAP: Record<ImageSize, string> = {
   quadrado: '1024x1024',
@@ -62,10 +73,11 @@ export async function generateTenantImage(
   assertCan(ctx, 'create', 'activity');
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.images');
   await assertImageQuota(client, ctx.tenantId, planId);
+  const finalQuality = clampQuality(planId, quality);
   // Estilo padrão do tenant ("treino" do visual) + enquadramento entram no prompt.
   const style = await getImageStyle(client, ctx).catch(() => null);
   const finalPrompt = `${style ? `Estilo: ${style}. ` : ''}${prompt}${FRAME_HINT[frame]}`;
-  const b64 = await generateImageB64(finalPrompt, quality, size);
+  const b64 = await generateImageB64(finalPrompt, finalQuality, size);
   return { b64 };
 }
 

@@ -42,7 +42,7 @@ const PLANOS: Plano[] = [
     anual: 'R$ 790',
     equiv: 'equivale a R$ 65,80/mês',
     nota: '7 dias grátis para testar',
-    resumo: 'Para quem dá aula: sala de aula completa e WayOn sem limites.',
+    resumo: 'Para quem dá aula: sala de aula completa e WayOn com cota ampliada.',
     recursos: [
       'Tudo do plano Professor',
       'Sala de aula: turmas, diário, chamada, notas e boletim',
