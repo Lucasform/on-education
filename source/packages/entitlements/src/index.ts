@@ -68,8 +68,8 @@ export const FEATURE_CATALOG: Readonly<Record<Feature, FeatureMeta>> = {
   },
   marketplace: {
     feature: 'marketplace',
-    label: 'Banco coletivo (marketplace)',
-    description: 'Compartilhar e reutilizar atividades entre professores/equipe.',
+    label: 'Banco coletivo de atividades',
+    description: 'Compartilhe e copie atividades da comunidade (gratuito, sem venda).',
     category: 'Pedagógico',
     segment: 'both',
     price: 6,
@@ -293,6 +293,15 @@ export function comboPlans(tenantType: TenantType): PlanDefinition[] {
 export function freePlanFor(tenantType: TenantType): string {
   return tenantType === 'individual' ? 'teacher_free' : 'school_free';
 }
+
+/** Frase curta de benefício por plano (exibida no card de planos). */
+export const PLAN_TAGLINES: Readonly<Record<string, string>> = {
+  teacher_free: 'Experimente: gere planos de aula e atividades com IA e guarde no seu banco.',
+  teacher_basic: 'Crie sem travas: IA ampliada, imagens, comunicados e banco coletivo da comunidade.',
+  teacher_pro: 'Tudo para dar aula: turmas, diário, chamada, notas, boletim, gamificação e correção com IA.',
+  school_starter: 'A escola começa aqui: turmas, comunicação com as famílias e IA para toda a equipe.',
+  school_full: 'Gestão completa: financeiro, relatórios da direção, auditoria e IA sem limite.',
+};
 
 export function getPlan(planId: string): PlanDefinition | undefined {
   return PLANS[planId];

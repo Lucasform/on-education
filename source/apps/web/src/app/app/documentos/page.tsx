@@ -1,4 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
+import { isAiConfigured } from '@on-education/module-ia';
 import { getTenantSettings, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
@@ -7,6 +8,8 @@ import { PrintButton } from '@/components/print-button';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+
+import { DocumentoAI } from './DocumentoAI';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Documentos · Edu On Way' };
@@ -44,6 +47,8 @@ export default async function DocumentosPage({
     listStudents(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listStudents>>),
   ]);
 
+  const agente = settings?.agentName?.trim() || 'WayOn';
+  const aiOn = isAiConfigured();
   const modelo = MODELOS[model] ?? MODELOS.declaracao_matricula!;
   const aluno = alunos.find((a) => a.id === studentId);
   const alunoNome = aluno?.fullName ?? '__________________________';
@@ -100,6 +105,8 @@ export default async function DocumentosPage({
           Atualizar
         </SubmitButton>
       </form>
+
+      {aiOn && <DocumentoAI agentName={agente} />}
 
       {/* Documento imprimível com a identidade da escola */}
       <article className="rounded-lg border border-border bg-card p-8 print:border-0 print:p-0">

@@ -11,6 +11,7 @@ export interface ComboCard {
   id: string;
   name: string;
   monthlyPrice: number;
+  tagline: string;
   labels: string[];
   hasPrice: boolean;
   popular: boolean;
@@ -87,10 +88,13 @@ export function ComboCards({
                 </span>
               )}
             </div>
-            <div className="mb-4 flex items-baseline gap-1">
+            <div className="mb-2 flex items-baseline gap-1">
               <span className="text-3xl font-bold tracking-tight">{valor}</span>
               {sufixo && <span className="text-sm text-muted-foreground">{sufixo}</span>}
             </div>
+            {plan.tagline && (
+              <p className="mb-4 text-xs text-muted-foreground">{plan.tagline}</p>
+            )}
             <ul className="mb-6 flex-1 space-y-2 text-sm">
               {plan.labels.map((l) => (
                 <li key={l} className="flex items-start gap-2">

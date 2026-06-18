@@ -5,6 +5,7 @@ import {
   FEATURE_CATALOG,
   featuresForSegment,
   getPlan,
+  PLAN_TAGLINES,
   priceForFeatures,
   type Feature,
 } from '@on-education/entitlements';
@@ -118,6 +119,7 @@ export default async function PlanosPage({
             id: plan.id,
             name: plan.name,
             monthlyPrice: plan.monthlyPrice,
+            tagline: PLAN_TAGLINES[plan.id] ?? '',
             labels: [...plan.features].map((f) => FEATURE_CATALOG[f]?.label ?? f),
             hasPrice: billingOn && plan.monthlyPrice > 0 && !!priceIdForPlan(plan.id),
             popular: POPULAR.has(plan.id),
