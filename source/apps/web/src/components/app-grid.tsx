@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import type { NavGroup } from '@/lib/nav';
+import { Lock, type NavGroup } from '@/lib/nav';
 
 /**
  * Launcher de apps (padrão de home de aplicativo): ícones grandes, tocáveis, agrupados por
@@ -19,17 +19,34 @@ export function AppGrid({ groups, onNavigate }: { groups: NavGroup[]; onNavigate
           <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 md:grid-cols-8">
             {g.items.map((item) => {
               const Icon = item.icon;
+              // Bloqueado pelo plano: ícone com cadeado e o toque leva para os Planos.
+              const href = item.locked ? '/app/planos' : item.href;
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={href}
                   onClick={onNavigate}
                   className="group flex flex-col items-center gap-1.5 rounded-2xl p-2 text-center transition-transform active:scale-95"
                 >
-                  <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm transition-colors group-hover:bg-primary/20">
+                  <span
+                    className={`relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm transition-colors ${
+                      item.locked
+                        ? 'bg-muted text-muted-foreground'
+                        : 'bg-primary/10 text-primary group-hover:bg-primary/20'
+                    }`}
+                  >
                     <Icon className="h-7 w-7" />
+                    {item.locked && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-foreground/80 text-background ring-2 ring-card">
+                        <Lock className="h-2.5 w-2.5" />
+                      </span>
+                    )}
                   </span>
-                  <span className="line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90">
+                  <span
+                    className={`line-clamp-2 text-[11px] font-medium leading-tight ${
+                      item.locked ? 'text-muted-foreground' : 'text-foreground/90'
+                    }`}
+                  >
                     {item.label}
                   </span>
                 </Link>

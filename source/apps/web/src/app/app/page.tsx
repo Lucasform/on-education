@@ -7,6 +7,7 @@ import {
   listSubjects,
   listTerms,
   listUpcomingEvents,
+  getTenantFeatures,
   getTenantSettings,
 } from '@on-education/module-nucleo';
 import { listActivities } from '@on-education/module-pedagogico';
@@ -58,6 +59,8 @@ export default async function OverviewPage() {
       isSchool ? getTenantSettings(client, ctx).catch(() => null) : Promise.resolve(null),
     ]);
   const rascunhosPendentes = rascunhos.filter((d) => d.status === 'draft').length;
+  // Features do plano: a home (grid de ícones) usa pra mostrar o cadeado nos bloqueados.
+  const featureSet = await getTenantFeatures(client, ctx.tenantId).catch(() => null);
   const agenteName = configuracoes?.agentName?.trim() || 'WayOn';
 
   // Alertas de dados incompletos
@@ -146,7 +149,10 @@ export default async function OverviewPage() {
 
       {/* Launcher de apps no mobile (sem sidebar): toque no ícone e abra. */}
       <section className="md:hidden">
-        <MobileLauncher tenantType={ctx.tenantType} />
+        <MobileLauncher
+          tenantType={ctx.tenantType}
+          features={featureSet ? [...featureSet] : null}
+        />
       </section>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

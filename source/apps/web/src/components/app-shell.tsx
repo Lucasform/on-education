@@ -45,7 +45,7 @@ function NavGroupBlock({
           return (
             <li key={item.href}>
               <Link
-                href={item.href}
+                href={item.locked ? '/app/planos' : item.href}
                 onClick={onNavigate}
                 className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
                   item.locked
