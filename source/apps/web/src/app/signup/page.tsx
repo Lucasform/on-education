@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
+import { AuthSubmit } from '@/components/auth-submit';
 import {
   AuthField,
   authGhostBtn,
   authInput,
-  authPrimaryBtn,
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
@@ -82,9 +82,7 @@ export default async function SignupPage({
           />
         </AuthField>
         <SlugInputField placeholder="prof-ana" />
-        <button type="submit" className={`${authPrimaryBtn} mt-1`}>
-          Criar conta
-        </button>
+        <AuthSubmit pendingLabel="Criando conta…">Criar conta</AuthSubmit>
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-white/50">

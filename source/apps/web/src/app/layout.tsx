@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import { PwaRegister } from '@/components/pwa-register';
+import { RouteProgress } from '@/components/route-progress';
 
 import { ThemeProvider } from './theme-provider';
 import './globals.css';
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning className={jakarta.className}>
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <RouteProgress />
         <ThemeProvider>{children}</ThemeProvider>
         <PwaRegister />
       </body>

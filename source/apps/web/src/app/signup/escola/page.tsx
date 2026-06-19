@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
+import { AuthSubmit } from '@/components/auth-submit';
 import {
   AuthField,
   authInput,
-  authPrimaryBtn,
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
@@ -75,9 +75,7 @@ export default async function SchoolSignupPage({
           <input name="password" type="password" required minLength={8} placeholder="Crie uma senha" className={authInput} />
         </AuthField>
         <SlugInputField label="Link público da escola" placeholder="minha-escola" />
-        <button type="submit" className={`${authPrimaryBtn} mt-1`}>
-          Criar escola
-        </button>
+        <AuthSubmit pendingLabel="Criando escola…">Criar escola</AuthSubmit>
       </form>
     </BrandAuthScreen>
   );

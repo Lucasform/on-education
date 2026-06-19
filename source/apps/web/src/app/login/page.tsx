@@ -1,12 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import {
-  authGhostBtn,
-  authInput,
-  authPrimaryBtn,
-  BrandAuthScreen,
-} from '@/components/brand-auth-screen';
+import { AuthSubmit } from '@/components/auth-submit';
+import { authGhostBtn, authInput, BrandAuthScreen } from '@/components/brand-auth-screen';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
 import { loginAction } from './actions';
@@ -62,9 +58,7 @@ export default async function LoginPage({
           placeholder="Senha"
           className={authInput}
         />
-        <button type="submit" className={`${authPrimaryBtn} mt-1`}>
-          Entrar
-        </button>
+        <AuthSubmit pendingLabel="Entrando…">Entrar</AuthSubmit>
         <Link
           href="/esqueci-senha"
           className="mt-1 text-center text-xs text-white/70 underline-offset-4 hover:text-white hover:underline"

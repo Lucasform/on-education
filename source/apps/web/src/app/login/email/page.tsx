@@ -1,11 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import {
-  authInput,
-  authPrimaryBtn,
-  BrandAuthScreen,
-} from '@/components/brand-auth-screen';
+import { AuthSubmit } from '@/components/auth-submit';
+import { authInput, BrandAuthScreen } from '@/components/brand-auth-screen';
 import { SlugEntry } from '@/components/slug-entry';
 import { getAuthContext } from '@/server/session';
 
@@ -91,9 +88,7 @@ export default async function LoginEmailPage({
             <input type="hidden" name="mode" value="login" />
             <input type="hidden" name="returnTo" value="/login/email" />
             <input name="email" type="email" required placeholder="Seu e-mail" className={authInput} />
-            <button type="submit" className={`${authPrimaryBtn} mt-1`}>
-              Receber link de acesso
-            </button>
+            <AuthSubmit pendingLabel="Enviando…">Receber link de acesso</AuthSubmit>
           </form>
 
           <div className="my-5 flex items-center gap-3 text-xs text-white/50">

@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { AuthSubmit } from '@/components/auth-submit';
 import {
   AuthField,
   authInput,
-  authPrimaryBtn,
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
@@ -103,9 +103,7 @@ export default async function SignupEmailPage({
               <input name="email" type="email" required placeholder="seu@email.com" className={authInput} />
             </AuthField>
             <SlugInputField placeholder="prof-ana" />
-            <button type="submit" className={`${authPrimaryBtn} mt-1`}>
-              Criar com meu e-mail
-            </button>
+            <AuthSubmit pendingLabel="Enviando…">Criar com meu e-mail</AuthSubmit>
           </form>
         </>
       )}
