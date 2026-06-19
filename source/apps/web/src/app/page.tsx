@@ -2,14 +2,19 @@ import { Button } from '@on-education/ui';
 import {
   BarChart3,
   CalendarDays,
+  Check,
   ClipboardCheck,
   FolderOpen,
   GraduationCap,
+  Layers,
   MessageSquare,
+  Palette,
   School,
+  ShieldCheck,
   Sparkles,
   UserRound,
   Users,
+  X,
 } from 'lucide-react';
 
 import { AudienceButtons } from '@/components/audience-buttons';
@@ -19,9 +24,47 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV = [
   { label: 'Recursos', href: '#recursos' },
+  { label: 'Diferenciais', href: '#diferenciais' },
   { label: 'Como funciona', href: '#como-funciona' },
   { label: 'Planos', href: '#planos' },
   { label: 'Para escolas', href: '/signup/escola' },
+];
+
+// Antes x depois: o contraste do dia a dia (sem a plataforma vs com a plataforma).
+const ANTES = [
+  'Diário no papel, notas espalhadas e planilhas soltas',
+  'Horas montando plano de aula e prova do zero',
+  'Comunicação com os pais perdida em grupos de WhatsApp',
+  'Boletim e relatórios feitos na mão, um a um',
+];
+const DEPOIS = [
+  'Turmas, diário, chamada, notas e boletim num lugar só',
+  'O WayOn cria plano, atividade e correção em segundos',
+  'Comunicação organizada e mural para os responsáveis',
+  'Relatórios e PDFs prontos, no padrão da sua escola',
+];
+
+const DIFERENCIAIS = [
+  {
+    icon: Sparkles,
+    titulo: 'WayOn ao seu lado',
+    texto: 'IA que gera rascunhos de plano, atividade e correção. Você revisa e aprova, sempre no controle.',
+  },
+  {
+    icon: Layers,
+    titulo: 'Tudo integrado',
+    texto: 'Do plano de aula ao boletim, sem ficar pulando entre planilhas e aplicativos.',
+  },
+  {
+    icon: Palette,
+    titulo: 'A sua marca',
+    texto: 'Logo, cor e um link próprio (eduonway.com/c/sua-escola) para alunos e responsáveis.',
+  },
+  {
+    icon: ShieldCheck,
+    titulo: 'Seguro e LGPD',
+    texto: 'Cada escola isolada das demais, com proteção reforçada para os dados de menores.',
+  },
 ];
 
 const DESTAQUES = [
@@ -230,6 +273,48 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* antes e depois */}
+        <section className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Do caos à clareza</h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              O que muda no seu dia a dia quando tudo vive num lugar só.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl border border-border bg-card p-8">
+              <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                Antes
+              </span>
+              <ul className="mt-5 space-y-3 text-sm">
+                {ANTES.map((t) => (
+                  <li key={t} className="flex items-start gap-3 text-muted-foreground">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
+                      <X className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
+                Com o Edu On Way
+              </span>
+              <ul className="mt-5 space-y-3 text-sm">
+                {DEPOIS.map((t) => (
+                  <li key={t} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* como funciona */}
         <section id="como-funciona" className="mt-20">
           <div className="mx-auto max-w-2xl text-center">
@@ -249,6 +334,33 @@ export default function HomePage() {
                 </span>
                 <div className="mt-4 font-semibold">{p.titulo}</div>
                 <p className="mt-1 text-sm text-muted-foreground">{p.texto}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* diferenciais */}
+        <section
+          id="diferenciais"
+          className="mt-20 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-8 sm:p-12"
+        >
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Por que o Edu On Way</h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              Os diferenciais que aparecem na rotina, não só no papel.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {DIFERENCIAIS.map((d) => (
+              <div
+                key={d.titulo}
+                className="rounded-2xl border border-border bg-card/70 p-6 backdrop-blur transition-colors hover:border-primary/40"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <d.icon className="h-5 w-5" />
+                </span>
+                <div className="mt-4 font-semibold">{d.titulo}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
               </div>
             ))}
           </div>
