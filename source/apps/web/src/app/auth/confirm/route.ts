@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/app';
 
   const success = NextResponse.redirect(new URL(next, origin));
-  const failure = NextResponse.redirect(new URL('/login', origin));
+  const failure = NextResponse.redirect(new URL('/login?magic=expirado', origin));
 
   const url = process.env.SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY;

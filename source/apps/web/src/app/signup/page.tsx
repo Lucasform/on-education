@@ -115,7 +115,7 @@ export default async function SignupPage({
         />
         <input name="email" type="email" required placeholder="seu@email.com" className={fieldClass} />
         <Button type="submit" variant="outline" className="w-full">
-          Criar com link mágico
+          Criar com meu e-mail
         </Button>
       </form>
     </AuthShell>
