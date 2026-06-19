@@ -11,6 +11,52 @@ export const authPrimaryBtn =
 export const authGhostBtn =
   'block w-full rounded-xl border border-white/40 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10';
 
+/** Campo com rótulo, no estilo das telas de entrada (sobre o gradiente). */
+export function AuthField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="flex flex-col gap-1.5 text-left">
+      <span className="text-xs font-medium text-white/80">
+        {label}
+        {hint && <span className="ml-1 font-normal text-white/50">{hint}</span>}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+/** Campo do link público (slug) dentro de um form: <input name="slug">. */
+export function SlugInputField({
+  label = 'Seu link público',
+  hint = '(opcional)',
+  placeholder = 'sua-escola',
+}: {
+  label?: string;
+  hint?: string;
+  placeholder?: string;
+}) {
+  return (
+    <AuthField label={label} hint={hint}>
+      <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/95 px-3">
+        <span className="shrink-0 text-xs text-gray-400">eduonway.com/c/</span>
+        <input
+          name="slug"
+          maxLength={40}
+          placeholder={placeholder}
+          className={`${authInput} border-0 bg-transparent px-1 shadow-none focus:ring-0`}
+        />
+      </div>
+    </AuthField>
+  );
+}
+
 /**
  * Tela de entrada da marca (mobile-first), no estilo do app: fundo em gradiente, card do logo,
  * título e mote. Usada por login e pela entrada por e-mail, pra manter o MESMO padrão.

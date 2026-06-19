@@ -1,7 +1,10 @@
 import { getDbClient } from '@on-education/db';
 import {
+  isSlugAvailable,
+  normalizeSlug,
   provisionIndividualTenant,
   resolveContextForUser,
+  slugFormatError,
   syncUserFromAuth,
 } from '@on-education/module-nucleo';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -22,10 +25,22 @@ async function ensureTenant(user: User): Promise<void> {
   const existing = await resolveContextForUser(client, user.id).catch(() => null);
   if (existing) return;
   const workspace = (user.user_metadata?.workspace_name as string)?.trim() || fullName;
+  // Link público escolhido no cadastro: só aplica se for válido E estiver livre,
+  // pra não bloquear o provisionamento por causa de um slug ocupado/inválido.
+  const rawSlug = (user.user_metadata?.slug as string)?.trim();
+  let slug: string | undefined;
+  if (rawSlug) {
+    const norm = normalizeSlug(rawSlug);
+    const free = await isSlugAvailable(client, norm, '00000000-0000-0000-0000-000000000000').catch(
+      () => false,
+    );
+    if (!slugFormatError(norm) && free) slug = norm;
+  }
   await provisionIndividualTenant(client, user.id, {
     ownerEmail: user.email ?? `${user.id}@magic.local`,
     ownerName: fullName,
     workspaceName: workspace,
+    slug,
   }).catch(() => {});
 }
 

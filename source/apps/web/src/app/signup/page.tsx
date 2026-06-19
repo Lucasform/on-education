@@ -1,9 +1,13 @@
-import { Button } from '@on-education/ui';
+import Link from 'next/link';
 
-import { AuthShell } from '@/components/auth-shell';
-import { Field, fieldClass } from '@/components/form';
-
-import { magicLinkAction } from '@/app/login/actions';
+import {
+  AuthField,
+  authGhostBtn,
+  authInput,
+  authPrimaryBtn,
+  BrandAuthScreen,
+  SlugInputField,
+} from '@/components/brand-auth-screen';
 
 import { signupAction } from './actions';
 
@@ -22,102 +26,76 @@ const ERROS: Record<string, string> = {
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erro?: string; magic?: string }>;
+  searchParams: Promise<{ erro?: string }>;
 }) {
-  const { erro, magic } = await searchParams;
+  const { erro } = await searchParams;
   return (
-    <AuthShell
-      title="Criar sua conta de professor"
-      subtitle="Sua área de trabalho pessoal, organizada e descomplicada, com muitos recursos para deixar sua aula ainda melhor."
+    <BrandAuthScreen
+      title="Criar sua conta"
+      subtitle="Sua área de trabalho de professor, pronta para usar em minutos."
       footer={
-        <>
-          É uma escola?{' '}
-          <a
-            href="/signup/escola"
-            className="rounded-sm font-medium text-foreground underline underline-offset-4 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-          >
-            Cadastrar escola
-          </a>{' '}
-          · Já tem conta?{' '}
-          <a
-            href="/login"
-            className="rounded-sm font-medium text-foreground underline underline-offset-4 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-          >
-            Entrar
-          </a>
-        </>
+        <div className="flex flex-col gap-1.5">
+          <span>
+            Já tem conta?{' '}
+            <Link
+              href="/login"
+              className="font-semibold text-white underline-offset-4 hover:underline"
+            >
+              Entrar
+            </Link>
+          </span>
+          <span>
+            É uma escola?{' '}
+            <Link
+              href="/signup/escola"
+              className="font-semibold text-white underline-offset-4 hover:underline"
+            >
+              Cadastrar escola
+            </Link>
+          </span>
+        </div>
       }
     >
       {erro && (
-        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-center text-sm text-danger">
+        <p className="mb-3 rounded-xl border border-red-300/40 bg-red-500/20 px-3 py-2 text-center text-sm text-red-50">
           {ERROS[erro] ?? ERROS.falha}
         </p>
       )}
-      {magic === 'enviado' && (
-        <p className="mb-3 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-center text-sm text-success">
-          Link enviado! Confira seu e-mail e clique para criar sua conta.
-        </p>
-      )}
-      {magic === 'erro' && (
-        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-center text-sm text-danger">
-          Não foi possível enviar o link. Confira o e-mail e tente de novo.
-        </p>
-      )}
-      <form action={signupAction} className="flex flex-col gap-4">
-        <Field label="Seu nome">
-          <input name="ownerName" required minLength={2} className={fieldClass} />
-        </Field>
-        <Field label="E-mail">
-          <input name="ownerEmail" type="email" required className={fieldClass} />
-        </Field>
-        <Field label="Senha" hint="(mín. 8 caracteres)">
-          <input name="password" type="password" required minLength={8} className={fieldClass} />
-        </Field>
-        <Field label="Nome do seu espaço" hint="(você, sua empresa ou projeto)">
+
+      <form action={signupAction} className="flex flex-col gap-3">
+        <AuthField label="Seu nome">
+          <input name="ownerName" required minLength={2} placeholder="Como você assina" className={authInput} />
+        </AuthField>
+        <AuthField label="E-mail">
+          <input name="ownerEmail" type="email" required placeholder="seu@email.com" className={authInput} />
+        </AuthField>
+        <AuthField label="Senha" hint="(mín. 8 caracteres)">
+          <input name="password" type="password" required minLength={8} placeholder="Crie uma senha" className={authInput} />
+        </AuthField>
+        <AuthField label="Nome do seu espaço" hint="(você, empresa ou projeto)">
           <input
             name="workspaceName"
             required
             minLength={2}
             placeholder="Ex.: Profª Ana · Reforço de Matemática"
-            className={fieldClass}
+            className={authInput}
           />
-        </Field>
-        <Field label="Seu link público" hint="(opcional)">
-          <div className="flex items-center gap-1">
-            <span className="shrink-0 text-sm text-muted-foreground">eduonway.com/c/</span>
-            <input name="slug" maxLength={40} placeholder="prof-ana" className={fieldClass} />
-          </div>
-        </Field>
-        <Button type="submit" className="mt-2 w-full">
+        </AuthField>
+        <SlugInputField placeholder="prof-ana" />
+        <button type="submit" className={`${authPrimaryBtn} mt-1`}>
           Criar conta
-        </Button>
+        </button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-border" />
+      <div className="my-5 flex items-center gap-3 text-xs text-white/50">
+        <span className="h-px flex-1 bg-white/20" />
         ou
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-white/20" />
       </div>
 
-      <form action={magicLinkAction} className="flex flex-col gap-3">
-        <input type="hidden" name="mode" value="signup" />
-        <p className="text-sm font-medium">Criar com seu e-mail</p>
-        <p className="-mt-1 text-xs text-muted-foreground">
-          Enviamos um link de acesso. Você entra com um clique, sem decorar senha.
-        </p>
-        <input name="ownerName" required minLength={2} placeholder="Seu nome" className={fieldClass} />
-        <input
-          name="workspaceName"
-          required
-          minLength={2}
-          placeholder="Nome do seu espaço"
-          className={fieldClass}
-        />
-        <input name="email" type="email" required placeholder="seu@email.com" className={fieldClass} />
-        <Button type="submit" variant="outline" className="w-full">
-          Criar com meu e-mail
-        </Button>
-      </form>
-    </AuthShell>
+      <Link href="/signup/email" className={authGhostBtn}>
+        Criar com um link no e-mail
+      </Link>
+    </BrandAuthScreen>
   );
 }

@@ -43,9 +43,10 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
   const mode = String(formData.get('mode') ?? 'login');
   const ownerName = String(formData.get('ownerName') ?? '').trim();
   const workspaceName = String(formData.get('workspaceName') ?? '').trim();
-  // Volta para a tela de origem (login, /login/email ou signup) ao concluir/errar.
+  const slug = String(formData.get('slug') ?? '').trim();
+  // Volta para a tela de origem (login, /login/email, signup ou escola) ao concluir/errar.
   const returnTo = String(formData.get('returnTo') ?? '');
-  const back = /^\/(login(\/email)?|signup)$/.test(returnTo)
+  const back = /^\/(login(\/email)?|signup(\/(email|escola))?)$/.test(returnTo)
     ? returnTo
     : mode === 'signup'
       ? '/signup'
@@ -64,6 +65,7 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
           user_metadata: {
             full_name: ownerName || undefined,
             workspace_name: workspaceName || undefined,
+            slug: slug || undefined,
           },
         })
         .catch(() => {});
@@ -98,7 +100,11 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
       emailRedirectTo: `${origin}/auth/confirm?next=/app`,
       data:
         mode === 'signup'
-          ? { full_name: ownerName || undefined, workspace_name: workspaceName || undefined }
+          ? {
+              full_name: ownerName || undefined,
+              workspace_name: workspaceName || undefined,
+              slug: slug || undefined,
+            }
           : undefined,
     },
   });
