@@ -38,7 +38,10 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
   const key = process.env.RESEND_API_KEY;
   if (!key) return { ok: false, error: 'Resend não configurado (RESEND_API_KEY ausente).' };
 
-  const from = input.from || process.env.RESEND_FROM || FROM_FALLBACK;
+  // Ignora o remetente de teste do Resend (onboarding@resend.dev): em prod sempre sai do
+  // domínio verificado onwaytech.com.br, mesmo se RESEND_FROM ainda estiver desconfigurado.
+  const envFrom = process.env.RESEND_FROM;
+  const from = input.from || (envFrom && !envFrom.includes('resend.dev') ? envFrom : FROM_FALLBACK);
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
