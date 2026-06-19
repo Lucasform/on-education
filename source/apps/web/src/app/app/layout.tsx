@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { exitImpersonationAction } from '@/app/admin/actions';
 import { AgentNameProvider } from '@/components/agent-name-provider';
 import { AppShell } from '@/components/app-shell';
+import { SplashScreen } from '@/components/splash-screen';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext, isImpersonating } from '@/server/session';
@@ -51,6 +52,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <AgentNameProvider name={agentName}>
+      <SplashScreen />
       {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
       <AppShell
         tenantType={ctx.tenantType}

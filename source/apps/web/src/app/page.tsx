@@ -20,6 +20,7 @@ import {
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 import { LogoMark } from '@/components/logo-mark';
+import { SplashScreen } from '@/components/splash-screen';
 import { PricingCards } from '@/components/pricing-cards';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -151,6 +152,7 @@ function WayOn() {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
+      <SplashScreen />
       {/* barra de anúncio */}
       <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
         ✨ Conheça o WayOn, o agente que planeja, corrige e organiza com você.
