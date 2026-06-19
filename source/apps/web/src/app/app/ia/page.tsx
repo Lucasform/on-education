@@ -1,7 +1,12 @@
 import { SubmitButton } from '@/components/submit-button';
 import { limitFor } from '@on-education/entitlements';
 import { getUsedTokens, isAiConfigured, listDrafts } from '@on-education/module-ia';
-import { getTenantPlanId, getTenantSettings, listClasses } from '@on-education/module-nucleo';
+import {
+  getTenantPlanId,
+  getTenantSettings,
+  isEntitled,
+  listClasses,
+} from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
@@ -51,6 +56,7 @@ export default async function IaPage({
   ]);
   const aiOn = isAiConfigured();
   const agente = settings?.agentName?.trim() || 'WayOn';
+  const imagesAllowed = await isEntitled(db(), ctx.tenantId, 'ai.images').catch(() => false);
 
   // Cota de IA do mês (tokens). limit -1/undefined = ilimitado.
   const tokenLimit = planId ? limitFor(planId, 'aiTokensPerMonth') : undefined;
@@ -157,7 +163,10 @@ export default async function IaPage({
           materiais os alunos devem usar como apoio.
         </p>
         {aiOn ? (
-          <GerarAtividadeForm turmas={turmas.map((t) => ({ id: t.id, name: t.name }))} />
+          <GerarAtividadeForm
+            turmas={turmas.map((t) => ({ id: t.id, name: t.name }))}
+            imagesAllowed={imagesAllowed}
+          />
         ) : (
           <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
             {agente} indisponível. Configure <code>ANTHROPIC_API_KEY</code>.

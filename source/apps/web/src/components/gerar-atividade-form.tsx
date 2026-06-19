@@ -12,7 +12,13 @@ import { SubmitButton } from '@/components/submit-button';
  * Form de geração de conteúdo pelo WayOn. Quando o tipo é "Trabalho", abre campos extras:
  * individual ou em grupo (com nº de alunos) e os materiais sugeridos para os alunos usarem.
  */
-export function GerarAtividadeForm({ turmas }: { turmas: { id: string; name: string }[] }) {
+export function GerarAtividadeForm({
+  turmas,
+  imagesAllowed = false,
+}: {
+  turmas: { id: string; name: string }[];
+  imagesAllowed?: boolean;
+}) {
   const agentName = useAgentName();
   const [kind, setKind] = useState('atividade');
   const [workMode, setWorkMode] = useState('individual');
@@ -91,6 +97,16 @@ export function GerarAtividadeForm({ turmas }: { turmas: { id: string; name: str
               </option>
             ))}
           </select>
+        </label>
+      )}
+
+      {imagesAllowed && (
+        <label className="flex items-start gap-2 rounded-md border border-border bg-muted/20 p-2 text-xs text-muted-foreground">
+          <input type="checkbox" name="withImages" className="mt-0.5 h-4 w-4" />
+          <span>
+            Gerar com figuras (ilustrações para colorir — ideal na educação infantil). Usa a sua
+            cota de imagens; até 6 por folha.
+          </span>
         </label>
       )}
 

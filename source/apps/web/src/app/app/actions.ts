@@ -618,6 +618,34 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     context,
   });
   const atividade = await generateActivityWithWayOn(db(), ctx, input);
+
+  // Figuras (opcional): se pedido e o plano tiver imagem, gera um clip-art para cada
+  // marcador [figura: ...]. Controle de custo: qualidade 'low' (clamp do plano), no máx. 6
+  // por folha, e a cota/teto de imagens do plano são respeitados (para na 1ª falha/cota cheia).
+  if (formData.get('withImages') === 'on' && atividade.content.includes('[figura:')) {
+    let content = atividade.content;
+    const descricoes = [...content.matchAll(/\[figura:\s*([^\]]+)\]/gi)]
+      .map((m) => m[1]!.trim())
+      .slice(0, 6);
+    for (const desc of descricoes) {
+      try {
+        const prompt = `Desenho simples em preto e branco, contorno grosso, fundo branco, estilo livro de colorir para crianças, sem texto e sem moldura: ${desc}.`;
+        const { b64 } = await generateTenantImage(db(), ctx, prompt, 'low', 'quadrado', 'padrao');
+        const url = await uploadPublicImagePng(ctx.tenantId, b64);
+        await recordImages(db(), ctx.tenantId, 1);
+        content = content.replace(
+          new RegExp(`\\[figura:\\s*${desc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\]`, 'i'),
+          `\n\n![${desc}](${url})\n\n`,
+        );
+      } catch {
+        break; // sem cota/sem direito/falha de upload: para e deixa o resto como marcador
+      }
+    }
+    if (content !== atividade.content) {
+      await updateActivity(db(), ctx, atividade.id, { content }).catch(() => {});
+    }
+  }
+
   revalidatePath('/app', 'layout');
   // Salva no banco E devolve o link na hora, na própria tela do WayOn.
   redirect(`/app/ia?nova=${atividade.id}`);
