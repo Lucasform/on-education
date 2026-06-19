@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 import { PwaRegister } from '@/components/pwa-register';
 
 import { ThemeProvider } from './theme-provider';
 import './globals.css';
+
+// Tipografia oficial da marca Edu On Way.
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'Edu On Way',
@@ -14,12 +18,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#130f1f',
+  themeColor: '#13152E',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning className={jakarta.className}>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider>{children}</ThemeProvider>
         <PwaRegister />

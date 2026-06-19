@@ -24,8 +24,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     description: 'Ensine com inteligência, do plano de aula ao boletim, com o agente WayOn.',
     start_url: '/app',
     display: 'standalone',
-    background_color: '#130f1f',
-    theme_color: '#130f1f',
+    background_color: '#13152E',
+    theme_color: '#13152E',
     lang: 'pt-BR',
     icons: [
       { src: '/brand/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

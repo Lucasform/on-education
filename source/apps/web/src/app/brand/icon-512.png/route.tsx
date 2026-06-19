@@ -1,17 +1,17 @@
-import { iconResponse, logoIconResponse } from '@/lib/brand-icon';
+import { logoIconResponse } from '@/lib/brand-icon';
 import { resolveTenantBrand } from '@/server/tenant-brand';
 
-// Ícone PWA 512 do tenant logado (logo da escola) ou "ON" padrão.
+// Ícone PWA 512 do tenant logado (logo da escola) ou a marca oficial Edu On Way.
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: Request) {
   const { logoUrl } = await resolveTenantBrand();
   if (logoUrl) {
     try {
       return await logoIconResponse(512, logoUrl);
     } catch {
-      // logo indisponível: cai no ícone do produto
+      // logo indisponível: cai na marca do produto
     }
   }
-  return iconResponse(512);
+  return Response.redirect(new URL('/brand/app-icon-512.png', req.url));
 }

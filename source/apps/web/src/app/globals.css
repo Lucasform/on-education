@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 /*
- * Design tokens — identidade "Índigo + menta" (edtech confiável e moderno).
+ * Design tokens — identidade oficial Edu On Way: azul #2F5BFF (primária), navy de fundo.
  * Tema ESCURO por padrão (:root, slate profundo) e CLARO via .light (next-themes).
  * Cores semânticas (--success/--warning/--danger/--info) padronizam estados em todo o app.
  * O destaque por escola sobrescreve apenas --primary/--ring (ver app/layout.tsx).
  */
 @layer base {
   :root {
-    --background: 222 47% 7%;
+    --background: 236 40% 8%;
     --foreground: 210 40% 96%;
-    --card: 222 41% 11%;
+    --card: 236 33% 12%;
     --card-foreground: 210 40% 96%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --primary: 243 80% 70%;
+    --primary: 227 100% 64%;
     --primary-foreground: 0 0% 100%;
     --accent: 217 33% 18%;
     --accent-foreground: 210 40% 96%;
     --border: 217 30% 22%;
     --input: 217 30% 24%;
-    --ring: 243 80% 70%;
+    --ring: 227 100% 64%;
     --success: 158 64% 52%;
     --warning: 38 92% 55%;
     --danger: 0 72% 60%;
@@ -37,13 +37,13 @@
     --card-foreground: 222 47% 11%;
     --muted: 210 40% 94%;
     --muted-foreground: 215 16% 47%;
-    --primary: 243 75% 59%;
+    --primary: 227 100% 59%;
     --primary-foreground: 0 0% 100%;
     --accent: 226 100% 97%;
     --accent-foreground: 243 55% 42%;
     --border: 214 32% 91%;
     --input: 214 32% 88%;
-    --ring: 243 75% 59%;
+    --ring: 227 100% 59%;
     --success: 160 84% 39%;
     --warning: 38 92% 50%;
     --danger: 0 84% 60%;

@@ -19,6 +19,7 @@ import {
 
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
+import { LogoMark } from '@/components/logo-mark';
 import { PricingCards } from '@/components/pricing-cards';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -158,9 +159,7 @@ export default function HomePage() {
       {/* cabeçalho */}
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <a href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white">
-            <GraduationCap className="h-5 w-5" />
-          </span>
+          <LogoMark size={32} />
           <span className="text-lg font-bold tracking-tight">Edu On Way</span>
         </a>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
