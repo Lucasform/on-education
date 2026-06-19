@@ -43,7 +43,13 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
   const mode = String(formData.get('mode') ?? 'login');
   const ownerName = String(formData.get('ownerName') ?? '').trim();
   const workspaceName = String(formData.get('workspaceName') ?? '').trim();
-  const back = mode === 'signup' ? '/signup' : '/login';
+  // Volta para a tela de origem (login, /login/email ou signup) ao concluir/errar.
+  const returnTo = String(formData.get('returnTo') ?? '');
+  const back = /^\/(login(\/email)?|signup)$/.test(returnTo)
+    ? returnTo
+    : mode === 'signup'
+      ? '/signup'
+      : '/login';
   if (!email) redirect(`${back}?magic=erro`);
 
   const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
