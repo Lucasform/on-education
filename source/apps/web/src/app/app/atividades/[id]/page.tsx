@@ -49,6 +49,14 @@ export default async function AtividadeDetalhePage({
 
   return (
     <>
+      {/* Impressão limpa: zera a margem da página (remove data/URL/nº do navegador) e dá a
+          margem da folha pelo padding do .print-sheet. */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html:
+            '@media print{@page{margin:0}.print-sheet{padding:16mm 14mm!important;border:0!important;box-shadow:none!important}}',
+        }}
+      />
       <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
         <PageHeader
           title={atividade.title}
@@ -66,18 +74,22 @@ export default async function AtividadeDetalhePage({
       </div>
 
       {/* documento imprimível, no padrão da escola/professor (identidade no cabeçalho) */}
-      <article className={`${cardClass} print:border-0 print:shadow-none`}>
+      <article className={`${cardClass} print-sheet print:border-0 print:shadow-none`}>
         <header className="mb-4 flex items-center gap-3 border-b border-border pb-4">
           {settings?.logoUrl ? (
             <img src={settings.logoUrl} alt="Logo" className="h-12 w-12 rounded-lg object-cover" />
           ) : (
-            <span className="h-12 w-12 rounded-lg bg-primary" />
+            <span className="h-12 w-12 rounded-lg bg-primary print:hidden" />
           )}
           <div>
             <h1 className="text-xl font-bold leading-tight">{atividade.title}</h1>
             <p className="text-xs text-muted-foreground">
-              {atividade.subject ? `${atividade.subject} · ` : ''}
-              {atividade.aiGenerated ? <span>Gerado pelo <AgentNameText /></span> : 'Atividade'}
+              {atividade.subject ? <span>{atividade.subject}</span> : null}
+              {atividade.aiGenerated ? (
+                <span className="print:hidden">
+                  {atividade.subject ? ' · ' : ''}Gerado pelo <AgentNameText />
+                </span>
+              ) : null}
             </p>
           </div>
         </header>
