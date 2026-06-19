@@ -204,7 +204,9 @@ export function applyAiStandard(system: string, standard?: string | null): strin
   const s = standard?.trim();
   if (!s) return system;
   return (
-    `${system}\n\nSiga RIGOROSAMENTE este padrão definido pelo educador ` +
-    `(estilo, formato, cabeçalho/rodapé, nível de dificuldade):\n${s}`
+    `${system}\n\nUse o PADRÃO abaixo apenas como REFERÊNCIA de formato e estilo (estrutura das ` +
+    `seções, tipos de comando, tom e nível de dificuldade). NÃO copie os exercícios nem o ` +
+    `conteúdo do exemplo: crie exercícios NOVOS e diferentes sobre o tema pedido, mantendo o ` +
+    `MESMO formato.\n--- PADRÃO (referência, não copiar) ---\n${s}\n--- FIM DO PADRÃO ---`
   );
 }

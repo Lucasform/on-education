@@ -129,19 +129,21 @@ export async function generateActivityWithWayOn(
 
   const baseSys =
     `Você é o WayOn, assistente pedagógico. ${tipo.sys}\n\n` +
-    'FORMATO OBRIGATÓRIO (folha pronta para imprimir e entregar ao aluno):\n' +
-    '- Comece com "Nome: ______    Data: ______".\n' +
-    '- Depois um título curto, SEM emojis.\n' +
-    '- Em seguida os exercícios NUMERADOS, cada um um comando direto ao aluno ' +
+    'FORMATO (folha pronta para imprimir e entregar ao aluno):\n' +
+    '- Gere SÓ o miolo da folha: um título curto (SEM emojis) e os exercícios.\n' +
+    '- NÃO inclua cabeçalho de Nome/Data/Turma nem rodapé: a plataforma já coloca isso com o logo.\n' +
+    '- Exercícios NUMERADOS, cada um um comando direto ao aluno ' +
     '("1) Pinte...", "2) Complete...", "3) Ligue...", "4) Cubra os pontilhados e escreva...").\n' +
     '- Deixe linhas/espaços de resposta ("______") onde o aluno escreve.\n' +
     '- Ajuste a dificuldade e o vocabulário à série/faixa informada (educação infantil = comandos ' +
     'curtos de pintar, cobrir, ligar e completar).\n' +
+    '- POR PADRÃO gere cerca de 2 páginas, com POUCOS exercícios bem feitos; gere mais só se o ' +
+    'usuário pedir explicitamente.\n' +
     'NUNCA inclua: emojis decorativos; seções de "Objetivos", "Vocabulário trabalhado", ' +
     '"Habilidades/BNCC" ou "Justificativa" (isso é plano de aula, não a folha do aluno); ' +
     'desenhos em ASCII ou tentativas de imagem em texto; comentários seus.\n' +
-    'Quando uma figura for necessária, escreva apenas "[figura: o que desenhar]" — não tente desenhar.\n' +
-    'A folha deve caber em 1 a 2 páginas: foque em poucos exercícios bem feitos, não alongue.\n' +
+    'Quando precisar de uma figura, escreva apenas "[figura: descrição simples e objetiva]" ' +
+    '(coisas simples de colorir, poucos detalhes) — não tente desenhar.\n' +
     (input.kind === 'prova' ? 'Inclua um GABARITO ao final.\n' : '') +
     'Responda em português do Brasil, apenas com o conteúdo da folha.';
   const system = applyAiStandard(

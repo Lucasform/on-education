@@ -37,12 +37,22 @@ export function GerarAtividadeForm({
         <option value="trabalho">Trabalho</option>
         <option value="roteiro">Roteiro de estudo</option>
       </select>
-      <input
+      <textarea
         name="topic"
         required
-        placeholder="Tema (ex.: interpretação de texto, 5º ano)"
+        rows={3}
+        placeholder={
+          'Descreva a atividade. Modelo: "Atividade de Português para o 1º ano sobre a vogal E. ' +
+          'Quero 3 exercícios: cobrir a letra pontilhada, pintar figuras que começam com E e ' +
+          'completar palavras. Com figuras simples para colorir."'
+        }
         className={fieldClass}
       />
+      <p className="-mt-1 text-[11px] text-muted-foreground">
+        Quanto melhor a descrição, melhor a atividade. Diga a matéria, a série/idade, o tema, os
+        tipos de exercício e quantos. Por padrão saem ~2 páginas com poucos exercícios; peça mais
+        se quiser.
+      </p>
       <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
       <SerieFaixaPicker />
 

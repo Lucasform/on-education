@@ -629,7 +629,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
       .slice(0, 6);
     for (const desc of descricoes) {
       try {
-        const prompt = `Desenho simples em preto e branco, contorno grosso, fundo branco, estilo livro de colorir para crianças, sem texto e sem moldura: ${desc}.`;
+        const prompt = `Desenho de contorno em preto e branco para colorir, traços grossos, POUCOS detalhes, formas simples e objetivas, fundo branco, sem texto e sem moldura: ${desc}.`;
         const { b64 } = await generateTenantImage(db(), ctx, prompt, 'low', 'quadrado', 'padrao');
         const url = await uploadPublicImagePng(ctx.tenantId, b64);
         await recordImages(db(), ctx.tenantId, 1);

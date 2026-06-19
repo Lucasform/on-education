@@ -94,6 +94,20 @@ export default async function AtividadeDetalhePage({
           </div>
         </header>
 
+        {/* Cabeçalho padrão do aluno (na folha e na impressão); os exercícios vêm da IA */}
+        <div className="mb-5 flex flex-wrap gap-x-10 gap-y-2 text-sm">
+          {['Nome', 'Turma', 'Data'].map((label) => (
+            <span key={label} className="flex flex-1 items-end gap-2">
+              {label}:
+              <span
+                className={`inline-block border-b border-foreground/40 ${label === 'Nome' ? 'min-w-[14rem] flex-1' : 'min-w-[6rem]'}`}
+              >
+                &nbsp;
+              </span>
+            </span>
+          ))}
+        </div>
+
         {atividade.tags.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1 print:hidden">
             {atividade.tags.map((t) => (
