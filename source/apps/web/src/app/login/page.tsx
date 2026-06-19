@@ -5,7 +5,7 @@ import { AuthShell } from '@/components/auth-shell';
 import { Field, fieldClass } from '@/components/form';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
-import { loginAction } from './actions';
+import { loginAction, magicLinkAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Entrar · Edu On Way' };
@@ -13,14 +13,14 @@ export const metadata = { title: 'Entrar · Edu On Way' };
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erro?: string }>;
+  searchParams: Promise<{ erro?: string; magic?: string }>;
 }) {
   // Já autenticado? Não mostra o login de novo: leva ao destino certo.
   const [ctx, adminEmail] = await Promise.all([getAuthContext(), getSuperAdminEmail()]);
   if (ctx) redirect('/app');
   if (adminEmail) redirect('/admin');
 
-  const { erro } = await searchParams;
+  const { erro, magic } = await searchParams;
 
   return (
     <AuthShell
@@ -43,6 +43,16 @@ export default async function LoginPage({
           E-mail ou senha inválidos. Tente novamente.
         </p>
       )}
+      {magic === 'enviado' && (
+        <p className="mb-3 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-center text-sm text-success">
+          Link enviado! Confira seu e-mail e clique para entrar.
+        </p>
+      )}
+      {magic === 'erro' && (
+        <p className="mb-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-center text-sm text-danger">
+          Não foi possível enviar o link. Confira o e-mail e tente de novo.
+        </p>
+      )}
       <form action={loginAction} className="flex flex-col gap-4">
         <Field label="E-mail">
           <input name="email" type="email" required className={fieldClass} />
@@ -60,6 +70,22 @@ export default async function LoginPage({
         </div>
         <Button type="submit" className="mt-2 w-full">
           Entrar
+        </Button>
+      </form>
+
+      <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        ou
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <form action={magicLinkAction} className="flex flex-col gap-3">
+        <input type="hidden" name="mode" value="login" />
+        <Field label="Entrar com link mágico (sem senha)">
+          <input name="email" type="email" required placeholder="seu@email.com" className={fieldClass} />
+        </Field>
+        <Button type="submit" variant="outline" className="w-full">
+          Enviar link de acesso
         </Button>
       </form>
     </AuthShell>

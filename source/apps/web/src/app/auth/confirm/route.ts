@@ -1,8 +1,33 @@
+import { getDbClient } from '@on-education/db';
+import {
+  provisionIndividualTenant,
+  resolveContextForUser,
+  syncUserFromAuth,
+} from '@on-education/module-nucleo';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import type { EmailOtpType } from '@supabase/supabase-js';
+import type { EmailOtpType, User } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 
 type CookieItem = { name: string; value: string; options: CookieOptions };
+
+/**
+ * Garante que o usuário do link mágico tenha um tenant. Cadastro sem senha cria só o usuário
+ * no Auth; o tenant (workspace individual) é provisionado aqui, no 1º acesso, com os metadados
+ * informados no cadastro. Quem já tem tenant (login normal, reset de senha) passa direto.
+ */
+async function ensureTenant(user: User): Promise<void> {
+  const client = getDbClient();
+  const fullName = (user.user_metadata?.full_name as string) || user.email || 'Professor(a)';
+  if (user.email) await syncUserFromAuth(client, user.id, user.email, fullName).catch(() => {});
+  const existing = await resolveContextForUser(client, user.id).catch(() => null);
+  if (existing) return;
+  const workspace = (user.user_metadata?.workspace_name as string)?.trim() || fullName;
+  await provisionIndividualTenant(client, user.id, {
+    ownerEmail: user.email ?? `${user.id}@magic.local`,
+    ownerName: fullName,
+    workspaceName: workspace,
+  }).catch(() => {});
+}
 
 /**
  * Confirma um link mágico (token_hash) e abre a sessão, gravando os cookies na resposta de
@@ -31,6 +56,10 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-  return error ? failure : success;
+  const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+  if (error || !data.user) return failure;
+  // Cadastro sem senha (link mágico): provisiona o tenant no 1º acesso. Reset de senha
+  // (next=/nova-senha) e logins de quem já tem tenant passam direto.
+  if (next !== '/nova-senha') await ensureTenant(data.user).catch(() => {});
+  return success;
 }

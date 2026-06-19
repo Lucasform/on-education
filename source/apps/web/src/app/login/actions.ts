@@ -1,8 +1,39 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { createSupabaseServerClient } from '@/server/supabase';
+
+/**
+ * Login/cadastro SEM senha (link mágico). Envia um e-mail com link de acesso. No `signup`,
+ * guarda nome/espaço nos metadados; o provisionamento do tenant acontece no 1º acesso
+ * (em /auth/confirm). Depende do envio de e-mail do Supabase estar ativo.
+ */
+export async function magicLinkAction(formData: FormData): Promise<void> {
+  const email = String(formData.get('email') ?? '').trim();
+  const mode = String(formData.get('mode') ?? 'login');
+  const ownerName = String(formData.get('ownerName') ?? '').trim();
+  const workspaceName = String(formData.get('workspaceName') ?? '').trim();
+  const back = mode === 'signup' ? '/signup' : '/login';
+  if (!email) redirect(`${back}?magic=erro`);
+
+  const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: mode === 'signup',
+      emailRedirectTo: `${origin}/auth/confirm?next=/app`,
+      data:
+        mode === 'signup'
+          ? { full_name: ownerName || undefined, workspace_name: workspaceName || undefined }
+          : undefined,
+    },
+  });
+  if (error) redirect(`${back}?magic=erro`);
+  redirect(`${back}?magic=enviado`);
+}
 
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get('email') ?? '');
