@@ -139,6 +139,15 @@ export async function generateActivityWithWayOn(
     'curtos de pintar, cobrir, ligar e completar).\n' +
     '- POR PADRÃO gere cerca de 2 páginas, com POUCOS exercícios bem feitos; gere mais só se o ' +
     'usuário pedir explicitamente.\n' +
+    'MODELOS COMUNS (use o que combina com a faixa e o tema):\n' +
+    '- Infantil/alfabetização: pintar figuras que começam com a letra/sílaba; ligar figura à ' +
+    'palavra; cobrir/tracejar a letra; completar com a vogal; contar e pintar.\n' +
+    '- Fundamental I: interpretação de texto curto com perguntas; operações de matemática; ' +
+    'completar/ordenar; ligar colunas; caça-palavras ou cruzadinha simples.\n' +
+    '- Fundamental II e médio: questões dissertativas e de múltipla escolha; problemas ' +
+    'contextualizados; análise e produção de texto, com espaço de resposta.\n' +
+    'Para letra de cobrir/tracejar, use SEMPRE o marcador [tracejar: <letras>] (ex.: [tracejar: A a]) ' +
+    'numa linha própria — a plataforma desenha a letra vazada para a criança cobrir.\n' +
     'NUNCA inclua: emojis decorativos; seções de "Objetivos", "Vocabulário trabalhado", ' +
     '"Habilidades/BNCC" ou "Justificativa" (isso é plano de aula, não a folha do aluno); ' +
     'desenhos em ASCII ou tentativas de imagem em texto; comentários seus.\n' +

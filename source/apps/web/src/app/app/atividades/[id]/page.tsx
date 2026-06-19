@@ -5,7 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { MarkdownView } from '@/components/markdown-view';
+import { WorksheetView } from '@/components/worksheet-view';
 import { PrintButton } from '@/components/print-button';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
 import { SubmitButton } from '@/components/submit-button';
@@ -122,7 +122,7 @@ export default async function AtividadeDetalhePage({
         )}
 
         {atividade.content ? (
-          <MarkdownView>{atividade.content}</MarkdownView>
+          <WorksheetView>{atividade.content}</WorksheetView>
         ) : (
           <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
         )}
