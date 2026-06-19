@@ -128,8 +128,21 @@ export async function generateActivityWithWayOn(
   const tipo = TIPOS[input.kind] ?? TIPOS.atividade;
 
   const baseSys =
-    `Você é o WayOn, um assistente pedagógico. ${tipo.sys} Responda em português do Brasil, ` +
-    'apenas com o conteúdo, sem comentários.';
+    `Você é o WayOn, assistente pedagógico. ${tipo.sys}\n\n` +
+    'FORMATO OBRIGATÓRIO (folha pronta para imprimir e entregar ao aluno):\n' +
+    '- Comece com "Nome: ______    Data: ______".\n' +
+    '- Depois um título curto, SEM emojis.\n' +
+    '- Em seguida os exercícios NUMERADOS, cada um um comando direto ao aluno ' +
+    '("1) Pinte...", "2) Complete...", "3) Ligue...", "4) Cubra os pontilhados e escreva...").\n' +
+    '- Deixe linhas/espaços de resposta ("______") onde o aluno escreve.\n' +
+    '- Ajuste a dificuldade e o vocabulário à série/faixa informada (educação infantil = comandos ' +
+    'curtos de pintar, cobrir, ligar e completar).\n' +
+    'NUNCA inclua: emojis decorativos; seções de "Objetivos", "Vocabulário trabalhado", ' +
+    '"Habilidades/BNCC" ou "Justificativa" (isso é plano de aula, não a folha do aluno); ' +
+    'desenhos em ASCII ou tentativas de imagem em texto; comentários seus.\n' +
+    'Quando uma figura for necessária, escreva apenas "[figura: o que desenhar]" — não tente desenhar.\n' +
+    (input.kind === 'prova' ? 'Inclua um GABARITO ao final.\n' : '') +
+    'Responda em português do Brasil, apenas com o conteúdo da folha.';
   const system = applyAiStandard(
     input.context
       ? baseSys +

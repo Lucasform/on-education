@@ -617,8 +617,10 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     applyDate: (formData.get('applyDate') as string) || undefined,
     context,
   });
-  await generateActivityWithWayOn(db(), ctx, input);
+  const atividade = await generateActivityWithWayOn(db(), ctx, input);
   revalidatePath('/app', 'layout');
+  // Salva no banco E devolve o link na hora, na própria tela do WayOn.
+  redirect(`/app/ia?nova=${atividade.id}`);
 }
 
 export async function generateDraftAction(formData: FormData): Promise<void> {

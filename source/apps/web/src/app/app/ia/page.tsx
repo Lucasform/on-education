@@ -34,9 +34,14 @@ const STATUS_LABEL: Record<string, string> = {
   discarded: 'descartado',
 };
 
-export default async function IaPage() {
+export default async function IaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ nova?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
+  const { nova } = await searchParams;
   const [rascunhos, settings, turmas, planId, usedTokens] = await Promise.all([
     listDrafts(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listDrafts>>),
     getTenantSettings(db(), ctx).catch(() => null),
@@ -59,6 +64,20 @@ export default async function IaPage() {
         title={agente}
         description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
       />
+
+      {nova && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-sm">
+          <span className="font-medium text-success">
+            Conteúdo criado e salvo no banco de atividades. ✅
+          </span>
+          <a
+            href={`/app/atividades/${nova}`}
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+          >
+            Abrir a atividade →
+          </a>
+        </div>
+      )}
 
       {aiOn && (
         <div className={cardClass}>
