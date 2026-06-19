@@ -141,6 +141,7 @@ export async function generateActivityWithWayOn(
     '"Habilidades/BNCC" ou "Justificativa" (isso é plano de aula, não a folha do aluno); ' +
     'desenhos em ASCII ou tentativas de imagem em texto; comentários seus.\n' +
     'Quando uma figura for necessária, escreva apenas "[figura: o que desenhar]" — não tente desenhar.\n' +
+    'A folha deve caber em 1 a 2 páginas: foque em poucos exercícios bem feitos, não alongue.\n' +
     (input.kind === 'prova' ? 'Inclua um GABARITO ao final.\n' : '') +
     'Responda em português do Brasil, apenas com o conteúdo da folha.';
   const system = applyAiStandard(
