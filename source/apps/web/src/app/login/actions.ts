@@ -3,12 +3,41 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { createSupabaseServerClient } from '@/server/supabase';
+import { isEmailConfigured, sendEmail } from '@/server/email';
+import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supabase';
+
+/** E-mail de acesso (link mágico) — marca Edu On Way, em PT, com botão e fallback de link. */
+function magicEmailHtml(link: string, mode: string): string {
+  const novo = mode === 'signup';
+  const titulo = novo ? 'Sua conta está quase pronta 🎉' : 'Seu acesso ao Edu On Way';
+  const frase = novo
+    ? 'Confirme seu e-mail com um clique e seu espaço fica pronto para usar — sem senha para decorar.'
+    : 'Clique no botão abaixo para entrar na sua conta. Rápido e sem senha.';
+  return `<!doctype html><html lang="pt-BR"><body style="margin:0;background:#f3f4f6;font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#1f2430">
+    <div style="max-width:520px;margin:0 auto;padding:24px">
+      <div style="border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;background:#ffffff">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:28px">
+          <div style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-.3px">Edu&nbsp;On&nbsp;<span style="color:#c7d2fe">Way</span></div>
+          <div style="margin-top:6px;color:#e0e7ff;font-size:13px">Do plano de aula ao boletim, com o WayOn ao seu lado.</div>
+        </div>
+        <div style="padding:28px">
+          <h1 style="margin:0 0 10px;font-size:20px;color:#111827">${titulo}</h1>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#4b5563">${frase}</p>
+          <a href="${link}" style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 30px;border-radius:10px">Entrar na minha conta →</a>
+          <p style="margin:24px 0 0;font-size:12px;color:#9ca3af">O link expira em ~1 hora e só pode ser usado uma vez. Se você não pediu este acesso, ignore este e-mail.</p>
+          <p style="margin:12px 0 0;font-size:12px;color:#9ca3af;word-break:break-all">Se o botão não abrir, copie e cole no navegador:<br>${link}</p>
+        </div>
+      </div>
+      <p style="margin:16px 4px;color:#9ca3af;font-size:12px;text-align:center">Edu On Way · plataforma para professores e escolas</p>
+    </div>
+  </body></html>`;
+}
 
 /**
- * Login/cadastro SEM senha (link mágico). Envia um e-mail com link de acesso. No `signup`,
- * guarda nome/espaço nos metadados; o provisionamento do tenant acontece no 1º acesso
- * (em /auth/confirm). Depende do envio de e-mail do Supabase estar ativo.
+ * Login/cadastro SEM senha (link mágico). Caminho preferido: a plataforma gera o link e envia
+ * o PRÓPRIO e-mail (marca, PT), com o link apontando direto para /auth/confirm — que loga e,
+ * no 1º acesso, provisiona o workspace (usando nome/espaço dos metadados). Se o Resend do app
+ * não estiver configurado, cai no e-mail padrão do Supabase (não quebra).
  */
 export async function magicLinkAction(formData: FormData): Promise<void> {
   const email = String(formData.get('email') ?? '').trim();
@@ -19,6 +48,43 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
   if (!email) redirect(`${back}?magic=erro`);
 
   const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
+
+  if (isEmailConfigured()) {
+    const admin = createSupabaseAdmin();
+    if (mode === 'signup') {
+      await admin.auth.admin
+        .createUser({
+          email,
+          email_confirm: true,
+          user_metadata: {
+            full_name: ownerName || undefined,
+            workspace_name: workspaceName || undefined,
+          },
+        })
+        .catch(() => {});
+    }
+    let gen = await admin.auth.admin.generateLink({ type: 'magiclink', email });
+    if (!gen.data?.properties?.hashed_token) {
+      // E-mail ainda sem conta (login de quem nunca entrou): cria e tenta de novo.
+      await admin.auth.admin.createUser({ email, email_confirm: true }).catch(() => {});
+      gen = await admin.auth.admin.generateLink({ type: 'magiclink', email });
+    }
+    const tokenHash = gen.data?.properties?.hashed_token;
+    if (tokenHash) {
+      const link = `${origin}/auth/confirm?token_hash=${tokenHash}&type=magiclink&next=/app`;
+      const r = await sendEmail({
+        to: email,
+        // Força o remetente do domínio verificado (independe de RESEND_FROM estar certo no ambiente).
+        from: 'Edu On Way <nao-responda@onwaytech.com.br>',
+        subject: mode === 'signup' ? 'Confirme sua conta · Edu On Way' : 'Seu link de acesso · Edu On Way',
+        html: magicEmailHtml(link, mode),
+      });
+      if (r.ok) redirect(`${back}?magic=enviado`);
+    }
+    redirect(`${back}?magic=erro`);
+  }
+
+  // Fallback: e-mail padrão do Supabase.
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,

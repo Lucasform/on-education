@@ -101,7 +101,7 @@ export default async function SignupPage({
 
       <form action={magicLinkAction} className="flex flex-col gap-3">
         <input type="hidden" name="mode" value="signup" />
-        <p className="text-sm font-medium">Criar com seu e-mail (sem senha)</p>
+        <p className="text-sm font-medium">Criar com seu e-mail</p>
         <p className="-mt-1 text-xs text-muted-foreground">
           Enviamos um link de acesso. Você entra com um clique, sem decorar senha.
         </p>

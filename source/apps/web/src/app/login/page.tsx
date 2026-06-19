@@ -81,11 +81,11 @@ export default async function LoginPage({
 
       <form action={magicLinkAction} className="flex flex-col gap-3">
         <input type="hidden" name="mode" value="login" />
-        <Field label="Entrar com link mágico (sem senha)">
+        <Field label="Entre com seu e-mail" hint="(enviamos um link de acesso)">
           <input name="email" type="email" required placeholder="seu@email.com" className={fieldClass} />
         </Field>
         <Button type="submit" variant="outline" className="w-full">
-          Enviar link de acesso
+          Receber link de acesso
         </Button>
       </form>
     </AuthShell>
