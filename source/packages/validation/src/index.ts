@@ -505,7 +505,7 @@ export type GenerateQuizInput = z.infer<typeof generateQuizSchema>;
 
 /** Geração de atividade pelo WayOn (IA), direto no banco. */
 export const generateActivitySchema = z.object({
-  topic: z.string().min(2).max(300),
+  topic: z.string().min(2).max(1500),
   subject: z.string().max(120).optional(),
   level: z.string().max(120).optional(),
   kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),

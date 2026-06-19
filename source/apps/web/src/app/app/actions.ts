@@ -1461,6 +1461,12 @@ export async function updateTenantSettingsAction(formData: FormData): Promise<vo
     regimento: (formData.get('regimento') as string) || undefined,
     docTemplates: (formData.get('docTemplates') as string) || undefined,
     agentName: (formData.get('agentName') as string) || undefined,
+    // Perfil público (nome de exibição da escola/professor + contato) — antes não eram lidos.
+    profileName: (formData.get('profileName') as string) ?? undefined,
+    profilePhone: (formData.get('profilePhone') as string) ?? undefined,
+    profileEmail: (formData.get('profileEmail') as string) ?? undefined,
+    profileAddress: (formData.get('profileAddress') as string) ?? undefined,
+    profileCnpj: (formData.get('profileCnpj') as string) ?? undefined,
   });
   await upsertTenantSettings(db(), ctx, input);
   revalidatePath('/app', 'layout');
