@@ -1120,6 +1120,18 @@ export async function deleteActivityAction(formData: FormData): Promise<void> {
   redirect('/app/atividades');
 }
 
+/** Exclui em LOTE as atividades selecionadas do banco do professor. */
+export async function bulkDeleteActivitiesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  for (const id of ids) {
+    const act = await getActivity(db(), ctx, id).catch(() => null);
+    if (act?.eventId) await deleteEvent(db(), ctx, act.eventId).catch(() => {});
+    await deleteActivity(db(), ctx, id).catch(() => {});
+  }
+  revalidatePath('/app/atividades', 'page');
+}
+
 export async function deleteSubjectAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));

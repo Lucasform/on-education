@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
+import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
@@ -17,6 +18,7 @@ import { getAuthContext } from '@/server/session';
 
 import {
   approveActivityAction,
+  bulkDeleteActivitiesAction,
   createActivityAction,
   deleteActivityAction,
   importActivityFileAction,
@@ -186,34 +188,41 @@ export default async function AtividadesPage({
           {atividades.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma no banco com esse filtro.</p>
           ) : (
-            <ul className="space-y-1 text-sm">
-              {atividades.map((a) => (
-                <li key={a.id}>
-                  <Link
-                    href={`/app/atividades/${a.id}`}
-                    className="text-foreground underline-offset-4 hover:text-primary hover:underline"
-                  >
-                    <span className="mr-2 rounded bg-muted px-1.5 py-0.5 text-xs">
-                      {kindLabel(a.kind)}
+            <BulkDeleteForm action={bulkDeleteActivitiesAction} itemLabel="atividades">
+              <ul className="space-y-1 text-sm">
+                {atividades.map((a) => (
+                  <li key={a.id} className="flex items-start gap-2">
+                    <span className="pt-0.5">
+                      <BulkCheckbox value={a.id} />
                     </span>
-                    {a.title}
-                  </Link>
-                  {(a.subject || a.gradeLevel || a.ageBand || a.applyDate) && (
-                    <span className="text-muted-foreground">
-                      {' · '}
-                      {[
-                        a.subject,
-                        a.gradeLevel,
-                        a.ageBand && `${a.ageBand} anos`,
-                        a.applyDate && `📅 ${a.applyDate}`,
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
+                    <span>
+                      <Link
+                        href={`/app/atividades/${a.id}`}
+                        className="text-foreground underline-offset-4 hover:text-primary hover:underline"
+                      >
+                        <span className="mr-2 rounded bg-muted px-1.5 py-0.5 text-xs">
+                          {kindLabel(a.kind)}
+                        </span>
+                        {a.title}
+                      </Link>
+                      {(a.subject || a.gradeLevel || a.ageBand || a.applyDate) && (
+                        <span className="text-muted-foreground">
+                          {' · '}
+                          {[
+                            a.subject,
+                            a.gradeLevel,
+                            a.ageBand && `${a.ageBand} anos`,
+                            a.applyDate && `📅 ${a.applyDate}`,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      )}
                     </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </BulkDeleteForm>
           )}
         </div>
 

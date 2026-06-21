@@ -129,6 +129,14 @@ export async function deleteActivityAdminAction(formData: FormData): Promise<voi
   revalidatePath('/admin/atividades');
 }
 
+/** Exclui em LOTE as atividades selecionadas (admin). */
+export async function bulkDeleteActivitiesAdminAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  for (const id of ids) await deleteActivityAdmin(db(), id).catch(() => {});
+  revalidatePath('/admin/atividades');
+}
+
 /** Marca/desmarca o tenant como cliente pagante (CRM do super-admin). */
 export async function toggleTenantClientAction(formData: FormData): Promise<void> {
   const tenantId = String(formData.get('tenantId') ?? '');
