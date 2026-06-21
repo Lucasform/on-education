@@ -468,7 +468,18 @@ export default function HomePage() {
       </main>
 
       <footer className="mx-auto max-w-6xl border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
-        © 2026 Edu On Way
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <a href="/termos" className="hover:text-foreground">
+            Termos de Uso
+          </a>
+          <a href="/privacidade" className="hover:text-foreground">
+            Política de Privacidade
+          </a>
+          <a href="mailto:contato@onwaytech.com.br" className="hover:text-foreground">
+            Contato
+          </a>
+        </div>
+        <p className="mt-3">© 2026 Edu On Way</p>
       </footer>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
+import { ConsentNote } from '@/components/consent-note';
 
 import { signupAction } from './actions';
 
@@ -83,6 +84,7 @@ export default async function SignupPage({
         </AuthField>
         <SlugInputField placeholder="prof-ana" />
         <AuthSubmit pendingLabel="Criando conta…">Criar conta</AuthSubmit>
+        <ConsentNote />
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-white/50">

@@ -96,6 +96,16 @@ export function BrandAuthScreen({
             {footer}
           </div>
         )}
+
+        <p className="mt-6 text-center text-[10px] text-white/40">
+          <Link href="/termos" className="hover:text-white/70">
+            Termos
+          </Link>
+          {' · '}
+          <Link href="/privacidade" className="hover:text-white/70">
+            Privacidade
+          </Link>
+        </p>
       </div>
     </div>
   );

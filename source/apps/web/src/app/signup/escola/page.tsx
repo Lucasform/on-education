@@ -7,6 +7,7 @@ import {
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
+import { ConsentNote } from '@/components/consent-note';
 
 import { signupSchoolAction } from './actions';
 
@@ -76,6 +77,7 @@ export default async function SchoolSignupPage({
         </AuthField>
         <SlugInputField label="Link público da escola" placeholder="minha-escola" />
         <AuthSubmit pendingLabel="Criando escola…">Criar escola</AuthSubmit>
+        <ConsentNote />
       </form>
     </BrandAuthScreen>
   );

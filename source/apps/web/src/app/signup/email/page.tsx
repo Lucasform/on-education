@@ -8,6 +8,7 @@ import {
   BrandAuthScreen,
   SlugInputField,
 } from '@/components/brand-auth-screen';
+import { ConsentNote } from '@/components/consent-note';
 import { getAuthContext } from '@/server/session';
 
 import { magicLinkAction } from '../../login/actions';
@@ -104,6 +105,7 @@ export default async function SignupEmailPage({
             </AuthField>
             <SlugInputField placeholder="prof-ana" />
             <AuthSubmit pendingLabel="Enviando…">Criar com meu e-mail</AuthSubmit>
+            <ConsentNote />
           </form>
         </>
       )}
