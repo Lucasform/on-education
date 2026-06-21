@@ -1,20 +1,28 @@
 'use server';
 
 import {
+  applyComboPlanForTenant,
   deleteActivityAdmin,
   purgeTenant,
   removeMembership,
   restoreTenant,
   setTenantClient,
+  setTenantEntitlements,
   softDeleteTenant,
 } from '@on-education/module-nucleo';
+import { FEATURES, type Feature } from '@on-education/entitlements';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 import { db } from '@/server/db';
 import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
-import { IMPERSONATION_COOKIE } from '@/server/session';
+import { getSuperAdminEmail, IMPERSONATION_COOKIE } from '@/server/session';
+
+/** Barreira: server actions de admin podem ser chamadas direto — exige super-admin. */
+async function requireSuperAdmin(): Promise<void> {
+  if (!(await getSuperAdminEmail())) throw new Error('Acesso restrito ao administrador.');
+}
 
 /**
  * Super-admin "entra como" um tenant (view-as). Guarda `tenantId|tenantType` no cookie para
@@ -124,6 +132,33 @@ export async function toggleTenantClientAction(formData: FormData): Promise<void
   const next = String(formData.get('isClient') ?? '') === 'true';
   await setTenantClient(db(), tenantId, next);
   revalidatePath('/admin/contas');
+  revalidatePath(`/admin/contas/${tenantId}`);
+}
+
+/**
+ * Define EXATAMENTE os recursos liberados da conta (override de admin). Lê os checkboxes
+ * marcados (`feature`) e sincroniza os entitlements. Sem mínimo: o admin libera o que quiser.
+ */
+export async function setTenantFeaturesAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const tenantId = String(formData.get('tenantId') ?? '');
+  if (!tenantId) return;
+  const valid = new Set<string>(FEATURES);
+  const features = formData
+    .getAll('feature')
+    .map((f) => String(f))
+    .filter((f) => valid.has(f)) as Feature[];
+  await setTenantEntitlements(db(), tenantId, features);
+  revalidatePath(`/admin/contas/${tenantId}`);
+}
+
+/** Aplica um plano combo à conta (define assinatura + liga as features do plano). */
+export async function applyPlanToTenantAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const tenantId = String(formData.get('tenantId') ?? '');
+  const planId = String(formData.get('planId') ?? '');
+  if (!tenantId || !planId) return;
+  await applyComboPlanForTenant(db(), tenantId, planId);
   revalidatePath(`/admin/contas/${tenantId}`);
 }
 

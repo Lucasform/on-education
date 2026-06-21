@@ -70,6 +70,23 @@ export async function applyComboPlanForTenant(
   });
 }
 
+/**
+ * Override de ADMIN (super-admin): liga EXATAMENTE o conjunto de features informado para o
+ * tenant, sem o mínimo do à la carte e sem mexer na assinatura. As `entitlements` passam a
+ * existir → viram a fonte de verdade (sobrepõem o plano). Conjunto vazio = trava tudo.
+ */
+export async function setTenantEntitlements(
+  client: DbClient,
+  tenantId: string,
+  features: Feature[],
+  actorUserId: string | null = null,
+) {
+  const unique = [...new Set(features)];
+  await client.withTenant(tenantId, async (tx) => {
+    await syncEntitlements(tx, tenantId, actorUserId, unique);
+  });
+}
+
 /** Ativa um pacote à la carte para um tenant pelo id (service-level). Valida mínimo/elegibilidade. */
 export async function setFeaturesForTenant(
   client: DbClient,

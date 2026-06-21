@@ -1,5 +1,13 @@
 import {
+  comboPlans,
+  type FeatureMeta,
+  featuresForSegment,
+  getPlan,
+} from '@on-education/entitlements';
+import {
   getTenantDetail,
+  getTenantFeatures,
+  getTenantPlanId,
   listTenantActivities,
   listTenantClasses,
   listTenantMembers,
@@ -11,8 +19,10 @@ import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 
 import {
+  applyPlanToTenantAction,
   enterTenantAction,
   restoreTenantAction,
+  setTenantFeaturesAction,
   softDeleteTenantAction,
   toggleTenantClientAction,
 } from '../../actions';
@@ -49,11 +59,25 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
   if (!t) notFound();
 
   // Listas reais do tenant (drill-down). Degradam para vazio sem derrubar a página.
-  const [membros, turmas, atividades] = await Promise.all([
+  const [membros, turmas, atividades, featureSet, planId] = await Promise.all([
     listTenantMembers(client, id).catch(() => []),
     listTenantClasses(client, id).catch(() => []),
     listTenantActivities(client, id).catch(() => []),
+    getTenantFeatures(client, id).catch(() => null),
+    getTenantPlanId(client, id).catch(() => null),
   ]);
+
+  // Recursos & plano (override de admin).
+  const eligible = featuresForSegment(t.tenantType);
+  const byCategory = new Map<string, FeatureMeta[]>();
+  for (const m of eligible) {
+    const arr = byCategory.get(m.category) ?? [];
+    arr.push(m);
+    byCategory.set(m.category, arr);
+  }
+  const presets = comboPlans(t.tenantType);
+  const planName = planId ? (getPlan(planId)?.name ?? planId) : null;
+  const ungated = featureSet === null;
 
   return (
     <>
@@ -121,6 +145,79 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
         <StatCard label="Alunos" value={t.students} />
         <StatCard label="Turmas" value={t.classes} />
         <StatCard label="Atividades" value={t.activities} />
+      </section>
+
+      {/* Recursos & plano: override de admin (substitui os scripts de re-sync). */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium">Recursos &amp; plano</h2>
+        <div className="flex flex-col gap-5 rounded-lg border border-border bg-card p-4">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Plano atual:</span>
+            <span className="font-medium">{planName ?? 'sem assinatura'}</span>
+            {ungated && (
+              <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[11px] text-warning">
+                sem gating — vê tudo
+              </span>
+            )}
+          </div>
+
+          {/* Presets: aplica um plano inteiro de uma vez. */}
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Aplicar um plano
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {presets.map((p) => (
+                <form key={p.id} action={applyPlanToTenantAction}>
+                  <input type="hidden" name="tenantId" value={t.id} />
+                  <input type="hidden" name="planId" value={p.id} />
+                  <SubmitButton type="submit" size="sm" variant="outline">
+                    {p.name}
+                  </SubmitButton>
+                </form>
+              ))}
+            </div>
+          </div>
+
+          {/* Override fino: liga/desliga cada recurso e salva. */}
+          <form action={setTenantFeaturesAction} className="flex flex-col gap-4">
+            <input type="hidden" name="tenantId" value={t.id} />
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Recursos liberados {ungated && '(marque e salve para passar a controlar)'}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[...byCategory.entries()].map(([cat, items]) => (
+                <fieldset key={cat} className="flex flex-col gap-2 rounded-md border border-border/70 p-3">
+                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {cat}
+                  </legend>
+                  {items.map((m) => (
+                    <label key={m.feature} className="flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="feature"
+                        value={m.feature}
+                        defaultChecked={featureSet?.has(m.feature) ?? false}
+                        className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="font-medium">{m.label}</span>
+                        <span className="block text-xs leading-snug text-muted-foreground">
+                          {m.description}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+              ))}
+            </div>
+            <div>
+              <SubmitButton type="submit" size="sm">
+                Salvar recursos
+              </SubmitButton>
+            </div>
+          </form>
+        </div>
       </section>
 
       <section className="flex flex-col gap-3">
