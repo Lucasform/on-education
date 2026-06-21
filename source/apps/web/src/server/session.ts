@@ -74,11 +74,15 @@ export async function isImpersonating(): Promise<boolean> {
   return Boolean((await cookies()).get(IMPERSONATION_COOKIE)?.value);
 }
 
+// Dono do produto: super-admin sempre (independe de env). Outros entram via SUPER_ADMIN_EMAILS.
+const OWNER_SUPER_ADMINS = ['lucascarvalhogonzaga@gmail.com'];
+
 function superAdminEmails(): string[] {
-  return (loadEnv().SUPER_ADMIN_EMAILS ?? '')
+  const fromEnv = (loadEnv().SUPER_ADMIN_EMAILS ?? '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+  return [...new Set([...OWNER_SUPER_ADMINS, ...fromEnv])];
 }
 
 /**
