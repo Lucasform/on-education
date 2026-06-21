@@ -139,20 +139,39 @@ export async function generateActivityWithWayOn(
     'curtos de pintar, cobrir, ligar e completar).\n' +
     '- POR PADRÃO gere cerca de 2 páginas, com POUCOS exercícios bem feitos; gere mais só se o ' +
     'usuário pedir explicitamente.\n' +
-    'MODELOS COMUNS (use o que combina com a faixa e o tema):\n' +
-    '- Infantil/alfabetização: pintar figuras que começam com a letra/sílaba; ligar figura à ' +
-    'palavra; cobrir/tracejar a letra; completar com a vogal; contar e pintar.\n' +
-    '- Fundamental I: interpretação de texto curto com perguntas; operações de matemática; ' +
-    'completar/ordenar; ligar colunas; caça-palavras ou cruzadinha simples.\n' +
-    '- Fundamental II e médio: questões dissertativas e de múltipla escolha; problemas ' +
-    'contextualizados; análise e produção de texto, com espaço de resposta.\n' +
-    'Para letra de cobrir/tracejar, use SEMPRE o marcador [tracejar: <letras>] (ex.: [tracejar: A a]) ' +
-    'numa linha própria — a plataforma desenha a letra vazada para a criança cobrir.\n' +
+    'NÍVEL: do mais OBJETIVO (crianças) ao mais ELABORADO (mais velhos). Combine SEMPRE o tipo de ' +
+    'atividade à FAIXA ETÁRIA e à MATÉRIA pedidas.\n' +
+    'CATÁLOGO DE MODELOS (escolha os que combinam com a faixa, a matéria e o tema):\n' +
+    '- Educação infantil (2-5 anos): comandos curtíssimos e muita imagem — pintar; contornar/cobrir ' +
+    'o pontilhado (formas, traços, números); ligar figuras iguais ou figura↔figura; contar e pintar ' +
+    '(correspondência 1 a 1, noção de mais/menos); cores e formas.\n' +
+    '- Alfabetização (6-7 anos / 1º-2º): vogais (circular, completar a palavra, pintar o que começa ' +
+    'com a letra); sílabas (juntar para formar a palavra, completar a sílaba que falta); cobrir/' +
+    'tracejar letras e números; ligar palavra↔figura; caça-palavras e cruzadinha simples com apoio ' +
+    'de imagem; ler uma frase curta e responder.\n' +
+    '- Fundamental I (8-10 / 3º-5º): Português — interpretar texto curto (fábula, poema) com ' +
+    'perguntas, gramática básica, produção guiada, ordenar/completar, ligar colunas. Matemática — ' +
+    'quatro operações, situações-problema do cotidiano, sequência numérica, formas geométricas, ' +
+    'leitura de gráfico/tabela simples. Outras matérias — questões objetivas + uma dissertativa curta.\n' +
+    '- Fundamental II (11-14 / 6º-9º): múltipla escolha (3-5 alternativas), verdadeiro/falso ' +
+    'justificado, associar colunas, completar lacunas, dissertativas curtas, problemas ' +
+    'contextualizados, interpretação com texto-base, tipologias textuais.\n' +
+    '- Ensino médio (15-17): questões estilo ENEM/vestibular (múltipla escolha contextualizada), ' +
+    'dissertativas analíticas, produção de texto dissertativo-argumentativo, problemas aplicados e ' +
+    'análise crítica — mais profundidade e elaboração.\n' +
+    'FORMATOS disponíveis (use conforme a faixa): pintar/colorir, ligar/associar colunas, completar ' +
+    'lacunas, ordenar, múltipla escolha, verdadeiro/falso, dissertativa, situação-problema, produção ' +
+    'textual, caça-palavras e cruzadinha.\n' +
+    'PRIORIDADE das fontes: (1) a solicitação (tema, tipo e série); (2) os MATERIAIS DA TURMA/ESCOLA ' +
+    'quando fornecidos — use o vocabulário, os exemplos e o nível deles; (3) os modelos acima.\n' +
+    'Para cobrir/pontilhar, use SEMPRE o marcador [tracejar: <texto>] numa linha própria ' +
+    '(ex.: [tracejar: A a] ou [tracejar: 1 2 3]) — a plataforma desenha vazado para a criança cobrir.\n' +
     'NUNCA inclua: emojis decorativos; seções de "Objetivos", "Vocabulário trabalhado", ' +
     '"Habilidades/BNCC" ou "Justificativa" (isso é plano de aula, não a folha do aluno); ' +
     'desenhos em ASCII ou tentativas de imagem em texto; comentários seus.\n' +
-    'Quando precisar de uma figura, escreva apenas "[figura: descrição simples e objetiva]" ' +
-    '(coisas simples de colorir, poucos detalhes) — não tente desenhar.\n' +
+    'Quando precisar de uma figura, escreva apenas "[figura: descrição simples e objetiva]" — coisas ' +
+    'simples de colorir, poucas cores e poucos detalhes; na educação infantil prefira contornos ' +
+    'limpos (pode pedir "contorno pontilhado para cobrir"). Não tente desenhar em texto.\n' +
     (input.kind === 'prova' ? 'Inclua um GABARITO ao final.\n' : '') +
     'Responda em português do Brasil, apenas com o conteúdo da folha.';
   const system = applyAiStandard(
