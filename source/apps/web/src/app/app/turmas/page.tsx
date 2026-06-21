@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { BulkAddRows } from '@/components/bulk-add-rows';
-import { ConfirmButton } from '@/components/confirm-button';
+import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { CsvImport } from '@/components/csv-import';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { UpgradeGate } from '@/components/upgrade-gate';
@@ -13,8 +13,8 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import {
+  bulkDeleteClassesAction,
   createClassAction,
-  deleteClassAction,
   duplicateClassesAction,
   importClassesCsvAction,
   importClassesStructuredAction,
@@ -85,33 +85,26 @@ export default async function TurmasPage({
               {turmas.length === 0 ? 'Nenhuma turma ainda.' : 'Nenhuma turma com esse nome.'}
             </p>
           ) : (
-            <ul className="space-y-1 text-sm">
-              {filtradas.map((t) => (
-                <li key={t.id} className="flex items-center justify-between gap-2">
-                  <Link
-                    href={`/app/turmas/${t.id}`}
-                    className="rounded-sm font-medium outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-                  >
-                    {t.name}
-                    {t.gradeLevel && (
-                      <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                        {t.gradeLevel}
-                      </span>
-                    )}
-                  </Link>
-                  <form action={deleteClassAction}>
-                    <input type="hidden" name="id" value={t.id} />
-                    <ConfirmButton
-                      size="sm"
-                      variant="ghost"
-                      message={`Excluir a turma "${t.name}"? Vai para a Lixeira e pode ser restaurada.`}
+            <BulkDeleteForm action={bulkDeleteClassesAction} itemLabel="turmas">
+              <ul className="space-y-1 text-sm">
+                {filtradas.map((t) => (
+                  <li key={t.id} className="flex items-center gap-2">
+                    <BulkCheckbox value={t.id} />
+                    <Link
+                      href={`/app/turmas/${t.id}`}
+                      className="rounded-sm font-medium outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
                     >
-                      Excluir
-                    </ConfirmButton>
-                  </form>
-                </li>
-              ))}
-            </ul>
+                      {t.name}
+                      {t.gradeLevel && (
+                        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                          {t.gradeLevel}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </BulkDeleteForm>
           )}
         </div>
 

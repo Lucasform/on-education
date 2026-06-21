@@ -1018,6 +1018,22 @@ export async function deleteClassAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/** Exclui em LOTE as turmas selecionadas (vão para a Lixeira). */
+export async function bulkDeleteClassesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  for (const id of ids) {
+    await deleteClass(db(), ctx, id).catch(() => {});
+    await recordAudit(db(), ctx, {
+      action: 'class.delete',
+      resource: 'class',
+      metadata: { id },
+    }).catch(() => {});
+  }
+  revalidatePath('/app/turmas');
+  revalidatePath('/app');
+}
+
 export async function deleteStudentAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id'));
@@ -1410,6 +1426,14 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await deleteQuiz(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/simulados', 'page');
+}
+
+/** Exclui em LOTE os simulados selecionados. */
+export async function bulkDeleteQuizzesAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  for (const id of ids) await deleteQuiz(db(), ctx, id).catch(() => {});
+  revalidatePath('/app/simulados');
 }
 
 // --- Banco de atividades coletivas (item 13) ---------------------------------

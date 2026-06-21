@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
-import { ConfirmButton } from '@/components/confirm-button';
+import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { createQuizAction, deleteQuizAction, generateQuizAction } from '../actions';
+import { bulkDeleteQuizzesAction, createQuizAction, generateQuizAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Simulados · Edu On Way' };
@@ -34,29 +34,22 @@ export default async function SimuladosPage() {
           {simulados.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum simulado ainda.</p>
           ) : (
-            <ul className="space-y-2 text-sm">
-              {simulados.map((q) => (
-                <li key={q.id} className="flex items-center justify-between gap-2">
-                  <Link
-                    href={`/app/simulados/${q.id}`}
-                    className="font-medium text-primary underline-offset-4 hover:underline"
-                  >
-                    {q.title}
-                    {q.subject && <span className="text-muted-foreground"> · {q.subject}</span>}
-                  </Link>
-                  <form action={deleteQuizAction}>
-                    <input type="hidden" name="id" value={q.id} />
-                    <ConfirmButton
-                      size="sm"
-                      variant="ghost"
-                      message={`Excluir o simulado "${q.title}"?`}
+            <BulkDeleteForm action={bulkDeleteQuizzesAction} itemLabel="simulados">
+              <ul className="space-y-2 text-sm">
+                {simulados.map((q) => (
+                  <li key={q.id} className="flex items-center gap-2">
+                    <BulkCheckbox value={q.id} />
+                    <Link
+                      href={`/app/simulados/${q.id}`}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
                     >
-                      Excluir
-                    </ConfirmButton>
-                  </form>
-                </li>
-              ))}
-            </ul>
+                      {q.title}
+                      {q.subject && <span className="text-muted-foreground"> · {q.subject}</span>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </BulkDeleteForm>
           )}
         </div>
         <div className="flex flex-col gap-5">
