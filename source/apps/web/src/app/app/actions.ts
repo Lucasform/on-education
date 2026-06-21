@@ -1026,6 +1026,22 @@ export async function deleteStudentAction(formData: FormData): Promise<void> {
   revalidatePath('/app', 'layout');
 }
 
+/** Exclui em LOTE os alunos selecionados. */
+export async function bulkDeleteStudentsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  for (const id of ids) {
+    await deleteStudent(db(), ctx, id).catch(() => {});
+    await recordAudit(db(), ctx, {
+      action: 'student.delete',
+      resource: 'student',
+      metadata: { id },
+    }).catch(() => {});
+  }
+  revalidatePath('/app/alunos');
+  revalidatePath('/app');
+}
+
 export async function updateStudentProfileAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id') ?? '');

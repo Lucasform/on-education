@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { BulkAddRows } from '@/components/bulk-add-rows';
+import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
@@ -12,8 +13,8 @@ import { getAuthContext } from '@/server/session';
 import { CsvImport } from '@/components/csv-import';
 
 import {
+  bulkDeleteStudentsAction,
   createStudentAction,
-  deleteStudentAction,
   importStudentsAction,
   importStudentsCsvAction,
 } from '../actions';
@@ -114,26 +115,23 @@ export default async function AlunosPage({
               {alunos.length === 0 ? 'Nenhum aluno ainda.' : 'Nenhum aluno com esse filtro.'}
             </p>
           ) : (
-            <ul className="space-y-1 text-sm">
-              {filtrados.map((a) => (
-                <li key={a.id} className="flex items-center justify-between gap-2">
-                  <Link href={`/app/alunos/${a.id}`} className="hover:underline">
-                    {a.fullName}
-                    {a.classId && turmaNome.get(a.classId) && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {turmaNome.get(a.classId)}
-                      </span>
-                    )}
-                  </Link>
-                  <form action={deleteStudentAction}>
-                    <input type="hidden" name="id" value={a.id} />
-                    <SubmitButton type="submit" size="sm" variant="ghost">
-                      Excluir
-                    </SubmitButton>
-                  </form>
-                </li>
-              ))}
-            </ul>
+            <BulkDeleteForm action={bulkDeleteStudentsAction} itemLabel="alunos">
+              <ul className="space-y-1 text-sm">
+                {filtrados.map((a) => (
+                  <li key={a.id} className="flex items-center gap-2">
+                    <BulkCheckbox value={a.id} />
+                    <Link href={`/app/alunos/${a.id}`} className="hover:underline">
+                      {a.fullName}
+                      {a.classId && turmaNome.get(a.classId) && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {turmaNome.get(a.classId)}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </BulkDeleteForm>
           )}
         </div>
         <div className="flex flex-col gap-5">
