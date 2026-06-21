@@ -1399,7 +1399,10 @@ export async function shareCollectiveAction(formData: FormData): Promise<void> {
 export async function copyCollectiveAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   await copyFromCollective(db(), ctx, String(formData.get('id')));
-  revalidatePath('/app', 'layout');
+  // Revalida SÓ o necessário (banco do professor + home) — revalidar o layout inteiro
+  // deixava a cópia lenta.
+  revalidatePath('/app/atividades');
+  revalidatePath('/app');
 }
 
 // --- Financeiro (cobranças / mensalidades) -----------------------------------

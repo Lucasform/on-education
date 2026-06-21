@@ -18,6 +18,12 @@ export async function listCollective(client: DbClient, ageRange?: string) {
   return rows;
 }
 
+/** Uma atividade do banco coletivo, para visualização antes de copiar. */
+export async function getCollective(client: DbClient, id: string) {
+  const rows = await client.db.select().from(sharedActivities).where(eq(sharedActivities.id, id));
+  return rows[0] ?? null;
+}
+
 /** Publica uma atividade do professor no banco coletivo (sem identificar a escola). */
 export async function shareToCollective(
   client: DbClient,

@@ -89,19 +89,35 @@ export default async function BancoColetivoPage({
                 key={c.id}
                 className="flex items-center justify-between gap-3 rounded-md border border-border p-3"
               >
-                <span>
+                <Link
+                  href={`/app/banco-coletivo/${c.id}`}
+                  className="min-w-0 flex-1 rounded-sm hover:opacity-80"
+                >
                   <span className="font-medium">{c.title}</span>
                   <span className="block text-xs text-muted-foreground">
                     {ROTULO[c.ageRange ?? 'outro'] ?? c.ageRange}
                     {c.subject ? ` · ${c.subject}` : ''}
                   </span>
-                </span>
-                <form action={copyCollectiveAction}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <SubmitButton type="submit" size="sm" variant="outline">
-                    Copiar para meu banco
-                  </SubmitButton>
-                </form>
+                </Link>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Link href={`/app/banco-coletivo/${c.id}`}>
+                    <Button size="sm" variant="ghost">
+                      Abrir
+                    </Button>
+                  </Link>
+                  {c.createdBy === ctx.userId ? (
+                    <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                      Sua
+                    </span>
+                  ) : (
+                    <form action={copyCollectiveAction}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <SubmitButton type="submit" size="sm" variant="outline">
+                        Copiar para meu banco
+                      </SubmitButton>
+                    </form>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
