@@ -111,6 +111,8 @@ import {
   returnEquipmentLoan,
   deleteEquipment,
   setGuardianPortalPassword,
+  listCustomFieldDefs,
+  setCustomFieldValues,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -1054,6 +1056,26 @@ export async function updateStudentProfileAction(formData: FormData): Promise<vo
   }
   if (Object.keys(patch).length === 0) return;
   await updateStudentProfile(db(), ctx, id, patch);
+  revalidatePath(`/app/alunos/${id}`, 'page');
+}
+
+/** Grava os campos personalizados (setup do admin) da ficha do aluno. */
+export async function saveStudentCustomFieldsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  const defs = await listCustomFieldDefs(db(), ctx.tenantId, 'student').catch(() => []);
+  if (defs.length === 0) return;
+  const values: Record<string, string> = {};
+  for (const d of defs) {
+    const key = `cf_${d.id}`;
+    if (d.fieldType === 'checkbox') {
+      values[d.id] = formData.get(key) === 'on' ? 'true' : '';
+    } else if (formData.has(key)) {
+      values[d.id] = String(formData.get(key) ?? '').trim();
+    }
+  }
+  await setCustomFieldValues(db(), ctx.tenantId, id, values, ctx.userId);
   revalidatePath(`/app/alunos/${id}`, 'page');
 }
 

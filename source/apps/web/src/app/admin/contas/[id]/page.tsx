@@ -217,6 +217,13 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
               </SubmitButton>
             </div>
           </form>
+
+          <a
+            href={`/admin/contas/${id}/campos`}
+            className="text-sm text-primary underline-offset-4 hover:underline"
+          >
+            Campos personalizados da ficha do aluno →
+          </a>
         </div>
       </section>
 

@@ -2,7 +2,11 @@
 
 import {
   applyComboPlanForTenant,
+  createCustomFieldDef,
+  CUSTOM_FIELD_TYPES,
+  type CustomFieldType,
   deleteActivityAdmin,
+  deleteCustomFieldDef,
   purgeTenant,
   removeMembership,
   restoreTenant,
@@ -160,6 +164,36 @@ export async function applyPlanToTenantAction(formData: FormData): Promise<void>
   if (!tenantId || !planId) return;
   await applyComboPlanForTenant(db(), tenantId, planId);
   revalidatePath(`/admin/contas/${tenantId}`);
+}
+
+/** Cria um campo personalizado para uma entidade da conta (setup do admin). */
+export async function createCustomFieldAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const tenantId = String(formData.get('tenantId') ?? '');
+  const entity = String(formData.get('entity') ?? 'student');
+  const label = String(formData.get('label') ?? '').trim();
+  const typeRaw = String(formData.get('fieldType') ?? 'text');
+  const fieldType = (CUSTOM_FIELD_TYPES as readonly string[]).includes(typeRaw)
+    ? (typeRaw as CustomFieldType)
+    : 'text';
+  if (!tenantId || !label) return;
+  const options = String(formData.get('options') ?? '')
+    .split('\n')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const required = String(formData.get('required') ?? '') === 'on';
+  await createCustomFieldDef(db(), tenantId, { entity, label, fieldType, options, required });
+  revalidatePath(`/admin/contas/${tenantId}/campos`);
+}
+
+/** Remove um campo personalizado da conta. */
+export async function deleteCustomFieldAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const tenantId = String(formData.get('tenantId') ?? '');
+  const id = String(formData.get('id') ?? '');
+  if (!tenantId || !id) return;
+  await deleteCustomFieldDef(db(), tenantId, id);
+  revalidatePath(`/admin/contas/${tenantId}/campos`);
 }
 
 /** Exclusão DEFINITIVA: exige o nome digitado bater com o nome da escola. */

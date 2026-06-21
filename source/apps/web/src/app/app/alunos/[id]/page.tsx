@@ -1,8 +1,11 @@
 import { SubmitButton } from '@/components/submit-button';
 import {
+  type CustomFieldDef,
+  getCustomFieldValues,
   getStudent,
   getTenantSettings,
   listClasses,
+  listCustomFieldDefs,
   listExitAuthorizationsForStudent,
   listGradeComponents,
   listGuardians,
@@ -31,6 +34,7 @@ import {
   createExitAuthorizationAction,
   deleteStudentPointAction,
   linkGuardianAction,
+  saveStudentCustomFieldsAction,
   transferStudentClassAction,
   unlinkGuardianAction,
   updateExitAuthorizationStatusAction,
@@ -77,6 +81,12 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
     isSchool ? listExitAuthorizationsForStudent(client, ctx, id).catch(() => []) : Promise.resolve([]),
   ]);
   if (!aluno) redirect('/app/alunos');
+
+  // Campos personalizados (definidos pelo admin) + valores deste aluno.
+  const [camposPersonalizados, valoresCampos] = await Promise.all([
+    listCustomFieldDefs(client, ctx.tenantId, 'student').catch(() => [] as CustomFieldDef[]),
+    getCustomFieldValues(client, ctx.tenantId, id).catch(() => ({}) as Record<string, string>),
+  ]);
 
   // Ocorrências deste aluno
   const idsComAluno = new Set(linksOcorrencias.filter((l) => l.studentId === id).map((l) => l.occurrenceId));
@@ -639,6 +649,82 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           </SubmitButton>
         </form>
       </div>
+
+      {/* Campos personalizados (definidos pelo admin no setup da conta) */}
+      {camposPersonalizados.length > 0 && (
+        <div className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Informações complementares</h2>
+          <form action={saveStudentCustomFieldsAction} className="flex flex-col gap-3">
+            <input type="hidden" name="id" value={aluno.id} />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {camposPersonalizados.map((f) => {
+                const name = `cf_${f.id}`;
+                const val = valoresCampos[f.id] ?? '';
+                if (f.fieldType === 'checkbox') {
+                  return (
+                    <label key={f.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name={name}
+                        defaultChecked={val === 'true'}
+                        className="h-4 w-4 accent-primary"
+                      />
+                      {f.label}
+                    </label>
+                  );
+                }
+                return (
+                  <div key={f.id} className={f.fieldType === 'textarea' ? 'sm:col-span-2' : ''}>
+                    <label className="mb-1 block text-xs text-muted-foreground">
+                      {f.label}
+                      {f.required && ' *'}
+                    </label>
+                    {f.fieldType === 'textarea' ? (
+                      <textarea
+                        name={name}
+                        required={f.required}
+                        defaultValue={val}
+                        rows={3}
+                        className={fieldClass}
+                      />
+                    ) : f.fieldType === 'select' ? (
+                      <select name={name} required={f.required} defaultValue={val} className={fieldClass}>
+                        <option value="">—</option>
+                        {(f.options ?? []).map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        name={name}
+                        type={
+                          f.fieldType === 'number'
+                            ? 'number'
+                            : f.fieldType === 'date'
+                              ? 'date'
+                              : f.fieldType === 'email'
+                                ? 'email'
+                                : f.fieldType === 'phone'
+                                  ? 'tel'
+                                  : 'text'
+                        }
+                        required={f.required}
+                        defaultValue={val}
+                        className={fieldClass}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <SubmitButton type="submit" size="sm" variant="outline">
+              Salvar informações complementares
+            </SubmitButton>
+          </form>
+        </div>
+      )}
 
       {/* Turma */}
       {isSchool && (

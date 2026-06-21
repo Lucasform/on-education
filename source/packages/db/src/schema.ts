@@ -1600,6 +1600,51 @@ export const enrollmentRequests = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// custom_field_defs — campos personalizados por tenant numa entidade (ex.: 'student').
+// Definidos pelo admin (setup); o app renderiza e captura os valores. RLS.
+// ---------------------------------------------------------------------------
+export const customFieldDefs = oe.table(
+  'custom_field_defs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    entity: text('entity').notNull(),
+    fieldKey: text('field_key').notNull(),
+    label: text('label').notNull(),
+    // text | textarea | number | date | select | checkbox | phone | email
+    fieldType: text('field_type').notNull().default('text'),
+    options: jsonb('options').$type<string[]>(),
+    required: boolean('required').notNull().default(false),
+    sortOrder: integer('sort_order').notNull().default(0),
+    ...auditCols,
+  },
+  (t) => [
+    index('custom_field_defs_tenant_entity_idx').on(t.tenantId, t.entity),
+    tenantPolicy('custom_field_defs_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// custom_field_values — valores dos campos personalizados por registro. RLS.
+// ---------------------------------------------------------------------------
+export const customFieldValues = oe.table(
+  'custom_field_values',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    fieldId: uuid('field_id').notNull(),
+    recordId: uuid('record_id').notNull(),
+    value: text('value'),
+    ...auditCols,
+  },
+  (t) => [
+    index('custom_field_values_record_idx').on(t.tenantId, t.recordId),
+    uniqueIndex('custom_field_values_field_record_uq').on(t.fieldId, t.recordId),
+    tenantPolicy('custom_field_values_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1667,4 +1712,6 @@ export const schema = {
   schoolCalendarEvents,
   communicationReads,
   enrollmentRequests,
+  customFieldDefs,
+  customFieldValues,
 };

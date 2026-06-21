@@ -31,3 +31,4 @@ export * from './school-calendar';
 export * from './enrollment';
 export * from './plan-management';
 export * from './portal-guardian';
+export * from './custom-fields';
