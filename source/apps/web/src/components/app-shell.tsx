@@ -12,6 +12,7 @@ import { navFor } from '@/lib/nav';
 import { useAgentName } from './agent-name-provider';
 import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
+import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
 import { ThemeToggle } from './theme-toggle';
 
@@ -108,9 +109,15 @@ export function AppShell({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const agentName = useAgentName();
-  const groups = navFor(tenantType, features);
+  const hideLocked = useHideLocked();
+  const allGroups = navFor(tenantType, features);
+  // Esconde os recursos bloqueados quando o usuário optou por isso (preferência do aparelho).
+  const groups = allGroups
+    .map((g) => ({ ...g, items: hideLocked ? g.items.filter((i) => !i.locked) : g.items }))
+    .filter((g) => g.items.length > 0);
   const mainGroups = groups.filter((g) => !g.pinBottom);
   const bottomGroups = groups.filter((g) => g.pinBottom);
+  const hasLocked = allGroups.some((g) => g.items.some((i) => i.locked));
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
   return (
@@ -167,6 +174,11 @@ export function AppShell({
               ))}
             </div>
           )}
+          {hasLocked && (
+            <div className="mt-2 border-t border-border pt-2">
+              <HideLockedToggle className="w-full justify-start" />
+            </div>
+          )}
         </nav>
       </aside>
 
@@ -195,7 +207,7 @@ export function AppShell({
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 pb-24">
-            <AppGrid groups={groups} onNavigate={() => setOpen(false)} />
+            <AppGrid groups={allGroups} onNavigate={() => setOpen(false)} />
           </div>
         </div>
       )}

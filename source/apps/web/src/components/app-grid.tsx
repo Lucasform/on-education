@@ -4,14 +4,22 @@ import Link from 'next/link';
 
 import { Lock, type NavGroup } from '@/lib/nav';
 
+import { HideLockedToggle, useHideLocked } from './hide-locked';
+
 /**
  * Launcher de apps (padrão de home de aplicativo): ícones grandes, tocáveis, agrupados por
  * seção. Usado como tela inicial no mobile e como menu em tela cheia. Cada tile abre a rota.
  */
 export function AppGrid({ groups, onNavigate }: { groups: NavGroup[]; onNavigate?: () => void }) {
+  const hideLocked = useHideLocked();
+  const shown = groups
+    .map((g) => ({ ...g, items: hideLocked ? g.items.filter((i) => !i.locked) : g.items }))
+    .filter((g) => g.items.length > 0);
+  // Só oferece o controle quando há algo bloqueado pra esconder.
+  const hasLocked = groups.some((g) => g.items.some((i) => i.locked));
   return (
     <div className="flex flex-col gap-6">
-      {groups.map((g) => (
+      {shown.map((g) => (
         <section key={g.label}>
           <h3 className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
             {g.label}
@@ -55,6 +63,11 @@ export function AppGrid({ groups, onNavigate }: { groups: NavGroup[]; onNavigate
           </div>
         </section>
       ))}
+      {hasLocked && (
+        <div className="mt-1 flex justify-center">
+          <HideLockedToggle />
+        </div>
+      )}
     </div>
   );
 }
