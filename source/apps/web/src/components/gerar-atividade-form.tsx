@@ -56,6 +56,18 @@ export function GerarAtividadeForm({
       <input name="subject" placeholder="Disciplina (opcional)" className={fieldClass} />
       <SerieFaixaPicker />
 
+      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        Quantidade de exercícios
+        <select name="exerciseCount" defaultValue="" className={`${fieldClass} w-40`}>
+          <option value="">Automático</option>
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n} {n === 1 ? 'exercício' : 'exercícios'}
+            </option>
+          ))}
+        </select>
+      </label>
+
       {isTrabalho && (
         <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-3">
           <div className="flex flex-wrap items-center gap-2">

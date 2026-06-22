@@ -188,6 +188,9 @@ export async function generateActivityWithWayOn(
     (input.subject ? ` Disciplina: ${input.subject}.` : '') +
     (input.gradeLevel || input.level ? ` Série/ano: ${input.gradeLevel ?? input.level}.` : '') +
     (input.ageBand ? ` Faixa etária: ${input.ageBand} anos.` : '') +
+    (input.exerciseCount
+      ? ` Gere EXATAMENTE ${input.exerciseCount} ${input.exerciseCount === 1 ? 'exercício' : 'exercícios'}, numerados de 1 a ${input.exerciseCount}.`
+      : '') +
     (input.kind === 'trabalho' && input.workMode === 'grupo'
       ? ` Trabalho EM GRUPO de ${input.groupSize ?? 3} alunos: divida as tarefas/papéis entre os integrantes.`
       : input.kind === 'trabalho' && input.workMode === 'individual'

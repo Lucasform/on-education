@@ -612,6 +612,7 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     level: (formData.get('level') as string) || undefined,
     gradeLevel: (formData.get('gradeLevel') as string) || undefined,
     ageBand: (formData.get('ageBand') as string) || undefined,
+    exerciseCount: (formData.get('exerciseCount') as string) || undefined,
     kind: (formData.get('kind') as string) || 'atividade',
     workMode: (formData.get('workMode') as string) || undefined,
     groupSize: (formData.get('groupSize') as string) || undefined,

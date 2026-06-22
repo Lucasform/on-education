@@ -511,6 +511,8 @@ export const generateActivitySchema = z.object({
   kind: z.enum(['atividade', 'prova', 'trabalho', 'roteiro']).default('atividade'),
   gradeLevel: z.string().max(60).optional(),
   ageBand: z.string().max(20).optional(),
+  // Quantidade exata de exercícios pedida (1-10). Ausente = o WayOn decide pela faixa/tema.
+  exerciseCount: z.coerce.number().int().min(1).max(10).optional(),
   // Específicos de "trabalho": modo (individual/grupo), tamanho do grupo e materiais sugeridos.
   workMode: z.enum(['individual', 'grupo']).optional(),
   groupSize: z.coerce.number().int().min(2).max(20).optional(),

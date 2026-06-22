@@ -54,7 +54,7 @@ export default async function AtividadeDetalhePage({
       <style
         dangerouslySetInnerHTML={{
           __html:
-            '@media print{@page{margin:0}.print-sheet{padding:16mm 14mm!important;border:0!important;box-shadow:none!important}}',
+            '@media print{@page{size:A4;margin:0}.print-sheet{padding:16mm 14mm!important;border:0!important;box-shadow:none!important;max-width:none!important}}',
         }}
       />
       <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
