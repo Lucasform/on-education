@@ -75,14 +75,32 @@ export default async function AtividadeDetalhePage({
 
       {/* documento imprimível, no padrão da escola/professor (identidade no cabeçalho) */}
       <article className={`${cardClass} print-sheet print:border-0 print:shadow-none`}>
-        <header className="mb-4 flex items-center gap-3 border-b border-border pb-4">
-          {settings?.logoUrl ? (
-            <img src={settings.logoUrl} alt="Logo" className="h-12 w-12 rounded-lg object-cover" />
-          ) : (
-            <span className="h-12 w-12 rounded-lg bg-primary print:hidden" />
-          )}
-          <div>
-            <h1 className="text-xl font-bold leading-tight">{atividade.title}</h1>
+        <header className="mb-4 border-b border-border pb-4">
+          {/* Letterhead: usa o padrão da escola/professor (nome, logo e contato) quando houver. */}
+          <div className="flex items-center gap-3">
+            {settings?.logoUrl ? (
+              <img src={settings.logoUrl} alt="Logo" className="h-12 w-12 rounded-lg object-cover" />
+            ) : (
+              <span className="h-12 w-12 rounded-lg bg-primary print:hidden" />
+            )}
+            <div className="min-w-0">
+              <p className="text-base font-bold leading-tight">
+                {settings?.profileName?.trim() || atividade.title}
+              </p>
+              {settings?.profileName &&
+              (settings?.profilePhone || settings?.profileEmail || settings?.profileAddress) ? (
+                <p className="text-[11px] text-muted-foreground">
+                  {[settings.profilePhone, settings.profileEmail, settings.profileAddress]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-3">
+            {settings?.profileName?.trim() ? (
+              <h1 className="text-lg font-semibold leading-tight">{atividade.title}</h1>
+            ) : null}
             <p className="text-xs text-muted-foreground">
               {atividade.subject ? <span>{atividade.subject}</span> : null}
               {atividade.aiGenerated ? (

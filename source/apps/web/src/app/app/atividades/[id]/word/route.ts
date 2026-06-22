@@ -42,15 +42,29 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     );
   const corpo = await marked.parse(processado, { gfm: true });
 
+  // Letterhead: padrão da escola/professor (nome, logo e contato) quando houver.
   const logo = settings?.logoUrl
     ? `<img src="${settings.logoUrl}" style="height:44px;width:44px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:10px;">`
+    : '';
+  const padrao = settings?.profileName?.trim();
+  const contato = padrao
+    ? [settings?.profilePhone, settings?.profileEmail, settings?.profileAddress]
+        .filter(Boolean)
+        .map((v) => escapeHtml(String(v)))
+        .join(' · ')
     : '';
   const subtitulo = atividade.subject
     ? `<p style="margin:2pt 0 0;color:#555;font-size:10pt;">${escapeHtml(atividade.subject)}</p>`
     : '';
+  // Com padrão da escola/prof: nome da instituicao + contato + titulo. Sem padrão: so o titulo.
   const cabecalho =
     `<div style="border-bottom:1px solid #bbb;padding-bottom:8pt;margin-bottom:10pt;">` +
-    `${logo}<span style="font-size:16pt;font-weight:bold;">${escapeHtml(atividade.title)}</span>${subtitulo}</div>` +
+    (padrao
+      ? `${logo}<span style="font-size:14pt;font-weight:bold;">${escapeHtml(padrao)}</span>` +
+        (contato ? `<div style="color:#666;font-size:9pt;margin-top:2pt;">${contato}</div>` : '') +
+        `<div style="font-size:13pt;font-weight:bold;margin-top:6pt;">${escapeHtml(atividade.title)}</div>`
+      : `${logo}<span style="font-size:15pt;font-weight:bold;">${escapeHtml(atividade.title)}</span>`) +
+    `${subtitulo}</div>` +
     `<table style="width:100%;margin-bottom:14pt;font-size:11pt;"><tr>` +
     `<td>Nome: _______________________________</td>` +
     `<td style="text-align:center;">Turma: ____________</td>` +
