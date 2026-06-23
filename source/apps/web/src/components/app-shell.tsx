@@ -19,17 +19,19 @@ import { ThemeToggle } from './theme-toggle';
 
 // Tour do sidebar (1ª vez): explica o que é cada seção do menu. Só entram os itens que
 // realmente aparecem para o tenant (evita falar de recurso que ele não tem).
+// Ordem = de cima para baixo no menu (sequencial, sem pular).
 const SIDEBAR_TOUR: { href: string; title: string; body: string }[] = [
   { href: '/app', title: 'Início', body: 'Sua visão geral: atalhos, alertas e primeiros passos.' },
-  { href: '/app/turmas', title: 'Turmas', body: 'Crie e organize as turmas.' },
-  { href: '/app/alunos', title: 'Alunos', body: 'Cadastre alunos, abra a ficha e importe em lote.' },
-  { href: '/app/ia', title: 'WayOn (IA)', body: 'Gere plano de aula, atividade, prova e correção em segundos.' },
-  { href: '/app/atividades', title: 'Banco de atividades', body: 'Suas atividades, provas e trabalhos reutilizáveis.' },
-  { href: '/app/sala/chamada', title: 'Sala de aula', body: 'Chamada, notas, diário e boletim ficam por aqui.' },
-  { href: '/app/feed', title: 'Mural & feed', body: 'Novidades, stories e comunicação com a família.' },
-  { href: '/app/financeiro', title: 'Financeiro', body: 'Mensalidades, despesas e fluxo de caixa.' },
   { href: '/app/calendario', title: 'Calendário', body: 'Eventos, agenda e datas importantes.' },
   { href: '/app/planos', title: 'Planos', body: 'Libere mais recursos quando a escola crescer.' },
+  { href: '/app/turmas', title: 'Turmas', body: 'Crie e organize as turmas.' },
+  { href: '/app/alunos', title: 'Alunos', body: 'Cadastre alunos, abra a ficha e importe em lote.' },
+  { href: '/app/sala/chamada', title: 'Sala de aula', body: 'Chamada, notas, diário e boletim ficam por aqui.' },
+  { href: '/app/atividades', title: 'Banco de atividades', body: 'Suas atividades, provas e trabalhos reutilizáveis.' },
+  { href: '/app/ia', title: 'WayOn (IA)', body: 'Gere plano de aula, atividade, prova e correção em segundos.' },
+  { href: '/app/feed', title: 'Mural & feed', body: 'Novidades, stories e comunicação com a família.' },
+  { href: '/app/painel', title: 'Painel de trabalho', body: 'Solicitações da equipe (ocorrência, impressão…) em Kanban.' },
+  { href: '/app/financeiro', title: 'Financeiro', body: 'Mensalidades, despesas e fluxo de caixa.' },
 ];
 
 function NavGroupBlock({
@@ -147,7 +149,14 @@ export function AppShell({
 
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
-      <ProductTour id="sidebar-v1" steps={tourSteps} />
+      <ProductTour
+        id="sidebar-v2"
+        steps={tourSteps}
+        intro={{
+          title: 'Bem-vindo ao Edu On Way!',
+          body: 'Vamos começar o tour com algumas das principais funcionalidades?',
+        }}
+      />
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-card md:block print:hidden">
         <div className="flex h-14 items-center gap-3 border-b border-border px-4">
           {logoUrl ? (

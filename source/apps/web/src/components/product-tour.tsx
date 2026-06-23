@@ -3,38 +3,48 @@
 import { useCallback, useEffect, useState } from 'react';
 
 export interface TourStep {
-  /** Seletor CSS do elemento-alvo (ex.: '[data-tour="nova-turma"]'). */
+  /** Seletor CSS do elemento-alvo (ex.: '[data-tour="nav-/app/turmas"]'). */
   selector: string;
   title: string;
   body: string;
 }
 
 /**
- * Tour guiado: na 1ª visita da página, ilumina o elemento-alvo e mostra um card flutuante
- * com "Próximo". "Não preciso" desliga em TODAS as páginas. Cada página tem seu `id` (só
- * aparece uma vez por página). Sem dependência externa.
+ * Tour guiado: na 1ª visita, pergunta (popup central) se a pessoa quer ver o tour. Se sim,
+ * percorre os passos EM SEQUÊNCIA, iluminando cada alvo. "Não" / "Não preciso" não mostra de novo.
  */
-export function ProductTour({ id, steps }: { id: string; steps: TourStep[] }) {
+export function ProductTour({
+  id,
+  steps,
+  intro,
+}: {
+  id: string;
+  steps: TourStep[];
+  intro?: { title: string; body: string };
+}) {
   const [active, setActive] = useState(false);
+  const [started, setStarted] = useState(false);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     if (localStorage.getItem('tour:disabled') === '1') return;
     if (localStorage.getItem(`tour:${id}`) === '1') return;
-    const t = setTimeout(() => setActive(true), 600); // espera a página montar
+    const t = setTimeout(() => {
+      setActive(true);
+      if (!intro) setStarted(true); // sem popup → começa direto
+    }, 600);
     return () => clearTimeout(t);
-  }, [id]);
+  }, [id, intro]);
 
   const place = useCallback(() => {
     const el = document.querySelector(steps[i]?.selector ?? '');
     const r = el?.getBoundingClientRect();
-    // Ignora elementos ocultos (ex.: sidebar escondida no mobile) → card centralizado.
     setRect(r && r.width > 0 && r.height > 0 ? r : null);
   }, [i, steps]);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || !started) return;
     document.querySelector(steps[i]?.selector ?? '')?.scrollIntoView({
       block: 'center',
       behavior: 'smooth',
@@ -47,13 +57,13 @@ export function ProductTour({ id, steps }: { id: string; steps: TourStep[] }) {
       window.removeEventListener('resize', place);
       window.removeEventListener('scroll', place, true);
     };
-  }, [active, i, place, steps]);
+  }, [active, started, i, place, steps]);
 
   if (!active || steps.length === 0) return null;
-  const step = steps[i]!;
 
+  const markSeen = () => localStorage.setItem(`tour:${id}`, '1');
   const finish = () => {
-    localStorage.setItem(`tour:${id}`, '1');
+    markSeen();
     setActive(false);
   };
   const disableAll = () => {
@@ -61,6 +71,37 @@ export function ProductTour({ id, steps }: { id: string; steps: TourStep[] }) {
     setActive(false);
   };
 
+  // Popup central: pergunta se quer começar.
+  if (!started) {
+    return (
+      <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/55 p-4">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center shadow-2xl">
+          <p className="text-base font-semibold">{intro?.title ?? 'Tour rápido'}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {intro?.body ?? 'Quer um tour pelas principais funcionalidades?'}
+          </p>
+          <div className="mt-5 flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={finish}
+              className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
+              Agora não
+            </button>
+            <button
+              type="button"
+              onClick={() => setStarted(true)}
+              className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              Sim, começar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const step = steps[i]!;
   const cardStyle: React.CSSProperties = rect
     ? {
         top: Math.min(rect.bottom + 12, window.innerHeight - 190),
