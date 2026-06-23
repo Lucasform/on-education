@@ -16,6 +16,8 @@ import type {
 } from '@on-education/validation';
 import { and, arrayContains, desc, eq, ilike, isNotNull, isNull } from 'drizzle-orm';
 
+import { getGlobalExemplar, getUserExemplar } from './ratings';
+
 /**
  * Banco de atividades pessoal (Fase 1B.3). Disponível a 🏫 e 👤 via entitlement
  * `activities.bank`. Checagem tripla em toda operação; soft delete (Master Spec §5).
@@ -203,7 +205,21 @@ export async function generateActivityWithWayOn(
       ? `\n\n--- MATERIAIS DA TURMA (referência) ---\n${input.context}\n--- FIM DOS MATERIAIS ---`
       : '');
 
-  const result = await ai.generate({ prompt, system });
+  // Treino por contexto: melhor exemplo do PRÓPRIO professor (mente direcional) + melhor
+  // GLOBAL (mente central), como referência de qualidade/estilo — nunca para copiar.
+  const [userEx, globalEx] = await Promise.all([
+    getUserExemplar(client, ctx, input.kind).catch(() => null),
+    getGlobalExemplar(client, input.kind, input.ageBand ?? null).catch(() => null),
+  ]);
+  const exemplos =
+    (userEx
+      ? `\n\nEXEMPLO BEM AVALIADO POR ESTE PROFESSOR (referência de estilo e qualidade, NÃO copie o conteúdo):\n${userEx}`
+      : '') +
+    (globalEx
+      ? `\n\nEXEMPLO BEM AVALIADO PELA COMUNIDADE (referência de qualidade, NÃO copie):\n${globalEx}`
+      : '');
+
+  const result = await ai.generate({ prompt, system: exemplos ? system + exemplos : system });
 
   const atividade = await client.withTenant(ctx.tenantId, async (tx) => {
     const rows = await tx

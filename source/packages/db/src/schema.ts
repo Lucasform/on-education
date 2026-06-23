@@ -1667,6 +1667,36 @@ export const pushSubscriptions = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// content_ratings — nota (1-5) do usuário no conteúdo gerado pela IA. Alimenta o "treino"
+// por contexto: exemplares por usuário (mente direcional) e globais (mente central). RLS.
+// ---------------------------------------------------------------------------
+export const contentRatings = oe.table(
+  'content_ratings',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    // atividade | prova | trabalho | roteiro | plano | flashcards | imagem
+    kind: text('kind').notNull(),
+    contentId: uuid('content_id'),
+    rating: integer('rating').notNull(),
+    comment: text('comment'),
+    subject: text('subject'),
+    gradeLevel: text('grade_level'),
+    ageBand: text('age_band'),
+    // Texto do conteúdo avaliado (anonimizado) — usado como exemplar nas próximas gerações.
+    snapshot: text('snapshot'),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('content_ratings_user_content_uq').on(t.userId, t.kind, t.contentId),
+    index('content_ratings_user_kind_idx').on(t.tenantId, t.userId, t.kind),
+    index('content_ratings_kind_rating_idx').on(t.kind, t.rating),
+    tenantPolicy('content_ratings_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1737,4 +1767,5 @@ export const schema = {
   customFieldDefs,
   customFieldValues,
   pushSubscriptions,
+  contentRatings,
 };

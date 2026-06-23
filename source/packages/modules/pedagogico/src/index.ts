@@ -5,3 +5,4 @@ export * from './flashcards';
 export * from './materials';
 export * from './portfolio';
 export * from './quizzes';
+export * from './ratings';

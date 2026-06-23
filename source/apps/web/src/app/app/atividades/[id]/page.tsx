@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { ContentRating } from '@/components/content-rating';
 import { WorksheetView } from '@/components/worksheet-view';
 import { PrintButton } from '@/components/print-button';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
@@ -145,6 +146,14 @@ export default async function AtividadeDetalhePage({
           <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
         )}
       </article>
+
+      <div className={`${cardClass} print:hidden`}>
+        <h2 className="mb-1 text-sm font-medium">Avalie esta atividade</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Dê uma nota: a IA usa as mais bem avaliadas como referência e melhora a cada uso.
+        </p>
+        <ContentRating contentId={atividade.id} />
+      </div>
 
       {!atividade.approved && (
         <div
