@@ -35,15 +35,15 @@ import { WayonChat } from '@/components/wayon-chat';
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
 const HERO_IMG =
-  'https://images.pexels.com/photos/5306457/pexels-photo-5306457.jpeg?auto=compress&cs=tinysrgb&w=1400';
+  'https://images.pexels.com/photos/8923082/pexels-photo-8923082.jpeg?auto=compress&cs=tinysrgb&w=1400';
 const NUMEROS_IMG =
-  'https://images.pexels.com/photos/31864447/pexels-photo-31864447.jpeg?auto=compress&cs=tinysrgb&w=900';
+  'https://images.pexels.com/photos/8535173/pexels-photo-8535173.jpeg?auto=compress&cs=tinysrgb&w=900';
 const FAMILIA_IMG =
-  'https://images.pexels.com/photos/8613085/pexels-photo-8613085.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/8535177/pexels-photo-8535177.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const ESCOLA_IMG =
-  'https://images.pexels.com/photos/5306440/pexels-photo-5306440.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/35769752/pexels-photo-35769752.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const PROF_IMG =
-  'https://images.pexels.com/photos/6913213/pexels-photo-6913213.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/8342412/pexels-photo-8342412.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
@@ -248,7 +248,9 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2">
             <LogoMark size={32} />
-            <span className="text-lg font-bold tracking-tight">Edu On Way</span>
+            <span className="text-lg font-bold tracking-tight">
+              Edu <span className="text-primary">On Way</span>
+            </span>
           </a>
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             {NAV.map((n) => (
@@ -315,6 +317,17 @@ export default function HomePage() {
                 Atividade feita pelo WayOn
               </div>
             </Reveal>
+          </div>
+        </section>
+
+        {/* faixa de confiança / selos (estilo Principia: prova rápida) */}
+        <section className="border-b border-border bg-background">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-5 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Dados isolados por escola</span>
+            <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Login com 2 etapas (2FA)</span>
+            <span className="inline-flex items-center gap-2"><HeartHandshake className="h-4 w-4 text-primary" /> Conformidade com a LGPD</span>
+            <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-amber-500" /> IA que aprende com o professor</span>
+            <span className="inline-flex items-center gap-2"><Zap className="h-4 w-4 text-amber-500" /> No ar em semanas</span>
           </div>
         </section>
 
@@ -501,6 +514,44 @@ export default function HomePage() {
                   </ul>
                 </div>
               </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* inteligência artificial (full-width, destaque estilo Principia) */}
+        <section id="ia" className="border-b border-border bg-gradient-to-b from-primary/5 to-background">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> Conheça o WayOn
+              </span>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+                Inteligência artificial que ensina junto
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                O WayOn planeja, cria, corrige e aprende com o seu jeito de ensinar. Você no comando,
+                a IA tirando o trabalho repetitivo do caminho.
+              </p>
+            </Reveal>
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: Sparkles, t: 'Plano de aula em minutos', d: 'Descreva o tema e receba um plano pronto para ajustar, alinhado à BNCC.' },
+                { icon: ClipboardCheck, t: 'Atividades e provas', d: 'Gere exercícios, provas e trabalhos por matéria e faixa etária num clique.' },
+                { icon: BarChart3, t: 'Correção e feedback', d: 'A IA ajuda a corrigir e a devolver retorno útil para cada aluno, mais rápido.' },
+                { icon: Layers, t: 'Aprende com você', d: 'Quanto mais você usa e avalia, mais o conteúdo fica com a sua cara. É o seu diferencial.' },
+                { icon: MessageSquare, t: 'Comunicação pronta', d: 'Rascunhos de comunicados e mensagens para a família, no tom certo.' },
+                { icon: ShieldCheck, t: 'Sempre com você no comando', d: 'Nada é publicado sozinho. O professor revisa e aprova antes de tudo.' },
+              ].map((f) => (
+                <Reveal key={f.t}>
+                  <div className="h-full rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-lg">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <f.icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="mt-4 font-semibold">{f.t}</h3>
+                    <p className="mt-1.5 text-sm text-muted-foreground">{f.d}</p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
