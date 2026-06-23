@@ -35,13 +35,13 @@ import { WayonChat } from '@/components/wayon-chat';
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
 const HERO_IMG =
-  'https://images.pexels.com/photos/8423011/pexels-photo-8423011.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  'https://images.pexels.com/photos/8088232/pexels-photo-8088232.jpeg?auto=compress&cs=tinysrgb&w=1200';
 const NUMEROS_IMG =
-  'https://images.pexels.com/photos/5905923/pexels-photo-5905923.jpeg?auto=compress&cs=tinysrgb&w=900';
+  'https://images.pexels.com/photos/8617938/pexels-photo-8617938.jpeg?auto=compress&cs=tinysrgb&w=900';
 const FAMILIA_IMG =
-  'https://images.pexels.com/photos/8422132/pexels-photo-8422132.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/8613085/pexels-photo-8613085.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const ESCOLA_IMG =
-  'https://images.pexels.com/photos/5212342/pexels-photo-5212342.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/8423049/pexels-photo-8423049.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
