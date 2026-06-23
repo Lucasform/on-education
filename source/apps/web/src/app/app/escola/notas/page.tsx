@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button';
-import { getTenantSettings, listGradeComponents } from '@on-education/module-nucleo';
+import { getTenantSettings, listClasses, listGradeComponentsFor } from '@on-education/module-nucleo';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
@@ -16,18 +17,30 @@ import {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Notas e pesos · Edu On Way' };
 
-export default async function NotasConfigPage() {
+export default async function NotasConfigPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ turma?: string }>;
+}) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
   if (ctx.tenantType !== 'organization') redirect('/app');
   const client = db();
 
-  const [settings, componentes] = await Promise.all([
+  const { turma } = await searchParams;
+  const escopo = turma || null;
+  const [settings, turmas, componentes] = await Promise.all([
     getTenantSettings(client, ctx).catch(() => null),
-    listGradeComponents(client, ctx).catch(() => [] as Awaited<ReturnType<typeof listGradeComponents>>),
+    listClasses(client, ctx).catch(() => []),
+    listGradeComponentsFor(client, ctx, escopo).catch(
+      () => [] as Awaited<ReturnType<typeof listGradeComponentsFor>>,
+    ),
   ]);
   const escala = settings?.gradeScale ?? 10;
   const somaPesos = componentes.reduce((a, c) => a + c.weight, 0);
+  const escopoLabel = escopo
+    ? (turmas.find((t) => t.id === escopo)?.name ?? 'Turma')
+    : 'Geral (todas as turmas)';
 
   return (
     <>
@@ -35,6 +48,31 @@ export default async function NotasConfigPage() {
         title="Notas e pesos"
         description="A escola define a escala e o peso de cada tipo de atividade. O sistema calcula a média ponderada por trás, sozinho."
       />
+
+      <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-xs text-muted-foreground">Configurar para</span>
+          <select name="turma" defaultValue={escopo ?? ''} className={`${fieldClass} sm:w-64`}>
+            <option value="">Geral (todas as turmas)</option>
+            {turmas.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <SubmitButton type="submit" size="sm" variant="outline">
+          Ver
+        </SubmitButton>
+        {escopo && (
+          <Link href="/app/escola/notas" className="text-xs text-primary underline-offset-4 hover:underline">
+            voltar ao geral
+          </Link>
+        )}
+        <p className="w-full text-xs text-muted-foreground">
+          Cada turma pode ter seus próprios componentes. Se a turma não tiver, vale o “Geral”.
+        </p>
+      </form>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
@@ -74,7 +112,9 @@ export default async function NotasConfigPage() {
       </div>
 
       <div className={cardClass}>
-        <h2 className="mb-3 text-sm font-medium">Componentes da média ({componentes.length})</h2>
+        <h2 className="mb-3 text-sm font-medium">
+          Componentes da média · {escopoLabel} ({componentes.length})
+        </h2>
         {componentes.length === 0 ? (
           <p className="mb-3 text-sm text-muted-foreground">
             Nenhum componente. Sem componentes, a média é a aritmética simples das notas. Crie, por
@@ -107,6 +147,7 @@ export default async function NotasConfigPage() {
           </ul>
         )}
         <form action={createGradeComponentAction} className="flex flex-wrap items-end gap-2">
+          <input type="hidden" name="classId" value={escopo ?? ''} />
           <label className="flex flex-col gap-1 text-sm">
             Componente
             <input name="name" required placeholder="ex.: Prova" className={fieldClass} />

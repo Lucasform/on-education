@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { AuthContext } from '@on-education/auth';
 import type { DbClient } from '@on-education/db';
-import { getStudent, listGradeComponents, weightedAverage } from '@on-education/module-nucleo';
+import { getStudent, resolveGradeComponents, weightedAverage } from '@on-education/module-nucleo';
 import { listAttendanceForStudent, listGradesForStudent } from '@on-education/module-sala-de-aula';
 
 export interface StudentSummary {
@@ -21,13 +21,15 @@ export async function buildStudentSummary(
   studentId: string,
 ): Promise<StudentSummary | null> {
   const isSchool = ctx.tenantType === 'organization';
-  const [aluno, minhasNotas, minhasPresencas, componentes] = await Promise.all([
+  const [aluno, minhasNotas, minhasPresencas] = await Promise.all([
     getStudent(client, ctx, studentId),
     listGradesForStudent(client, ctx, studentId),
     listAttendanceForStudent(client, ctx, studentId),
-    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
   ]);
   if (!aluno) return null;
+  const componentes = isSchool
+    ? await resolveGradeComponents(client, ctx, aluno.classId ?? null)
+    : [];
 
   const mediaNum = weightedAverage(minhasNotas, componentes);
   const average = mediaNum === null ? '—' : mediaNum.toFixed(1);
@@ -73,13 +75,16 @@ export async function buildStudentBoletim(
   studentId: string,
 ): Promise<StudentBoletim | null> {
   const isSchool = ctx.tenantType === 'organization';
-  const [aluno, notas, presencas, componentes] = await Promise.all([
+  const [aluno, notas, presencas] = await Promise.all([
     getStudent(client, ctx, studentId),
     listGradesForStudent(client, ctx, studentId),
     listAttendanceForStudent(client, ctx, studentId),
-    isSchool ? listGradeComponents(client, ctx) : Promise.resolve([]),
   ]);
   if (!aluno) return null;
+  // Componentes da TURMA do aluno (se a turma tiver os seus); senão os gerais da escola.
+  const componentes = isSchool
+    ? await resolveGradeComponents(client, ctx, aluno.classId ?? null)
+    : [];
 
   const compName = new Map(componentes.map((c) => [c.id, c.name]));
   const scale = 10;

@@ -1,7 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { type DbClient, gradeComponents } from '@on-education/db';
 import type { CreateGradeComponentInput } from '@on-education/validation';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, isNull } from 'drizzle-orm';
 
 /**
  * Composição da média (pesos das atividades) definida pela ESCOLA. Ex.: Prova peso 1,
@@ -12,6 +12,7 @@ export async function createGradeComponent(
   client: DbClient,
   ctx: AuthContext,
   input: CreateGradeComponentInput,
+  classId?: string | null,
 ) {
   assertCan(ctx, 'update', 'tenant_settings');
   return client.withTenant(ctx.tenantId, async (tx) => {
@@ -21,6 +22,7 @@ export async function createGradeComponent(
         tenantId: ctx.tenantId,
         name: input.name,
         weight: input.weight,
+        classId: classId ?? null,
         createdBy: ctx.userId,
       })
       .returning();
@@ -28,6 +30,7 @@ export async function createGradeComponent(
   });
 }
 
+/** Todos os componentes (geral + de todas as turmas). Mantido para telas que listam tudo. */
 export async function listGradeComponents(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'tenant_settings');
   return client.withTenant(ctx.tenantId, (tx) =>
@@ -36,6 +39,35 @@ export async function listGradeComponents(client: DbClient, ctx: AuthContext) {
       .from(gradeComponents)
       .orderBy(asc(gradeComponents.position), asc(gradeComponents.createdAt)),
   );
+}
+
+/** Componentes de um escopo: geral (classId null) OU de uma turma específica. */
+export async function listGradeComponentsFor(
+  client: DbClient,
+  ctx: AuthContext,
+  classId: string | null,
+) {
+  assertCan(ctx, 'read', 'tenant_settings');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(gradeComponents)
+      .where(classId ? eq(gradeComponents.classId, classId) : isNull(gradeComponents.classId))
+      .orderBy(asc(gradeComponents.position), asc(gradeComponents.createdAt)),
+  );
+}
+
+/** Resolve os componentes para cálculo: usa os da turma se ela tiver; senão, os gerais. */
+export async function resolveGradeComponents(
+  client: DbClient,
+  ctx: AuthContext,
+  classId: string | null,
+) {
+  if (classId) {
+    const own = await listGradeComponentsFor(client, ctx, classId);
+    if (own.length > 0) return own;
+  }
+  return listGradeComponentsFor(client, ctx, null);
 }
 
 export async function deleteGradeComponent(client: DbClient, ctx: AuthContext, id: string) {

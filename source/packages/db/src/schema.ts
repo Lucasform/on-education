@@ -810,6 +810,8 @@ export const gradeComponents = oe.table(
     name: text('name').notNull(),
     weight: real('weight').notNull().default(1),
     position: integer('position').notNull().default(0),
+    // Escopo: NULL = geral (todas as turmas); preenchido = componentes só daquela turma.
+    classId: uuid('class_id'),
     ...auditCols,
   },
   (t) => [

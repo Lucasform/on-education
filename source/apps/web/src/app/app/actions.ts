@@ -2197,7 +2197,8 @@ export async function createGradeComponentAction(formData: FormData): Promise<vo
     name: formData.get('name'),
     weight: formData.get('weight'),
   });
-  await createGradeComponent(db(), ctx, input);
+  const classId = (formData.get('classId') as string) || null;
+  await createGradeComponent(db(), ctx, input, classId);
   revalidatePath('/app/escola/notas', 'page');
 }
 
