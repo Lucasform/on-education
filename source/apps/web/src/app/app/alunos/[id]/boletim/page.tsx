@@ -1,11 +1,17 @@
+import { reportComments } from '@on-education/db';
+import { isAiConfigured } from '@on-education/module-ia';
 import { getTenantSettings } from '@on-education/module-nucleo';
+import { eq } from 'drizzle-orm';
 import { redirect, notFound } from 'next/navigation';
 
-import { cardClass, PageHeader } from '@/components/form';
+import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
+import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 import { buildStudentBoletim } from '@/server/student-report';
+
+import { generateReportCommentAction, saveReportCommentAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Boletim do aluno · Edu On Way' };
@@ -28,6 +34,18 @@ export default async function BoletimAlunoPage({ params }: { params: Promise<{ i
     getTenantSettings(client, ctx).catch(() => null),
   ]);
   if (!boletim) notFound();
+
+  const cmtRows = await client
+    .withTenant(ctx.tenantId, (tx) =>
+      tx
+        .select({ c: reportComments.comment })
+        .from(reportComments)
+        .where(eq(reportComments.studentId, id))
+        .limit(1),
+    )
+    .catch(() => [] as { c: string }[]);
+  const comentario = cmtRows[0]?.c ?? '';
+  const aiOn = isAiConfigured();
 
   const st = STATUS_LABEL[boletim.status] ?? { label: 'Sem nota', cls: 'bg-muted text-muted-foreground' };
   const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -126,6 +144,39 @@ export default async function BoletimAlunoPage({ params }: { params: Promise<{ i
             </ul>
           </div>
         )}
+
+        {/* Comentário do boletim (gerado pela IA e/ou editado) */}
+        <div className="mt-5">
+          <h2 className="mb-2 text-sm font-medium">Comentário</h2>
+          {comentario ? (
+            <p className="whitespace-pre-wrap text-sm">{comentario}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground print:hidden">Sem comentário ainda.</p>
+          )}
+          <div className="mt-3 flex flex-col gap-2 print:hidden">
+            <form action={saveReportCommentAction} className="flex flex-col gap-2">
+              <input type="hidden" name="studentId" value={id} />
+              <textarea
+                name="comment"
+                defaultValue={comentario}
+                rows={3}
+                placeholder="Comentário do boletim…"
+                className={`${fieldClass} resize-none`}
+              />
+              <SubmitButton type="submit" size="sm" variant="outline" className="self-start">
+                Salvar comentário
+              </SubmitButton>
+            </form>
+            {aiOn && (
+              <form action={generateReportCommentAction}>
+                <input type="hidden" name="studentId" value={id} />
+                <SubmitButton type="submit" size="sm">
+                  Gerar com IA
+                </SubmitButton>
+              </form>
+            )}
+          </div>
+        </div>
 
         {/* Assinaturas (impressão) */}
         <div className="mt-10 hidden grid-cols-2 gap-8 print:grid">

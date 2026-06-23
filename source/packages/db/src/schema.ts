@@ -1791,6 +1791,24 @@ export const gateLogs = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// report_comments — comentário do boletim por aluno (gerado pela IA e/ou editado). RLS.
+// ---------------------------------------------------------------------------
+export const reportComments = oe.table(
+  'report_comments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    comment: text('comment').notNull().default(''),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('report_comments_student_uq').on(t.studentId),
+    tenantPolicy('report_comments_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // leads — CRM de captação (funil de matrícula): novo → contato → visita → matriculado/perdido.
 // Tenant-scoped + RLS.
 // ---------------------------------------------------------------------------
