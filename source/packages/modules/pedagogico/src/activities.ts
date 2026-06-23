@@ -19,6 +19,30 @@ import { and, arrayContains, desc, eq, ilike, isNotNull, isNull } from 'drizzle-
 import { buildTrainingContext } from './ratings';
 
 /**
+ * Título padronizado: aproveita o título curto que a IA já gera (1ª linha do conteúdo),
+ * sem emoji/markdown, e acrescenta a série/faixa. Evita jogar a frase-pedido inteira no nome.
+ */
+function deriveTitle(text: string, fallback: string, serie?: string | null): string {
+  let base = '';
+  for (const raw of text.split('\n')) {
+    const t = raw
+      .replace(/^#+\s*/, '')
+      .replace(/[*_`>]/g, '')
+      .trim();
+    if (t.length >= 3 && !t.startsWith('[') && !/^\d+[).]/.test(t)) {
+      base = t;
+      break;
+    }
+  }
+  base = (base || fallback)
+    .replace(/^[^\p{L}\p{N}]+/u, '') // tira emoji/símbolo no início
+    .trim()
+    .slice(0, 100);
+  if (serie && !base.toLowerCase().includes(serie.toLowerCase())) base = `${base} · ${serie}`;
+  return base.slice(0, 160);
+}
+
+/**
  * Banco de atividades pessoal (Fase 1B.3). Disponível a 🏫 e 👤 via entitlement
  * `activities.bank`. Checagem tripla em toda operação; soft delete (Master Spec §5).
  */
@@ -139,6 +163,9 @@ export async function generateActivityWithWayOn(
     '- Deixe linhas/espaços de resposta ("______") onde o aluno escreve.\n' +
     '- Ajuste a dificuldade e o vocabulário à série/faixa informada (educação infantil = comandos ' +
     'curtos de pintar, cobrir, ligar e completar).\n' +
+    '- EDUCAÇÃO INFANTIL e 1º ANO (em alfabetização): escreva os enunciados, palavras e textos em ' +
+    'CAIXA ALTA (LETRAS MAIÚSCULAS) — é a letra que essas crianças reconhecem. Nos demais anos, ' +
+    'use a escrita normal.\n' +
     '- POR PADRÃO gere cerca de 2 páginas, com POUCOS exercícios bem feitos; gere mais só se o ' +
     'usuário pedir explicitamente.\n' +
     'NÍVEL: do mais OBJETIVO (crianças) ao mais ELABORADO (mais velhos). Combine SEMPRE o tipo de ' +
@@ -217,7 +244,11 @@ export async function generateActivityWithWayOn(
       .insert(activities)
       .values({
         tenantId: ctx.tenantId,
-        title: `${tipo.prefixo}${input.topic}`.slice(0, 200),
+        title: deriveTitle(
+          result.text,
+          `${tipo.prefixo}${input.topic}`,
+          input.gradeLevel ?? (input.ageBand ? `${input.ageBand} anos` : input.level) ?? null,
+        ),
         subject: input.subject ?? null,
         kind: input.kind,
         gradeLevel: input.gradeLevel ?? input.level ?? null,

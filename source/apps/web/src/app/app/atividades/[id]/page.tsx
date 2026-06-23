@@ -55,7 +55,11 @@ export default async function AtividadeDetalhePage({
       <style
         dangerouslySetInnerHTML={{
           __html:
-            '@media print{@page{size:A4;margin:0}.print-sheet{padding:16mm 14mm!important;border:0!important;box-shadow:none!important;max-width:none!important}}',
+            '@media print{@page{size:A4;margin:0}' +
+            '.print-sheet{padding:16mm 14mm!important;border:0!important;box-shadow:none!important;max-width:none!important}' +
+            // Enquadramento: não corta exercício/figura no meio nem deixa título órfão no rodapé.
+            '.print-sheet li,.print-sheet p,.print-sheet table,.print-sheet img,.print-sheet h2,.print-sheet h3,.print-sheet blockquote{break-inside:avoid}' +
+            '.print-sheet h1,.print-sheet h2,.print-sheet h3{break-after:avoid}}',
         }}
       />
       <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
@@ -71,6 +75,15 @@ export default async function AtividadeDetalhePage({
             Baixar Word
           </a>
           <PrintButton label="Imprimir / PDF" />
+        </div>
+      </div>
+
+      {/* Avaliação no topo: fácil de avaliar de imediato (recolhe após enviar). */}
+      <div className={`${cardClass} flex flex-wrap items-center gap-x-4 gap-y-2 print:hidden`}>
+        <span className="text-sm font-medium">Avalie esta atividade</span>
+        <span className="text-xs text-muted-foreground">a IA aprende com as melhores notas.</span>
+        <div className="ml-auto">
+          <ContentRating contentId={atividade.id} />
         </div>
       </div>
 
@@ -146,14 +159,6 @@ export default async function AtividadeDetalhePage({
           <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
         )}
       </article>
-
-      <div className={`${cardClass} print:hidden`}>
-        <h2 className="mb-1 text-sm font-medium">Avalie esta atividade</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Dê uma nota: a IA usa as mais bem avaliadas como referência e melhora a cada uso.
-        </p>
-        <ContentRating contentId={atividade.id} />
-      </div>
 
       {!atividade.approved && (
         <div
