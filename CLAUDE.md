@@ -78,5 +78,27 @@ Plataforma educacional multi-tenant para cursos online. Stack: Next.js 14, Drizz
 
 ---
 
+## 🌐 Domínio do produto
+
+Conhecimento de domínio (regras acadêmicas, LGPD com menores, edge cases) em
+[`DOMINIO.md`](DOMINIO.md). Consultar antes de implementar lógica de notas,
+frequência, matrícula ou IA pedagógica.
+
+---
+
+## 🧪 Ritual de pré-mortem / advogado do diabo (obrigatório)
+
+Antes de qualquer mudança significativa (feature, schema, integração):
+
+1. **Pré-mortem:** "6 meses no futuro, isso falhou. Quais as 3 causas mais prováveis?"
+2. **Advogado do diabo:** pedir ao Claude para argumentar CONTRA a ideia e achar
+   evidência que a refute, não que a confirme. Postura padrão: cético.
+3. **Premissas:** listar as 3 premissas de que a ideia mais depende; o que precisa
+   ser verdade, e o que acontece se não for.
+4. Só prosseguir se as respostas não derrubarem a ideia. Registrar a conclusão no
+   doc da fase / decisão.
+
+---
+
 **Contato**: lucas.gonzaga (pessoal)
-**Última atualização**: 2026-06-12
+**Última atualização**: 2026-06-23
