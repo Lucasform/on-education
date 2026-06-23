@@ -14,19 +14,34 @@ import {
   School,
   ShieldCheck,
   Sparkles,
+  Star,
   UserRound,
   Users,
   Wallet,
   X,
+  Zap,
 } from 'lucide-react';
 
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 import { LandingPhoto } from '@/components/landing-photo';
 import { LogoMark } from '@/components/logo-mark';
-import { SplashScreen } from '@/components/splash-screen';
 import { PricingCards } from '@/components/pricing-cards';
+import { Reveal } from '@/components/reveal';
+import { SplashScreen } from '@/components/splash-screen';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { WayonChat } from '@/components/wayon-chat';
+
+// Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
+// public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
+const HERO_IMG =
+  'https://images.pexels.com/photos/8423011/pexels-photo-8423011.jpeg?auto=compress&cs=tinysrgb&w=1200';
+const NUMEROS_IMG =
+  'https://images.pexels.com/photos/5905923/pexels-photo-5905923.jpeg?auto=compress&cs=tinysrgb&w=900';
+const FAMILIA_IMG =
+  'https://images.pexels.com/photos/8422132/pexels-photo-8422132.jpeg?auto=compress&cs=tinysrgb&w=1000';
+const ESCOLA_IMG =
+  'https://images.pexels.com/photos/5212342/pexels-photo-5212342.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
@@ -36,7 +51,6 @@ const NAV = [
   { label: 'Para escolas', href: '/signup/escola' },
 ];
 
-// Faixa de números honestos (sem inventar base de usuários, que não temos ainda).
 const NUMEROS = [
   { n: '8', l: 'módulos integrados' },
   { n: '7 dias', l: 'grátis, sem cartão' },
@@ -44,7 +58,6 @@ const NUMEROS = [
   { n: '100%', l: 'LGPD, dados isolados' },
 ];
 
-// Benefício por público (no espírito do "para cada pessoa da escola").
 const AUDIENCIAS = [
   {
     icon: GraduationCap,
@@ -68,7 +81,6 @@ const AUDIENCIAS = [
   },
 ];
 
-// Módulos da plataforma (leitura de "suíte", no espírito de um sistema de gestão completo).
 const MODULOS = [
   {
     icon: Sparkles,
@@ -83,7 +95,7 @@ const MODULOS = [
   {
     icon: ClipboardCheck,
     titulo: 'Diário e boletim',
-    texto: 'Chamada, notas e frequência sem planilha, com boletim pronto no seu padrão.',
+    texto: 'Chamada, notas e frequência sem planilha, com boletim no seu padrão.',
   },
   {
     icon: FolderOpen,
@@ -112,7 +124,6 @@ const MODULOS = [
   },
 ];
 
-// Conexão família-escola (ideia central de quem faz gestão escolar de verdade).
 const FAMILIA = [
   'Mural e comunicados no lugar dos grupos de WhatsApp',
   'Boletim e frequência no portal do responsável',
@@ -120,7 +131,6 @@ const FAMILIA = [
   'Aviso de reunião, evento e ocorrência na hora certa',
 ];
 
-// Antes x depois: o contraste do dia a dia (sem a plataforma vs com a plataforma).
 const ANTES = [
   'Diário no papel, notas espalhadas e planilhas soltas',
   'Horas montando plano de aula e prova do zero',
@@ -208,6 +218,16 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <SplashScreen />
+      <WayonChat />
+
+      <style>{`
+        @keyframes eow-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        @keyframes eow-float2 { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(12px) rotate(8deg)} }
+        .eow-a{animation:eow-float 6s ease-in-out infinite}
+        .eow-b{animation:eow-float2 9s ease-in-out infinite}
+        @media (prefers-reduced-motion: reduce){.eow-a,.eow-b{animation:none}}
+      `}</style>
+
       {/* barra de anúncio */}
       <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
         ✨ Conheça o WayOn, o agente que planeja, corrige e organiza com você.
@@ -243,14 +263,14 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 pb-20">
-        {/* hero */}
-        <section className="relative mt-8 overflow-hidden rounded-3xl border border-border bg-primary/10 p-8 sm:p-12 lg:p-16">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-
-          <div className="relative grid items-center gap-10 lg:grid-cols-2">
-            <div>
+      <main>
+        {/* hero (full-width) */}
+        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/10 to-background">
+          <Star className="eow-a pointer-events-none absolute left-[6%] top-16 h-6 w-6 text-primary/30" />
+          <Zap className="eow-b pointer-events-none absolute right-[10%] top-24 h-7 w-7 text-amber-400/50" />
+          <Sparkles className="eow-a pointer-events-none absolute bottom-12 left-[14%] h-5 w-5 text-primary/30" />
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:py-24">
+            <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
                 <HeartHandshake className="h-3.5 w-3.5 text-primary" />
                 Uma parceria para a sua escola crescer
@@ -265,15 +285,14 @@ export default function HomePage() {
                 organiza ao seu lado, e a família acompanha tudo de perto, num só lugar.
               </p>
               <AudienceButtons variant="surface" />
-            </div>
+            </Reveal>
 
-            {/* visual: foto da escola/sala + chips do produto por cima */}
-            <div className="relative mt-2">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl">
+            <Reveal delay={120} className="relative">
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-2xl">
                 <LandingPhoto
-                  src="/landing/hero.jpg"
+                  src={HERO_IMG}
                   alt="Professora usando o Edu On Way em sala de aula"
-                  label="Foto da sua escola entra aqui (public/landing/hero.jpg)"
+                  label="Adicione a foto da sua escola"
                 />
               </div>
               <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
@@ -284,82 +303,122 @@ export default function HomePage() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 Atividade feita pelo WayOn
               </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* números (full-width, banda escura da marca, no estilo "conquistou o Brasil") */}
+        <section className="relative overflow-hidden bg-[#13152E] text-white">
+          <Star className="eow-b pointer-events-none absolute right-[8%] top-10 h-6 w-6 text-amber-400/40" />
+          <Sparkles className="eow-a pointer-events-none absolute bottom-10 right-[20%] h-5 w-5 text-white/20" />
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2">
+            <Reveal className="relative">
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
+                <LandingPhoto
+                  src={NUMEROS_IMG}
+                  alt="Professora e alunos felizes"
+                  label="Foto da comunidade escolar"
+                />
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
+                Feito para a escola toda crescer.
+              </h2>
+              <p className="mt-2 max-w-md text-white/70">
+                Uma plataforma só, do planejamento à comunicação com a família.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-6">
+                {NUMEROS.map((x) => (
+                  <div key={x.l}>
+                    <div className="text-3xl font-bold text-primary sm:text-4xl">{x.n}</div>
+                    <div className="mt-1 text-sm text-white/70">{x.l}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* para cada público (full-width) */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <span className="text-sm font-semibold text-primary">Para a escola toda</span>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+                Cada pessoa da escola no seu lugar.
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                Alunos, professores, gestores e famílias, cada um com a visão que precisa.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {AUDIENCIAS.map((d, i) => (
+                <Reveal key={d.titulo} delay={i * 80}>
+                  <div className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <d.icon className="h-5 w-5" />
+                    </span>
+                    <div className="mt-4 font-semibold">{d.titulo}</div>
+                    <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* faixa de números */}
-        <section className="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-4">
-          {NUMEROS.map((x) => (
-            <div key={x.l} className="text-center">
-              <div className="text-2xl font-bold text-primary sm:text-3xl">{x.n}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{x.l}</div>
+        {/* módulos (full-width, fundo alternado) */}
+        <section id="modulos" className="border-b border-border bg-muted/40">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <span className="text-sm font-semibold text-primary">A plataforma</span>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+                Uma plataforma, vários módulos.
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                Do planejamento à comunicação com os pais, tudo integrado e com o WayOn acelerando
+                cada etapa.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {MODULOS.map((d, i) => (
+                <Reveal key={d.titulo} delay={(i % 4) * 80}>
+                  <div className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <d.icon className="h-5 w-5" />
+                    </span>
+                    <div className="mt-4 font-semibold">{d.titulo}</div>
+                    <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
-          ))}
+          </div>
         </section>
 
-        {/* para cada público */}
-        <section className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-sm font-semibold text-primary">Para a escola toda</span>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-              Cada pessoa da escola no seu lugar.
-            </h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Alunos, professores, gestores e famílias, cada um com a visão que precisa.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {AUDIENCIAS.map((d) => (
-              <div
-                key={d.titulo}
-                className="rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <d.icon className="h-5 w-5" />
-                </span>
-                <div className="mt-4 font-semibold">{d.titulo}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+        {/* família e escola (full-width, foto + lista) */}
+        <section id="familia" className="border-b border-border">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 sm:py-20 md:grid-cols-2">
+            <Reveal className="relative order-2 md:order-1">
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl">
+                <LandingPhoto
+                  src={FAMILIA_IMG}
+                  alt="Crianças na escola acompanhadas pela família"
+                  label="Foto: família e escola"
+                />
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* módulos */}
-        <section id="modulos" className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-sm font-semibold text-primary">A plataforma</span>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-              Uma plataforma, vários módulos.
-            </h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Do planejamento à comunicação com os pais, tudo integrado e com o WayOn acelerando
-              cada etapa.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {MODULOS.map((d) => (
-              <div
-                key={d.titulo}
-                className="rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <d.icon className="h-5 w-5" />
-                </span>
-                <div className="mt-4 font-semibold">{d.titulo}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+              <div className="absolute -bottom-4 -right-4 w-56 rounded-2xl border border-border bg-card p-4 shadow-xl">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <Bell className="h-4 w-4 text-primary" />
+                  Mural da escola
+                </div>
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 p-2 text-xs text-primary">
+                  <MessageSquare className="h-3.5 w-3.5" />3 novos comunicados
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* família e escola */}
-        <section
-          id="familia"
-          className="mt-20 overflow-hidden rounded-3xl border border-border bg-card"
-        >
-          <div className="grid gap-0 md:grid-cols-2">
-            <div className="p-8 sm:p-12">
+            </Reveal>
+            <Reveal delay={120} className="order-1 md:order-2">
               <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 <HeartHandshake className="h-3.5 w-3.5" />
                 Família por perto
@@ -381,224 +440,232 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="relative flex items-center justify-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 sm:p-12">
-              <div className="w-full max-w-xs rounded-2xl border border-border bg-background/70 p-5 shadow-xl backdrop-blur">
-                <div className="flex items-center gap-2 border-b border-border pb-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
-                    <Bell className="h-4 w-4" />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* antes e depois (full-width) */}
+        <section className="border-b border-border bg-muted/40">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Do caos à clareza</h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                O que muda no seu dia a dia quando tudo vive num lugar só.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              <Reveal>
+                <div className="h-full rounded-3xl border border-border bg-card p-8">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                    Antes
                   </span>
-                  <span className="text-sm font-semibold">Mural da escola</span>
+                  <ul className="mt-5 space-y-3 text-sm">
+                    {ANTES.map((t) => (
+                      <li key={t} className="flex items-start gap-3 text-muted-foreground">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
+                          <X className="h-3.5 w-3.5" />
+                        </span>
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="mt-3 space-y-3 text-sm">
-                  <div className="rounded-lg border border-border bg-card p-3">
-                    <div className="font-medium">Reunião de pais</div>
-                    <div className="text-[11px] text-muted-foreground">Quinta, 19h · presencial</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card p-3">
-                    <div className="font-medium">Boletim do 2º bimestre</div>
-                    <div className="text-[11px] text-muted-foreground">Já disponível no portal</div>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-primary">
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-[11px] font-medium">3 novos comunicados</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* antes e depois */}
-        <section className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Do caos à clareza</h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              O que muda no seu dia a dia quando tudo vive num lugar só.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="rounded-3xl border border-border bg-card p-8">
-              <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                Antes
-              </span>
-              <ul className="mt-5 space-y-3 text-sm">
-                {ANTES.map((t) => (
-                  <li key={t} className="flex items-start gap-3 text-muted-foreground">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
-                      <X className="h-3.5 w-3.5" />
-                    </span>
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8">
-              <span className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
-                Com o Edu On Way
-              </span>
-              <ul className="mt-5 space-y-3 text-sm">
-                {DEPOIS.map((t) => (
-                  <li key={t} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
-                      <Check className="h-3.5 w-3.5" />
-                    </span>
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* como funciona */}
-        <section id="como-funciona" className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Como funciona</h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Do cadastro ao dia a dia em três passos.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {PASSOS.map((p) => (
-              <div
-                key={p.n}
-                className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                  {p.n}
-                </span>
-                <div className="mt-4 font-semibold">{p.titulo}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{p.texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* diferenciais */}
-        <section
-          id="diferenciais"
-          className="mt-20 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-8 sm:p-12"
-        >
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Por que o Edu On Way</h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Os diferenciais que aparecem na rotina, não só no papel.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {DIFERENCIAIS.map((d) => (
-              <div
-                key={d.titulo}
-                className="rounded-2xl border border-border bg-card/70 p-6 backdrop-blur transition-colors hover:border-primary/40"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <d.icon className="h-5 w-5" />
-                </span>
-                <div className="mt-4 font-semibold">{d.titulo}</div>
-                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* para quem */}
-        <section className="mt-20 grid gap-6 md:grid-cols-2">
-          <div className="flex flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <UserRound className="h-5 w-5" />
-            </span>
-            <h3 className="mt-4 text-xl font-bold">Para professores</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
-            </p>
-            <ul className="mt-5 flex-1 space-y-2 text-sm">
-              {[
-                'WayOn: planos, atividades, provas e correção',
-                'Banco de atividades e portfólio',
-                'Diário, chamada, notas e boletim',
-                'Comece grátis, evolua quando quiser',
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-            <a href="/signup" className="mt-6">
-              <Button className="w-full rounded-full">Testar grátis</Button>
-            </a>
-          </div>
-
-          <div className="flex flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <School className="h-5 w-5" />
-            </span>
-            <h3 className="mt-4 text-xl font-bold">Para escolas</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Gestão completa, com perfis de acesso e visão de direção.
-            </p>
-            <ul className="mt-5 flex-1 space-y-2 text-sm">
-              {[
-                'Diretor, coordenação, secretaria e professores',
-                'Turmas, disciplinas, diário e boletim',
-                'Relatórios de direção, ocorrências e responsáveis',
-                'Onboarding e suporte dedicado',
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-            <a href="/signup/escola" className="mt-6">
-              <Button variant="outline" className="w-full rounded-full">
-                Falar com um consultor
-              </Button>
-            </a>
-          </div>
-        </section>
-
-        {/* planos */}
-        <section id="planos" className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Planos para cada momento
-            </h2>
-            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Comece com 7 dias grátis e evolua quando precisar.
-            </p>
-          </div>
-          <PricingCards />
-        </section>
-
-        {/* faq */}
-        <section className="mt-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Perguntas frequentes</h2>
-          </div>
-          <div className="mx-auto mt-8 max-w-3xl divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-            {FAQ.map((f) => (
-              <details key={f.q} className="group p-5 [&_summary]:cursor-pointer">
-                <summary className="flex select-none items-center justify-between gap-3 rounded font-medium outline-none marker:content-[''] focus-visible:text-foreground focus-visible:underline">
-                  {f.q}
-                  <span className="text-muted-foreground transition-transform group-open:rotate-45">
-                    +
+              </Reveal>
+              <Reveal delay={120}>
+                <div className="h-full rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
+                    Com o Edu On Way
                   </span>
-                </summary>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </details>
-            ))}
+                  <ul className="mt-5 space-y-3 text-sm">
+                    {DEPOIS.map((t) => (
+                      <li key={t} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            </div>
           </div>
         </section>
 
-        {/* cta final */}
-        <section className="mt-20 overflow-hidden rounded-3xl bg-primary px-8 py-12 text-center text-white sm:py-16">
-          <h2 className="text-2xl font-bold sm:text-3xl">Vamos crescer juntos.</h2>
-          <p className="mx-auto mt-2 max-w-md text-white/80">
-            Crie sua conta em minutos ou leve o Edu On Way para a sua escola.
-          </p>
-          <AudienceButtons />
+        {/* como funciona (full-width) */}
+        <section id="como-funciona" className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Como funciona</h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                Do cadastro ao dia a dia em três passos.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {PASSOS.map((p, i) => (
+                <Reveal key={p.n} delay={i * 100}>
+                  <div className="h-full rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                      {p.n}
+                    </span>
+                    <div className="mt-4 font-semibold">{p.titulo}</div>
+                    <p className="mt-1 text-sm text-muted-foreground">{p.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* diferenciais (full-width) */}
+        <section id="diferenciais" className="border-b border-border bg-muted/40">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Por que o Edu On Way</h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                Os diferenciais que aparecem na rotina, não só no papel.
+              </p>
+            </Reveal>
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {DIFERENCIAIS.map((d, i) => (
+                <Reveal key={d.titulo} delay={i * 80}>
+                  <div className="h-full rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <d.icon className="h-5 w-5" />
+                    </span>
+                    <div className="mt-4 font-semibold">{d.titulo}</div>
+                    <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* para quem (full-width, com foto) */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Reveal>
+                <div className="flex h-full flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <UserRound className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-4 text-xl font-bold">Para professores</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
+                  </p>
+                  <ul className="mt-5 flex-1 space-y-2 text-sm">
+                    {[
+                      'WayOn: planos, atividades, provas e correção',
+                      'Banco de atividades e portfólio',
+                      'Diário, chamada, notas e boletim',
+                      'Comece grátis, evolua quando quiser',
+                    ].map((t) => (
+                      <li key={t} className="flex items-start gap-2">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <a href="/signup" className="mt-6">
+                    <Button className="w-full rounded-full">Testar grátis</Button>
+                  </a>
+                </div>
+              </Reveal>
+
+              <Reveal delay={120}>
+                <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
+                  <div className="h-40 overflow-hidden">
+                    <LandingPhoto
+                      src={ESCOLA_IMG}
+                      alt="Sala de aula com professor e alunos"
+                      label="Foto da escola"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col p-8">
+                    <h3 className="text-xl font-bold">Para escolas</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Gestão completa, com perfis de acesso e visão de direção.
+                    </p>
+                    <ul className="mt-5 flex-1 space-y-2 text-sm">
+                      {[
+                        'Diretor, coordenação, secretaria e professores',
+                        'Turmas, disciplinas, diário e boletim',
+                        'Relatórios de direção, ocorrências e responsáveis',
+                        'Onboarding e suporte dedicado',
+                      ].map((t) => (
+                        <li key={t} className="flex items-start gap-2">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <a href="/signup/escola" className="mt-6">
+                      <Button variant="outline" className="w-full rounded-full">
+                        Falar com um consultor
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* planos (full-width) */}
+        <section id="planos" className="border-b border-border bg-muted/40">
+          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Planos para cada momento
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                Comece com 7 dias grátis e evolua quando precisar.
+              </p>
+            </Reveal>
+            <div className="mt-10">
+              <PricingCards />
+            </div>
+          </div>
+        </section>
+
+        {/* faq (full-width) */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+            <Reveal className="text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Perguntas frequentes</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Ainda com dúvida? Toque no WayOn no canto da tela.
+              </p>
+            </Reveal>
+            <Reveal delay={100} className="mt-8 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+              {FAQ.map((f) => (
+                <details key={f.q} className="group p-5 [&_summary]:cursor-pointer">
+                  <summary className="flex select-none items-center justify-between gap-3 rounded font-medium outline-none marker:content-[''] focus-visible:text-foreground focus-visible:underline">
+                    {f.q}
+                    <span className="text-muted-foreground transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+                  <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+                </details>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+
+        {/* cta final (full-width) */}
+        <section className="bg-primary text-white">
+          <div className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-20">
+            <Reveal>
+              <h2 className="text-2xl font-bold sm:text-3xl">Vamos crescer juntos.</h2>
+              <p className="mx-auto mt-2 max-w-md text-white/80">
+                Crie sua conta em minutos ou leve o Edu On Way para a sua escola.
+              </p>
+              <AudienceButtons />
+            </Reveal>
+          </div>
         </section>
       </main>
 
