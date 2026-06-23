@@ -608,7 +608,7 @@ export default function HomePage() {
                     <LandingPhoto
                       src="/landing/professores.jpg"
                       alt="Professor organizando as turmas"
-                      className="object-[center_30%]"
+                      className="object-[center_45%]"
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-8">
