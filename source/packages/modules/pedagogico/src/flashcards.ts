@@ -10,6 +10,8 @@ import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/mo
 import type { GenerateFlashcardsInput } from '@on-education/validation';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
+import { buildTrainingContext } from './ratings';
+
 type Card = { front: string; back: string; image?: string };
 
 /** Extrai os cards do JSON da IA (tolerante a cercas ```json e texto ao redor). */
@@ -57,7 +59,14 @@ export async function generateFlashcardsWithWayOn(
     (input.gradeLevel ? ` Série/ano: ${input.gradeLevel}.` : '') +
     (input.ageBand ? ` Faixa etária: ${input.ageBand} anos.` : '');
 
-  const result = await ai.generate({ prompt, system, maxTokens: 3000 });
+  const treino = await buildTrainingContext(client, ctx, 'flashcards', input.ageBand ?? null).catch(
+    () => '',
+  );
+  const result = await ai.generate({
+    prompt,
+    system: treino ? system + treino : system,
+    maxTokens: 3000,
+  });
   const cards = parseCards(result.text);
   if (cards.length === 0)
     throw new Error('O WayOn não conseguiu gerar os flashcards. Tente de novo.');

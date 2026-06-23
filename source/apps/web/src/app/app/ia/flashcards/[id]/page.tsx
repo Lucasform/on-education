@@ -2,6 +2,7 @@ import { imagesLeftForTenant, isImageConfigured } from '@on-education/module-ia'
 import { getFlashcardDeck } from '@on-education/module-pedagogico';
 import { notFound, redirect } from 'next/navigation';
 
+import { ContentRating } from '@/components/content-rating';
 import { cardClass, PageHeader } from '@/components/form';
 import { FlashcardStudy } from '@/components/flashcard-study';
 import { SubmitButton } from '@/components/submit-button';
@@ -33,6 +34,19 @@ export default async function FlashcardDeckPage({ params }: { params: Promise<{ 
         back={{ href: '/app/ia/flashcards', label: 'Voltar aos baralhos' }}
       />
       <FlashcardStudy cards={deck.cards} />
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Avalie este baralho</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Sua nota treina o WayOn: os mais bem avaliados viram referência das próximas gerações.
+        </p>
+        <ContentRating
+          contentId={deck.id}
+          kind="flashcards"
+          ageBand={deck.ageBand}
+          snapshot={deck.cards.map((c) => `${c.front} -> ${c.back}`).join('\n')}
+        />
+      </div>
 
       {podeImagem && (
         <div className={cardClass}>

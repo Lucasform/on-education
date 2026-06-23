@@ -6,7 +6,21 @@ import { useState } from 'react';
  * Avaliação por estrelas (1-5) de um conteúdo gerado pela IA. A nota treina a IA por contexto:
  * vira referência do próprio professor e, em nota alta, do acervo global. Comentário é opcional.
  */
-export function ContentRating({ contentId, initial = 0 }: { contentId: string; initial?: number }) {
+export function ContentRating({
+  contentId,
+  kind,
+  snapshot,
+  ageBand,
+  initial = 0,
+}: {
+  contentId: string;
+  /** Tipo do conteúdo (ex.: 'flashcards'). Atividades podem omitir: o servidor resolve. */
+  kind?: string;
+  /** Texto do conteúdo (para virar exemplar). Atividades podem omitir. */
+  snapshot?: string;
+  ageBand?: string | null;
+  initial?: number;
+}) {
   const [rating, setRating] = useState(initial);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
@@ -19,7 +33,14 @@ export function ContentRating({ contentId, initial = 0 }: { contentId: string; i
       const r = await fetch('/api/ratings', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ contentId, rating: value, comment: withComment ? comment : undefined }),
+        body: JSON.stringify({
+          contentId,
+          kind,
+          snapshot,
+          ageBand,
+          rating: value,
+          comment: withComment ? comment : undefined,
+        }),
       });
       if (r.ok) setSaved(true);
     } finally {

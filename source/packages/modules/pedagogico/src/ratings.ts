@@ -1,6 +1,9 @@
 import type { AuthContext } from '@on-education/auth';
 import { type DbClient, contentRatings } from '@on-education/db';
-import { and, desc, eq, gte, isNull } from 'drizzle-orm';
+import { and, desc, eq, gte, isNotNull, isNull, lte } from 'drizzle-orm';
+
+const MAX_EXEMPLAR = 3000; // limita o tamanho de cada exemplar no prompt (custo/escala)
+const trim = (s: string | null) => (s ? s.slice(0, MAX_EXEMPLAR) : '');
 
 export interface RateContentInput {
   kind: string;
@@ -105,4 +108,83 @@ export async function getGlobalExemplar(
   };
   // Prefere o melhor da MESMA faixa; se não houver, usa o melhor global do tipo.
   return (ageBand ? await pick(true) : null) ?? (await pick(false));
+}
+
+/**
+ * MOTOR DE TREINO (central): monta o bloco de referência injetado em CADA geração.
+ * Prioridade ABSOLUTA pro que o professor aprovou (mente direcional) + comentários dele +
+ * o que ele rejeitou ("evite") + a melhor referência global (mente central). Reutilizável por
+ * qualquer gerador (atividades, flashcards, planos, etc.). É isto que faz a IA aprender sempre.
+ */
+export async function buildTrainingContext(
+  client: DbClient,
+  ctx: AuthContext,
+  kind: string,
+  ageBand?: string | null,
+): Promise<string> {
+  const [mine, dislikes] = await Promise.all([
+    // Top 2 do PRÓPRIO professor (nota >= 4), com o comentário dele.
+    client
+      .withTenant(ctx.tenantId, (tx) =>
+        tx
+          .select({
+            snapshot: contentRatings.snapshot,
+            comment: contentRatings.comment,
+          })
+          .from(contentRatings)
+          .where(
+            and(
+              eq(contentRatings.userId, ctx.userId),
+              eq(contentRatings.kind, kind),
+              gte(contentRatings.rating, 4),
+              isNotNull(contentRatings.snapshot),
+              isNull(contentRatings.deletedAt),
+            ),
+          )
+          .orderBy(desc(contentRatings.rating), desc(contentRatings.updatedAt))
+          .limit(2),
+      )
+      .catch(() => [] as { snapshot: string | null; comment: string | null }[]),
+    // O que ele NÃO gostou (nota <= 2) com comentário — vira "evite".
+    client
+      .withTenant(ctx.tenantId, (tx) =>
+        tx
+          .select({ comment: contentRatings.comment })
+          .from(contentRatings)
+          .where(
+            and(
+              eq(contentRatings.userId, ctx.userId),
+              eq(contentRatings.kind, kind),
+              lte(contentRatings.rating, 2),
+              isNotNull(contentRatings.comment),
+              isNull(contentRatings.deletedAt),
+            ),
+          )
+          .orderBy(desc(contentRatings.updatedAt))
+          .limit(3),
+      )
+      .catch(() => [] as { comment: string | null }[]),
+  ]);
+
+  const global = await getGlobalExemplar(client, kind, ageBand).catch(() => null);
+
+  let out = '';
+  if (mine.length > 0) {
+    out +=
+      '\n\nESTILO DESTE PROFESSOR (PRIORIDADE MÁXIMA — siga este padrão, é o que ele aprovou; ' +
+      'não copie literalmente, gere conteúdo novo no mesmo nível e formato):';
+    mine.forEach((m, i) => {
+      out += `\n\n[Exemplo ${i + 1}${m.comment ? ` — ele observou: "${m.comment}"` : ''}]\n${trim(m.snapshot)}`;
+    });
+  }
+  if (global) {
+    out +=
+      '\n\nREFERÊNCIA DE QUALIDADE DA COMUNIDADE (bem avaliada por outros professores; use só como ' +
+      `inspiração de qualidade, o estilo acima do professor tem prioridade):\n${trim(global)}`;
+  }
+  const avoid = dislikes.map((d) => d.comment).filter(Boolean) as string[];
+  if (avoid.length > 0) {
+    out += `\n\nEVITE (este professor já reprovou isto antes): ${avoid.join(' | ')}`;
+  }
+  return out;
 }
