@@ -11,6 +11,7 @@ import { redirect } from 'next/navigation';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { DeleteAccountForm } from '@/components/delete-account-form';
 import { LogoUpload } from '@/components/logo-upload';
+import { PushToggle } from '@/components/push-toggle';
 import { SlugCard } from '@/components/slug-field';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -62,6 +63,14 @@ export default async function ConfiguracoesPage({
       </div>
 
       <SlugCard current={slug} ok={slugOk} erro={slugErro} />
+
+      <div className={cardClass}>
+        <h2 className="mb-1 text-sm font-medium">Notificações push</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Receba avisos do app neste aparelho (precisa permitir no navegador).
+        </p>
+        <PushToggle />
+      </div>
 
       <form action={updateTenantSettingsAction} className="flex flex-col gap-5">
         <div className={cardClass}>

@@ -1645,6 +1645,28 @@ export const customFieldValues = oe.table(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// push_subscriptions — inscrições de notificação push (web push) por usuário/aparelho. RLS.
+// ---------------------------------------------------------------------------
+export const pushSubscriptions = oe.table(
+  'push_subscriptions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    userAgent: text('user_agent'),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('push_subscriptions_endpoint_uq').on(t.endpoint),
+    index('push_subscriptions_user_idx').on(t.tenantId, t.userId),
+    tenantPolicy('push_subscriptions_tenant_isolation'),
+  ],
+);
+
 export const schema = {
   tenants,
   users,
@@ -1714,4 +1736,5 @@ export const schema = {
   enrollmentRequests,
   customFieldDefs,
   customFieldValues,
+  pushSubscriptions,
 };

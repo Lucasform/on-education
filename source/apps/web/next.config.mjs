@@ -28,6 +28,10 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL ?? '',
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ?? '',
+    // Chave pública VAPID (segura no cliente). Default = par gerado; override por env.
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY:
+      process.env.VAPID_PUBLIC_KEY ??
+      'BOaNOwkFsNh0YvkOf2fbo9ZLQdTlcB1W-PDe8gFZMMS_A_Jn2zA3-Q9xA0CPMOwODuFZs0V7cGAdtGpi4r_dNWY',
   },
   // Pacotes do monorepo são consumidos como TypeScript (source) — Next transpila.
   transpilePackages: [

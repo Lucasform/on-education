@@ -36,6 +36,12 @@ const envSchema = z.object({
   // Vazio = /admin fica totalmente trancado (ninguém entra). Server-only.
   SUPER_ADMIN_EMAILS: z.string().optional(),
 
+  // Notificações push (web push / VAPID). A chave PÚBLICA pode ir no cliente; a PRIVADA é
+  // server-only. Sem VAPID_PRIVATE_KEY, o push fica inscrito mas não envia. Server-only.
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().optional(),
+
   // Stripe (cobrança da assinatura do SaaS). Opcionais: sem STRIPE_SECRET_KEY o app fica
   // em modo "ativação imediata" (sem cobrança). Os price IDs por plano/funcionalidade são
   // lidos sob demanda de STRIPE_PRICE_* (ver server/billing.ts). Server-only.
