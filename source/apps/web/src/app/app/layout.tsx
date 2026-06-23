@@ -1,5 +1,5 @@
 import { countPendingDrafts } from '@on-education/module-ia';
-import { getPublicTenantBrand, getTenantFeatures, getTenantSettings } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -8,6 +8,7 @@ import { AgentNameProvider } from '@/components/agent-name-provider';
 import { AppShell } from '@/components/app-shell';
 import { SplashScreen } from '@/components/splash-screen';
 import { SubmitButton } from '@/components/submit-button';
+import { cachedTenantFeatures } from '@/server/cached';
 import { db } from '@/server/db';
 import { getAuthContext, isImpersonating } from '@/server/session';
 
@@ -21,13 +22,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const impersonating = await isImpersonating();
   // Nome do tenant (workspace que o professor/escola escolheu): vai no topo e no banner de
   // impersonação. Conexão dona; falha não pode derrubar o app.
-  const [brand, settings, featureSet, pendingDrafts] = await Promise.all([
+  const [brand, settings, features, pendingDrafts] = await Promise.all([
     getPublicTenantBrand(db(), ctx.tenantId).catch(() => null),
     getTenantSettings(db(), ctx).catch(() => null),
-    getTenantFeatures(db(), ctx.tenantId).catch(() => null),
+    cachedTenantFeatures(ctx.tenantId).catch(() => null),
     countPendingDrafts(db(), ctx).catch(() => 0),
   ]);
-  const features = featureSet ? [...featureSet] : null;
   const workspaceName = brand?.name ?? null;
   const agentName = settings?.agentName?.trim() || 'WayOn';
 

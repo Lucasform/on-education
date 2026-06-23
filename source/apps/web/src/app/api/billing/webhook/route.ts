@@ -1,10 +1,12 @@
 import type { TenantType } from '@on-education/core';
 import { type Feature, FEATURES, freePlanFor } from '@on-education/entitlements';
 import { applyComboPlanForTenant, setFeaturesForTenant } from '@on-education/module-nucleo';
+import { revalidateTag } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { db } from '@/server/db';
 import { verifyStripeWebhook } from '@/server/billing';
+import { featuresTag } from '@/server/cached';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +59,7 @@ export async function POST(req: NextRequest) {
         .filter((f) => valid.has(f)) as Feature[];
       await setFeaturesForTenant(db(), tenantId, tenantType, features);
     }
+    revalidateTag(featuresTag(tenantId));
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'erro';
     return NextResponse.json({ error: msg }, { status: 500 });

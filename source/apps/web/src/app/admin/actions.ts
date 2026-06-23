@@ -18,8 +18,9 @@ import { FEATURES, type Feature } from '@on-education/entitlements';
 import { removeCollectiveItems } from '@on-education/module-pedagogico';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
+import { featuresTag } from '@/server/cached';
 import { db } from '@/server/db';
 import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
 import { getSuperAdminEmail, IMPERSONATION_COOKIE } from '@/server/session';
@@ -170,6 +171,7 @@ export async function setTenantFeaturesAction(formData: FormData): Promise<void>
     .map((f) => String(f))
     .filter((f) => valid.has(f)) as Feature[];
   await setTenantEntitlements(db(), tenantId, features);
+  revalidateTag(featuresTag(tenantId));
   revalidatePath(`/admin/contas/${tenantId}`);
 }
 
@@ -180,6 +182,7 @@ export async function applyPlanToTenantAction(formData: FormData): Promise<void>
   const planId = String(formData.get('planId') ?? '');
   if (!tenantId || !planId) return;
   await applyComboPlanForTenant(db(), tenantId, planId);
+  revalidateTag(featuresTag(tenantId));
   revalidatePath(`/admin/contas/${tenantId}`);
 }
 

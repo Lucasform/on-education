@@ -2,11 +2,12 @@
 
 import { applyComboPlan, setTenantFeatures } from '@on-education/module-nucleo';
 import { FEATURES, getPlan as getPlanDef, type Feature } from '@on-education/entitlements';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { createCheckoutSession, isBillingConfigured, priceIdForPlan } from '@/server/billing';
+import { featuresTag } from '@/server/cached';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -51,6 +52,7 @@ export async function applyComboPlanAction(formData: FormData): Promise<void> {
   }
 
   await applyComboPlan(db(), ctx, planId);
+  revalidateTag(featuresTag(ctx.tenantId));
   revalidatePath('/app', 'layout');
   redirect('/app/planos?ok=combo');
 }
@@ -86,6 +88,7 @@ export async function applyAlaCarteAction(formData: FormData): Promise<void> {
     const msg = e instanceof Error ? e.message : 'erro';
     redirect(`/app/planos?erro=${encodeURIComponent(msg)}`);
   }
+  revalidateTag(featuresTag(ctx.tenantId));
   revalidatePath('/app', 'layout');
   redirect('/app/planos?ok=alacarte');
 }
