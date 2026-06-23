@@ -42,6 +42,8 @@ const FAMILIA_IMG =
   'https://images.pexels.com/photos/8613085/pexels-photo-8613085.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const ESCOLA_IMG =
   'https://images.pexels.com/photos/8423049/pexels-photo-8423049.jpeg?auto=compress&cs=tinysrgb&w=1000';
+const PROF_IMG =
+  'https://images.pexels.com/photos/7742820/pexels-photo-7742820.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
@@ -136,12 +138,20 @@ const ANTES = [
   'Horas montando plano de aula e prova do zero',
   'Comunicação com os pais perdida em grupos de WhatsApp',
   'Boletim e relatórios feitos na mão, um a um',
+  'Mensalidade controlada no caderno e no improviso',
+  'Sem saber quais alunos estão ficando para trás',
+  'Cada professor com seu material, nada se reaproveita',
+  'Recado importante que some no meio do grupo',
 ];
 const DEPOIS = [
   'Turmas, diário, chamada, notas e boletim num lugar só',
   'O WayOn cria plano, atividade e correção em segundos',
   'Comunicação organizada e mural para os responsáveis',
   'Relatórios e PDFs prontos, no padrão da sua escola',
+  'Mensalidades e cobranças controladas por aluno',
+  'Alerta de alunos em risco e de turmas sem aluno',
+  'Banco coletivo: reaproveite atividades entre escolas',
+  'Mural com stories que a família realmente acompanha',
 ];
 
 const DIFERENCIAIS = [
@@ -448,9 +458,11 @@ export default function HomePage() {
         <section className="border-b border-border bg-muted/40">
           <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
             <Reveal className="mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Do caos à clareza</h2>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Menos correria, mais tempo para ensinar.
+              </h2>
               <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-                O que muda no seu dia a dia quando tudo vive num lugar só.
+                Veja o que muda na rotina quando a escola inteira vive num lugar só.
               </p>
             </Reveal>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -547,30 +559,36 @@ export default function HomePage() {
           <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
             <div className="grid gap-6 md:grid-cols-2">
               <Reveal>
-                <div className="flex h-full flex-col rounded-3xl border border-border bg-card p-8 transition-colors hover:border-primary/40">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <UserRound className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-4 text-xl font-bold">Para professores</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
-                  </p>
-                  <ul className="mt-5 flex-1 space-y-2 text-sm">
-                    {[
-                      'WayOn: planos, atividades, provas e correção',
-                      'Banco de atividades e portfólio',
-                      'Diário, chamada, notas e boletim',
-                      'Comece grátis, evolua quando quiser',
-                    ].map((t) => (
-                      <li key={t} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                        <span>{t}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a href="/signup" className="mt-6">
-                    <Button className="w-full rounded-full">Testar grátis</Button>
-                  </a>
+                <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
+                  <div className="h-40 overflow-hidden">
+                    <LandingPhoto
+                      src={PROF_IMG}
+                      alt="Professora planejando aulas no computador"
+                      label="Foto do professor"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col p-8">
+                    <h3 className="text-xl font-bold">Para professores</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
+                    </p>
+                    <ul className="mt-5 flex-1 space-y-2 text-sm">
+                      {[
+                        'WayOn: planos, atividades, provas e correção',
+                        'Banco de atividades e portfólio',
+                        'Diário, chamada, notas e boletim',
+                        'Comece grátis, evolua quando quiser',
+                      ].map((t) => (
+                        <li key={t} className="flex items-start gap-2">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <a href="/signup" className="mt-6">
+                      <Button className="w-full rounded-full">Testar grátis</Button>
+                    </a>
+                  </div>
                 </div>
               </Reveal>
 
