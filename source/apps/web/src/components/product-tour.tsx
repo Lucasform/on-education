@@ -28,7 +28,9 @@ export function ProductTour({ id, steps }: { id: string; steps: TourStep[] }) {
 
   const place = useCallback(() => {
     const el = document.querySelector(steps[i]?.selector ?? '');
-    setRect(el ? el.getBoundingClientRect() : null);
+    const r = el?.getBoundingClientRect();
+    // Ignora elementos ocultos (ex.: sidebar escondida no mobile) → card centralizado.
+    setRect(r && r.width > 0 && r.height > 0 ? r : null);
   }, [i, steps]);
 
   useEffect(() => {

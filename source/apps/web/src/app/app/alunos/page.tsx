@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation';
 import { BulkAddRows } from '@/components/bulk-add-rows';
 import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { ProductTour } from '@/components/product-tour';
 import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -59,13 +58,6 @@ export default async function AlunosPage({
   return (
     <>
       <PageHeader title="Alunos" description="Cadastre, importe e acompanhe seus alunos." />
-      <ProductTour
-        id="alunos"
-        steps={[
-          { selector: 'h1', title: 'Alunos', body: 'Aqui você cadastra, importa e abre a ficha de cada aluno.' },
-          { selector: '[data-tour="alunos-novo"]', title: 'Cadastrar aluno', body: 'Adicione um aluno aqui — ou importe vários de uma vez por planilha.' },
-        ]}
-      />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <div className="mb-3 flex items-center justify-between gap-2">

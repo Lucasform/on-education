@@ -8,7 +8,6 @@ import { Heart, ImagePlus, MessageCircle, Plus, Send, Trash2 } from 'lucide-reac
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { ProductTour } from '@/components/product-tour';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -65,14 +64,6 @@ export default async function FeedPage() {
         title="Mural & feed"
         description="Poste novidades com foto, publique stories e converse com a comunidade."
       />
-      <ProductTour
-        id="feed"
-        steps={[
-          { selector: '[data-tour="feed-story"]', title: 'Stories', body: 'Publique destaques rápidos com foto. Eles somem sozinhos em 24h.' },
-          { selector: '[data-tour="feed-post"]', title: 'Postar no mural', body: 'Compartilhe um aviso ou novidade com foto; a comunidade curte e comenta.' },
-        ]}
-      />
-
       {/* preferências do mural (a escola escolhe o que fica ligado) */}
       <form action={updateFeedSettingsAction} className={`${cardClass} flex flex-wrap items-center gap-4`}>
         <span className="text-sm font-medium">Preferências:</span>

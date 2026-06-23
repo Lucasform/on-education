@@ -28,7 +28,6 @@ import { redirect } from 'next/navigation';
 import { KpiCard as StatCard } from '@/components/kpi-card';
 import { MobileLauncher } from '@/components/mobile-launcher';
 import { cardClass, PageHeader, tableWrapClass } from '@/components/form';
-import { ProductTour } from '@/components/product-tour';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
@@ -146,27 +145,6 @@ export default async function OverviewPage() {
       <PageHeader
         title={isSchool ? 'Painel da escola' : 'Início'}
         description="Tudo o que você precisa para ensinar, em um só lugar."
-      />
-
-      <ProductTour
-        id="home"
-        steps={[
-          {
-            selector: '[data-tour="acoes-rapidas"]',
-            title: 'Ações rápidas',
-            body: 'Atalhos do dia a dia: criar turma, cadastrar aluno, fazer chamada e gerar conteúdo com a IA.',
-          },
-          {
-            selector: '[data-tour="gerar-ia"]',
-            title: `Gere com o ${agenteName}`,
-            body: 'Clique aqui para criar planos de aula e atividades com a inteligência artificial.',
-          },
-          {
-            selector: '[data-tour="primeiros-passos"]',
-            title: 'Primeiros passos',
-            body: 'Siga esta lista para deixar tudo pronto. No seu ritmo, sem travar nada.',
-          },
-        ]}
       />
 
       {/* Launcher de apps no mobile (sem sidebar): toque no ícone e abra. */}

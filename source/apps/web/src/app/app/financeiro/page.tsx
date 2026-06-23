@@ -14,7 +14,6 @@ import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { ProductTour } from '@/components/product-tour';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -92,14 +91,6 @@ export default async function FinanceiroPage({
         title="Financeiro"
         description="Mensalidades e cobranças por aluno/responsável. Controle interno (boleto/PIX virá depois)."
       />
-      <ProductTour
-        id="financeiro"
-        steps={[
-          { selector: 'h1', title: 'Financeiro', body: 'Acompanhe as cobranças: abertas, vencidas e pagas, por aluno/responsável.' },
-          { selector: '[data-tour="financeiro-gerar"]', title: 'Gerar mensalidades', body: 'Gere as mensalidades do mês de uma vez aqui; depois é só acompanhar os pagamentos.' },
-        ]}
-      />
-
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Kpi label={resp ? 'A receber (resp.)' : 'A receber'} value={reais(aReceber)} />
         <Kpi label="Vencido" value={reais(vencido)} cor="text-red-500" />

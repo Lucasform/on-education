@@ -14,7 +14,23 @@ import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
 import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
+import { ProductTour } from './product-tour';
 import { ThemeToggle } from './theme-toggle';
+
+// Tour do sidebar (1ª vez): explica o que é cada seção do menu. Só entram os itens que
+// realmente aparecem para o tenant (evita falar de recurso que ele não tem).
+const SIDEBAR_TOUR: { href: string; title: string; body: string }[] = [
+  { href: '/app', title: 'Início', body: 'Sua visão geral: atalhos, alertas e primeiros passos.' },
+  { href: '/app/turmas', title: 'Turmas', body: 'Crie e organize as turmas.' },
+  { href: '/app/alunos', title: 'Alunos', body: 'Cadastre alunos, abra a ficha e importe em lote.' },
+  { href: '/app/ia', title: 'WayOn (IA)', body: 'Gere plano de aula, atividade, prova e correção em segundos.' },
+  { href: '/app/atividades', title: 'Banco de atividades', body: 'Suas atividades, provas e trabalhos reutilizáveis.' },
+  { href: '/app/sala/chamada', title: 'Sala de aula', body: 'Chamada, notas, diário e boletim ficam por aqui.' },
+  { href: '/app/feed', title: 'Mural & feed', body: 'Novidades, stories e comunicação com a família.' },
+  { href: '/app/financeiro', title: 'Financeiro', body: 'Mensalidades, despesas e fluxo de caixa.' },
+  { href: '/app/calendario', title: 'Calendário', body: 'Eventos, agenda e datas importantes.' },
+  { href: '/app/planos', title: 'Planos', body: 'Libere mais recursos quando a escola crescer.' },
+];
 
 function NavGroupBlock({
   group,
@@ -48,6 +64,7 @@ function NavGroupBlock({
               <Link
                 href={item.locked ? '/app/planos' : item.href}
                 onClick={onNavigate}
+                data-tour={`nav-${item.href}`}
                 className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
                   item.locked
                     ? 'text-muted-foreground/50 hover:bg-accent hover:text-muted-foreground'
@@ -120,8 +137,17 @@ export function AppShell({
   const hasLocked = allGroups.some((g) => g.items.some((i) => i.locked));
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
+  // Passos do tour: só os itens do menu que realmente existem para este tenant.
+  const navHrefs = new Set(groups.flatMap((g) => g.items.map((i) => i.href)));
+  const tourSteps = SIDEBAR_TOUR.filter((s) => navHrefs.has(s.href)).map((s) => ({
+    selector: `[data-tour="nav-${s.href}"]`,
+    title: s.title,
+    body: s.body,
+  }));
+
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
+      <ProductTour id="sidebar-v1" steps={tourSteps} />
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-card md:block print:hidden">
         <div className="flex h-14 items-center gap-3 border-b border-border px-4">
           {logoUrl ? (

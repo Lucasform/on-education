@@ -4,7 +4,6 @@ import { listAttendanceForDateClass } from '@on-education/module-sala-de-aula';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
-import { ProductTour } from '@/components/product-tour';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -57,14 +56,6 @@ export default async function ChamadaPage({
         title="Chamada"
         description="Marque só quem faltou. Quem não for marcado entra como presente."
       />
-      <ProductTour
-        id="chamada"
-        steps={[
-          { selector: 'h1', title: 'Chamada', body: 'Marque só quem faltou — o resto entra como presente automaticamente.' },
-          { selector: '[data-tour="chamada-filtro"]', title: 'Escolha a turma e o dia', body: 'Selecione a turma, a matéria e a data; a lista de alunos aparece abaixo para você marcar.' },
-        ]}
-      />
-
       {/* Filtro */}
       <form method="get" data-tour="chamada-filtro" className={`${cardClass} flex flex-wrap items-end gap-3`}>
         <label className="flex flex-col gap-1 text-sm">
