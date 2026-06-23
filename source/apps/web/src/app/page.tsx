@@ -35,7 +35,7 @@ import { WayonChat } from '@/components/wayon-chat';
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
 const HERO_IMG =
-  'https://images.pexels.com/photos/8088232/pexels-photo-8088232.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  'https://images.pexels.com/photos/8617968/pexels-photo-8617968.jpeg?auto=compress&cs=tinysrgb&w=1400';
 const NUMEROS_IMG =
   'https://images.pexels.com/photos/8617938/pexels-photo-8617938.jpeg?auto=compress&cs=tinysrgb&w=900';
 const FAMILIA_IMG =
@@ -298,11 +298,12 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={120} className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-2xl">
+              <div className="aspect-[3/2] overflow-hidden rounded-3xl border border-border shadow-2xl">
                 <LandingPhoto
                   src={HERO_IMG}
-                  alt="Professora usando o Edu On Way em sala de aula"
+                  alt="Professor com alunos em sala de aula"
                   label="Adicione a foto da sua escola"
+                  className="object-[center_25%]"
                 />
               </div>
               <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
