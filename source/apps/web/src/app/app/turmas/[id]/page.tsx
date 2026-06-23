@@ -15,6 +15,7 @@ import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 import { signedUrlForTenantFile } from '@/server/storage';
@@ -142,6 +143,15 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
         )}
       </div>
 
+      <Tabs
+        tabs={[
+          { id: 'geral', label: 'Visão geral' },
+          { id: 'desempenho', label: 'Desempenho' },
+          ...(isSchool ? [{ id: 'materias', label: 'Matérias' }] : []),
+          { id: 'materiais', label: 'Materiais' },
+        ]}
+      >
+      <TabPanel id="geral">
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Dados da turma</h2>
@@ -208,6 +218,8 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
+      </TabPanel>
+      <TabPanel id="desempenho">
       {/* Estatísticas por aluno */}
       {mediasValidas.length > 0 && (
         <div className={cardClass}>
@@ -276,6 +288,8 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      </TabPanel>
+      <TabPanel id="materias">
       {isSchool && (
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Matérias da turma ({materias.length})</h2>
@@ -333,6 +347,8 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      </TabPanel>
+      <TabPanel id="materiais">
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Materiais da turma ({materiaisComLink.length})</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -402,6 +418,8 @@ export default async function TurmaDetailPage({ params }: { params: Promise<{ id
           </div>
         </form>
       </div>
+      </TabPanel>
+      </Tabs>
     </>
   );
 }
