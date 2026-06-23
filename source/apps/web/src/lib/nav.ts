@@ -173,7 +173,9 @@ export const NAV: NavGroup[] = [
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3, requiresFeature: 'analytics.director' },
       { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck, requiresFeature: 'analytics.director' },
       { label: 'Acesso & segurança', href: '/app/conta/seguranca', icon: ShieldCheck },
-      { label: 'Inventário', href: '/app/inventario', icon: Package },
+      { label: 'Inventário (almoxarifado)', href: '/app/inventario', icon: Package },
+      { label: 'Biblioteca', href: '/app/biblioteca', icon: Library },
+      { label: 'Portaria', href: '/app/portaria', icon: DoorOpen },
     ],
   },
   {

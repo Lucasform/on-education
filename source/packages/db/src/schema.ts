@@ -1730,6 +1730,62 @@ export const enrollmentRequests = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// Biblioteca: acervo (library_items) + empréstimos (library_loans). Portaria: registro
+// de entrada/saída (gate_logs). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const libraryItems = oe.table(
+  'library_items',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    title: text('title').notNull(),
+    author: text('author'),
+    code: text('code'), // tombo / ISBN
+    status: text('status').notNull().default('disponivel'), // disponivel | emprestado
+    ...auditCols,
+  },
+  (t) => [
+    index('library_items_tenant_idx').on(t.tenantId),
+    tenantPolicy('library_items_tenant_isolation'),
+  ],
+);
+
+export const libraryLoans = oe.table(
+  'library_loans',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    itemId: uuid('item_id').notNull(),
+    borrowerName: text('borrower_name').notNull(),
+    studentId: uuid('student_id'),
+    loanedAt: timestamp('loaned_at', { withTimezone: true }).defaultNow().notNull(),
+    dueDate: date('due_date'),
+    returnedAt: timestamp('returned_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('library_loans_tenant_idx').on(t.tenantId),
+    tenantPolicy('library_loans_tenant_isolation'),
+  ],
+);
+
+export const gateLogs = oe.table(
+  'gate_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    personName: text('person_name').notNull(),
+    kind: text('kind').notNull().default('visitante'), // aluno | funcionario | visitante
+    direction: text('direction').notNull().default('entrada'), // entrada | saida
+    studentId: uuid('student_id'),
+    note: text('note'),
+    at: timestamp('at', { withTimezone: true }).defaultNow().notNull(),
+    ...auditCols,
+  },
+  (t) => [index('gate_logs_tenant_idx').on(t.tenantId), tenantPolicy('gate_logs_tenant_isolation')],
+);
+
+// ---------------------------------------------------------------------------
 // contract_signatures — assinatura eletrônica do contrato de matrícula (click-to-sign).
 // Guarda quem assinou, quando e um resumo dos termos no momento da assinatura. RLS.
 // ---------------------------------------------------------------------------

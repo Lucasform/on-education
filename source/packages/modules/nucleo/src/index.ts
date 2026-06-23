@@ -1,5 +1,6 @@
 export * from './provisioning';
 export * from './work-requests';
+export * from './operacional';
 export * from './organization';
 export * from './academic';
 export * from './teaching';
