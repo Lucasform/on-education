@@ -1,5 +1,6 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import {
+  contractSignatures,
   enrollmentRequests,
   guardians,
   studentGuardians,
@@ -7,6 +8,41 @@ import {
   type DbClient,
 } from '@on-education/db';
 import { and, desc, eq, isNull } from 'drizzle-orm';
+
+// --- Assinatura eletrônica do contrato (click-to-sign) ---
+
+export async function signContract(
+  client: DbClient,
+  ctx: AuthContext,
+  input: { studentId: string; signerName: string; signerKind: 'responsavel' | 'escola'; termsSnapshot?: string | null },
+) {
+  const name = (input.signerName ?? '').trim();
+  if (!name) throw new Error('Informe o nome de quem está assinando.');
+  return client.withTenant(ctx.tenantId, async (tx) => {
+    const [row] = await tx
+      .insert(contractSignatures)
+      .values({
+        tenantId: ctx.tenantId,
+        studentId: input.studentId,
+        signerName: name,
+        signerKind: input.signerKind === 'escola' ? 'escola' : 'responsavel',
+        termsSnapshot: input.termsSnapshot ?? null,
+        createdBy: ctx.userId,
+      })
+      .returning({ id: contractSignatures.id });
+    return row;
+  });
+}
+
+export async function listContractSignatures(client: DbClient, ctx: AuthContext, studentId: string) {
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select()
+      .from(contractSignatures)
+      .where(and(eq(contractSignatures.studentId, studentId), isNull(contractSignatures.deletedAt)))
+      .orderBy(desc(contractSignatures.signedAt)),
+  );
+}
 
 export interface PublicEnrollmentInput {
   studentName: string;

@@ -2,6 +2,7 @@ import {
   getStudent,
   getTenantSettings,
   listClasses,
+  listContractSignatures,
   listStudentGuardians,
 } from '@on-education/module-nucleo';
 import Link from 'next/link';
@@ -12,6 +13,8 @@ import { PrintButton } from '@/components/print-button';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+
+import { signContractAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Contrato de matrícula · Edu On Way' };
@@ -33,11 +36,12 @@ export default async function ContratoPage({
   if (!ctx) redirect('/login');
   const client = db();
 
-  const [aluno, vinculos, settings, turmas] = await Promise.all([
+  const [aluno, vinculos, settings, turmas, assinaturas] = await Promise.all([
     getStudent(client, ctx, id).catch(() => null),
     listStudentGuardians(client, ctx, id).catch(() => []),
     getTenantSettings(client, ctx).catch(() => null),
     listClasses(client, ctx).catch(() => [] as { id: string; name: string }[]),
+    listContractSignatures(client, ctx, id).catch(() => []),
   ]);
   if (!aluno) notFound();
 
@@ -52,6 +56,12 @@ export default async function ContratoPage({
   const valor = Number(String(sp.valor ?? '').replace(',', '.')) || 0;
   const vencimento = sp.vencimento?.trim() || '10';
   const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const termsSnapshot = `Ano ${anoLetivo} · ${parcelas}x de ${valor > 0 ? reais(valor) : '—'} · venc. dia ${vencimento}`;
+  const sigResp = assinaturas.find((s) => s.signerKind === 'responsavel');
+  const sigEsc = assinaturas.find((s) => s.signerKind === 'escola');
+  const codigo = (s: { id: string }) => s.id.slice(0, 8).toUpperCase();
+  const assinadoEm = (d: Date | string) =>
+    new Date(d).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
   const Clausula = ({ n, titulo, children }: { n: string; titulo: string; children: React.ReactNode }) => (
     <div className="mt-3 text-sm leading-relaxed">
@@ -190,14 +200,81 @@ export default async function ContratoPage({
         </p>
         <p className="mt-4 text-sm">{hoje}.</p>
 
-        <div className="mt-12 grid grid-cols-2 gap-8 text-center text-sm">
-          <div className="mx-auto w-full border-t border-foreground/60 pt-1">
-            CONTRATANTE (responsável)
+        <div className="mt-12 grid gap-8 sm:grid-cols-2">
+          {/* Responsável */}
+          <div className="text-center text-sm">
+            {sigResp ? (
+              <>
+                <p className="font-medium">{sigResp.signerName}</p>
+                <div className="mt-1 border-t border-foreground/60 pt-1">CONTRATANTE (responsável)</div>
+                <p className="mt-1 text-[11px] text-success">
+                  ✓ Assinado eletronicamente em {assinadoEm(sigResp.signedAt)} · cód {codigo(sigResp)}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="mt-8 border-t border-foreground/60 pt-1">CONTRATANTE (responsável)</div>
+                <form
+                  action={signContractAction}
+                  className="mt-2 flex flex-col items-center gap-1 print:hidden"
+                >
+                  <input type="hidden" name="studentId" value={aluno.id} />
+                  <input type="hidden" name="signerKind" value="responsavel" />
+                  <input type="hidden" name="termsSnapshot" value={termsSnapshot} />
+                  <input
+                    name="signerName"
+                    required
+                    placeholder="Nome de quem assina"
+                    defaultValue={resp?.guardianName ?? ''}
+                    className={`${fieldClass} text-center`}
+                  />
+                  <SubmitButton type="submit" size="sm">
+                    Assinar eletronicamente
+                  </SubmitButton>
+                </form>
+              </>
+            )}
           </div>
-          <div className="mx-auto w-full border-t border-foreground/60 pt-1">
-            CONTRATADA ({escola})
+          {/* Escola */}
+          <div className="text-center text-sm">
+            {sigEsc ? (
+              <>
+                <p className="font-medium">{sigEsc.signerName}</p>
+                <div className="mt-1 border-t border-foreground/60 pt-1">CONTRATADA ({escola})</div>
+                <p className="mt-1 text-[11px] text-success">
+                  ✓ Assinado eletronicamente em {assinadoEm(sigEsc.signedAt)} · cód {codigo(sigEsc)}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="mt-8 border-t border-foreground/60 pt-1">CONTRATADA ({escola})</div>
+                <form
+                  action={signContractAction}
+                  className="mt-2 flex flex-col items-center gap-1 print:hidden"
+                >
+                  <input type="hidden" name="studentId" value={aluno.id} />
+                  <input type="hidden" name="signerKind" value="escola" />
+                  <input type="hidden" name="termsSnapshot" value={termsSnapshot} />
+                  <input
+                    name="signerName"
+                    required
+                    placeholder="Nome do responsável da escola"
+                    className={`${fieldClass} text-center`}
+                  />
+                  <SubmitButton type="submit" size="sm" variant="outline">
+                    Assinar pela escola
+                  </SubmitButton>
+                </form>
+              </>
+            )}
           </div>
         </div>
+        {(sigResp || sigEsc) && (
+          <p className="mt-4 text-center text-[11px] text-muted-foreground">
+            Assinatura eletrônica registrada nesta plataforma, com data, hora e código de
+            verificação, nos termos da MP 2.200-2/2001.
+          </p>
+        )}
       </article>
     </>
   );

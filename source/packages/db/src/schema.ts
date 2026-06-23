@@ -1730,6 +1730,28 @@ export const enrollmentRequests = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// contract_signatures — assinatura eletrônica do contrato de matrícula (click-to-sign).
+// Guarda quem assinou, quando e um resumo dos termos no momento da assinatura. RLS.
+// ---------------------------------------------------------------------------
+export const contractSignatures = oe.table(
+  'contract_signatures',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    signerName: text('signer_name').notNull(),
+    signerKind: text('signer_kind').notNull().default('responsavel'), // responsavel | escola
+    termsSnapshot: text('terms_snapshot'),
+    signedAt: timestamp('signed_at', { withTimezone: true }).defaultNow().notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('contract_signatures_student_idx').on(t.studentId),
+    tenantPolicy('contract_signatures_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // custom_field_defs — campos personalizados por tenant numa entidade (ex.: 'student').
 // Definidos pelo admin (setup); o app renderiza e captura os valores. RLS.
 // ---------------------------------------------------------------------------
