@@ -5,6 +5,7 @@ import {
   feedPostReactions,
   feedPosts,
   feedStories,
+  tenantSettings,
 } from '@on-education/db';
 import { and, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 
@@ -216,6 +217,13 @@ export async function listPublicFeed(client: DbClient, tenantId: string) {
 }
 
 export async function listPublicStories(client: DbClient, tenantId: string) {
+  // Respeita o toggle da escola: se stories estiver desligado, não mostra no mural público.
+  const cfg = await client.db
+    .select({ on: tenantSettings.feedStoriesEnabled })
+    .from(tenantSettings)
+    .where(eq(tenantSettings.tenantId, tenantId))
+    .limit(1);
+  if (cfg[0] && cfg[0].on === false) return [];
   return client.db
     .select()
     .from(feedStories)

@@ -3,7 +3,7 @@ import {
   listCommentsFor,
   listFeed,
 } from '@on-education/module-comunicacao';
-import { getPublicTenantBrand, listClasses } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, getTenantSettings, listClasses } from '@on-education/module-nucleo';
 import { Heart, ImagePlus, MessageCircle, Plus, Send, Trash2 } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
@@ -20,6 +20,7 @@ import {
   deletePostAction,
   deleteStoryAction,
   toggleLikeAction,
+  updateFeedSettingsAction,
 } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -40,12 +41,15 @@ export default async function FeedPage() {
   if (!ctx) redirect('/login');
   const client = db();
 
-  const [brand, classes, stories, feed] = await Promise.all([
+  const [brand, classes, stories, feed, settings] = await Promise.all([
     getPublicTenantBrand(client, ctx.tenantId).catch(() => null),
     listClasses(client, ctx).catch(() => []),
     listActiveStories(client, ctx).catch(() => []),
     listFeed(client, ctx).catch(() => []),
+    getTenantSettings(client, ctx).catch(() => null),
   ]);
+  const storiesOn = settings?.feedStoriesEnabled !== false;
+  const commentsOn = settings?.feedCommentsEnabled !== false;
   const comentarios = await listCommentsFor(client, ctx, feed.map((p) => p.id)).catch(() => []);
   const porPost = new Map<string, typeof comentarios>();
   for (const c of comentarios) {
@@ -69,7 +73,24 @@ export default async function FeedPage() {
         ]}
       />
 
+      {/* preferências do mural (a escola escolhe o que fica ligado) */}
+      <form action={updateFeedSettingsAction} className={`${cardClass} flex flex-wrap items-center gap-4`}>
+        <span className="text-sm font-medium">Preferências:</span>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="feedStoriesEnabled" defaultChecked={storiesOn} className="h-4 w-4" />
+          Stories
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="feedCommentsEnabled" defaultChecked={commentsOn} className="h-4 w-4" />
+          Comentários
+        </label>
+        <SubmitButton type="submit" size="sm" variant="outline" className="ml-auto">
+          Salvar
+        </SubmitButton>
+      </form>
+
       {/* stories */}
+      {storiesOn && (
       <section className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Stories (24h)</h2>
         <div className="flex gap-4 overflow-x-auto pb-1">
@@ -123,6 +144,7 @@ export default async function FeedPage() {
           )}
         </div>
       </section>
+      )}
 
       {/* novo post */}
       <section className={cardClass} data-tour="feed-post">
@@ -214,32 +236,36 @@ export default async function FeedPage() {
                   </span>
                 </div>
 
-                {cmts.length > 0 && (
-                  <ul className="mt-3 space-y-2 border-t border-border pt-3 text-sm">
-                    {cmts.map((c) => (
-                      <li key={c.id}>
-                        <span className="font-medium">{c.authorName ?? escola}: </span>
-                        <span className="text-muted-foreground">{c.body}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                {commentsOn && (
+                  <>
+                    {cmts.length > 0 && (
+                      <ul className="mt-3 space-y-2 border-t border-border pt-3 text-sm">
+                        {cmts.map((c) => (
+                          <li key={c.id}>
+                            <span className="font-medium">{c.authorName ?? escola}: </span>
+                            <span className="text-muted-foreground">{c.body}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
-                <form action={addCommentAction} className="mt-3 flex items-center gap-2">
-                  <input type="hidden" name="postId" value={p.id} />
-                  <input
-                    name="body"
-                    placeholder="Escreva um comentário…"
-                    className={`${fieldClass} flex-1`}
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Comentar"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white"
-                  >
-                    <Send className="h-4 w-4" />
-                  </button>
-                </form>
+                    <form action={addCommentAction} className="mt-3 flex items-center gap-2">
+                      <input type="hidden" name="postId" value={p.id} />
+                      <input
+                        name="body"
+                        placeholder="Escreva um comentário…"
+                        className={`${fieldClass} flex-1`}
+                      />
+                      <button
+                        type="submit"
+                        aria-label="Comentar"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white"
+                      >
+                        <Send className="h-4 w-4" />
+                      </button>
+                    </form>
+                  </>
+                )}
               </article>
             );
           })}

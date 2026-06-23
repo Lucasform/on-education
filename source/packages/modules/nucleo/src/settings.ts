@@ -71,6 +71,10 @@ export async function upsertTenantSettings(
   if (input.gradeScale !== undefined) patch.gradeScale = input.gradeScale;
   if (input.gamificationEnabled !== undefined)
     patch.gamificationEnabled = input.gamificationEnabled;
+  if (input.feedStoriesEnabled !== undefined)
+    patch.feedStoriesEnabled = input.feedStoriesEnabled;
+  if (input.feedCommentsEnabled !== undefined)
+    patch.feedCommentsEnabled = input.feedCommentsEnabled;
   if (input.medalBronze !== undefined) patch.medalBronze = input.medalBronze;
   if (input.medalPrata !== undefined) patch.medalPrata = input.medalPrata;
   if (input.medalOuro !== undefined) patch.medalOuro = input.medalOuro;

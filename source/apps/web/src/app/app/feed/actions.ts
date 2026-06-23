@@ -8,7 +8,7 @@ import {
   deleteStory,
   toggleReaction,
 } from '@on-education/module-comunicacao';
-import { getPublicTenantBrand } from '@on-education/module-nucleo';
+import { getPublicTenantBrand, upsertTenantSettings } from '@on-education/module-nucleo';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -74,5 +74,14 @@ export async function deleteStoryAction(formData: FormData): Promise<void> {
   const ctx = await requireCtx();
   const id = String(formData.get('id') ?? '');
   if (id) await deleteStory(db(), ctx, id);
+  revalidatePath('/app/feed');
+}
+
+export async function updateFeedSettingsAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await upsertTenantSettings(db(), ctx, {
+    feedStoriesEnabled: formData.get('feedStoriesEnabled') != null,
+    feedCommentsEnabled: formData.get('feedCommentsEnabled') != null,
+  });
   revalidatePath('/app/feed');
 }
