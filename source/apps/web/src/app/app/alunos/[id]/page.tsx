@@ -26,6 +26,7 @@ import { redirect } from 'next/navigation';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -276,6 +277,15 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      <Tabs
+        tabs={[
+          { id: 'geral', label: 'Geral' },
+          ...(isSchool ? [{ id: 'ocorrencias', label: 'Ocorrências' }] : []),
+          { id: 'cadastro', label: 'Cadastro' },
+          ...(isSchool ? [{ id: 'autorizacoes', label: 'Autorizações' }] : []),
+        ]}
+      >
+      <TabPanel id="geral">
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Notas</h2>
@@ -428,6 +438,8 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      </TabPanel>
+      <TabPanel id="ocorrencias">
       {/* Ocorrências */}
       {isSchool && ocorrenciasDoAluno.length > 0 && (
         <div className={cardClass}>
@@ -460,6 +472,8 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      </TabPanel>
+      <TabPanel id="cadastro">
       {/* Dados pessoais completos */}
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Dados pessoais</h2>
@@ -751,6 +765,8 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      </TabPanel>
+      <TabPanel id="autorizacoes">
       {/* Autorizações de saída */}
       {isSchool && (
         <div className={cardClass}>
@@ -858,6 +874,8 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           </form>
         </div>
       )}
+      </TabPanel>
+      </Tabs>
     </>
   );
 }
