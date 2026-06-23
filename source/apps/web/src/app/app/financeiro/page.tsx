@@ -7,6 +7,7 @@ import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { ProductTour } from '@/components/product-tour';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -77,6 +78,13 @@ export default async function FinanceiroPage({
       <PageHeader
         title="Financeiro"
         description="Mensalidades e cobranças por aluno/responsável. Controle interno (boleto/PIX virá depois)."
+      />
+      <ProductTour
+        id="financeiro"
+        steps={[
+          { selector: 'h1', title: 'Financeiro', body: 'Acompanhe as cobranças: abertas, vencidas e pagas, por aluno/responsável.' },
+          { selector: '[data-tour="financeiro-gerar"]', title: 'Gerar mensalidades', body: 'Gere as mensalidades do mês de uma vez aqui; depois é só acompanhar os pagamentos.' },
+        ]}
       />
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -202,7 +210,7 @@ export default async function FinanceiroPage({
 
           <div className="flex flex-col gap-5">
             <div className={cardClass}>
-              <h2 className="mb-1 text-sm font-medium">Gerar mensalidades do mês</h2>
+              <h2 className="mb-1 text-sm font-medium" data-tour="financeiro-gerar">Gerar mensalidades do mês</h2>
               <p className="mb-2 text-xs text-muted-foreground">
                 Cria uma cobrança para cada aluno (no responsável financeiro), pulando quem já tem
                 na competência.

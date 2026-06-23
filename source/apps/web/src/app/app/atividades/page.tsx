@@ -10,6 +10,7 @@ import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
+import { ProductTour } from '@/components/product-tour';
 import { SerieFaixaPicker } from '@/components/serie-faixa-picker';
 import { SubmitButton } from '@/components/submit-button';
 import { FAIXAS, SERIES } from '@/lib/series';
@@ -71,6 +72,13 @@ export default async function AtividadesPage({
       <PageHeader
         title="Banco de atividades"
         description={<>Atividades, provas, trabalhos e roteiros. Rascunhos do <AgentNameText /> esperam o seu OK.</>}
+      />
+      <ProductTour
+        id="atividades"
+        steps={[
+          { selector: 'h1', title: 'Banco de atividades', body: 'Tudo que você cria ou gera fica aqui, organizado por tipo. Filtre, abra e imprima.' },
+          { selector: '[data-tour="atividades-gerar"]', title: 'Gerar com a IA', body: 'Descreva o que quer e a IA cria a atividade — ela cai direto no seu banco.' },
+        ]}
       />
 
       {rascunhos.length > 0 && (
@@ -227,7 +235,7 @@ export default async function AtividadesPage({
         </div>
 
         <div className="flex flex-col gap-5">
-          <div className={cardClass}>
+          <div className={cardClass} data-tour="atividades-gerar">
             <h2 className="mb-1 flex items-center gap-1.5 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
               Gerar com o <AgentNameText />

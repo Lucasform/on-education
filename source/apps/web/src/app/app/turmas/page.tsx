@@ -7,6 +7,7 @@ import { BulkAddRows } from '@/components/bulk-add-rows';
 import { BulkCheckbox, BulkDeleteForm } from '@/components/bulk-delete-form';
 import { CsvImport } from '@/components/csv-import';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { ProductTour } from '@/components/product-tour';
 import { UpgradeGate } from '@/components/upgrade-gate';
 import { SERIES } from '@/lib/series';
 import { db } from '@/server/db';
@@ -48,6 +49,13 @@ export default async function TurmasPage({
   return (
     <>
       <PageHeader title="Turmas" description="Organize suas turmas e classes." />
+      <ProductTour
+        id="turmas"
+        steps={[
+          { selector: 'h1', title: 'Turmas', body: 'Crie e organize suas turmas; clique numa turma para ver alunos, notas e materiais.' },
+          { selector: '[data-tour="turmas-nova"]', title: 'Nova turma', body: 'Crie uma turma aqui — ou várias de uma vez em lote.' },
+        ]}
+      />
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">
@@ -111,7 +119,7 @@ export default async function TurmasPage({
         <div className="flex flex-col gap-5">
           {/* Nova turma individual */}
           <div className={cardClass}>
-            <h2 className="mb-3 text-sm font-medium">Nova turma</h2>
+            <h2 className="mb-3 text-sm font-medium" data-tour="turmas-nova">Nova turma</h2>
             <form action={createClassAction} className="flex flex-col gap-2">
               <select name="serie" className={fieldClass} defaultValue="">
                 <option value="" disabled>
