@@ -1,6 +1,6 @@
 # On Education — Roadmap
 
-> Status atualizado em: 2026-06-15
+> Status atualizado em: 2026-06-21
 
 ---
 
@@ -105,6 +105,33 @@
 | **Portal do Responsável** | ✅ Completo | Responsáveis → gerar link; acesso em /portal/[token] |
 | **Webhooks de Integração** | ✅ Completo | Integrações |
 | **Multi-escola (Rede)** | 🔜 Planejado | Fase futura — tabela `networks` criada, UI pendente |
+
+---
+
+## Lançamento (pré-lançamento)
+
+> Status técnico: **pronto para lançar**. Tudo abaixo já está em prod, exceto a ativação do pagamento (mão do Lucas).
+
+| Item | Status | Notas |
+|------|--------|-------|
+| **Jurídico / LGPD** | ✅ Completo | `/privacidade` + `/termos` (controlador/operador, dados de menores, suboperadores, direitos do titular); consentimento nos 3 cadastros; links no rodapé. Revisar com advogado. |
+| **Funil de entrada** | ✅ Completo | Landing → cadastro (professor/escola/e-mail, link mágico, slug) → login → app |
+| **Segurança** | ✅ 8/10 | Isolamento withTenant+RLS, headers de hardening, 2FA opcional. Backstop role-sem-bypass = opcional (8→9). |
+| **Identidade / UX** | ✅ Completo | Marca, splash, loading nos botões, barra de progresso |
+| **Cobrança (código)** | ✅ Pronto | Stripe Checkout + webhook assinado (`server/billing.ts` + `/api/billing/webhook`). **Sem as chaves, plano pago ativa de graça (modo ativação imediata).** |
+
+### ⏳ PAGAMENTO — fazer quando o Lucas pedir "vamos começar a parte de pagamento"
+**Gatilho:** quando o Lucas pedir para começar a parte de pagamento, **o Claude ENSINA o passo a passo** (ele faz no painel; eu oriento). Roteiro:
+1. Criar os 4 preços no Stripe (live): `teacher_basic` R$39, `teacher_pro` R$79, `school_starter` R$549, `school_full` R$999.
+2. Criar o webhook no Stripe → `https://eduonway.com/api/billing/webhook` (evento `checkout.session.completed`).
+3. Setar no Vercel (Production): `STRIPE_SECRET_KEY` (live), `STRIPE_WEBHOOK_SECRET` (live), `APP_PUBLIC_URL=https://eduonway.com`, `STRIPE_PRICE_PLAN_TEACHER_BASIC`, `_TEACHER_PRO`, `_SCHOOL_STARTER`, `_SCHOOL_FULL`. Redeploy.
+4. Ativar Pix/boleto no Stripe (opcional).
+5. Testar um checkout real e conferir que o webhook aplica plano/entitlements.
+
+### Opcional pós-lançamento (não bloqueia)
+- Backstop de segurança (role sem bypass) — 8→9.
+- Cache nas páginas leves (navegação instantânea).
+- Override de limites/cotas por conta no admin.
 
 ---
 

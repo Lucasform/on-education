@@ -2,7 +2,6 @@ import { SubmitButton } from '@/components/submit-button';
 import { listAbsenceJustifications, listStudents } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
-import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
@@ -43,7 +42,6 @@ export default async function JustificativasPage() {
         title="Justificativas de Falta"
         description="Atestados e justificativas enviados pelos responsaveis."
       />
-      <ComunicacaoTabs />
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className={cardClass}>

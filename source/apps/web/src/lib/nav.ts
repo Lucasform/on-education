@@ -15,6 +15,7 @@ import {
   CreditCard,
   DoorOpen,
   FileBarChart,
+  FileQuestion,
   FileSignature,
   FileText,
   FolderOpen,
@@ -29,11 +30,13 @@ import {
   type LucideIcon,
   Megaphone,
   MessageCircleQuestion,
+  MessagesSquare,
   Network,
   NotebookPen,
   Package,
   Palette,
   PenLine,
+  Phone,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -91,7 +94,6 @@ export const NAV: NavGroup[] = [
   {
     label: 'Escola',
     only: 'organization',
-    collapsed: true,
     items: [
       { label: 'Unidades', href: '/app/escola/unidades', icon: Building2 },
       { label: 'Quadro de funcionários', href: '/app/escola/quadro', icon: Users },
@@ -108,7 +110,6 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Sala de aula',
-    collapsed: true,
     items: [
       { label: 'Turmas', href: '/app/turmas', icon: Users, requiresFeature: 'classes.manage' },
       { label: 'Alunos', href: '/app/alunos', icon: GraduationCap, requiresFeature: 'students' },
@@ -129,7 +130,6 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Pedagógico',
-    collapsed: true,
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
       { label: 'Banco coletivo', href: '/app/banco-coletivo', icon: Library, requiresFeature: 'marketplace' },
@@ -141,7 +141,6 @@ export const NAV: NavGroup[] = [
   {
     label: 'WayOn',
     isAgentGroup: true,
-    collapsed: true,
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks, requiresFeature: 'ai.essayGrading' },
@@ -156,8 +155,15 @@ export const NAV: NavGroup[] = [
     label: 'Comunicação',
     only: 'organization',
     items: [
-      // Um item só; as áreas viram abas dentro da página (ComunicacaoTabs).
-      { label: 'Comunicação', href: '/app/feed', icon: Megaphone },
+      { label: 'Mural & feed', href: '/app/feed', icon: Megaphone },
+      { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
+      { label: 'Mural dos pais', href: '/app/mural', icon: Megaphone },
+      { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
+      { label: 'Mensagens dos pais', href: '/app/mensagens-pais', icon: MessagesSquare },
+      { label: 'WhatsApp', href: '/app/whatsapp', icon: Phone },
+      { label: 'Inbox WhatsApp', href: '/app/whatsapp/inbox', icon: MessagesSquare },
+      { label: 'Justificativas de Falta', href: '/app/justificativas', icon: FileQuestion },
+      { label: 'Agendamento de Reunião', href: '/app/reunioes', icon: CalendarCheck },
     ],
   },
   {

@@ -7,12 +7,14 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    /* Marca Edu On Way: violeta (wordmark "On Way") como primary; âmbar (estrela)
+       fica nos destaques via classes amber-* direto, sem mexer no --accent neutro. */
+    --primary: 263 70% 50%;
     --primary-foreground: 210 40% 98%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 263 70% 50%;
     --radius: 0.5rem;
   }
   * {

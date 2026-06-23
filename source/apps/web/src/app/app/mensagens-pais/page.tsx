@@ -2,7 +2,6 @@ import { listPortalMessages } from '@on-education/module-comunicacao';
 import { getTenantSettings } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
-import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
@@ -56,7 +55,6 @@ export default async function MensagensPaisPage() {
         title="Mensagens dos pais"
         description="Canal interno entre os responsáveis e a coordenação."
       />
-      <ComunicacaoTabs />
 
       <form action={setGuardianMsgTeacherAction} className={`${cardClass} flex flex-wrap items-center gap-3`}>
         <label className="flex items-center gap-2 text-sm">

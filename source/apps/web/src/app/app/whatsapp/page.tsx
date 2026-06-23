@@ -1,7 +1,6 @@
 import { getWhatsappConnection } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
-import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, PageHeader } from '@/components/form';
 import { WhatsappConnect } from '@/components/whatsapp-connect';
 import { db } from '@/server/db';
@@ -23,7 +22,6 @@ export default async function WhatsappPage() {
         title="WhatsApp"
         description="Conecte o WhatsApp da escola para falar com os responsáveis, usando o seu próprio número."
       />
-      <ComunicacaoTabs />
 
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Conexão</h2>
