@@ -1090,6 +1090,9 @@ export const tenantSettings = oe.table(
     feedCommentsEnabled: boolean('feed_comments_enabled').notNull().default(true),
     // Chat interno: a escola permite (ou não) que o responsável envie mensagem ao professor.
     allowGuardianMessageTeacher: boolean('allow_guardian_message_teacher').notNull().default(false),
+    // Pagamento online (preparado; ativa quando colar a chave do PSP). 'none' = desligado.
+    paymentProvider: text('payment_provider').notNull().default('none'), // none | asaas | iugu | stripe
+    paymentApiKeyEnc: text('payment_api_key_enc'),
     // Gamificação (Frente 8): liga/desliga por escola/professor + faixas de medalha.
     gamificationEnabled: boolean('gamification_enabled').notNull().default(true),
     medalBronze: integer('medal_bronze').notNull().default(50),
@@ -1785,6 +1788,27 @@ export const gateLogs = oe.table(
     ...auditCols,
   },
   (t) => [index('gate_logs_tenant_idx').on(t.tenantId), tenantPolicy('gate_logs_tenant_isolation')],
+);
+
+// ---------------------------------------------------------------------------
+// leads — CRM de captação (funil de matrícula): novo → contato → visita → matriculado/perdido.
+// Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const leads = oe.table(
+  'leads',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(), // nome do aluno/interessado
+    guardianName: text('guardian_name'),
+    contact: text('contact'), // telefone/e-mail
+    source: text('source').notNull().default('outro'), // site | indicacao | redes | passagem | outro
+    interestGrade: text('interest_grade'), // série de interesse
+    stage: text('stage').notNull().default('novo'), // novo | contato | visita | matriculado | perdido
+    notes: text('notes'),
+    ...auditCols,
+  },
+  (t) => [index('leads_tenant_idx').on(t.tenantId), tenantPolicy('leads_tenant_isolation')],
 );
 
 // ---------------------------------------------------------------------------
