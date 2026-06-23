@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { BulkAddRows } from '@/components/bulk-add-rows';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -65,6 +66,13 @@ export default async function MatriculaPage() {
         </div>
       </section>
 
+      <Tabs
+        tabs={[
+          { id: 'matricular', label: 'Matricular' },
+          { id: 'porturma', label: 'Por turma' },
+        ]}
+      >
+      <TabPanel id="matricular">
       {/* Link público de pré-matrícula */}
       <PublicLinkBox tenantId={ctx.tenantId} />
 
@@ -164,6 +172,8 @@ export default async function MatriculaPage() {
         </form>
       </div>
 
+      </TabPanel>
+      <TabPanel id="porturma">
       <div className="flex flex-col gap-5">
         {porTurma.map(({ turma, alunos: daTurma }) => (
           <div key={turma.id} className={cardClass}>
@@ -228,6 +238,8 @@ export default async function MatriculaPage() {
           </div>
         )}
       </div>
+      </TabPanel>
+      </Tabs>
     </>
   );
 }
