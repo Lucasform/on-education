@@ -73,7 +73,7 @@ export function BrandAuthScreen({
   footer?: ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#1b2a7a] via-[#3f3ad0] to-[#6e3ce0] px-6 py-12 text-white">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#1b1e46] via-[#13152e] to-[#0e1030] px-6 py-12 text-white">
       <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">

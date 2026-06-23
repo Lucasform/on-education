@@ -24,6 +24,7 @@ import {
 
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
+import { LandingPhoto } from '@/components/landing-photo';
 import { LogoMark } from '@/components/logo-mark';
 import { PricingCards } from '@/components/pricing-cards';
 import { Reveal } from '@/components/reveal';
@@ -286,23 +287,29 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={120} className="relative">
-              <div className="rounded-3xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur">
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-                    <GraduationCap className="h-4 w-4" />
+              {/* Foto (de fundo) + painel do produto menor na frente */}
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-2xl">
+                <LandingPhoto
+                  src="/landing/hero.jpg"
+                  alt="Professora usando o Edu On Way em sala de aula"
+                  className="object-[center_25%]"
+                />
+              </div>
+              <div className="absolute -bottom-5 -left-3 w-52 rounded-2xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur sm:w-60">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
+                    <GraduationCap className="h-3.5 w-3.5" />
                   </span>
-                  <span className="text-sm font-semibold">Painel da turma</span>
+                  <span className="text-xs font-semibold">Painel da turma</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   {[
-                    { rotulo: 'Plano de aula', valor: 'WayOn' },
                     { rotulo: 'Frequência', valor: '94%' },
                     { rotulo: 'Média geral', valor: '8,3' },
-                    { rotulo: 'Simulados', valor: '12' },
                   ].map((c) => (
-                    <div key={c.rotulo} className="rounded-xl border border-border bg-background/60 p-3">
-                      <div className="text-xl font-semibold">{c.valor}</div>
-                      <div className="text-[11px] text-muted-foreground">{c.rotulo}</div>
+                    <div key={c.rotulo} className="rounded-lg border border-border bg-background/70 p-2">
+                      <div className="text-base font-semibold">{c.valor}</div>
+                      <div className="text-[10px] text-muted-foreground">{c.rotulo}</div>
                     </div>
                   ))}
                 </div>
@@ -310,10 +317,6 @@ export default function HomePage() {
               <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
                 <CalendarDays className="h-4 w-4 text-primary" />
                 Reunião de pais · 19h
-              </div>
-              <div className="absolute -bottom-3 -left-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Atividade feita pelo WayOn
               </div>
             </Reveal>
           </div>
