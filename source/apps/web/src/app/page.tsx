@@ -34,16 +34,14 @@ import { WayonChat } from '@/components/wayon-chat';
 
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
-const HERO_IMG =
-  'https://images.pexels.com/photos/8923082/pexels-photo-8923082.jpeg?auto=compress&cs=tinysrgb&w=1400';
-const NUMEROS_IMG =
-  'https://images.pexels.com/photos/8535173/pexels-photo-8535173.jpeg?auto=compress&cs=tinysrgb&w=900';
-const FAMILIA_IMG =
-  'https://images.pexels.com/photos/8535177/pexels-photo-8535177.jpeg?auto=compress&cs=tinysrgb&w=1000';
-const ESCOLA_IMG =
-  'https://images.pexels.com/photos/35769752/pexels-photo-35769752.jpeg?auto=compress&cs=tinysrgb&w=1000';
-const PROF_IMG =
-  'https://images.pexels.com/photos/8342412/pexels-photo-8342412.jpeg?auto=compress&cs=tinysrgb&w=1000';
+// Imagens da landing — arquivos locais em apps/web/public/landing/ (suba os recortes).
+// Cada uma escolhida para casar com a frase da seção. Se faltar o arquivo, o LandingPhoto
+// mostra um placeholder elegante (não quebra).
+const HERO_IMG = '/landing/hero.jpg'; // professor(a) + alunos com tablet (plano de aula ao boletim)
+const NUMEROS_IMG = '/landing/turma.jpg'; // momento de conquista/aula (escola toda crescer)
+const FAMILIA_IMG = '/landing/familia.jpg'; // família com o app (vínculo com a família)
+const ESCOLA_IMG = '/landing/escola.jpg'; // equipe planejando (gestão completa, para escolas)
+const PROF_IMG = '/landing/professores.jpg'; // professor com alunos (ganhe tempo, para professores)
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },

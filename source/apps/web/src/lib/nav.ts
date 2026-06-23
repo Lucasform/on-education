@@ -73,8 +73,6 @@ export interface NavGroup {
   pinBottom?: boolean;
   /** Label exibida é o nome do agente IA (substitui "WayOn" pelo nome personalizado). */
   isAgentGroup?: boolean;
-  /** Colapsa o grupo no sidebar (1 item) e mostra os itens como ABAS dentro da página. */
-  collapsed?: boolean;
   items: NavItem[];
 }
 
