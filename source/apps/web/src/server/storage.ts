@@ -39,6 +39,26 @@ export async function uploadPublicImagePng(tenantId: string, b64: string): Promi
   return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
 }
 
+const FEED_IMG_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const FEED_IMG_MAX_BYTES = 6 * 1024 * 1024; // 6 MB
+
+/** Sobe uma imagem do feed (post ou story) no bucket público e devolve a URL. */
+export async function uploadFeedImage(tenantId: string, file: File): Promise<string> {
+  if (!FEED_IMG_TYPES.includes(file.type)) {
+    throw new Error('Formato inválido. Use PNG, JPG ou WEBP.');
+  }
+  if (file.size > FEED_IMG_MAX_BYTES) throw new Error('Imagem muito grande (máx. 6 MB).');
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+  const path = `${tenantId}/feed/${Date.now()}.${ext}`;
+  const sb = serviceClient();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { error } = await sb.storage
+    .from('public-assets')
+    .upload(path, bytes, { contentType: file.type, upsert: true });
+  if (error) throw new Error(`Falha no upload: ${error.message}`);
+  return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl;
+}
+
 export async function uploadPublicLogo(tenantId: string, file: File): Promise<string> {
   if (!LOGO_TYPES.includes(file.type)) {
     throw new Error('Formato inválido. Use PNG, JPG, SVG ou WEBP.');

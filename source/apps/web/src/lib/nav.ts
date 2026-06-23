@@ -155,6 +155,7 @@ export const NAV: NavGroup[] = [
     label: 'Comunicação',
     only: 'organization',
     items: [
+      { label: 'Mural & feed', href: '/app/feed', icon: Megaphone },
       { label: 'Comunicados', href: '/app/comunicados', icon: Megaphone },
       { label: 'Mural dos pais', href: '/app/mural', icon: Megaphone },
       { label: 'Mensagens', href: '/app/mensagens', icon: MessagesSquare },
