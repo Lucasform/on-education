@@ -14,6 +14,7 @@ import { UpgradeGate } from '@/components/upgrade-gate';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -98,8 +99,16 @@ export default async function FinanceiroPage({
         <Kpi label="Cobranças" value={String(cobrancas.length)} />
       </section>
 
-      {/* Resumo: fluxo de caixa e DRE simples */}
-      {resumo && (
+      <Tabs
+        tabs={[
+          { id: 'cobrancas', label: 'Cobranças' },
+          { id: 'despesas', label: 'Despesas' },
+          { id: 'resumo', label: 'Resumo (fluxo e DRE)' },
+        ]}
+      >
+        <TabPanel id="resumo">
+          {/* Resumo: fluxo de caixa e DRE simples */}
+          {resumo && (
         <section className={cardClass}>
           <h2 className="mb-3 text-sm font-medium">Resumo financeiro (fluxo de caixa e DRE)</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -137,9 +146,10 @@ export default async function FinanceiroPage({
             </table>
           )}
         </section>
-      )}
+          )}
+        </TabPanel>
 
-      {/* Despesas */}
+        <TabPanel id="despesas">
       <section className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Despesas ({despesas.length})</h2>
         <form action={createExpenseAction} className="mb-4 flex flex-wrap items-end gap-2">
@@ -220,7 +230,9 @@ export default async function FinanceiroPage({
           </table>
         )}
       </section>
+        </TabPanel>
 
+        <TabPanel id="cobrancas">
       {responsaveis.length > 0 && (
         <form method="get" className={`${cardClass} flex flex-wrap items-end gap-3`}>
           <label className="flex flex-col gap-1 text-sm">
@@ -443,6 +455,8 @@ export default async function FinanceiroPage({
           </div>
         </div>
       )}
+        </TabPanel>
+      </Tabs>
     </>
   );
 }
