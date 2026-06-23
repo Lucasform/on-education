@@ -164,7 +164,7 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
-    label: 'Gestão e analytics',
+    label: 'Gestão e análises',
     only: 'organization',
     items: [
       { label: 'Painel de trabalho', href: '/app/painel', icon: ClipboardList },

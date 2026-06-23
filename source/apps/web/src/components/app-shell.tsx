@@ -19,20 +19,20 @@ import { ThemeToggle } from './theme-toggle';
 
 // Tour do sidebar (1ª vez): explica o que é cada seção do menu. Só entram os itens que
 // realmente aparecem para o tenant (evita falar de recurso que ele não tem).
-// Ordem = de cima para baixo no menu (sequencial, sem pular).
-const SIDEBAR_TOUR: { href: string; title: string; body: string }[] = [
-  { href: '/app', title: 'Início', body: 'Sua visão geral: atalhos, alertas e primeiros passos.' },
-  { href: '/app/calendario', title: 'Calendário', body: 'Eventos, agenda e datas importantes.' },
-  { href: '/app/planos', title: 'Planos', body: 'Libere mais recursos quando a escola crescer.' },
-  { href: '/app/turmas', title: 'Turmas', body: 'Crie e organize as turmas.' },
-  { href: '/app/alunos', title: 'Alunos', body: 'Cadastre alunos, abra a ficha e importe em lote.' },
-  { href: '/app/sala/chamada', title: 'Sala de aula', body: 'Chamada, notas, diário e boletim ficam por aqui.' },
-  { href: '/app/atividades', title: 'Banco de atividades', body: 'Suas atividades, provas e trabalhos reutilizáveis.' },
-  { href: '/app/ia', title: 'WayOn (IA)', body: 'Gere plano de aula, atividade, prova e correção em segundos.' },
-  { href: '/app/feed', title: 'Mural & feed', body: 'Novidades, stories e comunicação com a família.' },
-  { href: '/app/painel', title: 'Painel de trabalho', body: 'Solicitações da equipe (ocorrência, impressão…) em Kanban.' },
-  { href: '/app/financeiro', title: 'Financeiro', body: 'Mensalidades, despesas e fluxo de caixa.' },
-];
+// Tour por TÓPICO do menu (grupo), explicando a área no geral. Texto por rótulo de grupo.
+const GROUP_DESCR: Record<string, string> = {
+  'Visão geral': 'Seu ponto de partida: início, calendário e planos.',
+  Escola:
+    'Configure a instituição aqui: unidades, equipe, ano letivo, disciplinas, responsáveis e matrícula.',
+  'Sala de aula':
+    'O dia a dia da turma: chamada, notas, diário, planejamento, faltas e boletim.',
+  Pedagógico: 'Seu conteúdo: banco de atividades, simulados e o banco coletivo entre escolas.',
+  Comunicação:
+    'Fale com a família: mural & feed, comunicados, mensagens e portal dos responsáveis.',
+  'Gestão e análises':
+    'Acompanhe a escola: painel de trabalho, relatórios, dashboards e auditoria.',
+  Financeiro: 'Mensalidades e cobranças, despesas e o resumo de fluxo de caixa e DRE.',
+};
 
 function NavGroupBlock({
   group,
@@ -53,7 +53,10 @@ function NavGroupBlock({
   return (
     <div>
       {!group.hideLabel && (
-        <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <p
+          data-tour={`navgroup-${label}`}
+          className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+        >
           {label}
         </p>
       )}
@@ -139,18 +142,21 @@ export function AppShell({
   const hasLocked = allGroups.some((g) => g.items.some((i) => i.locked));
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
-  // Passos do tour: só os itens do menu que realmente existem para este tenant.
-  const navHrefs = new Set(groups.flatMap((g) => g.items.map((i) => i.href)));
-  const tourSteps = SIDEBAR_TOUR.filter((s) => navHrefs.has(s.href)).map((s) => ({
-    selector: `[data-tour="nav-${s.href}"]`,
-    title: s.title,
-    body: s.body,
-  }));
+  // Passos do tour: um por TÓPICO visível do menu, de cima pra baixo (sequencial).
+  const tourSteps = [...mainGroups, ...bottomGroups]
+    .filter((g) => !g.hideLabel)
+    .map((g) => {
+      const label = g.isAgentGroup ? agentName : g.label;
+      const body = g.isAgentGroup
+        ? `Gere plano de aula, atividade, prova e correção com o ${agentName}; você revisa e aprova.`
+        : (GROUP_DESCR[g.label] ?? 'Recursos desta área.');
+      return { selector: `[data-tour="navgroup-${label}"]`, title: label, body };
+    });
 
   return (
     <div className="min-h-screen md:pl-64 print:pl-0">
       <ProductTour
-        id="sidebar-v2"
+        id="sidebar-v3"
         steps={tourSteps}
         intro={{
           title: 'Bem-vindo ao Edu On Way!',
