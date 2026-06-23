@@ -882,6 +882,75 @@ export const events = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// Feed social interno (rede social da escola): posts com foto, stories de 24h,
+// curtidas e comentários. Tenant-scoped + RLS. Exibidos no app e no mural público.
+// ---------------------------------------------------------------------------
+export const feedPosts = oe.table(
+  'feed_posts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    authorName: text('author_name'),
+    body: text('body').notNull().default(''),
+    imageUrl: text('image_url'),
+    classId: uuid('class_id'),
+    status: text('status').notNull().default('published'),
+    ...auditCols,
+  },
+  (t) => [
+    index('feed_posts_tenant_idx').on(t.tenantId),
+    tenantPolicy('feed_posts_tenant_isolation'),
+  ],
+);
+
+export const feedStories = oe.table(
+  'feed_stories',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    imageUrl: text('image_url').notNull(),
+    caption: text('caption'),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('feed_stories_tenant_idx').on(t.tenantId),
+    tenantPolicy('feed_stories_tenant_isolation'),
+  ],
+);
+
+export const feedPostReactions = oe.table(
+  'feed_post_reactions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    postId: uuid('post_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    uniqueIndex('feed_post_reactions_uq').on(t.postId, t.userId),
+    tenantPolicy('feed_post_reactions_tenant_isolation'),
+  ],
+);
+
+export const feedPostComments = oe.table(
+  'feed_post_comments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    postId: uuid('post_id').notNull(),
+    authorName: text('author_name'),
+    body: text('body').notNull(),
+    ...auditCols,
+  },
+  (t) => [
+    index('feed_post_comments_post_idx').on(t.postId),
+    tenantPolicy('feed_post_comments_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // Simulados/Quizzes (Fase 1B.3). Um quiz tem N questões de múltipla escolha;
 // cada tentativa de aluno guarda as respostas e a nota auto-corrigida.
 // Tenant-scoped + RLS em todas as três tabelas.
@@ -983,6 +1052,9 @@ export const tenantSettings = oe.table(
     imageStyle: text('image_style'),
     // Nome do agente de IA escolhido pela escola/professor (padrão: WayOn).
     agentName: text('agent_name'),
+    // Mural & feed: a escola escolhe o que fica ligado.
+    feedStoriesEnabled: boolean('feed_stories_enabled').notNull().default(true),
+    feedCommentsEnabled: boolean('feed_comments_enabled').notNull().default(true),
     // Gamificação (Frente 8): liga/desliga por escola/professor + faixas de medalha.
     gamificationEnabled: boolean('gamification_enabled').notNull().default(true),
     medalBronze: integer('medal_bronze').notNull().default(50),
