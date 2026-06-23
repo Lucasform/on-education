@@ -28,6 +28,7 @@ import { redirect } from 'next/navigation';
 import { KpiCard as StatCard } from '@/components/kpi-card';
 import { MobileLauncher } from '@/components/mobile-launcher';
 import { cardClass, PageHeader, tableWrapClass } from '@/components/form';
+import { ProductTour } from '@/components/product-tour';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
 
@@ -147,6 +148,27 @@ export default async function OverviewPage() {
         description="Tudo o que você precisa para ensinar, em um só lugar."
       />
 
+      <ProductTour
+        id="home"
+        steps={[
+          {
+            selector: '[data-tour="acoes-rapidas"]',
+            title: 'Ações rápidas',
+            body: 'Atalhos do dia a dia: criar turma, cadastrar aluno, fazer chamada e gerar conteúdo com a IA.',
+          },
+          {
+            selector: '[data-tour="gerar-ia"]',
+            title: `Gere com o ${agenteName}`,
+            body: 'Clique aqui para criar planos de aula e atividades com a inteligência artificial.',
+          },
+          {
+            selector: '[data-tour="primeiros-passos"]',
+            title: 'Primeiros passos',
+            body: 'Siga esta lista para deixar tudo pronto. No seu ritmo, sem travar nada.',
+          },
+        ]}
+      />
+
       {/* Launcher de apps no mobile (sem sidebar): toque no ícone e abra. */}
       <section className="md:hidden">
         <MobileLauncher
@@ -193,7 +215,7 @@ export default async function OverviewPage() {
         </section>
       )}
 
-      <section className={cardClass}>
+      <section className={cardClass} data-tour="acoes-rapidas">
         <h2 className="mb-3 text-sm font-medium">Ações rápidas</h2>
         <div className="flex flex-wrap gap-2">
           {[
@@ -211,6 +233,7 @@ export default async function OverviewPage() {
             <Link
               key={a.href + a.label}
               href={a.href}
+              data-tour={a.href === '/app/ia' ? 'gerar-ia' : undefined}
               className="rounded-md border border-border bg-background px-3 py-1.5 text-sm outline-none transition-colors hover:border-primary/50 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
               {a.label}
@@ -289,7 +312,7 @@ export default async function OverviewPage() {
       )}
 
       {feitos < passos.length && (
-        <section className={cardClass}>
+        <section className={cardClass} data-tour="primeiros-passos">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Rocket className="h-4 w-4 text-primary" />
