@@ -35,7 +35,7 @@ import { WayonChat } from '@/components/wayon-chat';
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
 const HERO_IMG =
-  'https://images.pexels.com/photos/8617968/pexels-photo-8617968.jpeg?auto=compress&cs=tinysrgb&w=1400';
+  'https://images.pexels.com/photos/5306457/pexels-photo-5306457.jpeg?auto=compress&cs=tinysrgb&w=1400';
 const NUMEROS_IMG =
   'https://images.pexels.com/photos/8617938/pexels-photo-8617938.jpeg?auto=compress&cs=tinysrgb&w=900';
 const FAMILIA_IMG =
@@ -43,7 +43,7 @@ const FAMILIA_IMG =
 const ESCOLA_IMG =
   'https://images.pexels.com/photos/8423049/pexels-photo-8423049.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const PROF_IMG =
-  'https://images.pexels.com/photos/7742820/pexels-photo-7742820.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/5306473/pexels-photo-5306473.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
@@ -561,11 +561,12 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-2">
               <Reveal>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
-                  <div className="h-40 overflow-hidden">
+                  <div className="h-52 overflow-hidden">
                     <LandingPhoto
                       src={PROF_IMG}
-                      alt="Professora planejando aulas no computador"
+                      alt="Professora usando o app no tablet"
                       label="Foto do professor"
+                      className="object-[center_30%]"
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-8">
@@ -595,11 +596,12 @@ export default function HomePage() {
 
               <Reveal delay={120}>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
-                  <div className="h-40 overflow-hidden">
+                  <div className="h-52 overflow-hidden">
                     <LandingPhoto
                       src={ESCOLA_IMG}
                       alt="Sala de aula com professor e alunos"
                       label="Foto da escola"
+                      className="object-[center_30%]"
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-8">
