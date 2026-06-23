@@ -88,7 +88,7 @@ export const NAV: NavGroup[] = [
       { label: 'Início', href: '/app', icon: Home },
       { label: 'Calendário', href: '/app/calendario', icon: CalendarDays },
       { label: 'Planos', href: '/app/planos', icon: CreditCard },
-      { label: 'Configurações', href: '/app/conta/configuracoes', icon: Settings, only: 'individual' },
+      { label: 'Meu perfil', href: '/app/conta/perfil', icon: Settings, only: 'individual' },
     ],
   },
   {
@@ -172,7 +172,7 @@ export const NAV: NavGroup[] = [
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX, requiresFeature: 'analytics.director' },
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3, requiresFeature: 'analytics.director' },
       { label: 'Auditoria', href: '/app/auditoria', icon: ShieldCheck, requiresFeature: 'analytics.director' },
-      { label: 'Segurança (MFA)', href: '/app/conta/mfa', icon: ShieldCheck },
+      { label: 'Acesso & segurança', href: '/app/conta/seguranca', icon: ShieldCheck },
       { label: 'Inventário', href: '/app/inventario', icon: Package },
     ],
   },
