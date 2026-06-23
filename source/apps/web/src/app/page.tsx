@@ -34,19 +34,14 @@ import { WayonChat } from '@/components/wayon-chat';
 
 // Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
 // public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
-// Imagens da landing. Hoje vêm do banco (Pexels) e aparecem na hora. Para usar as fotos da
-// sua escola, suba os arquivos em apps/web/public/landing/ e troque a URL pelo caminho local
-// (ex.: '/landing/hero.jpg'); o LandingPhoto cai num placeholder se faltar.
-const HERO_IMG =
-  'https://images.pexels.com/photos/8923082/pexels-photo-8923082.jpeg?auto=compress&cs=tinysrgb&w=1400';
-const NUMEROS_IMG =
-  'https://images.pexels.com/photos/8535173/pexels-photo-8535173.jpeg?auto=compress&cs=tinysrgb&w=900';
-const FAMILIA_IMG =
-  'https://images.pexels.com/photos/8535177/pexels-photo-8535177.jpeg?auto=compress&cs=tinysrgb&w=1000';
-const ESCOLA_IMG =
-  'https://images.pexels.com/photos/35769752/pexels-photo-35769752.jpeg?auto=compress&cs=tinysrgb&w=1000';
-const PROF_IMG =
-  'https://images.pexels.com/photos/8342412/pexels-photo-8342412.jpeg?auto=compress&cs=tinysrgb&w=1000';
+// Imagens da landing — arquivos LOCAIS em apps/web/public/landing/ (mesma origem, sempre
+// carregam, sem depender de CSP/host externo). Para usar as fotos da sua escola, basta
+// substituir esses arquivos pelos seus (mesmos nomes).
+const HERO_IMG = '/landing/hero.jpg';
+const NUMEROS_IMG = '/landing/turma.jpg';
+const FAMILIA_IMG = '/landing/familia.jpg';
+const ESCOLA_IMG = '/landing/escola.jpg';
+const PROF_IMG = '/landing/professores.jpg';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
