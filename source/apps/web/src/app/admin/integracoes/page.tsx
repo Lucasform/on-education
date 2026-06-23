@@ -143,11 +143,11 @@ export default async function IntegracoesPage() {
                           {r.provider ? `${r.provider} · ${r.unlocks}` : r.unlocks}
                         </p>
                         {r.hint && <p className="mt-1 text-xs text-muted-foreground/80">{r.hint}</p>}
+                        <code className="mt-1.5 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                          {r.envs.join(' + ')}
+                        </code>
                       </td>
-                      <td className="px-4 py-3 align-top">
-                        <code className="text-[11px] text-muted-foreground">{r.envs.join(' + ')}</code>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-right align-top">
+                      <td className="w-px whitespace-nowrap px-4 py-3 text-right align-top">
                         {st === 'ok' ? (
                           <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                             ✓ configurada
