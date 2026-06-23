@@ -13,6 +13,7 @@ type Status = 'ok' | 'faltando';
 interface EnvRow {
   envs: string[]; // nomes das variáveis (todas precisam estar setadas para ficar "ok")
   label: string;
+  provider?: string; // serviço/ferramenta por trás (ex.: Supabase, Claude, Resend)
   unlocks: string;
   essencial?: boolean;
   hint?: string;
@@ -24,20 +25,23 @@ const GRUPOS: { titulo: string; rows: EnvRow[] }[] = [
     rows: [
       {
         envs: ['DATABASE_URL'],
-        label: 'Banco de dados (Supabase)',
+        label: 'Banco de dados',
+        provider: 'Supabase',
         unlocks: 'Base de tudo no app.',
         essencial: true,
       },
       {
         envs: ['SUPABASE_URL', 'SUPABASE_ANON_KEY'],
-        label: 'Autenticação (Supabase Auth)',
+        label: 'Autenticação',
+        provider: 'Supabase Auth',
         unlocks: 'Login e cadastro.',
         essencial: true,
       },
       {
         envs: ['ANTHROPIC_API_KEY'],
-        label: 'WayOn (IA padrão — Claude)',
-        unlocks: 'IA do WayOn: conteúdo e correção.',
+        label: 'WayOn',
+        provider: 'Claude',
+        unlocks: 'IA para conteúdo e correção.',
         essencial: true,
       },
     ],
@@ -47,19 +51,21 @@ const GRUPOS: { titulo: string; rows: EnvRow[] }[] = [
     rows: [
       {
         envs: ['OPENAI_API_KEY'],
-        label: 'OpenAI (imagens + BYOK)',
-        unlocks: 'Imagens por IA + chave própria do professor.',
+        label: 'WayOn Imagens',
+        provider: 'OpenAI',
+        unlocks: 'IA para geração de imagens + chave do usuário.',
       },
       {
         envs: ['YOUTUBE_API_KEY'],
-        label: 'Vídeo sugerido (YouTube)',
+        label: 'Vídeo sugerido',
+        provider: 'YouTube',
         unlocks: 'Sugere vídeo nos planos de aula.',
         hint: 'Google Cloud › API YouTube Data v3 › chave de API. Cota gratuita diária.',
       },
       {
         envs: ['APP_ENCRYPTION_KEY'],
-        label: 'BYOK — chave durável',
-        unlocks: 'Mantém a chave de IA do professor salva.',
+        label: 'BYOK',
+        unlocks: 'Mantém a chave de IA do usuário salva para uso.',
         hint: 'Sem isso, a BYOK ainda funciona (fallback), mas a chave salva pode expirar num redeploy. Use um valor forte e ESTÁVEL.',
       },
     ],
@@ -69,13 +75,15 @@ const GRUPOS: { titulo: string; rows: EnvRow[] }[] = [
     rows: [
       {
         envs: ['RESEND_API_KEY'],
-        label: 'E-mail (Resend)',
-        unlocks: 'E-mails do app (comunicados e relatórios).',
+        label: 'E-mail',
+        provider: 'Resend',
+        unlocks: 'E-mails do app, comunicados e relatórios.',
       },
       {
         envs: ['EVOLUTION_API_URL', 'EVOLUTION_API_KEY'],
-        label: 'WhatsApp (Evolution API)',
-        unlocks: 'WhatsApp: inbox e envio.',
+        label: 'WhatsApp',
+        provider: 'Evolution API',
+        unlocks: 'Inbox e envio.',
       },
     ],
   },
@@ -131,7 +139,9 @@ export default async function IntegracoesPage() {
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-xs text-muted-foreground">{r.unlocks}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {r.provider ? `${r.provider} · ${r.unlocks}` : r.unlocks}
+                        </p>
                         {r.hint && <p className="mt-1 text-xs text-muted-foreground/80">{r.hint}</p>}
                       </td>
                       <td className="px-4 py-3 align-top">
@@ -158,38 +168,32 @@ export default async function IntegracoesPage() {
       ))}
 
       <section className="rounded-lg border border-border bg-card p-4 text-sm">
-        <h2 className="mb-2 font-medium">Como adicionar uma variável no Vercel</h2>
-        <ol className="ml-4 list-decimal space-y-1 text-muted-foreground">
+        <h2 className="mb-2 font-medium">Adicionar uma variável no Vercel</h2>
+        <ol className="ml-4 list-decimal space-y-1.5 text-muted-foreground">
           <li>
-            Acesse{' '}
+            Abra as{' '}
             <a
               href="https://vercel.com/lucas-carvalho-s-projects1/on-education/settings/environment-variables"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary underline-offset-4 hover:underline"
             >
-              Vercel › on-education › Settings › Environment Variables
+              variáveis de ambiente do projeto
             </a>
             .
           </li>
           <li>
-            Em <strong>Key</strong>, cole o nome exato (ex.: <code>YOUTUBE_API_KEY</code>); em{' '}
-            <strong>Value</strong>, o valor.
+            Cole o nome em <strong>Key</strong> e o valor em <strong>Value</strong>.
           </li>
           <li>
-            Marque os três ambientes: <strong>Production</strong>, <strong>Preview</strong> e{' '}
-            <strong>Development</strong>. Clique em <strong>Save</strong>.
+            Marque <strong>Production</strong>, <strong>Preview</strong> e{' '}
+            <strong>Development</strong> e salve.
           </li>
           <li>
-            Vá em <strong>Deployments</strong> › no último, menu <strong>⋯</strong> ›{' '}
-            <strong>Redeploy</strong> (variável nova só vale após um novo deploy).
+            Em <strong>Deployments</strong>, faça <strong>Redeploy</strong> do último.
           </li>
-          <li>Volte a esta página: a bolinha fica verde quando o deploy subir com a variável.</li>
+          <li>A bolinha fica verde quando o deploy subir com a variável.</li>
         </ol>
-        <p className="mt-3 text-xs text-muted-foreground">
-          O passo a passo completo, com todos os valores, está em{' '}
-          <code>docs/CONFIGURACAO-VERCEL.md</code> no repositório.
-        </p>
       </section>
     </>
   );
