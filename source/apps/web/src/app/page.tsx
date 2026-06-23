@@ -1,11 +1,13 @@
 import { Button } from '@on-education/ui';
 import {
   BarChart3,
+  Bell,
   CalendarDays,
   Check,
   ClipboardCheck,
   FolderOpen,
   GraduationCap,
+  HeartHandshake,
   Layers,
   MessageSquare,
   Palette,
@@ -14,6 +16,7 @@ import {
   Sparkles,
   UserRound,
   Users,
+  Wallet,
   X,
 } from 'lucide-react';
 
@@ -25,11 +28,71 @@ import { PricingCards } from '@/components/pricing-cards';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV = [
-  { label: 'Recursos', href: '#recursos' },
-  { label: 'Diferenciais', href: '#diferenciais' },
+  { label: 'Plataforma', href: '#modulos' },
+  { label: 'Família e escola', href: '#familia' },
   { label: 'Como funciona', href: '#como-funciona' },
   { label: 'Planos', href: '#planos' },
   { label: 'Para escolas', href: '/signup/escola' },
+];
+
+// Sinais de confiança honestos (sem prometer o que não temos). Vão numa faixa fina sob o hero.
+const CONFIANCA = [
+  'Sem cartão para testar',
+  'Dados isolados por escola',
+  'Conforme a LGPD',
+  'Suporte humano de verdade',
+];
+
+// Módulos da plataforma (leitura de "suíte", no espírito de um sistema de gestão completo).
+const MODULOS = [
+  {
+    icon: Sparkles,
+    titulo: 'WayOn, seu agente',
+    texto: 'Planos de aula, atividades, provas e correções em segundos. Você revisa e aprova.',
+  },
+  {
+    icon: Users,
+    titulo: 'Turmas e alunos',
+    texto: 'Cadastro, importação em lote por planilha e ficha completa do aluno.',
+  },
+  {
+    icon: ClipboardCheck,
+    titulo: 'Diário e boletim',
+    texto: 'Chamada, notas e frequência sem planilha, com boletim pronto no seu padrão.',
+  },
+  {
+    icon: FolderOpen,
+    titulo: 'Banco e simulados',
+    texto: 'Atividades reutilizáveis e provas com correção automática.',
+  },
+  {
+    icon: MessageSquare,
+    titulo: 'Comunicação com a família',
+    texto: 'Comunicados, mensagens e mural para os pais acompanharem de perto.',
+  },
+  {
+    icon: Wallet,
+    titulo: 'Financeiro',
+    texto: 'Mensalidades e cobranças por aluno, com visão clara do que entra.',
+  },
+  {
+    icon: School,
+    titulo: 'Secretaria e matrícula',
+    texto: 'Matrícula, responsáveis e documentos da turma organizados num lugar só.',
+  },
+  {
+    icon: BarChart3,
+    titulo: 'Relatórios e direção',
+    texto: 'Painel da escola, alunos em risco e documentos em PDF.',
+  },
+];
+
+// Conexão família-escola (ideia central de quem faz gestão escolar de verdade).
+const FAMILIA = [
+  'Mural e comunicados no lugar dos grupos de WhatsApp',
+  'Boletim e frequência no portal do responsável',
+  'Um link próprio: eduonway.com/c/sua-escola',
+  'Aviso de reunião, evento e ocorrência na hora certa',
 ];
 
 // Antes x depois: o contraste do dia a dia (sem a plataforma vs com a plataforma).
@@ -66,39 +129,6 @@ const DIFERENCIAIS = [
     icon: ShieldCheck,
     titulo: 'Seguro e LGPD',
     texto: 'Cada escola isolada das demais, com proteção reforçada para os dados de menores.',
-  },
-];
-
-const DESTAQUES = [
-  {
-    icon: Sparkles,
-    titulo: 'WayOn, seu agente',
-    texto: 'Planos de aula, atividades, provas e correções em segundos.',
-  },
-  {
-    icon: Users,
-    titulo: 'Turmas e alunos',
-    texto: 'Cadastro, importação em lote por planilha e ficha completa.',
-  },
-  {
-    icon: ClipboardCheck,
-    titulo: 'Diário e boletim',
-    texto: 'Chamada, notas e frequência sem planilha.',
-  },
-  {
-    icon: FolderOpen,
-    titulo: 'Banco e simulados',
-    texto: 'Atividades reutilizáveis e provas com correção automática.',
-  },
-  {
-    icon: MessageSquare,
-    titulo: 'Comunicação',
-    texto: 'Comunicados, mensagens e mural para os pais.',
-  },
-  {
-    icon: BarChart3,
-    titulo: 'Relatórios',
-    texto: 'Painel da escola, alunos em risco e documentos em PDF.',
   },
 ];
 
@@ -159,44 +189,46 @@ export default function HomePage() {
       </div>
 
       {/* cabeçalho */}
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <a href="/" className="flex items-center gap-2">
-          <LogoMark size={32} />
-          <span className="text-lg font-bold tracking-tight">Edu On Way</span>
-        </a>
-        <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
-          {NAV.map((n) => (
-            <a
-              key={n.label}
-              href={n.href}
-              className="rounded transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:underline"
-            >
-              {n.label}
-            </a>
-          ))}
-        </nav>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <a href="/login" className="hidden sm:block">
-            <Button size="sm" className="rounded-full px-5">
-              Entrar
-            </Button>
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <a href="/" className="flex items-center gap-2">
+            <LogoMark size={32} />
+            <span className="text-lg font-bold tracking-tight">Edu On Way</span>
           </a>
-          <LandingMobileMenu items={NAV} />
+          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
+            {NAV.map((n) => (
+              <a
+                key={n.label}
+                href={n.href}
+                className="rounded transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:underline"
+              >
+                {n.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <a href="/login" className="hidden sm:block">
+              <Button size="sm" className="rounded-full px-5">
+                Entrar
+              </Button>
+            </a>
+            <LandingMobileMenu items={NAV} />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-6 pb-20">
         {/* hero */}
-        <section className="relative overflow-hidden rounded-3xl border border-border bg-primary/10 p-8 sm:p-12 lg:p-16">
+        <section className="relative mt-8 overflow-hidden rounded-3xl border border-border bg-primary/10 p-8 sm:p-12 lg:p-16">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
 
           <div className="relative grid items-center gap-10 lg:grid-cols-2">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Conheça o <WayOn />
+                <HeartHandshake className="h-3.5 w-3.5 text-primary" />
+                Uma parceria para a sua escola crescer
               </span>
               <h1 className="mt-5 text-pretty text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Ensine com inteligência.
@@ -205,7 +237,7 @@ export default function HomePage() {
               </h1>
               <p className="mt-5 max-w-md text-balance text-muted-foreground">
                 A plataforma completa para professores e escolas. O <WayOn /> planeja, corrige e
-                organiza ao seu lado, e você cuida do resto num só lugar.
+                organiza ao seu lado, e a família acompanha tudo de perto, num só lugar.
               </p>
               <AudienceButtons variant="surface" />
             </div>
@@ -248,21 +280,35 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* recursos */}
-        <section id="recursos" className="mt-20">
+        {/* faixa de confiança */}
+        <section className="mt-6">
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            {CONFIANCA.map((c) => (
+              <li key={c} className="inline-flex items-center gap-2">
+                <Check className="h-4 w-4 text-success" />
+                {c}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* módulos */}
+        <section id="modulos" className="mt-20">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Tudo o que a sala de aula precisa, num lugar só.
+            <span className="text-sm font-semibold text-primary">A plataforma</span>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+              Uma plataforma, vários módulos.
             </h2>
             <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-              Do planejamento à comunicação com os pais, com o WayOn acelerando cada etapa.
+              Do planejamento à comunicação com os pais, tudo integrado e com o WayOn acelerando
+              cada etapa.
             </p>
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {DESTAQUES.map((d) => (
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {MODULOS.map((d) => (
               <div
                 key={d.titulo}
-                className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+                className="rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <d.icon className="h-5 w-5" />
@@ -271,6 +317,62 @@ export default function HomePage() {
                 <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* família e escola */}
+        <section
+          id="familia"
+          className="mt-20 overflow-hidden rounded-3xl border border-border bg-card"
+        >
+          <div className="grid gap-0 md:grid-cols-2">
+            <div className="p-8 sm:p-12">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                <HeartHandshake className="h-3.5 w-3.5" />
+                Família por perto
+              </span>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+                A escola conectada com a família, em tempo real.
+              </h2>
+              <p className="mt-2 max-w-md text-muted-foreground">
+                Pais e responsáveis acompanham notas, frequência e recados sem precisar de grupo de
+                WhatsApp. Cada escola com o seu canal, a sua cara.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm">
+                {FAMILIA.map((t) => (
+                  <li key={t} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative flex items-center justify-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 sm:p-12">
+              <div className="w-full max-w-xs rounded-2xl border border-border bg-background/70 p-5 shadow-xl backdrop-blur">
+                <div className="flex items-center gap-2 border-b border-border pb-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
+                    <Bell className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-semibold">Mural da escola</span>
+                </div>
+                <div className="mt-3 space-y-3 text-sm">
+                  <div className="rounded-lg border border-border bg-card p-3">
+                    <div className="font-medium">Reunião de pais</div>
+                    <div className="text-[11px] text-muted-foreground">Quinta, 19h · presencial</div>
+                  </div>
+                  <div className="rounded-lg border border-border bg-card p-3">
+                    <div className="font-medium">Boletim do 2º bimestre</div>
+                    <div className="text-[11px] text-muted-foreground">Já disponível no portal</div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-primary">
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="text-[11px] font-medium">3 novos comunicados</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -418,7 +520,7 @@ export default function HomePage() {
             </ul>
             <a href="/signup/escola" className="mt-6">
               <Button variant="outline" className="w-full rounded-full">
-                Falar com a gente
+                Falar com um consultor
               </Button>
             </a>
           </div>
@@ -459,7 +561,7 @@ export default function HomePage() {
 
         {/* cta final */}
         <section className="mt-20 overflow-hidden rounded-3xl bg-primary px-8 py-12 text-center text-white sm:py-16">
-          <h2 className="text-2xl font-bold sm:text-3xl">Comece hoje, sem complicação.</h2>
+          <h2 className="text-2xl font-bold sm:text-3xl">Vamos crescer juntos.</h2>
           <p className="mx-auto mt-2 max-w-md text-white/80">
             Crie sua conta em minutos ou leve o Edu On Way para a sua escola.
           </p>
@@ -467,19 +569,27 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="mx-auto max-w-6xl border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <a href="/termos" className="hover:text-foreground">
-            Termos de Uso
-          </a>
-          <a href="/privacidade" className="hover:text-foreground">
-            Política de Privacidade
-          </a>
-          <a href="mailto:contato@onwaytech.com.br" className="hover:text-foreground">
-            Contato
-          </a>
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-6xl px-6 py-10">
+          <div className="flex flex-col items-center gap-4 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
+            <a href="/" className="flex items-center gap-2">
+              <LogoMark size={28} />
+              <span className="font-bold tracking-tight text-foreground">Edu On Way</span>
+            </a>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <a href="/termos" className="hover:text-foreground">
+                Termos de Uso
+              </a>
+              <a href="/privacidade" className="hover:text-foreground">
+                Política de Privacidade
+              </a>
+              <a href="mailto:contato@onwaytech.com.br" className="hover:text-foreground">
+                Contato
+              </a>
+            </div>
+          </div>
+          <p className="mt-6 text-center text-xs text-muted-foreground">© 2026 Edu On Way</p>
         </div>
-        <p className="mt-3">© 2026 Edu On Way</p>
       </footer>
     </div>
   );
