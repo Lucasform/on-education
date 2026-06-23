@@ -27,6 +27,7 @@ export async function signupAction(formData: FormData): Promise<void> {
     ownerName: formData.get('ownerName'),
     workspaceName: (formData.get('workspaceName') as string) || undefined,
     slug,
+    planId: (formData.get('plano') as string) || undefined,
   });
   const password = String(formData.get('password') ?? '');
   if (password.length < 8) redirect('/signup?erro=senha');
@@ -50,7 +51,7 @@ export async function signupAction(formData: FormData): Promise<void> {
   }
 
   try {
-    await provisionIndividualTenant(db(), data.user.id, input);
+    await provisionIndividualTenant(db(), data.user.id, input, input.planId);
   } catch {
     // O usuário JÁ foi criado no Auth acima. Se o provision falha (ex.: erro transitório do
     // pooler), ele ficaria órfão (existe no Auth, sem tenant) — sem conseguir logar nem recriar

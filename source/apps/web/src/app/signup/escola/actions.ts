@@ -50,7 +50,8 @@ export async function signupSchoolAction(formData: FormData): Promise<void> {
   }
 
   try {
-    await provisionOrganizationTenant(db(), data.user.id, input);
+    // Escola é sob consulta: cria no Full (acesso completo, sem cobrança) até a ativação comercial.
+    await provisionOrganizationTenant(db(), data.user.id, input, 'school_full');
   } catch {
     redirect('/signup/escola?erro=falha');
   }

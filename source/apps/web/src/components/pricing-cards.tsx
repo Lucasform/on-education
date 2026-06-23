@@ -32,8 +32,8 @@ const PLANOS: Plano[] = [
       'Geração de imagens didáticas',
       'Comunicados e calendário',
     ],
-    cta: 'Testar grátis',
-    href: '/signup',
+    cta: 'Assinar o Professor',
+    href: '/signup?plano=teacher_basic',
     badge: '',
   },
   {
@@ -51,7 +51,7 @@ const PLANOS: Plano[] = [
       'WayOn com cota ampliada',
     ],
     cta: 'Assinar o Pro',
-    href: '/signup',
+    href: '/signup?plano=teacher_pro',
     badge: 'Mais popular',
   },
   {

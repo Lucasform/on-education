@@ -38,9 +38,16 @@ export async function provisionOrganizationTenant(
   client: DbClient,
   ownerUserId: string,
   input: OrganizationSignupInput,
+  /** Plano semeado na criação. Escola é "sob consulta": cria no Full (acesso completo, sem
+   *  cobrança) até a ativação comercial. Inválido/ausente → cai no default da escola. */
+  requestedPlanId?: string,
 ): Promise<ProvisionOrgResult> {
-  const plan = PLANS[DEFAULT_ORG_PLAN];
-  if (!plan) throw new Error(`Plano default ausente no catálogo: ${DEFAULT_ORG_PLAN}`);
+  const planId =
+    requestedPlanId && PLANS[requestedPlanId]?.tenantType === 'organization'
+      ? requestedPlanId
+      : DEFAULT_ORG_PLAN;
+  const plan = PLANS[planId];
+  if (!plan) throw new Error(`Plano ausente no catálogo: ${planId}`);
 
   return client.db.transaction(async (tx) => {
     const tenantRows = await tx
@@ -68,9 +75,7 @@ export async function provisionOrganizationTenant(
       { tenantId, userId: ownerUserId, role: 'director', createdBy: ownerUserId },
     ]);
 
-    await tx
-      .insert(subscriptions)
-      .values({ tenantId, planId: DEFAULT_ORG_PLAN, createdBy: ownerUserId });
+    await tx.insert(subscriptions).values({ tenantId, planId, createdBy: ownerUserId });
 
     const featureRows = [...plan.features].map((feature) => ({
       tenantId,
@@ -93,7 +98,7 @@ export async function provisionOrganizationTenant(
       .values({ tenantId, name: 'Sede', createdBy: ownerUserId })
       .returning({ id: units.id });
 
-    return { tenantId, planId: DEFAULT_ORG_PLAN, unitId: unitRows[0]!.id };
+    return { tenantId, planId, unitId: unitRows[0]!.id };
   });
 }
 

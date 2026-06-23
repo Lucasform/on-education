@@ -27,6 +27,8 @@ export const individualSignupSchema = z.object({
   workspaceName: z.string().min(2).max(200),
   /** Link público opcional (já normalizado/validado pela action). */
   slug: z.string().max(40).optional(),
+  /** Plano escolhido no cadastro (Free/Professor/Pro). Sem cobrança nesta fase. */
+  planId: z.enum(['teacher_free', 'teacher_basic', 'teacher_pro']).optional(),
 });
 export type IndividualSignupInput = z.infer<typeof individualSignupSchema>;
 

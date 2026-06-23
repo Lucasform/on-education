@@ -35,9 +35,16 @@ export async function provisionIndividualTenant(
   client: DbClient,
   ownerUserId: string,
   input: IndividualSignupInput,
+  /** Plano escolhido no cadastro (Free/Professor/Pro). Sem cobrança: só semeia os recursos
+   *  daquele plano. Inválido ou ausente → cai no Free. */
+  requestedPlanId?: string,
 ): Promise<ProvisionResult> {
-  const plan = PLANS[DEFAULT_INDIVIDUAL_PLAN];
-  if (!plan) throw new Error(`Plano default ausente no catálogo: ${DEFAULT_INDIVIDUAL_PLAN}`);
+  const planId =
+    requestedPlanId && PLANS[requestedPlanId]?.tenantType === 'individual'
+      ? requestedPlanId
+      : DEFAULT_INDIVIDUAL_PLAN;
+  const plan = PLANS[planId];
+  if (!plan) throw new Error(`Plano ausente no catálogo: ${planId}`);
 
   return client.db.transaction(async (tx) => {
     const inserted = await tx
@@ -58,9 +65,7 @@ export async function provisionIndividualTenant(
       { tenantId, userId: ownerUserId, role: 'teacher', createdBy: ownerUserId },
     ]);
 
-    await tx
-      .insert(subscriptions)
-      .values({ tenantId, planId: DEFAULT_INDIVIDUAL_PLAN, createdBy: ownerUserId });
+    await tx.insert(subscriptions).values({ tenantId, planId, createdBy: ownerUserId });
 
     const featureRows = [...plan.features].map((feature) => ({
       tenantId,
@@ -78,6 +83,6 @@ export async function provisionIndividualTenant(
       createdBy: ownerUserId,
     });
 
-    return { tenantId, planId: DEFAULT_INDIVIDUAL_PLAN };
+    return { tenantId, planId };
   });
 }
