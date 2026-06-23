@@ -128,6 +128,12 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
             Boletim
           </Link>
           <Link
+            href={`/app/alunos/${id}/historico`}
+            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Histórico escolar
+          </Link>
+          <Link
             href={`/app/alunos/${id}/relatorio`}
             className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
           >
