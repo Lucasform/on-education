@@ -295,7 +295,7 @@ export default function HomePage() {
                   className="object-[center_25%]"
                 />
               </div>
-              <div className="absolute -bottom-5 -left-3 w-52 rounded-2xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur sm:w-60">
+              <div className="absolute -bottom-5 -left-3 w-52 rounded-2xl border border-white/15 bg-[#13152e]/55 p-3 text-white shadow-xl backdrop-blur-md sm:w-60">
                 <div className="mb-2 flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
                     <GraduationCap className="h-3.5 w-3.5" />
@@ -307,9 +307,9 @@ export default function HomePage() {
                     { rotulo: 'Frequência', valor: '94%' },
                     { rotulo: 'Média geral', valor: '8,3' },
                   ].map((c) => (
-                    <div key={c.rotulo} className="rounded-lg border border-border bg-background/70 p-2">
+                    <div key={c.rotulo} className="rounded-lg border border-white/10 bg-white/10 p-2">
                       <div className="text-base font-semibold">{c.valor}</div>
-                      <div className="text-[10px] text-muted-foreground">{c.rotulo}</div>
+                      <div className="text-[10px] text-white/70">{c.rotulo}</div>
                     </div>
                   ))}
                 </div>
@@ -337,15 +337,18 @@ export default function HomePage() {
         <section className="relative overflow-hidden bg-[#13152E] text-white">
           <Star className="eow-b pointer-events-none absolute right-[8%] top-10 h-6 w-6 text-amber-400/40" />
           <Sparkles className="eow-a pointer-events-none absolute bottom-10 right-[20%] h-5 w-5 text-white/20" />
-          <div className="mx-auto max-w-4xl px-6 py-16 text-center">
-            <Reveal>
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2">
+            <Reveal className="order-2 aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl md:order-1">
+              <LandingPhoto src="/landing/turma.jpg" alt="Alunos em sala de aula" className="object-[center_30%]" />
+            </Reveal>
+            <Reveal delay={120} className="order-1 md:order-2">
               <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
                 Feito para a escola toda crescer.
               </h2>
-              <p className="mx-auto mt-2 max-w-md text-white/70">
+              <p className="mt-2 max-w-md text-white/70">
                 Uma plataforma só, do planejamento à comunicação com a família.
               </p>
-              <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
+              <div className="mt-8 grid grid-cols-2 gap-6">
                 {NUMEROS.map((x) => (
                   <div key={x.l}>
                     <div className="text-3xl font-bold text-primary sm:text-4xl">{x.n}</div>
@@ -417,27 +420,17 @@ export default function HomePage() {
         {/* família e escola (full-width, foto + lista) */}
         <section id="familia" className="border-b border-border">
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 sm:py-20 md:grid-cols-2">
-            <Reveal className="order-2 md:order-1">
-              <div className="rounded-3xl border border-border bg-card p-5 shadow-xl">
-                <div className="flex items-center gap-2 border-b border-border pb-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-                    <Bell className="h-4 w-4" />
-                  </span>
-                  <span className="text-sm font-semibold">Mural da escola</span>
+            <Reveal className="relative order-2 md:order-1">
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl">
+                <LandingPhoto src="/landing/familia.jpg" alt="Família acompanhando a vida escolar" className="object-[center_30%]" />
+              </div>
+              <div className="absolute -bottom-4 -right-4 w-56 rounded-2xl border border-white/15 bg-[#13152e]/60 p-4 text-white shadow-xl backdrop-blur-md">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <Bell className="h-4 w-4 text-primary" />
+                  Mural da escola
                 </div>
-                <div className="mt-3 space-y-3 text-sm">
-                  <div className="rounded-lg border border-border p-3">
-                    <div className="font-medium">Reunião de pais</div>
-                    <div className="text-[11px] text-muted-foreground">Quinta, 19h · presencial</div>
-                  </div>
-                  <div className="rounded-lg border border-border p-3">
-                    <div className="font-medium">Boletim do 2º bimestre</div>
-                    <div className="text-[11px] text-muted-foreground">Já disponível no portal</div>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-primary">
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-[11px] font-medium">3 novos comunicados</span>
-                  </div>
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-white/10 p-2 text-xs">
+                  <MessageSquare className="h-3.5 w-3.5" />3 novos comunicados
                 </div>
               </div>
             </Reveal>
@@ -611,10 +604,14 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-2">
               <Reveal>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
+                  <div className="h-44 overflow-hidden border-b border-border">
+                    <LandingPhoto
+                      src="/landing/professores.jpg"
+                      alt="Professor organizando as turmas"
+                      className="object-[center_30%]"
+                    />
+                  </div>
                   <div className="flex flex-1 flex-col p-8">
-                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <UserRound className="h-5 w-5" />
-                    </span>
                     <h3 className="text-xl font-bold">Para professores</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
@@ -641,10 +638,14 @@ export default function HomePage() {
 
               <Reveal delay={120}>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
+                  <div className="h-44 overflow-hidden border-b border-border">
+                    <LandingPhoto
+                      src="/landing/escola.jpg"
+                      alt="Sala de aula e gestão da escola"
+                      className="object-[center_30%]"
+                    />
+                  </div>
                   <div className="flex flex-1 flex-col p-8">
-                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <School className="h-5 w-5" />
-                    </span>
                     <h3 className="text-xl font-bold">Para escolas</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Gestão completa, com perfis de acesso e visão de direção.
