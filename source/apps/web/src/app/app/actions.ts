@@ -122,6 +122,7 @@ import {
   deleteStudentPoint,
   copyFromCollective,
   createActivity,
+  deriveTitle,
   duplicateActivity,
   createMaterial,
   createPortfolioEntry,
@@ -716,8 +717,7 @@ export async function approveDraftToBankAction(formData: FormData): Promise<void
   const id = String(formData.get('id'));
   const draft = await approveDraft(db(), ctx, id);
   if (draft && (draft.kind === 'activity' || draft.kind === 'lesson_plan') && draft.output) {
-    const title =
-      (draft.prompt ?? 'Atividade gerada pelo WayOn').trim().slice(0, 120) || 'Atividade';
+    const title = deriveTitle(draft.output, draft.prompt ?? 'Conteúdo gerado pelo WayOn');
     await createActivity(db(), ctx, {
       title,
       kind: 'atividade',

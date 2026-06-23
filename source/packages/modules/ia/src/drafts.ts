@@ -3,7 +3,7 @@ import { aiDrafts, type DbClient } from '@on-education/db';
 import type { Feature } from '@on-education/entitlements';
 import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
-import { desc, eq, ne, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 
 import { resolveTenantProvider } from './byok';
 import { type AiProvider } from './provider';
@@ -111,7 +111,8 @@ export async function listDrafts(client: DbClient, ctx: AuthContext) {
     tx
       .select()
       .from(aiDrafts)
-      .where(ne(aiDrafts.status, 'discarded'))
+      // Só os pendentes: ao aprovar (vai pro banco) ou descartar, some daqui.
+      .where(eq(aiDrafts.status, 'draft'))
       .orderBy(desc(aiDrafts.createdAt)),
   );
 }

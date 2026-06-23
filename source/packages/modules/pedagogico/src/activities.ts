@@ -22,7 +22,7 @@ import { buildTrainingContext } from './ratings';
  * Título padronizado: aproveita o título curto que a IA já gera (1ª linha do conteúdo),
  * sem emoji/markdown, e acrescenta a série/faixa. Evita jogar a frase-pedido inteira no nome.
  */
-function deriveTitle(text: string, fallback: string, serie?: string | null): string {
+export function deriveTitle(text: string, fallback: string, serie?: string | null): string {
   let base = '';
   for (const raw of text.split('\n')) {
     const t = raw

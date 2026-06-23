@@ -13,6 +13,7 @@ import { AgentNameText } from '@/components/agent-name-provider';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
 import { MarkdownView } from '@/components/markdown-view';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
@@ -66,10 +67,18 @@ export default async function IaPage({
 
   return (
     <>
-      <PageHeader
-        title={agente}
-        description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader
+          title={agente}
+          description="Seu agente de ensino. Gere planos e atividades; você revisa e aprova cada rascunho."
+        />
+        <a
+          href="/app/atividades"
+          className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+        >
+          Ver banco de atividades →
+        </a>
+      </div>
 
       {nova && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-sm">
@@ -113,6 +122,14 @@ export default async function IaPage({
         </div>
       )}
 
+      <Tabs
+        tabs={[
+          { id: 'gerar', label: 'Gerar conteúdo' },
+          { id: 'criar', label: 'Atividade / prova / trabalho' },
+          { id: 'rascunhos', label: `Rascunhos (${rascunhos.length})` },
+        ]}
+      >
+      <TabPanel id="gerar">
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Gerar conteúdo</h2>
         {aiOn ? (
@@ -155,6 +172,8 @@ export default async function IaPage({
         )}
       </div>
 
+      </TabPanel>
+      <TabPanel id="criar">
       <div className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Criar atividade, prova, trabalho ou roteiro</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -174,6 +193,8 @@ export default async function IaPage({
         )}
       </div>
 
+      </TabPanel>
+      <TabPanel id="rascunhos">
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Rascunhos ({rascunhos.length})</h2>
         {rascunhos.length === 0 ? (
@@ -224,6 +245,8 @@ export default async function IaPage({
           </ul>
         )}
       </div>
+      </TabPanel>
+      </Tabs>
     </>
   );
 }
