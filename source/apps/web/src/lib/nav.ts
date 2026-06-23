@@ -70,6 +70,8 @@ export interface NavGroup {
   pinBottom?: boolean;
   /** Label exibida é o nome do agente IA (substitui "WayOn" pelo nome personalizado). */
   isAgentGroup?: boolean;
+  /** Colapsa o grupo no sidebar (1 item) e mostra os itens como ABAS dentro da página. */
+  collapsed?: boolean;
   items: NavItem[];
 }
 
@@ -89,6 +91,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'Escola',
     only: 'organization',
+    collapsed: true,
     items: [
       { label: 'Unidades', href: '/app/escola/unidades', icon: Building2 },
       { label: 'Quadro de funcionários', href: '/app/escola/quadro', icon: Users },
@@ -105,6 +108,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Sala de aula',
+    collapsed: true,
     items: [
       { label: 'Turmas', href: '/app/turmas', icon: Users, requiresFeature: 'classes.manage' },
       { label: 'Alunos', href: '/app/alunos', icon: GraduationCap, requiresFeature: 'students' },
@@ -125,6 +129,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Pedagógico',
+    collapsed: true,
     items: [
       { label: 'Banco de atividades', href: '/app/atividades', icon: FolderOpen },
       { label: 'Banco coletivo', href: '/app/banco-coletivo', icon: Library, requiresFeature: 'marketplace' },
@@ -136,6 +141,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'WayOn',
     isAgentGroup: true,
+    collapsed: true,
     items: [
       { label: 'Gerar conteúdo', href: '/app/ia', icon: Sparkles },
       { label: 'Correção em lote', href: '/app/ia/correcao', icon: ListChecks, requiresFeature: 'ai.essayGrading' },

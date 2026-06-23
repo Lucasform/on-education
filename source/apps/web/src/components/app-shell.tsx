@@ -15,6 +15,7 @@ import { BottomNav } from './bottom-nav';
 import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
 import { ProductTour } from './product-tour';
+import { TabNav, type TabItem } from './tab-nav';
 import { ThemeToggle } from './theme-toggle';
 
 // Tour do sidebar (1ª vez): explica o que é cada seção do menu. Só entram os itens que
@@ -137,20 +138,43 @@ export function AppShell({
   const groups = allGroups
     .map((g) => ({ ...g, items: hideLocked ? g.items.filter((i) => !i.locked) : g.items }))
     .filter((g) => g.items.length > 0);
-  const mainGroups = groups.filter((g) => !g.pinBottom);
-  const bottomGroups = groups.filter((g) => g.pinBottom);
+  // Grupos `collapsed` viram 1 item no sidebar; os itens aparecem como ABAS dentro da página.
+  const displayGroups = groups.map((g) =>
+    g.collapsed && g.items.length > 0
+      ? {
+          ...g,
+          hideLabel: true,
+          items: [{ ...g.items[0]!, label: g.isAgentGroup ? agentName : g.label }],
+        }
+      : g,
+  );
+  const mainGroups = displayGroups.filter((g) => !g.pinBottom);
+  const bottomGroups = displayGroups.filter((g) => g.pinBottom);
   const hasLocked = allGroups.some((g) => g.items.some((i) => i.locked));
   const upgradeBadge = tenantType === 'individual' ? 'Pro' : 'Full';
 
-  // Passos do tour: um por TÓPICO visível do menu, de cima pra baixo (sequencial).
-  const tourSteps = [...mainGroups, ...bottomGroups]
-    .filter((g) => !g.hideLabel)
+  // Abas da seção: se a rota atual pertence a um grupo colapsado, mostra os itens dele como abas.
+  const activeSection = groups.find(
+    (g) =>
+      g.collapsed &&
+      g.items.some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`)),
+  );
+  const sectionTabs: TabItem[] = activeSection
+    ? activeSection.items.map((i) => ({ href: i.href, label: i.label }))
+    : [];
+
+  // Passos do tour: um por TÓPICO do menu (colapsado aponta no item; normal aponta no título).
+  const tourSteps = groups
+    .filter((g) => !g.hideLabel || g.collapsed)
     .map((g) => {
       const label = g.isAgentGroup ? agentName : g.label;
       const body = g.isAgentGroup
         ? `Gere plano de aula, atividade, prova e correção com o ${agentName}; você revisa e aprova.`
         : (GROUP_DESCR[g.label] ?? 'Recursos desta área.');
-      return { selector: `[data-tour="navgroup-${label}"]`, title: label, body };
+      const selector = g.collapsed
+        ? `[data-tour="nav-${g.items[0]?.href}"]`
+        : `[data-tour="navgroup-${label}"]`;
+      return { selector, title: label, body };
     });
 
   return (
@@ -272,6 +296,11 @@ export function AppShell({
       {/* Largura total da tela (sem cap centralizado), no padrão do OnWay Condomínio.
           A leitura de documentos imprimíveis fica a cargo da própria página (article). */}
       <main className="flex w-full flex-col gap-6 p-4 pb-20 md:p-8 md:pb-8 print:p-0">
+        {sectionTabs.length > 1 && (
+          <div className="print:hidden">
+            <TabNav tabs={sectionTabs} />
+          </div>
+        )}
         {children}
       </main>
 
