@@ -24,24 +24,12 @@ import {
 
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
-import { LandingPhoto } from '@/components/landing-photo';
 import { LogoMark } from '@/components/logo-mark';
 import { PricingCards } from '@/components/pricing-cards';
 import { Reveal } from '@/components/reveal';
 import { SplashScreen } from '@/components/splash-screen';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { WayonChat } from '@/components/wayon-chat';
-
-// Fotos reais (Pexels, uso livre). Trocar por fotos da própria escola é só dropar arquivos em
-// public/landing/ e apontar o src; o LandingPhoto já tem fallback se a imagem faltar.
-// Imagens da landing — arquivos LOCAIS em apps/web/public/landing/ (mesma origem, sempre
-// carregam, sem depender de CSP/host externo). Para usar as fotos da sua escola, basta
-// substituir esses arquivos pelos seus (mesmos nomes).
-const HERO_IMG = '/landing/hero.jpg';
-const NUMEROS_IMG = '/landing/turma.jpg';
-const FAMILIA_IMG = '/landing/familia.jpg';
-const ESCOLA_IMG = '/landing/escola.jpg';
-const PROF_IMG = '/landing/professores.jpg';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
@@ -298,13 +286,26 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={120} className="relative">
-              <div className="aspect-[3/2] overflow-hidden rounded-3xl border border-border shadow-2xl">
-                <LandingPhoto
-                  src={HERO_IMG}
-                  alt="Professor com alunos em sala de aula"
-                  label="Adicione a foto da sua escola"
-                  className="object-[center_25%]"
-                />
+              <div className="rounded-3xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur">
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+                    <GraduationCap className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-semibold">Painel da turma</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { rotulo: 'Plano de aula', valor: 'WayOn' },
+                    { rotulo: 'Frequência', valor: '94%' },
+                    { rotulo: 'Média geral', valor: '8,3' },
+                    { rotulo: 'Simulados', valor: '12' },
+                  ].map((c) => (
+                    <div key={c.rotulo} className="rounded-xl border border-border bg-background/60 p-3">
+                      <div className="text-xl font-semibold">{c.valor}</div>
+                      <div className="text-[11px] text-muted-foreground">{c.rotulo}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
                 <CalendarDays className="h-4 w-4 text-primary" />
@@ -333,24 +334,15 @@ export default function HomePage() {
         <section className="relative overflow-hidden bg-[#13152E] text-white">
           <Star className="eow-b pointer-events-none absolute right-[8%] top-10 h-6 w-6 text-amber-400/40" />
           <Sparkles className="eow-a pointer-events-none absolute bottom-10 right-[20%] h-5 w-5 text-white/20" />
-          <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2">
-            <Reveal className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
-                <LandingPhoto
-                  src={NUMEROS_IMG}
-                  alt="Professora e alunos felizes"
-                  label="Foto da comunidade escolar"
-                />
-              </div>
-            </Reveal>
-            <Reveal delay={120}>
+          <div className="mx-auto max-w-4xl px-6 py-16 text-center">
+            <Reveal>
               <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
                 Feito para a escola toda crescer.
               </h2>
-              <p className="mt-2 max-w-md text-white/70">
+              <p className="mx-auto mt-2 max-w-md text-white/70">
                 Uma plataforma só, do planejamento à comunicação com a família.
               </p>
-              <div className="mt-8 grid grid-cols-2 gap-6">
+              <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
                 {NUMEROS.map((x) => (
                   <div key={x.l}>
                     <div className="text-3xl font-bold text-primary sm:text-4xl">{x.n}</div>
@@ -422,21 +414,27 @@ export default function HomePage() {
         {/* família e escola (full-width, foto + lista) */}
         <section id="familia" className="border-b border-border">
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 sm:py-20 md:grid-cols-2">
-            <Reveal className="relative order-2 md:order-1">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl">
-                <LandingPhoto
-                  src={FAMILIA_IMG}
-                  alt="Crianças na escola acompanhadas pela família"
-                  label="Foto: família e escola"
-                />
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-56 rounded-2xl border border-border bg-card p-4 shadow-xl">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Bell className="h-4 w-4 text-primary" />
-                  Mural da escola
+            <Reveal className="order-2 md:order-1">
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xl">
+                <div className="flex items-center gap-2 border-b border-border pb-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+                    <Bell className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-semibold">Mural da escola</span>
                 </div>
-                <div className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 p-2 text-xs text-primary">
-                  <MessageSquare className="h-3.5 w-3.5" />3 novos comunicados
+                <div className="mt-3 space-y-3 text-sm">
+                  <div className="rounded-lg border border-border p-3">
+                    <div className="font-medium">Reunião de pais</div>
+                    <div className="text-[11px] text-muted-foreground">Quinta, 19h · presencial</div>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <div className="font-medium">Boletim do 2º bimestre</div>
+                    <div className="text-[11px] text-muted-foreground">Já disponível no portal</div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-primary">
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="text-[11px] font-medium">3 novos comunicados</span>
+                  </div>
                 </div>
               </div>
             </Reveal>
@@ -610,15 +608,10 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-2">
               <Reveal>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
-                  <div className="h-52 overflow-hidden">
-                    <LandingPhoto
-                      src={PROF_IMG}
-                      alt="Professora usando o app no tablet"
-                      label="Foto do professor"
-                      className="object-[center_30%]"
-                    />
-                  </div>
                   <div className="flex flex-1 flex-col p-8">
+                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <UserRound className="h-5 w-5" />
+                    </span>
                     <h3 className="text-xl font-bold">Para professores</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Seu espaço pessoal para organizar turmas e ganhar tempo com o WayOn.
@@ -645,15 +638,10 @@ export default function HomePage() {
 
               <Reveal delay={120}>
                 <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-primary/40">
-                  <div className="h-52 overflow-hidden">
-                    <LandingPhoto
-                      src={ESCOLA_IMG}
-                      alt="Sala de aula com professor e alunos"
-                      label="Foto da escola"
-                      className="object-[center_30%]"
-                    />
-                  </div>
                   <div className="flex flex-1 flex-col p-8">
+                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <School className="h-5 w-5" />
+                    </span>
                     <h3 className="text-xl font-bold">Para escolas</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Gestão completa, com perfis de acesso e visão de direção.
