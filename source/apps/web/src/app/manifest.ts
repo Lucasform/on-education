@@ -19,11 +19,15 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const { name } = await resolveTenantBrand();
   const shortName = name.length <= 12 ? name : name.slice(0, 12).trim();
   return {
+    // `id` fixo: o SO trata como UM app por origem (não cria entradas duplicadas a cada update).
+    id: '/app',
     name,
     short_name: shortName,
     description: 'Ensine com inteligência, do plano de aula ao boletim, com o agente WayOn.',
     start_url: '/app',
     display: 'standalone',
+    // Abrir o app FOCA a janela já aberta em vez de abrir outra (Chromium/Edge/Android).
+    launch_handler: { client_mode: 'focus-existing' },
     background_color: '#13152E',
     theme_color: '#13152E',
     lang: 'pt-BR',

@@ -86,29 +86,6 @@ export default async function AdminOverviewPage() {
         <StatCard label="Atividades" value={stats.activities} href="/admin/atividades" />
       </section>
 
-      {tenants.filter((t) => /demo/i.test(t.name)).length > 0 && (
-        <section className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-medium">Testar o app (contas demo, tudo liberado)</h2>
-          <p className="text-xs text-muted-foreground">
-            Entre numa conta demo para ver e testar os recursos sem mexer numa escola real. A
-            “Escola Full” tem todos os recursos liberados.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {tenants
-              .filter((t) => /demo/i.test(t.name))
-              .map((t) => (
-                <form key={t.id} action={enterTenantAction}>
-                  <input type="hidden" name="tenantId" value={t.id} />
-                  <input type="hidden" name="tenantType" value={t.tenantType} />
-                  <Button type="submit" size="sm" variant="outline">
-                    Entrar como {t.name}
-                  </Button>
-                </form>
-              ))}
-          </div>
-        </section>
-      )}
-
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium">Últimas contas</h2>
