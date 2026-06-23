@@ -1,7 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { activities, type DbClient, sharedActivities } from '@on-education/db';
 import type { ShareCollectiveInput } from '@on-education/validation';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 
 import { createActivity } from './activities';
 
@@ -16,6 +16,12 @@ export async function listCollective(client: DbClient, ageRange?: string) {
     ageRange ? base.where(eq(sharedActivities.ageRange, ageRange)) : base
   ).orderBy(desc(sharedActivities.createdAt));
   return rows;
+}
+
+/** Remove itens do banco coletivo (admin). Tabela global, fora do RLS de tenant. */
+export async function removeCollectiveItems(client: DbClient, ids: string[]): Promise<void> {
+  if (ids.length === 0) return;
+  await client.db.delete(sharedActivities).where(inArray(sharedActivities.id, ids));
 }
 
 /** Uma atividade do banco coletivo, para visualização antes de copiar. */

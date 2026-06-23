@@ -15,6 +15,7 @@ import {
   softDeleteTenant,
 } from '@on-education/module-nucleo';
 import { FEATURES, type Feature } from '@on-education/entitlements';
+import { removeCollectiveItems } from '@on-education/module-pedagogico';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -127,6 +128,14 @@ export async function deleteActivityAdminAction(formData: FormData): Promise<voi
   if (!id) return;
   await deleteActivityAdmin(db(), id);
   revalidatePath('/admin/atividades');
+}
+
+/** Exclui em LOTE itens do banco coletivo (admin). */
+export async function bulkDeleteCollectiveAdminAction(formData: FormData): Promise<void> {
+  await requireSuperAdmin();
+  const ids = formData.getAll('ids').map(String).filter(Boolean);
+  await removeCollectiveItems(db(), ids);
+  revalidatePath('/admin/coletivo');
 }
 
 /** Exclui em LOTE as atividades selecionadas (admin). */
