@@ -57,7 +57,7 @@ const NUMEROS = [
   { n: '8', l: 'módulos integrados' },
   { n: '7 dias', l: 'grátis, sem cartão' },
   { n: '3', l: 'passos para começar' },
-  { n: '100%', l: 'LGPD, dados isolados' },
+  { n: '100%', l: 'LGPD, dados seguros' },
 ];
 
 const AUDIENCIAS = [
@@ -323,7 +323,7 @@ export default function HomePage() {
         {/* faixa de confiança / selos (estilo Principia: prova rápida) */}
         <section className="border-b border-border bg-background">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-5 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Dados isolados por escola</span>
+            <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Dados seguros e protegidos</span>
             <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Login com 2 etapas (2FA)</span>
             <span className="inline-flex items-center gap-2"><HeartHandshake className="h-4 w-4 text-primary" /> Conformidade com a LGPD</span>
             <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-amber-500" /> IA que aprende com o professor</span>
