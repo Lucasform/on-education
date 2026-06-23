@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { TabPanel, Tabs } from '@/components/section-tabs';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -54,6 +55,14 @@ export default async function MeuPadraoPage() {
         description={`Defina UMA vez o estilo e o formato. Todo conteúdo gerado pelo ${agente} (planos, atividades, provas, redação, simulados) sai nesse padrão.`}
       />
 
+      <Tabs
+        tabs={[
+          { id: 'padrao', label: 'Padrão de escrita' },
+          ...(!isSchool && gamiOn ? [{ id: 'gamificacao', label: 'Gamificação' }] : []),
+          { id: 'avancado', label: 'Avançado' },
+        ]}
+      >
+      <TabPanel id="padrao">
       <div className={cardClass}>
         <form action={updateAiStandardAction} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5 text-sm font-medium">
@@ -152,6 +161,8 @@ export default async function MeuPadraoPage() {
         )}
       </div>
 
+      </TabPanel>
+      <TabPanel id="gamificacao">
       {!isSchool && gamiOn && (
         <form action={updateGamificationAction} className={cardClass}>
           <h2 className="mb-1 text-sm font-medium">Gamificação</h2>
@@ -220,6 +231,8 @@ export default async function MeuPadraoPage() {
         </form>
       )}
 
+      </TabPanel>
+      <TabPanel id="avancado">
       <form action={updateAiProviderAction} className={cardClass}>
         <h2 className="mb-1 text-sm font-medium">Sua própria IA (avançado)</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -273,6 +286,8 @@ export default async function MeuPadraoPage() {
           redação, Tutor, Gerar atividade e Gerar simulado. Você pode ajustar quando quiser.
         </p>
       </div>
+      </TabPanel>
+      </Tabs>
     </>
   );
 }
