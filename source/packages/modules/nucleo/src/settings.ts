@@ -75,6 +75,8 @@ export async function upsertTenantSettings(
     patch.feedStoriesEnabled = input.feedStoriesEnabled;
   if (input.feedCommentsEnabled !== undefined)
     patch.feedCommentsEnabled = input.feedCommentsEnabled;
+  if (input.allowGuardianMessageTeacher !== undefined)
+    patch.allowGuardianMessageTeacher = input.allowGuardianMessageTeacher;
   if (input.medalBronze !== undefined) patch.medalBronze = input.medalBronze;
   if (input.medalPrata !== undefined) patch.medalPrata = input.medalPrata;
   if (input.medalOuro !== undefined) patch.medalOuro = input.medalOuro;

@@ -49,6 +49,7 @@ export async function generateGuardianToken(
 
 /** Dados completos do portal para um responsável validado pelo token. */
 export interface PortalData {
+  tenantId: string;
   guardian: { id: string; fullName: string };
   students: {
     id: string;
@@ -117,6 +118,7 @@ export async function resolvePortalToken(
 
   if (studentIds.length === 0) {
     return {
+      tenantId,
       guardian: { id: guardian.id, fullName: guardian.fullName },
       students: [],
       communications: [],
@@ -216,6 +218,7 @@ export async function resolvePortalToken(
     .filter(Boolean) as PortalData['students'];
 
   return {
+    tenantId,
     guardian: { id: guardian.id, fullName: guardian.fullName },
     students: studentsData,
     communications: allComms,
@@ -249,6 +252,7 @@ export async function resolvePortalForGuardian(
 
   if (studentIds.length === 0) {
     return {
+      tenantId,
       guardian: { id: guardian.id, fullName: guardian.fullName },
       students: [],
       communications: [],
@@ -348,6 +352,7 @@ export async function resolvePortalForGuardian(
     .filter(Boolean) as PortalData['students'];
 
   return {
+    tenantId,
     guardian: { id: guardian.id, fullName: guardian.fullName },
     students: studentsData,
     communications: allComms,

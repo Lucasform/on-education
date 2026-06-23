@@ -445,6 +445,7 @@ export const updateTenantSettingsSchema = z.object({
   gamificationEnabled: z.coerce.boolean().optional(),
   feedStoriesEnabled: z.coerce.boolean().optional(),
   feedCommentsEnabled: z.coerce.boolean().optional(),
+  allowGuardianMessageTeacher: z.coerce.boolean().optional(),
   medalBronze: z.coerce.number().int().min(1).max(100_000).optional(),
   medalPrata: z.coerce.number().int().min(1).max(100_000).optional(),
   medalOuro: z.coerce.number().int().min(1).max(100_000).optional(),

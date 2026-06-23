@@ -1,5 +1,6 @@
 export * from './messages';
 export * from './feed';
+export * from './portal-chat';
 
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { communicationReads, communications, type DbClient } from '@on-education/db';

@@ -1,6 +1,9 @@
 ﻿import { db } from '@/server/db';
+import { guardianCanMessageTeacher, listMessagesForGuardian } from '@on-education/module-comunicacao';
 import { resolvePortalToken } from '@on-education/module-nucleo';
 import Link from 'next/link';
+
+import { sendPortalMessageAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Portal do Responsável · Edu On Way' };
@@ -29,6 +32,11 @@ export default async function PortalPage({
       </div>
     );
   }
+
+  const [chat, podeProfessor] = await Promise.all([
+    listMessagesForGuardian(db(), data.tenantId, data.guardian.id).catch(() => []),
+    guardianCanMessageTeacher(db(), data.tenantId).catch(() => false),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-6">
@@ -114,6 +122,66 @@ export default async function PortalPage({
           ))}
         </section>
       )}
+
+      {/* Chat interno com a escola */}
+      <section className="space-y-3 rounded-lg border border-border p-6">
+        <h2 className="text-lg font-semibold">Falar com a escola</h2>
+        {chat.length > 0 && (
+          <ul className="space-y-2">
+            {chat.map((m) => (
+              <li key={m.id} className={`flex ${m.fromGuardian ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                    m.fromGuardian
+                      ? 'bg-primary text-white'
+                      : 'border border-border bg-background'
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{m.body}</p>
+                  <p
+                    className={`mt-1 text-[10px] ${m.fromGuardian ? 'text-white/70' : 'text-muted-foreground'}`}
+                  >
+                    {m.fromGuardian ? 'Você' : (m.authorName ?? 'Escola')} ·{' '}
+                    {new Date(m.createdAt).toLocaleString('pt-BR', {
+                      timeZone: 'America/Sao_Paulo',
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form action={sendPortalMessageAction} className="flex flex-col gap-2">
+          <input type="hidden" name="token" value={token} />
+          <textarea
+            name="body"
+            required
+            rows={2}
+            placeholder="Escreva sua mensagem para a escola…"
+            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <div className="flex items-center gap-2">
+            <select
+              name="target"
+              defaultValue="coordenacao"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="coordenacao">Para a coordenação</option>
+              {podeProfessor && <option value="professor">Para o professor</option>}
+            </select>
+            <button
+              type="submit"
+              className="ml-auto rounded-full bg-primary px-5 py-2 text-sm font-medium text-white"
+            >
+              Enviar
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }

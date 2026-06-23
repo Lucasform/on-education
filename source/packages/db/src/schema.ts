@@ -1088,6 +1088,8 @@ export const tenantSettings = oe.table(
     // Mural & feed: a escola escolhe o que fica ligado.
     feedStoriesEnabled: boolean('feed_stories_enabled').notNull().default(true),
     feedCommentsEnabled: boolean('feed_comments_enabled').notNull().default(true),
+    // Chat interno: a escola permite (ou não) que o responsável envie mensagem ao professor.
+    allowGuardianMessageTeacher: boolean('allow_guardian_message_teacher').notNull().default(false),
     // Gamificação (Frente 8): liga/desliga por escola/professor + faixas de medalha.
     gamificationEnabled: boolean('gamification_enabled').notNull().default(true),
     medalBronze: integer('medal_bronze').notNull().default(50),
@@ -1783,6 +1785,29 @@ export const gateLogs = oe.table(
     ...auditCols,
   },
   (t) => [index('gate_logs_tenant_idx').on(t.tenantId), tenantPolicy('gate_logs_tenant_isolation')],
+);
+
+// ---------------------------------------------------------------------------
+// portal_messages — chat interno entre o responsável (portal) e a escola (coordenação/
+// professor). `fromGuardian` diz a direção; `target` é o destino escolhido pelo pai. RLS.
+// ---------------------------------------------------------------------------
+export const portalMessages = oe.table(
+  'portal_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    guardianId: uuid('guardian_id').notNull(),
+    body: text('body').notNull(),
+    fromGuardian: boolean('from_guardian').notNull().default(true),
+    authorName: text('author_name'),
+    target: text('target').notNull().default('coordenacao'), // coordenacao | professor
+    readAt: timestamp('read_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('portal_messages_guardian_idx').on(t.guardianId),
+    tenantPolicy('portal_messages_tenant_isolation'),
+  ],
 );
 
 // ---------------------------------------------------------------------------
