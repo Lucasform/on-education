@@ -167,6 +167,7 @@ export const NAV: NavGroup[] = [
     label: 'Gestão e analytics',
     only: 'organization',
     items: [
+      { label: 'Painel de trabalho', href: '/app/painel', icon: ClipboardList },
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart, requiresFeature: 'analytics.director' },
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX, requiresFeature: 'analytics.director' },
       { label: 'Dashboards', href: '/app/dashboards', icon: BarChart3, requiresFeature: 'analytics.director' },

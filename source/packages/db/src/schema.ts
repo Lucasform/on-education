@@ -951,6 +951,37 @@ export const feedPostComments = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// work_requests — Painel de trabalho (Kanban): solicitações que os professores
+// abrem e a gestão (diretoria/coordenação) analisa. Tipos: ocorrência, serviço,
+// impressão (atividade + cópias), comparecimento. Status: enviada → em_analise →
+// resolvida (com conclusão). Tenant-scoped + RLS.
+// ---------------------------------------------------------------------------
+export const workRequests = oe.table(
+  'work_requests',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    type: text('type').notNull().default('servico'), // ocorrencia | servico | impressao | comparecimento
+    title: text('title').notNull(),
+    body: text('body').notNull().default(''),
+    status: text('status').notNull().default('enviada'), // enviada | em_analise | resolvida
+    studentId: uuid('student_id'),
+    classId: uuid('class_id'),
+    activityId: uuid('activity_id'), // impressão: atividade escolhida
+    copies: integer('copies'), // impressão: nº de cópias
+    requestedByName: text('requested_by_name'),
+    resolution: text('resolution'),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    resolvedBy: uuid('resolved_by'),
+    ...auditCols,
+  },
+  (t) => [
+    index('work_requests_tenant_idx').on(t.tenantId),
+    tenantPolicy('work_requests_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // Simulados/Quizzes (Fase 1B.3). Um quiz tem N questões de múltipla escolha;
 // cada tentativa de aluno guarda as respostas e a nota auto-corrigida.
 // Tenant-scoped + RLS em todas as três tabelas.

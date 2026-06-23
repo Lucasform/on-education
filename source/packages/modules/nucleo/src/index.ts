@@ -1,4 +1,5 @@
 export * from './provisioning';
+export * from './work-requests';
 export * from './organization';
 export * from './academic';
 export * from './teaching';
