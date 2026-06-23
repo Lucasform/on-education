@@ -37,13 +37,13 @@ import { WayonChat } from '@/components/wayon-chat';
 const HERO_IMG =
   'https://images.pexels.com/photos/5306457/pexels-photo-5306457.jpeg?auto=compress&cs=tinysrgb&w=1400';
 const NUMEROS_IMG =
-  'https://images.pexels.com/photos/8617938/pexels-photo-8617938.jpeg?auto=compress&cs=tinysrgb&w=900';
+  'https://images.pexels.com/photos/31864447/pexels-photo-31864447.jpeg?auto=compress&cs=tinysrgb&w=900';
 const FAMILIA_IMG =
   'https://images.pexels.com/photos/8613085/pexels-photo-8613085.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const ESCOLA_IMG =
-  'https://images.pexels.com/photos/8423049/pexels-photo-8423049.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/5306440/pexels-photo-5306440.jpeg?auto=compress&cs=tinysrgb&w=1000';
 const PROF_IMG =
-  'https://images.pexels.com/photos/5306473/pexels-photo-5306473.jpeg?auto=compress&cs=tinysrgb&w=1000';
+  'https://images.pexels.com/photos/6913213/pexels-photo-6913213.jpeg?auto=compress&cs=tinysrgb&w=1000';
 
 const NAV = [
   { label: 'Plataforma', href: '#modulos' },
