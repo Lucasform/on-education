@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { isEmailConfigured, sendEmail } from '@/server/email';
+import { publicBaseUrl } from '@/server/public-url';
 import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supabase';
 
 /** E-mail de acesso por link: marca Edu On Way, em PT, com botão de entrada. */
@@ -53,7 +54,7 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
       : '/login';
   if (!email) redirect(`${back}?magic=erro`);
 
-  const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
+  const origin = publicBaseUrl((await headers()).get('origin'));
 
   if (isEmailConfigured()) {
     const admin = createSupabaseAdmin();

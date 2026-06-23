@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import { publicBaseUrl } from '@/server/public-url';
 import { createSupabaseServerClient } from '@/server/supabase';
 
 /**
@@ -14,7 +15,7 @@ export async function requestResetAction(formData: FormData): Promise<void> {
   const email = String(formData.get('email') ?? '').trim();
   if (!email) redirect('/esqueci-senha?status=enviado');
 
-  const origin = (await headers()).get('origin') ?? 'https://eduonway.com';
+  const origin = publicBaseUrl((await headers()).get('origin'));
   const supabase = await createSupabaseServerClient();
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/confirm?next=/nova-senha`,
