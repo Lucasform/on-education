@@ -22,6 +22,7 @@ import {
 
 import { AudienceButtons } from '@/components/audience-buttons';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
+import { LandingPhoto } from '@/components/landing-photo';
 import { LogoMark } from '@/components/logo-mark';
 import { SplashScreen } from '@/components/splash-screen';
 import { PricingCards } from '@/components/pricing-cards';
@@ -35,12 +36,36 @@ const NAV = [
   { label: 'Para escolas', href: '/signup/escola' },
 ];
 
-// Sinais de confiança honestos (sem prometer o que não temos). Vão numa faixa fina sob o hero.
-const CONFIANCA = [
-  'Sem cartão para testar',
-  'Dados isolados por escola',
-  'Conforme a LGPD',
-  'Suporte humano de verdade',
+// Faixa de números honestos (sem inventar base de usuários, que não temos ainda).
+const NUMEROS = [
+  { n: '8', l: 'módulos integrados' },
+  { n: '7 dias', l: 'grátis, sem cartão' },
+  { n: '3', l: 'passos para começar' },
+  { n: '100%', l: 'LGPD, dados isolados' },
+];
+
+// Benefício por público (no espírito do "para cada pessoa da escola").
+const AUDIENCIAS = [
+  {
+    icon: GraduationCap,
+    titulo: 'Para alunos',
+    texto: 'Atividades, notas e materiais num lugar simples de acessar.',
+  },
+  {
+    icon: UserRound,
+    titulo: 'Para professores',
+    texto: 'Planeje e corrija em segundos com o WayOn e ganhe tempo.',
+  },
+  {
+    icon: School,
+    titulo: 'Para gestores',
+    texto: 'Visão da escola, relatórios e perfis de acesso por função.',
+  },
+  {
+    icon: HeartHandshake,
+    titulo: 'Para famílias',
+    texto: 'Acompanham notas, frequência e recados em tempo real.',
+  },
 ];
 
 // Módulos da plataforma (leitura de "suíte", no espírito de um sistema de gestão completo).
@@ -242,37 +267,20 @@ export default function HomePage() {
               <AudienceButtons variant="surface" />
             </div>
 
-            {/* mock visual flutuante */}
-            <div className="relative hidden lg:block">
-              <div className="rounded-2xl border border-border bg-card/80 p-5 shadow-xl backdrop-blur">
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
-                    <GraduationCap className="h-4 w-4" />
-                  </span>
-                  <span className="text-sm font-semibold">Painel da turma</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { rotulo: 'Plano de aula', valor: 'WayOn' },
-                    { rotulo: 'Frequência', valor: '94%' },
-                    { rotulo: 'Média geral', valor: '8,3' },
-                    { rotulo: 'Simulados', valor: '12' },
-                  ].map((c) => (
-                    <div
-                      key={c.rotulo}
-                      className="rounded-xl border border-border bg-background/60 p-3"
-                    >
-                      <div className="text-xl font-semibold">{c.valor}</div>
-                      <div className="text-[11px] text-muted-foreground">{c.rotulo}</div>
-                    </div>
-                  ))}
-                </div>
+            {/* visual: foto da escola/sala + chips do produto por cima */}
+            <div className="relative mt-2">
+              <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl">
+                <LandingPhoto
+                  src="/landing/hero.jpg"
+                  alt="Professora usando o Edu On Way em sala de aula"
+                  label="Foto da sua escola entra aqui (public/landing/hero.jpg)"
+                />
               </div>
-              <div className="absolute -right-4 -top-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
+              <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
                 <CalendarDays className="h-4 w-4 text-primary" />
                 Reunião de pais · 19h
               </div>
-              <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
+              <div className="absolute -bottom-3 -left-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
                 <Sparkles className="h-4 w-4 text-primary" />
                 Atividade feita pelo WayOn
               </div>
@@ -280,16 +288,41 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* faixa de confiança */}
-        <section className="mt-6">
-          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-            {CONFIANCA.map((c) => (
-              <li key={c} className="inline-flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                {c}
-              </li>
+        {/* faixa de números */}
+        <section className="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-4">
+          {NUMEROS.map((x) => (
+            <div key={x.l} className="text-center">
+              <div className="text-2xl font-bold text-primary sm:text-3xl">{x.n}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{x.l}</div>
+            </div>
+          ))}
+        </section>
+
+        {/* para cada público */}
+        <section className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-sm font-semibold text-primary">Para a escola toda</span>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+              Cada pessoa da escola no seu lugar.
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+              Alunos, professores, gestores e famílias, cada um com a visão que precisa.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {AUDIENCIAS.map((d) => (
+              <div
+                key={d.titulo}
+                className="rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <d.icon className="h-5 w-5" />
+                </span>
+                <div className="mt-4 font-semibold">{d.titulo}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{d.texto}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         {/* módulos */}
