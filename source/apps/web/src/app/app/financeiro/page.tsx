@@ -1,6 +1,13 @@
 import { KpiCard as Kpi } from '@/components/kpi-card';
 import { SubmitButton } from '@/components/submit-button';
-import { isEntitled, listGuardians, listInvoices, listStudents } from '@on-education/module-nucleo';
+import {
+  getFinanceSummary,
+  isEntitled,
+  listExpenses,
+  listGuardians,
+  listInvoices,
+  listStudents,
+} from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { UpgradeGate } from '@/components/upgrade-gate';
@@ -15,9 +22,12 @@ import { getAuthContext } from '@/server/session';
 import Link from 'next/link';
 
 import {
+  createExpenseAction,
   createInvoiceAction,
+  deleteExpenseAction,
   deleteInvoiceAction,
   generateMonthlyInvoicesAction,
+  markExpensePaidAction,
   markInvoicePaidAction,
   reopenInvoiceAction,
 } from '../actions';
@@ -27,6 +37,7 @@ export const metadata = { title: 'Financeiro · Edu On Way' };
 
 const reais = (cents: number) =>
   (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default async function FinanceiroPage({
   searchParams,
@@ -42,10 +53,12 @@ export default async function FinanceiroPage({
   if (!await isEntitled(client, ctx.tenantId, 'finance.institutional')) {
     return <UpgradeGate feature="finance.institutional" tenantType={ctx.tenantType} />;
   }
-  const [todas, responsaveis, alunos] = await Promise.all([
+  const [todas, responsaveis, alunos, despesas, resumo] = await Promise.all([
     listInvoices(client, ctx).catch(() => []),
     listGuardians(client, ctx).catch(() => []),
     listStudents(client, ctx).catch(() => []),
+    listExpenses(client, ctx).catch(() => []),
+    getFinanceSummary(client, ctx).catch(() => null),
   ]);
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const nomeAluno = new Map(alunos.map((a) => [a.id, a.fullName]));
@@ -92,6 +105,129 @@ export default async function FinanceiroPage({
         <Kpi label="Vencido" value={reais(vencido)} cor="text-red-500" />
         <Kpi label="Recebido" value={reais(recebido)} cor="text-emerald-500" />
         <Kpi label="Cobranças" value={String(cobrancas.length)} />
+      </section>
+
+      {/* Resumo: fluxo de caixa e DRE simples */}
+      {resumo && (
+        <section className={cardClass}>
+          <h2 className="mb-3 text-sm font-medium">Resumo financeiro (fluxo de caixa e DRE)</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Kpi label="Receitas (pagas)" value={brl(resumo.receitasPagas)} cor="text-emerald-500" />
+            <Kpi label="Despesas (pagas)" value={brl(resumo.despesasPagas)} cor="text-red-500" />
+            <Kpi
+              label="Resultado"
+              value={brl(resumo.resultado)}
+              cor={resumo.resultado >= 0 ? 'text-emerald-500' : 'text-red-500'}
+            />
+            <Kpi label="A receber / a pagar" value={`${brl(resumo.aReceber)} / ${brl(resumo.aPagar)}`} />
+          </div>
+          {resumo.porMes.length > 0 && (
+            <table className="mt-4 w-full text-sm">
+              <thead className="border-b border-border text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-1.5 font-medium">Mês</th>
+                  <th className="py-1.5 text-right font-medium">Receita</th>
+                  <th className="py-1.5 text-right font-medium">Despesa</th>
+                  <th className="py-1.5 text-right font-medium">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumo.porMes.map((m) => (
+                  <tr key={m.competencia} className="border-b border-border/50 last:border-0">
+                    <td className="py-1.5">{m.competencia}</td>
+                    <td className="py-1.5 text-right text-emerald-500">{brl(m.receita)}</td>
+                    <td className="py-1.5 text-right text-red-500">{brl(m.despesa)}</td>
+                    <td className={`py-1.5 text-right font-medium ${m.saldo < 0 ? 'text-red-500' : ''}`}>
+                      {brl(m.saldo)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      )}
+
+      {/* Despesas */}
+      <section className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Despesas ({despesas.length})</h2>
+        <form action={createExpenseAction} className="mb-4 flex flex-wrap items-end gap-2">
+          <input
+            name="description"
+            placeholder="Descrição"
+            className={`${fieldClass} min-w-[10rem] flex-1`}
+          />
+          <select name="category" className={fieldClass} defaultValue="outros">
+            <option value="pessoal">Pessoal</option>
+            <option value="aluguel">Aluguel</option>
+            <option value="materiais">Materiais</option>
+            <option value="servicos">Serviços</option>
+            <option value="impostos">Impostos</option>
+            <option value="outros">Outros</option>
+          </select>
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Valor"
+            className={`${fieldClass} w-28`}
+          />
+          <input name="competencia" type="month" defaultValue={hoje.slice(0, 7)} className={fieldClass} />
+          <select name="status" className={fieldClass} defaultValue="pago">
+            <option value="pago">Pago</option>
+            <option value="aberto">A pagar</option>
+          </select>
+          <SubmitButton type="submit" size="sm">
+            Adicionar despesa
+          </SubmitButton>
+        </form>
+        {despesas.length > 0 && (
+          <table className="w-full text-sm">
+            <thead className="border-b border-border text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="py-1.5 font-medium">Descrição</th>
+                <th className="py-1.5 font-medium">Categoria</th>
+                <th className="py-1.5 font-medium">Competência</th>
+                <th className="py-1.5 text-right font-medium">Valor</th>
+                <th className="py-1.5 font-medium">Status</th>
+                <th className="py-1.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {despesas.map((e) => (
+                <tr key={e.id} className="border-b border-border/50 last:border-0">
+                  <td className="py-1.5">{e.description}</td>
+                  <td className="py-1.5 capitalize text-muted-foreground">{e.category}</td>
+                  <td className="py-1.5 text-muted-foreground">{e.competencia}</td>
+                  <td className="py-1.5 text-right">{reais(e.amountCents)}</td>
+                  <td className="py-1.5">{e.status === 'pago' ? 'Pago' : 'A pagar'}</td>
+                  <td className="py-1.5">
+                    <span className="flex justify-end gap-1">
+                      {e.status !== 'pago' && (
+                        <form action={markExpensePaidAction}>
+                          <input type="hidden" name="id" value={e.id} />
+                          <button
+                            type="submit"
+                            className="rounded-md border border-border px-2 py-0.5 text-xs hover:bg-accent"
+                          >
+                            Pagar
+                          </button>
+                        </form>
+                      )}
+                      <form action={deleteExpenseAction}>
+                        <input type="hidden" name="id" value={e.id} />
+                        <ConfirmButton size="sm" variant="ghost" message="Excluir despesa?">
+                          Excluir
+                        </ConfirmButton>
+                      </form>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
 
       {responsaveis.length > 0 && (

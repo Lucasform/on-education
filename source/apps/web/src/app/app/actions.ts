@@ -46,7 +46,10 @@ import {
   deleteGuardian,
   generateGuardianToken,
   revokeGuardianTokens,
+  createExpense,
   createInvoice,
+  deleteExpense,
+  markExpensePaid,
   createOccurrence,
   createStudent,
   createStudentsBulk,
@@ -1505,6 +1508,30 @@ export async function deleteInvoiceAction(formData: FormData): Promise<void> {
   const id = String(formData.get('id'));
   await deleteInvoice(db(), ctx, id);
   await recordAudit(db(), ctx, { action: 'invoice.delete', resource: 'invoice', metadata: { id } });
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function createExpenseAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await createExpense(db(), ctx, {
+    description: String(formData.get('description') ?? '').trim() || 'Despesa',
+    category: String(formData.get('category') ?? 'outros'),
+    amount: Number(formData.get('amount') ?? 0) || 0,
+    competencia: String(formData.get('competencia') ?? '').trim(),
+    status: formData.get('status') === 'aberto' ? 'aberto' : 'pago',
+  });
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function markExpensePaidAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await markExpensePaid(db(), ctx, String(formData.get('id')));
+  revalidatePath('/app/financeiro', 'page');
+}
+
+export async function deleteExpenseAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await deleteExpense(db(), ctx, String(formData.get('id')));
   revalidatePath('/app/financeiro', 'page');
 }
 

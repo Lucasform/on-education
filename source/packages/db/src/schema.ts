@@ -1151,6 +1151,30 @@ export const invoices = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// finance_expenses — despesas da escola (para fluxo de caixa e DRE simples).
+// Tenant-scoped + RLS. Receitas vêm de `invoices` (mensalidades pagas).
+// ---------------------------------------------------------------------------
+export const financeExpenses = oe.table(
+  'finance_expenses',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    description: text('description').notNull(),
+    category: text('category').notNull().default('outros'), // pessoal | aluguel | materiais | servicos | impostos | outros
+    amountCents: integer('amount_cents').notNull().default(0),
+    competencia: text('competencia').notNull(), // 'YYYY-MM'
+    dueDate: date('due_date'),
+    status: text('status').notNull().default('pago'), // pago | aberto
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('finance_expenses_tenant_idx').on(t.tenantId),
+    tenantPolicy('finance_expenses_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // Banco de atividades coletivas (item 13): biblioteca GLOBAL (sem tenant_id) por faixa
 // etária. Conteúdo pedagógico não sensível, compartilhado entre todos. Leitura pública
 // (policy `true`); acesso pela app é via conexão dona (bypassa RLS). Ver ADR 0004.
