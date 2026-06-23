@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Library, LayoutDashboard, Menu, Plug, Shield, X } from 'lucide-react';
+import { Building2, Library, LayoutDashboard, LifeBuoy, Menu, Plug, Shield, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin', label: 'Visão geral', icon: LayoutDashboard, exact: true },
   { href: '/admin/contas', label: 'Contas', icon: Building2, exact: false },
   { href: '/admin/coletivo', label: 'Banco coletivo', icon: Library, exact: false },
+  { href: '/admin/suporte', label: 'Suporte', icon: LifeBuoy, exact: false },
   { href: '/admin/integracoes', label: 'Integrações', icon: Plug, exact: false },
 ];
 

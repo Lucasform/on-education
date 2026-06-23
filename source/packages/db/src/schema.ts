@@ -1791,6 +1791,44 @@ export const gateLogs = oe.table(
 );
 
 // ---------------------------------------------------------------------------
+// Suporte do app: ticket aberto pelo tenant (sugestão/elogio/problema/dúvida) + mensagens
+// (chat interno) respondidas pelo admin do app. Tenant-scoped + RLS; o admin lê via conexão dona.
+// ---------------------------------------------------------------------------
+export const supportTickets = oe.table(
+  'support_tickets',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    kind: text('kind').notNull().default('sugestao'), // sugestao | elogio | problema | duvida
+    subject: text('subject'),
+    status: text('status').notNull().default('novo'), // novo | em_analise | respondido | resolvido
+    createdByName: text('created_by_name'),
+    ...auditCols,
+  },
+  (t) => [
+    index('support_tickets_tenant_idx').on(t.tenantId),
+    tenantPolicy('support_tickets_tenant_isolation'),
+  ],
+);
+
+export const supportMessages = oe.table(
+  'support_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    ticketId: uuid('ticket_id').notNull(),
+    body: text('body').notNull(),
+    fromAdmin: boolean('from_admin').notNull().default(false),
+    authorName: text('author_name'),
+    ...auditCols,
+  },
+  (t) => [
+    index('support_messages_ticket_idx').on(t.ticketId),
+    tenantPolicy('support_messages_tenant_isolation'),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // report_comments — comentário do boletim por aluno (gerado pela IA e/ou editado). RLS.
 // ---------------------------------------------------------------------------
 export const reportComments = oe.table(

@@ -1,0 +1,9 @@
+Coloque AQUI as 2 imagens originais (inteiras, do jeito que voce gerou):
+
+  grade.jpg     -> a grade 2x2 da professora (as 4 cenas juntas)
+  familia.jpg   -> a imagem da familia (pode ser a inteira, com o texto; eu corto so a foto)
+
+Depois me mande "pronto". Eu recorto com o sharp:
+  - da grade 2x2: 4 cenas -> hero.jpg, professores.jpg, turma.jpg, escola.jpg
+  - da familia: so a foto (esquerda) -> familia.jpg
+e publico. Voce nao precisa cortar nada.
