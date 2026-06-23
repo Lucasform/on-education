@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
 import { ConfirmButton } from '@/components/confirm-button';
+import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -52,6 +53,7 @@ export default async function ComunicadosPage({
   return (
     <>
       <PageHeader title="Comunicados" description="Escreva ou gere comunicados e publique." />
+      <ComunicacaoTabs />
 
       {waFlash && (
         <div className="mb-4 rounded-md border border-border bg-muted p-3 text-sm">{waFlash}</div>

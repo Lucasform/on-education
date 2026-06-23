@@ -4,6 +4,7 @@ import { getWhatsappConnection, listGuardians, listStudents } from '@on-educatio
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
+import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -32,6 +33,7 @@ export default async function MensagensPage() {
         title="Mensagens"
         description="Registre comunicações com os responsáveis, por aluno."
       />
+      <ComunicacaoTabs />
 
       {responsaveis.length === 0 ? (
         <div className={cardClass}>

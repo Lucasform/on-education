@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 import { AgentNameText } from '@/components/agent-name-provider';
+import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, PageHeader } from '@/components/form';
 import { CopyLink } from '@/components/copy-link';
 import { PrintButton } from '@/components/print-button';
@@ -30,6 +31,9 @@ export default async function MuralPage() {
           description="Avisos publicados, em ordem do mais recente. Imprima ou salve em PDF para divulgar."
         />
         <PrintButton />
+      </div>
+      <div className="print:hidden">
+        <ComunicacaoTabs />
       </div>
 
       <div className={`${cardClass} print:hidden`}>

@@ -7,6 +7,7 @@ import { getPublicTenantBrand, getTenantSettings, listClasses } from '@on-educat
 import { Heart, ImagePlus, MessageCircle, Plus, Send, Trash2 } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
+import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
@@ -64,6 +65,7 @@ export default async function FeedPage() {
         title="Mural & feed"
         description="Poste novidades com foto, publique stories e converse com a comunidade."
       />
+      <ComunicacaoTabs />
       {/* preferências do mural (a escola escolhe o que fica ligado) */}
       <form action={updateFeedSettingsAction} className={`${cardClass} flex flex-wrap items-center gap-4`}>
         <span className="text-sm font-medium">Preferências:</span>

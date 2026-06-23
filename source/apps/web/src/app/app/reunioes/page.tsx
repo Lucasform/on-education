@@ -6,6 +6,7 @@ import {
 } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
+import { ComunicacaoTabs } from '@/components/comunicacao-tabs';
 import { ConfirmButton } from '@/components/confirm-button';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { hojeISO } from '@/lib/date';
@@ -39,6 +40,7 @@ export default async function ReunioesPage() {
         title="Reunioes"
         description="Agendamentos de reunioes escola-responsavel."
       />
+      <ComunicacaoTabs />
 
       <div className="flex flex-col gap-8">
         {/* Horarios disponiveis */}
