@@ -37,7 +37,6 @@ import {
   Palette,
   PenLine,
   Phone,
-  Plug,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -46,7 +45,6 @@ import {
   Users,
   Wallet,
   Wand2,
-  Webhook,
 } from 'lucide-react';
 
 export { Lock };
@@ -185,14 +183,9 @@ export const NAV: NavGroup[] = [
       { label: 'Inadimplência', href: '/app/inadimplencia', icon: AlertCircle, requiresFeature: 'finance.institutional' },
     ],
   },
-  {
-    label: 'Integrações',
-    only: 'organization',
-    items: [
-      { label: 'API de integração', href: '/app/api', icon: Plug, requiresFeature: 'integrations.api' },
-      { label: 'Notificações (webhooks)', href: '/app/escola/webhooks', icon: Webhook, requiresFeature: 'integrations.api' },
-    ],
-  },
+  // Integrações (API + webhooks) ficam SÓ no admin (aplicadas por escola via impersonação),
+  // para não incentivar uso/custo de recurso no tenant. A conexão de IA do usuário (BYOK)
+  // segue disponível em "Meu padrão". As páginas continuam acessíveis por URL para o admin.
   {
     label: 'Sistema',
     hideLabel: true,
