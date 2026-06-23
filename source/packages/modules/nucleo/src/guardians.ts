@@ -1,7 +1,7 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
-import { type DbClient, guardians, studentGuardians } from '@on-education/db';
+import { type DbClient, guardians, studentGuardians, students } from '@on-education/db';
 import type { CreateGuardianInput, LinkGuardianInput } from '@on-education/validation';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { promisify } from 'node:util';
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 
@@ -89,6 +89,32 @@ export async function createGuardiansBulk(
 export async function listGuardians(client: DbClient, ctx: AuthContext) {
   assertCan(ctx, 'read', 'guardian');
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(guardians));
+}
+
+/**
+ * Todos os vínculos responsável↔aluno com nome do aluno e turma (classId). Usado para
+ * exibir os responsáveis agrupados POR TURMA e detectar quem está sem vínculo.
+ */
+export async function listGuardianLinks(client: DbClient, ctx: AuthContext) {
+  assertCan(ctx, 'read', 'student_guardian');
+  return client.withTenant(ctx.tenantId, (tx) =>
+    tx
+      .select({
+        linkId: studentGuardians.id,
+        guardianId: studentGuardians.guardianId,
+        guardianName: guardians.fullName,
+        guardianPhone: guardians.phone,
+        studentId: studentGuardians.studentId,
+        studentName: students.fullName,
+        classId: students.classId,
+        relation: studentGuardians.relation,
+        isFinancial: studentGuardians.isFinancial,
+      })
+      .from(studentGuardians)
+      .leftJoin(guardians, eq(guardians.id, studentGuardians.guardianId))
+      .leftJoin(students, eq(students.id, studentGuardians.studentId))
+      .where(isNull(students.deletedAt)),
+  );
 }
 
 /** Vincula um responsável a um aluno com os atributos do relacionamento. */

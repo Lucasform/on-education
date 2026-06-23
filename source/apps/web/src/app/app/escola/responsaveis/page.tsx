@@ -1,5 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
-import { listGuardians } from '@on-education/module-nucleo';
+import { listClasses, listGuardianLinks, listGuardians, listStudents } from '@on-education/module-nucleo';
 import { ExternalLink, Link2 } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -33,7 +33,28 @@ export default async function ResponsaveisPage({
   if (ctx.tenantType !== 'organization') redirect('/app');
 
   const { portalToken, guardianId: tokenGuardianId } = await searchParams;
-  const responsaveis = await listGuardians(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listGuardians>>);
+  const [responsaveis, links, turmas, alunos] = await Promise.all([
+    listGuardians(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listGuardians>>),
+    listGuardianLinks(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listGuardianLinks>>),
+    listClasses(db(), ctx).catch(() => []),
+    listStudents(db(), ctx).catch(() => []),
+  ]);
+  const turmaNome = new Map(turmas.map((t) => [t.id, t.name]));
+  const vinculadosG = new Set(links.map((l) => l.guardianId));
+  const vinculadosA = new Set(links.map((l) => l.studentId));
+  const respSemVinculo = responsaveis.filter((g) => !vinculadosG.has(g.id));
+  const alunosSemResp = alunos.filter((a) => !vinculadosA.has(a.id));
+  // Agrupa os vínculos por turma (null = sem turma definida).
+  const porTurma = new Map<string | null, typeof links>();
+  for (const l of links) {
+    const k = l.classId ?? null;
+    const arr = porTurma.get(k) ?? [];
+    arr.push(l);
+    porTurma.set(k, arr);
+  }
+  const gruposTurma = [...porTurma.entries()].sort((a, b) =>
+    (turmaNome.get(a[0] ?? '') ?? 'zzz').localeCompare(turmaNome.get(b[0] ?? '') ?? 'zzz'),
+  );
   const nomeGuardian = tokenGuardianId
     ? (responsaveis.find((g) => g.id === tokenGuardianId)?.fullName ?? '')
     : '';
@@ -70,6 +91,60 @@ export default async function ResponsaveisPage({
           </p>
         </div>
       )}
+
+      {(respSemVinculo.length > 0 || alunosSemResp.length > 0) && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+          <p className="font-medium">Associação pendente</p>
+          <ul className="mt-1 list-disc pl-5 text-xs">
+            {respSemVinculo.length > 0 && (
+              <li>{respSemVinculo.length} responsável(is) sem aluno vinculado.</li>
+            )}
+            {alunosSemResp.length > 0 && (
+              <li>
+                {alunosSemResp.length} aluno(s) sem responsável. Na escola, todo aluno deve ter ao
+                menos um responsável.
+              </li>
+            )}
+          </ul>
+          <p className="mt-1 text-xs">
+            Vincule na ficha do aluno ou no cadastro. Para professor particular, a associação é
+            opcional.
+          </p>
+        </div>
+      )}
+
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-medium">Responsáveis por turma</h2>
+        {gruposTurma.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum vínculo aluno e responsável ainda.</p>
+        ) : (
+          <div className="space-y-4">
+            {gruposTurma.map(([classId, items]) => (
+              <div key={classId ?? 'sem'}>
+                <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {classId ? (turmaNome.get(classId) ?? 'Turma') : 'Sem turma'} ({items.length})
+                </h3>
+                <ul className="space-y-1 text-sm">
+                  {items.map((l) => (
+                    <li key={l.linkId} className="flex flex-wrap items-center gap-x-2">
+                      <span className="font-medium">{l.guardianName ?? 'Responsável'}</span>
+                      <span className="text-muted-foreground">→ {l.studentName ?? 'Aluno'}</span>
+                      {l.relation && (
+                        <span className="text-xs text-muted-foreground">({l.relation})</span>
+                      )}
+                      {l.isFinancial && (
+                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
+                          financeiro
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className={cardClass}>
         <h2 className="mb-3 text-sm font-medium">Responsáveis ({responsaveis.length})</h2>
