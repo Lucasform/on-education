@@ -45,6 +45,11 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
   const ownerName = String(formData.get('ownerName') ?? '').trim();
   const workspaceName = String(formData.get('workspaceName') ?? '').trim();
   const slug = String(formData.get('slug') ?? '').trim();
+  // Plano escolhido no cadastro (Free/Professor/Pro). Vai no metadata e é aplicado no /auth/confirm.
+  const planoRaw = String(formData.get('plano') ?? '').trim();
+  const planId = ['teacher_free', 'teacher_basic', 'teacher_pro'].includes(planoRaw)
+    ? planoRaw
+    : undefined;
   // Volta para a tela de origem (login, /login/email, signup ou escola) ao concluir/errar.
   const returnTo = String(formData.get('returnTo') ?? '');
   const back = /^\/(login(\/email)?|signup(\/(email|escola))?)$/.test(returnTo)
@@ -67,6 +72,7 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
             full_name: ownerName || undefined,
             workspace_name: workspaceName || undefined,
             slug: slug || undefined,
+            plan_id: planId,
           },
         })
         .catch(() => {});
@@ -105,6 +111,7 @@ export async function magicLinkAction(formData: FormData): Promise<void> {
               full_name: ownerName || undefined,
               workspace_name: workspaceName || undefined,
               slug: slug || undefined,
+              plan_id: planId,
             }
           : undefined,
     },

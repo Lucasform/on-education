@@ -36,12 +36,19 @@ async function ensureTenant(user: User): Promise<void> {
     );
     if (!slugFormatError(norm) && free) slug = norm;
   }
-  await provisionIndividualTenant(client, user.id, {
-    ownerEmail: user.email ?? `${user.id}@magic.local`,
-    ownerName: fullName,
-    workspaceName: workspace,
-    slug,
-  }).catch(() => {});
+  // Plano escolhido no cadastro (carregado no metadata do magic link). Inválido/ausente → Free.
+  const planId = (user.user_metadata?.plan_id as string)?.trim() || undefined;
+  await provisionIndividualTenant(
+    client,
+    user.id,
+    {
+      ownerEmail: user.email ?? `${user.id}@magic.local`,
+      ownerName: fullName,
+      workspaceName: workspace,
+      slug,
+    },
+    planId,
+  ).catch(() => {});
 }
 
 /**

@@ -9,6 +9,7 @@ import {
   SlugInputField,
 } from '@/components/brand-auth-screen';
 import { ConsentNote } from '@/components/consent-note';
+import { normalizePlano, PlanRadioGroup } from '@/components/plan-radio-group';
 import { getAuthContext } from '@/server/session';
 
 import { magicLinkAction } from '../../login/actions';
@@ -19,11 +20,12 @@ export const metadata = { title: 'Criar com e-mail · Edu On Way' };
 export default async function SignupEmailPage({
   searchParams,
 }: {
-  searchParams: Promise<{ magic?: string; em?: string }>;
+  searchParams: Promise<{ magic?: string; em?: string; plano?: string }>;
 }) {
   const ctx = await getAuthContext();
   if (ctx) redirect('/app');
-  const { magic, em } = await searchParams;
+  const { magic, em, plano } = await searchParams;
+  const planoSel = normalizePlano(plano);
   const enviado = magic === 'enviado';
 
   return (
@@ -104,6 +106,7 @@ export default async function SignupEmailPage({
               <input name="email" type="email" required placeholder="seu@email.com" className={authInput} />
             </AuthField>
             <SlugInputField placeholder="prof-ana" />
+            <PlanRadioGroup selected={planoSel} />
             <AuthSubmit pendingLabel="Enviando…">Criar com meu e-mail</AuthSubmit>
             <ConsentNote />
           </form>

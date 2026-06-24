@@ -42,7 +42,7 @@ const NAV = [
 
 const NUMEROS = [
   { n: '8', l: 'módulos integrados' },
-  { n: '7 dias', l: 'grátis, sem cartão' },
+  { n: 'Grátis', l: 'no lançamento, sem cartão' },
   { n: '3', l: 'passos para começar' },
   { n: '100%', l: 'LGPD, dados seguros' },
 ];
@@ -184,8 +184,8 @@ const PASSOS = [
 
 const FAQ = [
   {
-    q: 'Preciso de cartão para testar?',
-    a: 'Não. Os planos de professor têm 7 dias grátis e sem fidelidade no mensal.',
+    q: 'Preciso de cartão para começar?',
+    a: 'Não. Estamos em lançamento gratuito: você cria a conta e usa o plano escolhido sem pagar nada. Os valores na página são a referência de preço para quando a cobrança começar.',
   },
   {
     q: 'O WayOn substitui o professor?',
@@ -683,7 +683,8 @@ export default function HomePage() {
                 Planos para cada momento
               </h2>
               <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-                Comece com 7 dias grátis e evolua quando precisar.
+                Lançamento gratuito: use qualquer plano sem pagar agora. Os valores são a
+                referência de preço para quando a cobrança começar.
               </p>
             </Reveal>
             <div className="mt-10">

@@ -21,7 +21,7 @@ O que o Edu On Way faz:
 - Relatórios, e identidade própria da escola (logo, cor e link próprio).
 - Segurança: cada escola isolada das demais e tratamento conforme a LGPD.
 
-Planos: o professor começa com 7 dias grátis e sem precisar de cartão; a escola fala com a equipe. Se perguntarem valores específicos, diga que há um plano grátis para começar e que os detalhes estão na seção de planos do site, sem inventar números.
+Planos: estamos em lançamento gratuito — a pessoa cria a conta e usa o plano escolhido sem pagar nada e sem cartão; os valores no site são só referência de preço para quando a cobrança começar. A escola fala com a equipe. Se perguntarem valores específicos, aponte a seção de planos do site, sem inventar números.
 
 Sempre que fizer sentido, convide a pessoa a criar a conta: professor em /signup, escola em /signup/escola.`;
 

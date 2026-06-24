@@ -24,7 +24,7 @@ const PLANOS: Plano[] = [
     mensal: 'R$ 39',
     anual: 'R$ 390',
     equiv: 'equivale a R$ 32,50/mês',
-    nota: '7 dias grátis para testar',
+    nota: 'Preço de referência',
     resumo: 'Para o professor autônomo criar conteúdo e ganhar tempo com o WayOn.',
     recursos: [
       'WayOn: planos de aula, atividades e provas',
@@ -41,7 +41,7 @@ const PLANOS: Plano[] = [
     mensal: 'R$ 79',
     anual: 'R$ 790',
     equiv: 'equivale a R$ 65,80/mês',
-    nota: '7 dias grátis para testar',
+    nota: 'Preço de referência',
     resumo: 'Para quem dá aula: sala de aula completa e WayOn com cota ampliada.',
     recursos: [
       'Tudo do plano Professor',
@@ -142,6 +142,9 @@ export function PricingCards() {
               <p className="mt-1 text-xs text-primary">
                 {p.consulta ? p.nota : anual ? p.equiv : p.nota}
               </p>
+              <span className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+                {p.consulta ? '🎉 Gratuito até a ativação' : '🎉 Grátis no lançamento'}
+              </span>
               <ul className="mt-6 flex-1 space-y-2 text-sm">
                 {p.recursos.map((r) => (
                   <li key={r} className="flex items-start gap-2">
@@ -160,8 +163,9 @@ export function PricingCards() {
         })}
       </div>
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Tem plano Free para começar. Anual com 2 meses grátis. Escola sob consulta. 7 dias grátis
-        nos planos de professor. Sem fidelidade no mensal.
+        <span className="font-semibold text-emerald-600">Lançamento gratuito:</span> use qualquer
+        plano sem pagar agora. Os valores acima são a referência de preço para quando a cobrança
+        começar. Escola sob consulta.
       </p>
     </>
   );
