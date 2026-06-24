@@ -128,9 +128,9 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                       {new Date(t.createdAt).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm font-medium">{t.tenantName ?? 'Escola'}</p>
+                  <p className="mt-1 break-words text-sm font-medium">{t.tenantName ?? 'Escola'}</p>
                   {t.createdByName && (
-                    <p className="text-[11px] text-muted-foreground">por {t.createdByName}</p>
+                    <p className="break-words text-[11px] text-muted-foreground">por {t.createdByName}</p>
                   )}
 
                   {t.messages.length > 0 && (
@@ -138,7 +138,7 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                       {t.messages.map((m) => (
                         <li key={m.id} className={`flex ${m.fromAdmin ? 'justify-end' : 'justify-start'}`}>
                           <span
-                            className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-2.5 py-1.5 text-xs ${
+                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-2.5 py-1.5 text-xs ${
                               m.fromAdmin ? 'bg-primary text-white' : 'border border-border bg-card'
                             }`}
                           >
@@ -187,9 +187,12 @@ function ReplyBox({ onSend }: { onSend: (body: string, reset: () => void) => voi
         value={v}
         onChange={(e) => setV(e.target.value)}
         placeholder="Responder…"
-        className="flex-1 rounded-md border border-border bg-card px-2 py-1 text-xs outline-none"
+        className="min-w-0 flex-1 rounded-md border border-border bg-card px-2 py-1 text-xs outline-none"
       />
-      <button type="submit" className="rounded-md border border-border px-2 py-1 text-xs hover:bg-accent">
+      <button
+        type="submit"
+        className="shrink-0 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent"
+      >
         Enviar
       </button>
     </form>

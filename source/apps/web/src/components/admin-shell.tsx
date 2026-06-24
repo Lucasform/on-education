@@ -102,7 +102,7 @@ export function AdminShell({
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-4 md:p-8">{children}</main>
+      <main className="flex w-full flex-col gap-8 p-4 md:p-8">{children}</main>
     </div>
   );
 }
