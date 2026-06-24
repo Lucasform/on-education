@@ -115,6 +115,8 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
           <div className="space-y-2">
             {inCol(col.id).map((t) => {
               const k = KIND[t.kind] ?? { label: t.kind, cls: 'bg-muted text-muted-foreground' };
+              // Em Resolvido/Arquivado o card é minimalista: só tipo + cliente + ações.
+              const closed = col.id === 'resolvido' || col.id === 'arquivado';
               return (
                 <div
                   key={t.id}
@@ -137,32 +139,31 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                     </span>
                   </div>
                   <p className="mt-1 break-words text-xs font-semibold">{t.tenantName ?? 'Escola'}</p>
-                  {t.createdByName && (
-                    <p className="break-words text-[10px] text-muted-foreground">por {t.createdByName}</p>
-                  )}
 
-                  {t.messages.length > 0 && (
-                    <ul className="mt-1.5 space-y-1">
-                      {t.messages.map((m) => (
-                        <li key={m.id} className={`flex ${m.fromAdmin ? 'justify-end' : 'justify-start'}`}>
-                          <span
-                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-2 py-1 text-[11px] ${
-                              m.fromAdmin ? 'bg-primary text-white' : 'border border-border bg-card'
-                            }`}
-                          >
-                            {m.body}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {!closed && (
+                    <>
+                      {t.createdByName && (
+                        <p className="break-words text-[10px] text-muted-foreground">por {t.createdByName}</p>
+                      )}
 
-                  {col.id === 'resolvido' || col.id === 'arquivado' ? (
-                    <p className="mt-1.5 flex items-center gap-1 text-[10px] italic text-muted-foreground">
-                      <span aria-hidden>🔒</span> Conversa encerrada
-                    </p>
-                  ) : (
-                    <ReplyBox onSend={(b, reset) => reply(t, b, reset)} />
+                      {t.messages.length > 0 && (
+                        <ul className="mt-1.5 space-y-1">
+                          {t.messages.map((m) => (
+                            <li key={m.id} className={`flex ${m.fromAdmin ? 'justify-end' : 'justify-start'}`}>
+                              <span
+                                className={`max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-2 py-1 text-[11px] ${
+                                  m.fromAdmin ? 'bg-primary text-white' : 'border border-border bg-card'
+                                }`}
+                              >
+                                {m.body}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      <ReplyBox onSend={(b, reset) => reply(t, b, reset)} />
+                    </>
                   )}
 
                   <div className="mt-1 flex flex-wrap items-center gap-1">
