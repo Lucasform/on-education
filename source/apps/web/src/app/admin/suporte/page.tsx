@@ -28,9 +28,9 @@ export default async function AdminSuportePage() {
       <a href="/admin" className="text-xs text-primary underline-offset-4 hover:underline">
         ← Voltar para a visão geral
       </a>
-      <h1 className="text-2xl font-semibold tracking-tight">Suporte ({tickets.length})</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Suporte</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Mensagens das escolas/professores. Analise, responda e arraste pelo funil.
+        Mensagens de escolas e professores. Analise, responda e arraste os cards pelo funil.
       </p>
 
       <SupportKanban tickets={enriched} />
