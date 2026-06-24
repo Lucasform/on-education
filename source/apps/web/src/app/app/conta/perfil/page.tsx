@@ -7,6 +7,7 @@ import { SlugCard } from '@/components/slug-field';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
+import { createSupabaseServerClient } from '@/server/supabase';
 
 import { updateTenantSettingsAction } from '../../actions';
 
@@ -26,11 +27,49 @@ export default async function PerfilPage({
   const settings = await getTenantSettings(db(), ctx).catch(() => null);
   const slug = await getTenantSlug(db(), ctx.tenantId).catch(() => null);
 
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const loginEmail = user?.email ?? '';
+  const loginName = (user?.user_metadata?.full_name as string) ?? '';
+
   return (
     <div className="flex flex-col gap-5">
+      <div className={cardClass}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="mb-1 text-sm font-medium">Conta de acesso</h2>
+            <p className="text-xs text-muted-foreground">
+              O nome e o e-mail que você usa para entrar no sistema.
+            </p>
+            <dl className="mt-3 space-y-1.5 text-sm">
+              <div className="flex gap-3">
+                <dt className="w-16 shrink-0 text-muted-foreground">Nome</dt>
+                <dd className="break-words font-medium">{loginName || '—'}</dd>
+              </div>
+              <div className="flex gap-3">
+                <dt className="w-16 shrink-0 text-muted-foreground">E-mail</dt>
+                <dd className="break-all font-medium">{loginEmail || '—'}</dd>
+              </div>
+            </dl>
+          </div>
+          <a
+            href="/app/conta/seguranca"
+            className="inline-block shrink-0 rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            Alterar
+          </a>
+        </div>
+      </div>
+
       <form action={updateTenantSettingsAction}>
         <div className={cardClass}>
-          <h2 className="mb-3 text-sm font-medium">Identidade</h2>
+          <h2 className="mb-1 text-sm font-medium">Identidade nos documentos</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Estes dados aparecem no cabeçalho das atividades e documentos que você imprime. Não é o
+            seu login.
+          </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-xs text-muted-foreground sm:col-span-2">
               Nome de exibição
