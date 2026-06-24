@@ -95,8 +95,8 @@ export function AdminShell({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="truncate text-sm text-muted-foreground">{email}</span>
-        <div className="ml-auto flex items-center gap-2">
+        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{email}</span>
+        <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
           {headerActions}
         </div>

@@ -58,4 +58,38 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Transição ao trocar de tela (usada pelos template.tsx das áreas logadas). */
+@layer utilities {
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .page-enter {
+    animation: pageEnter 0.26s ease-out both;
+  }
+}
+
+/* Acessibilidade: respeita quem pede menos movimento (desliga transições/animações). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

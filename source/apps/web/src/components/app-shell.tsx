@@ -263,8 +263,8 @@ export function AppShell({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-sm text-muted-foreground">{subtitle}</span>
-        <div className="ml-auto flex items-center gap-2">
+        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{subtitle}</span>
+        <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
           {headerActions}
         </div>

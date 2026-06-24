@@ -24,9 +24,9 @@ export default async function AdminColetivoPage() {
       <a href="/admin" className="text-xs text-primary underline-offset-4 hover:underline">
         ← Voltar para a visão geral
       </a>
-      <h1 className="text-2xl font-semibold tracking-tight">Banco coletivo ({itens.length})</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Banco coletivo</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Atividades compartilhadas por todos os professores. Selecione para excluir.
+        Atividades que os professores compartilham com toda a comunidade.
       </p>
 
       <div className="mt-4">
