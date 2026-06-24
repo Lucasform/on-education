@@ -21,8 +21,9 @@ const KIND_LABEL: Record<string, string> = {
 const STATUS_LABEL: Record<string, string> = {
   novo: 'Enviado',
   em_analise: 'Em análise',
-  respondido: 'Respondido',
+  respondido: 'Resolvido',
   resolvido: 'Resolvido',
+  arquivado: 'Arquivado',
 };
 
 /** Canal de suporte flutuante (canto inferior direito): manda sugestão/elogio/problema e
