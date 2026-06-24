@@ -87,7 +87,7 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t.name}</h1>
+          <h1 className="break-words text-2xl font-semibold tracking-tight">{t.name}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
               {t.tenantType === 'organization' ? '🏫 escola' : '👤 professor'}
@@ -185,7 +185,7 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Recursos liberados {ungated && '(marque e salve para passar a controlar)'}
             </p>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[...byCategory.entries()].map(([cat, items]) => (
                 <fieldset key={cat} className="flex flex-col gap-2 rounded-md border border-border/70 p-3">
                   <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
