@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { adminReplySupportAction, setSupportStatusAction } from './actions';
+import { adminDeleteSupportAction, adminReplySupportAction, setSupportStatusAction } from './actions';
 
 type Msg = { id: string; body: string; fromAdmin: boolean };
 export type KanbanTicket = {
@@ -68,6 +68,14 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
     fd.set('tenantId', t.tenantId);
     fd.set('body', text);
     await adminReplySupportAction(fd);
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm('Excluir esta mensagem de suporte?')) return;
+    setItems((prev) => prev.filter((x) => x.id !== id));
+    const fd = new FormData();
+    fd.set('ticketId', id);
+    await adminDeleteSupportAction(fd);
   }
 
   const inCol = (id: string) => items.filter((t) => colOf(t.status) === id);
@@ -149,9 +157,15 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                     </ul>
                   )}
 
-                  <ReplyBox onSend={(b, reset) => reply(t, b, reset)} />
+                  {col.id === 'resolvido' || col.id === 'arquivado' ? (
+                    <p className="mt-2 flex items-center gap-1 text-[11px] italic text-muted-foreground">
+                      <span aria-hidden>🔒</span> Conversa encerrada
+                    </p>
+                  ) : (
+                    <ReplyBox onSend={(b, reset) => reply(t, b, reset)} />
+                  )}
 
-                  <div className="mt-1.5 flex flex-wrap gap-1">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
                     {COLUNAS.filter((c) => c.id !== col.id).map((c) => (
                       <button
                         key={c.id}
@@ -162,6 +176,13 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                         → {c.label}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => void remove(t.id)}
+                      className="ml-auto rounded px-2 py-0.5 text-[10px] text-muted-foreground transition hover:text-red-500"
+                    >
+                      Excluir
+                    </button>
                   </div>
                 </div>
               );

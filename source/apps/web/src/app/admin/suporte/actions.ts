@@ -1,6 +1,6 @@
 'use server';
 
-import { adminReplyTicket, setSupportStatus } from '@on-education/module-nucleo';
+import { adminReplyTicket, deleteSupportTicket, setSupportStatus } from '@on-education/module-nucleo';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -24,5 +24,12 @@ export async function adminReplySupportAction(formData: FormData): Promise<void>
 export async function setSupportStatusAction(formData: FormData): Promise<void> {
   await requireAdmin();
   await setSupportStatus(db(), String(formData.get('ticketId') ?? ''), String(formData.get('status') ?? ''));
+  revalidatePath('/admin/suporte');
+}
+
+export async function adminDeleteSupportAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const ticketId = String(formData.get('ticketId') ?? '');
+  if (ticketId) await deleteSupportTicket(db(), ticketId);
   revalidatePath('/admin/suporte');
 }

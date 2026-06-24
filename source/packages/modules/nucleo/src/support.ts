@@ -138,16 +138,25 @@ export async function adminReplyTicket(
     fromAdmin: true,
     authorName: adminName,
   });
+  // Responder não muda a coluna: só marca atividade. O admin move/resolve manualmente.
   await client.db
     .update(supportTickets)
-    .set({ status: 'respondido', updatedAt: new Date() })
+    .set({ updatedAt: new Date() })
     .where(eq(supportTickets.id, ticketId));
 }
 
 export async function setSupportStatus(client: DbClient, ticketId: string, status: string) {
-  const ok = ['novo', 'em_analise', 'respondido', 'resolvido'];
+  const ok = ['novo', 'em_analise', 'resolvido', 'arquivado'];
   await client.db
     .update(supportTickets)
     .set({ status: ok.includes(status) ? status : 'novo', updatedAt: new Date() })
+    .where(eq(supportTickets.id, ticketId));
+}
+
+/** Exclusão (soft delete) de um ticket de suporte pelo admin. Some da lista do admin. */
+export async function deleteSupportTicket(client: DbClient, ticketId: string) {
+  await client.db
+    .update(supportTickets)
+    .set({ deletedAt: new Date() })
     .where(eq(supportTickets.id, ticketId));
 }
