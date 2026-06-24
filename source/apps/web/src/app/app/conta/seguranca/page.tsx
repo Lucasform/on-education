@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import { cardClass, fieldClass } from '@/components/form';
 import { SubmitButton } from '@/components/submit-button';
 import { db } from '@/server/db';
-import { getAuthContext } from '@/server/session';
+import { getAuthContext, isImpersonating } from '@/server/session';
 import { createSupabaseAdmin, createSupabaseServerClient } from '@/server/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -102,6 +102,7 @@ export default async function SegurancaPage({
   if (!ctx) redirect('/login');
 
   const { ok, erro } = await searchParams;
+  const impersonating = await isImpersonating();
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -111,6 +112,12 @@ export default async function SegurancaPage({
 
   return (
     <div className="flex flex-col gap-5">
+      {impersonating && (
+        <div className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">
+          Você está em modo admin. Estes dados são da sua conta de administrador, não da escola que
+          está visualizando. Para ver o dono da conta, abra o detalhe dela em Admin → Contas.
+        </div>
+      )}
       {ok && OK[ok] && (
         <div className="rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
           {OK[ok]}

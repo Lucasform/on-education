@@ -24,6 +24,9 @@ export interface TenantOverview {
   isClient: boolean;
   members: number;
   students: number;
+  /** Dono da conta (membership role=owner) — quem criou/responde pela conta. */
+  ownerName?: string | null;
+  ownerEmail?: string | null;
 }
 
 export interface AppStats {
@@ -57,7 +60,15 @@ export async function listAllTenants(
       (select count(distinct ${memberships.userId}) from ${memberships}
         where ${memberships.tenantId} = ${tenants.id}) as members,
       (select count(*) from ${students}
-        where ${students.tenantId} = ${tenants.id}) as students
+        where ${students.tenantId} = ${tenants.id}) as students,
+      (select ${users.email} from ${memberships}
+        join ${users} on ${users.id} = ${memberships.userId}
+        where ${memberships.tenantId} = ${tenants.id} and ${memberships.role} = 'owner'
+        order by ${memberships.createdAt} asc limit 1) as owner_email,
+      (select ${users.fullName} from ${memberships}
+        join ${users} on ${users.id} = ${memberships.userId}
+        where ${memberships.tenantId} = ${tenants.id} and ${memberships.role} = 'owner'
+        order by ${memberships.createdAt} asc limit 1) as owner_name
     from ${tenants}
     ${where}
     order by ${tenants.createdAt} desc
@@ -70,6 +81,8 @@ export async function listAllTenants(
     is_client: boolean;
     members: number | string;
     students: number | string;
+    owner_email: string | null;
+    owner_name: string | null;
   }>;
 
   return rows.map((t) => ({
@@ -81,6 +94,8 @@ export async function listAllTenants(
     isClient: Boolean(t.is_client),
     members: Number(t.members ?? 0),
     students: Number(t.students ?? 0),
+    ownerName: t.owner_name ?? null,
+    ownerEmail: t.owner_email ?? null,
   }));
 }
 

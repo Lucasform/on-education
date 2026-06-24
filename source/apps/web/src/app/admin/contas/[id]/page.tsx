@@ -67,6 +67,9 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
     getTenantPlanId(client, id).catch(() => null),
   ]);
 
+  // Dono da conta (quem criou / responde por ela): membership owner, senão o primeiro membro.
+  const owner = membros.find((m) => m.role === 'owner') ?? membros[0] ?? null;
+
   // Recursos & plano (override de admin).
   const eligible = featuresForSegment(t.tenantType);
   const byCategory = new Map<string, FeatureMeta[]>();
@@ -139,6 +142,22 @@ export default async function ContaDetalhePage({ params }: { params: Promise<{ i
           )}
         </div>
       </div>
+
+      <section className="rounded-lg border border-border bg-card p-4">
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Dono da conta
+        </h2>
+        <div className="mt-2 flex flex-wrap items-start gap-x-10 gap-y-2">
+          <div>
+            <div className="text-xs text-muted-foreground">Nome</div>
+            <div className="font-medium">{owner?.name ?? '—'}</div>
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs text-muted-foreground">E-mail de login</div>
+            <div className="break-all font-medium">{owner?.email ?? '—'}</div>
+          </div>
+        </div>
+      </section>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Membros" value={t.members} />

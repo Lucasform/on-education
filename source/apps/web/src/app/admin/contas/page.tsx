@@ -73,6 +73,7 @@ export default async function ContasPage({
             <tr>
               <th className="px-4 py-2 font-medium">Nome</th>
               <th className="px-4 py-2 font-medium">Tipo</th>
+              <th className="px-4 py-2 font-medium">Dono (e-mail)</th>
               <th className="px-4 py-2 font-medium">Membros</th>
               <th className="px-4 py-2 font-medium">Alunos</th>
               <th className="px-4 py-2"></th>
@@ -81,7 +82,7 @@ export default async function ContasPage({
           <tbody>
             {lista.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   {showDeleted ? 'Nenhuma conta excluída.' : 'Nenhuma conta ainda.'}
                 </td>
               </tr>
@@ -106,6 +107,12 @@ export default async function ContasPage({
                   <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
                     {t.tenantType === 'organization' ? '🏫 escola' : '👤 professor'}
                   </span>
+                </td>
+                <td className="px-4 py-2 text-muted-foreground">
+                  <div className="break-all">{t.ownerEmail ?? '—'}</div>
+                  {t.ownerName && (
+                    <div className="text-xs text-muted-foreground/70">{t.ownerName}</div>
+                  )}
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">{t.members}</td>
                 <td className="px-4 py-2 text-muted-foreground">{t.students}</td>
