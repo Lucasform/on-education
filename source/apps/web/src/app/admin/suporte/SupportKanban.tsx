@@ -96,11 +96,11 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
             setDragId(null);
             setOverCol(null);
           }}
-          className={`flex min-h-[320px] flex-col rounded-xl border p-3 transition-colors ${col.accent} ${
+          className={`flex min-h-[180px] flex-col rounded-xl border p-2.5 transition-colors ${col.accent} ${
             overCol === col.id ? 'ring-2 ring-primary' : ''
           }`}
         >
-          <header className="mb-3 px-1">
+          <header className="mb-2 px-1">
             <div className="flex items-baseline justify-between">
               <h2 className="text-sm font-semibold">{col.label}</h2>
               <span className="font-mono text-xs text-muted-foreground">{inCol(col.id).length}</span>
@@ -112,7 +112,7 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
             <div className="py-8 text-center text-xs text-muted-foreground/60">vazio</div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {inCol(col.id).map((t) => {
               const k = KIND[t.kind] ?? { label: t.kind, cls: 'bg-muted text-muted-foreground' };
               return (
@@ -124,29 +124,29 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                     setDragId(null);
                     setOverCol(null);
                   }}
-                  className={`cursor-grab rounded-lg border border-border bg-background p-3 active:cursor-grabbing ${
+                  className={`cursor-grab rounded-lg border border-border bg-background p-2.5 active:cursor-grabbing ${
                     dragId === t.id ? 'opacity-50' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${k.cls}`}>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${k.cls}`}>
                       {k.label}
                     </span>
                     <span className="shrink-0 text-[10px] text-muted-foreground">
                       {new Date(t.createdAt).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
-                  <p className="mt-1 break-words text-sm font-medium">{t.tenantName ?? 'Escola'}</p>
+                  <p className="mt-1 break-words text-xs font-semibold">{t.tenantName ?? 'Escola'}</p>
                   {t.createdByName && (
-                    <p className="break-words text-[11px] text-muted-foreground">por {t.createdByName}</p>
+                    <p className="break-words text-[10px] text-muted-foreground">por {t.createdByName}</p>
                   )}
 
                   {t.messages.length > 0 && (
-                    <ul className="mt-2 space-y-1.5">
+                    <ul className="mt-1.5 space-y-1">
                       {t.messages.map((m) => (
                         <li key={m.id} className={`flex ${m.fromAdmin ? 'justify-end' : 'justify-start'}`}>
                           <span
-                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-2.5 py-1.5 text-xs ${
+                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-2 py-1 text-[11px] ${
                               m.fromAdmin ? 'bg-primary text-white' : 'border border-border bg-card'
                             }`}
                           >
@@ -158,14 +158,14 @@ export function SupportKanban({ tickets }: { tickets: KanbanTicket[] }) {
                   )}
 
                   {col.id === 'resolvido' || col.id === 'arquivado' ? (
-                    <p className="mt-2 flex items-center gap-1 text-[11px] italic text-muted-foreground">
+                    <p className="mt-1.5 flex items-center gap-1 text-[10px] italic text-muted-foreground">
                       <span aria-hidden>🔒</span> Conversa encerrada
                     </p>
                   ) : (
                     <ReplyBox onSend={(b, reset) => reply(t, b, reset)} />
                   )}
 
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                  <div className="mt-1 flex flex-wrap items-center gap-1">
                     {COLUNAS.filter((c) => c.id !== col.id).map((c) => (
                       <button
                         key={c.id}
@@ -202,13 +202,13 @@ function ReplyBox({ onSend }: { onSend: (body: string, reset: () => void) => voi
         e.preventDefault();
         onSend(v, () => setV(''));
       }}
-      className="mt-2 flex items-center gap-1"
+      className="mt-1.5 flex items-center gap-1"
     >
       <input
         value={v}
         onChange={(e) => setV(e.target.value)}
         placeholder="Responder…"
-        className="min-w-0 flex-1 rounded-md border border-border bg-card px-2 py-1 text-xs outline-none"
+        className="min-w-0 flex-1 rounded-md border border-border bg-card px-2 py-1 text-[11px] outline-none"
       />
       <button
         type="submit"
