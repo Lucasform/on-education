@@ -105,6 +105,9 @@ export async function generateDraft(
   ctx: AuthContext,
   input: GenerateDraftInput,
   provider?: AiProvider,
+  /** Memória de rating (few-shot do estilo aprovado). Passado pelo caller para evitar ciclo de
+   *  módulo, já que `buildTrainingContext` vive no pedagogico. Vai no fim do system. */
+  fewShot?: string,
 ) {
   assertCan(ctx, 'create', 'ai_draft');
   const planId = await assertEntitled(client, ctx.tenantId, FEATURE_BY_KIND[input.kind]);
@@ -112,12 +115,13 @@ export async function generateDraft(
 
   const ai = provider ?? (await resolveTenantProvider(client, ctx));
   const standard = await getAiStandard(client, ctx);
+  const sys = applyAiStandard(
+    SYSTEM_BY_KIND[input.kind] + contentSkill(TYPE_BY_KIND[input.kind]),
+    standard,
+  );
   const result = await ai.generate({
     prompt: input.prompt,
-    system: applyAiStandard(
-      SYSTEM_BY_KIND[input.kind] + contentSkill(TYPE_BY_KIND[input.kind]),
-      standard,
-    ),
+    system: fewShot ? sys + fewShot : sys,
   });
 
   // Recurso externo: em PLANO DE AULA, sugere um vídeo do YouTube no fim (abaixo de tudo).
