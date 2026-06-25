@@ -1,7 +1,13 @@
 import { assertCan, type AuthContext } from '@on-education/auth';
 import { aiDrafts, type DbClient } from '@on-education/db';
 import type { Feature } from '@on-education/entitlements';
-import { applyAiStandard, assertEntitled, getAiStandard } from '@on-education/module-nucleo';
+import {
+  applyAiStandard,
+  assertEntitled,
+  type ContentType,
+  contentSkill,
+  getAiStandard,
+} from '@on-education/module-nucleo';
 import type { AiDraftKind, GenerateDraftInput } from '@on-education/validation';
 import { desc, eq, sql } from 'drizzle-orm';
 
@@ -85,6 +91,15 @@ function stripPlaceholders(text: string): string {
     .trim();
 }
 
+// Mapa do tipo de rascunho para o tipo da fonte única de skill (camada BNCC/estrutura da casa).
+const TYPE_BY_KIND: Record<AiDraftKind, ContentType> = {
+  lesson_plan: 'lesson_plan',
+  activity: 'activity',
+  essay: 'correction',
+  tutor: 'tutor',
+  outro: 'outro',
+};
+
 export async function generateDraft(
   client: DbClient,
   ctx: AuthContext,
@@ -99,7 +114,10 @@ export async function generateDraft(
   const standard = await getAiStandard(client, ctx);
   const result = await ai.generate({
     prompt: input.prompt,
-    system: applyAiStandard(SYSTEM_BY_KIND[input.kind], standard),
+    system: applyAiStandard(
+      SYSTEM_BY_KIND[input.kind] + contentSkill(TYPE_BY_KIND[input.kind]),
+      standard,
+    ),
   });
 
   // Recurso externo: em PLANO DE AULA, sugere um vídeo do YouTube no fim (abaixo de tudo).

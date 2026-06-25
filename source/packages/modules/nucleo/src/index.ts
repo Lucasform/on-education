@@ -1,4 +1,5 @@
 export * from './provisioning';
+export * from './content-skill';
 export * from './work-requests';
 export * from './operacional';
 export * from './crm';
