@@ -30,6 +30,7 @@ export const metadata = { title: 'WayOn · Edu On Way' };
 const KIND_LABEL: Record<string, string> = {
   lesson_plan: 'Plano de aula',
   activity: 'Atividade',
+  study_plan: 'Plano de estudo',
   essay: 'Redação',
   tutor: 'Tutor',
   outro: 'Outro',
@@ -136,6 +137,7 @@ export default async function IaPage({
           <form action={generateContentAction} className="flex flex-col gap-2">
             <select name="kind" className={fieldClass} defaultValue="lesson_plan">
               <option value="lesson_plan">Plano de aula</option>
+              <option value="study_plan">Plano de estudo (trilha do aluno)</option>
               <option value="flashcards">Flashcards</option>
               <option value="outro">Outro</option>
             </select>

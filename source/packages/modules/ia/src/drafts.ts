@@ -25,6 +25,7 @@ import { searchYouTube } from './youtube';
 const FEATURE_BY_KIND: Record<AiDraftKind, Feature> = {
   lesson_plan: 'ai.lessonPlan',
   activity: 'ai.activities',
+  study_plan: 'ai.lessonPlan',
   essay: 'ai.activities',
   tutor: 'ai.activities',
   outro: 'ai.activities',
@@ -62,6 +63,9 @@ const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
     'caligrafia/cópia → a palavra seguida de uma linha para copiar (ex.: "bola _______________"). ' +
     'Prefira bancos de palavras e linhas em branco em vez de depender de figuras. ' +
     PRINTABLE_RULES,
+  study_plan:
+    'Você é o WayOn. Monte um plano de estudo (trilha personalizada) para o aluno. ' +
+    'É um RASCUNHO para o professor ou o responsável revisar e ajustar.',
   essay:
     'Você é um corretor de redações. Avalie o texto a seguir por competências (tema, coesão, ' +
     'coerência, gramática, proposta), aponte pontos fortes e o que melhorar, e sugira uma nota. ' +
@@ -95,6 +99,7 @@ function stripPlaceholders(text: string): string {
 const TYPE_BY_KIND: Record<AiDraftKind, ContentType> = {
   lesson_plan: 'lesson_plan',
   activity: 'activity',
+  study_plan: 'study_plan',
   essay: 'correction',
   tutor: 'tutor',
   outro: 'outro',
