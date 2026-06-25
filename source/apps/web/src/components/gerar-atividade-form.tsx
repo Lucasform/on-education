@@ -58,7 +58,7 @@ export function GerarAtividadeForm({
 
       <label className="flex items-center gap-2 text-xs text-muted-foreground">
         Quantidade de exercícios
-        <select name="exerciseCount" defaultValue="" className={`${fieldClass} w-40`}>
+        <select name="exerciseCount" defaultValue="8" className={`${fieldClass} w-40`}>
           <option value="">Automático</option>
           {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
             <option key={n} value={n}>
