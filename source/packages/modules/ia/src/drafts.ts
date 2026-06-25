@@ -26,6 +26,7 @@ const FEATURE_BY_KIND: Record<AiDraftKind, Feature> = {
   lesson_plan: 'ai.lessonPlan',
   activity: 'ai.activities',
   study_plan: 'ai.lessonPlan',
+  report: 'ai.lessonPlan',
   essay: 'ai.activities',
   tutor: 'ai.activities',
   outro: 'ai.activities',
@@ -66,6 +67,10 @@ const SYSTEM_BY_KIND: Record<AiDraftKind, string> = {
   study_plan:
     'Você é o WayOn. Monte um plano de estudo (trilha personalizada) para o aluno. ' +
     'É um RASCUNHO para o professor ou o responsável revisar e ajustar.',
+  report:
+    'Você é o WayOn. Escreva um relatório de progresso do aluno para o responsável. ' +
+    'Baseie-se SOMENTE nos dados fornecidos; não invente notas nem fatos. É um RASCUNHO para o ' +
+    'professor revisar e ajustar.',
   essay:
     'Você é um corretor de redações. Avalie o texto a seguir por competências (tema, coesão, ' +
     'coerência, gramática, proposta), aponte pontos fortes e o que melhorar, e sugira uma nota. ' +
@@ -100,6 +105,7 @@ const TYPE_BY_KIND: Record<AiDraftKind, ContentType> = {
   lesson_plan: 'lesson_plan',
   activity: 'activity',
   study_plan: 'study_plan',
+  report: 'report',
   essay: 'correction',
   tutor: 'tutor',
   outro: 'outro',

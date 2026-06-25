@@ -31,6 +31,7 @@ const KIND_LABEL: Record<string, string> = {
   lesson_plan: 'Plano de aula',
   activity: 'Atividade',
   study_plan: 'Plano de estudo',
+  report: 'Relatório do aluno',
   essay: 'Redação',
   tutor: 'Tutor',
   outro: 'Outro',
@@ -138,6 +139,7 @@ export default async function IaPage({
             <select name="kind" className={fieldClass} defaultValue="lesson_plan">
               <option value="lesson_plan">Plano de aula</option>
               <option value="study_plan">Plano de estudo (trilha do aluno)</option>
+              <option value="report">Relatório do aluno</option>
               <option value="flashcards">Flashcards</option>
               <option value="outro">Outro</option>
             </select>

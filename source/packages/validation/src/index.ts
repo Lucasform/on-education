@@ -130,6 +130,7 @@ export const aiDraftKindSchema = z.enum([
   'lesson_plan',
   'activity',
   'study_plan',
+  'report',
   'essay',
   'tutor',
   'outro',
