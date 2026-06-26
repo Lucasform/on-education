@@ -1,4 +1,4 @@
-import { type DbClient, errorLogs, tenants } from '@on-education/db';
+import { type DbClient, errorLogs, tenants, users } from '@on-education/db';
 import { desc, eq, sql } from 'drizzle-orm';
 
 export interface RecordErrorInput {
@@ -42,9 +42,12 @@ export async function listErrors(client: DbClient, opts: { limit?: number } = {}
       createdAt: errorLogs.createdAt,
       tenantId: errorLogs.tenantId,
       tenantName: tenants.name,
+      userEmail: users.email,
+      userName: users.fullName,
     })
     .from(errorLogs)
     .leftJoin(tenants, eq(tenants.id, errorLogs.tenantId))
+    .leftJoin(users, eq(users.id, errorLogs.userId))
     .orderBy(desc(errorLogs.createdAt))
     .limit(opts.limit ?? 200);
 }
