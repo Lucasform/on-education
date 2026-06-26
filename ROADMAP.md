@@ -183,6 +183,7 @@
 | 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ⬜ |
 | 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ⬜ |
 | 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ⬜ |
+| 17 | **Aba "Relatório do aluno"** (relatório de desenvolvimento) | por aluno: professor escreve a descrição/observações e o WayOn monta o relatório de desenvolvimento juntando notas/frequência/ocorrências; rascunho revisável, export docx/pdf, histórico por período. Reusa o tipo `report` já criado | médio | médio/alto | ⬜ |
 
 ### Padrões de engenharia a adotar (do Evercol)
 

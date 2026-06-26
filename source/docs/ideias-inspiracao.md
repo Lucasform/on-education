@@ -127,4 +127,35 @@ rota. Isso também alimenta o command palette (#1) com ações, não só navega�
 
 ---
 
+## 4. Aba "Relatório do aluno" (relatório de desenvolvimento por aluno)
+
+**Fonte:** ideia do Lucas (2026-06-25).
+
+**O que é:** uma aba por aluno onde o professor escreve a **descrição/observações** (comportamento,
+evolução, socialização, pontos fortes, dificuldades) e o app monta um **relatório de
+desenvolvimento** completo a partir disso, juntando os dados que já temos do aluno (notas,
+frequência, ocorrências, período).
+
+**Como funciona (proposta):**
+- Entra pela ficha do aluno (`/app/alunos/[id]`) ou por uma aba "Relatório de desenvolvimento".
+- Professor seleciona o período (bimestre/trimestre) e escreve a descrição em texto livre + alguns
+  campos guiados (pontos fortes, desafios, evolução).
+- O WayOn gera o relatório seguindo a skill `relatorio-do-aluno` (abertura, resumo do período,
+  pontos fortes com exemplo, dificuldades como desafios, evolução, recomendações para casa e
+  escola, fechamento encorajador), **partindo do que o professor escreveu** e citando os dados
+  reais do aluno.
+- Rascunho human-in-the-loop: o professor revisa e edita antes de finalizar; recebe nota (rating).
+- Export em **docx/pdf** para enviar ao responsável; **histórico** de relatórios por aluno e período.
+
+**Reaproveita o que já existe:** o tipo `report` do WayOn (já criado), o `parent-report` (recado
+curto), os dados do aluno (notas/frequência/ocorrências) e o export de documentos. O novo é a
+**aba/fluxo por aluno** com a descrição do professor como entrada e o histórico por período.
+
+**Por que cabe:** parecer descritivo é exigência real, principalmente na educação infantil e nos
+anos iniciais, e hoje o professor faz na mão. Tira horas de trabalho e padroniza a qualidade.
+
+**Esforço (estimativa):** médio. **Impacto:** médio a alto.
+
+---
+
 <!-- Próximas ideias entram abaixo, uma por seção numerada. -->
