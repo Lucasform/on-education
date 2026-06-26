@@ -45,11 +45,11 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function IaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ nova?: string }>;
+  searchParams: Promise<{ nova?: string; erro?: string }>;
 }) {
   const ctx = await getAuthContext();
   if (!ctx) redirect('/login');
-  const { nova } = await searchParams;
+  const { nova, erro } = await searchParams;
   const [rascunhos, settings, turmas, planId, usedTokens] = await Promise.all([
     listDrafts(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listDrafts>>),
     getTenantSettings(db(), ctx).catch(() => null),
@@ -81,6 +81,13 @@ export default async function IaPage({
           Ver banco de atividades →
         </a>
       </div>
+
+      {erro && (
+        <div className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
+          O WayOn demorou mais que o esperado ou teve um problema ao criar o conteúdo. Tente de novo
+          em instantes. Se continuar, deixe o tema mais simples ou gere menos exercícios.
+        </div>
+      )}
 
       {nova && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-sm">

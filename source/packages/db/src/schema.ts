@@ -1811,6 +1811,31 @@ export const supportTickets = oe.table(
   ],
 );
 
+/**
+ * Log de erros operacionais (ex.: geração de IA que falhou ou demorou demais). Lido só pelo
+ * super-admin para entender padrões e priorizar melhorias. Escrito best-effort (nunca quebra o
+ * fluxo). tenant_id/user_id podem ser nulos (erro antes do contexto). RLS por tenant para leitura
+ * eventual do próprio tenant; o admin lê tudo via conexão de serviço.
+ */
+export const errorLogs = oe.table(
+  'error_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id'),
+    userId: uuid('user_id'),
+    context: text('context').notNull(), // ex.: gerar_atividade, gerar_conteudo
+    message: text('message').notNull(),
+    detail: text('detail'),
+    durationMs: integer('duration_ms'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('error_logs_created_idx').on(t.createdAt),
+    index('error_logs_context_idx').on(t.context),
+    tenantPolicy('error_logs_tenant_isolation'),
+  ],
+);
+
 export const supportMessages = oe.table(
   'support_messages',
   {

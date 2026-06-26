@@ -116,6 +116,7 @@ import {
   setGuardianPortalPassword,
   listCustomFieldDefs,
   setCustomFieldValues,
+  recordError,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -625,7 +626,27 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     applyDate: (formData.get('applyDate') as string) || undefined,
     context,
   });
-  const atividade = await generateActivityWithWayOn(db(), ctx, input);
+  // Teto de tempo: a geração normal leva segundos; se passar de 75s tem algo travado.
+  // Em vez de derrubar com erro técnico, registra no log do admin e volta com mensagem educada.
+  const t0 = Date.now();
+  let atividade: Awaited<ReturnType<typeof generateActivityWithWayOn>>;
+  try {
+    atividade = await Promise.race([
+      generateActivityWithWayOn(db(), ctx, input),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Tempo excedido na geração (75s)')), 75_000),
+      ),
+    ]);
+  } catch (e) {
+    await recordError(db(), {
+      tenantId: ctx.tenantId,
+      userId: ctx.userId,
+      context: 'gerar_atividade',
+      message: e instanceof Error ? e.message : String(e),
+      durationMs: Date.now() - t0,
+    });
+    redirect('/app/ia?erro=geracao');
+  }
 
   // Figuras (opcional): se pedido e o plano tiver imagem, gera um clip-art para cada
   // marcador [figura: ...]. Controle de custo: qualidade 'low' (clamp do plano), no máx. 6
