@@ -27,6 +27,7 @@ import { redirect } from 'next/navigation';
 
 import { KpiCard as StatCard } from '@/components/kpi-card';
 import { MobileLauncher } from '@/components/mobile-launcher';
+import { QuickShortcuts } from '@/components/quick-shortcuts';
 import { cardClass, PageHeader, tableWrapClass } from '@/components/form';
 import { db } from '@/server/db';
 import { getAuthContext, getSuperAdminEmail } from '@/server/session';
@@ -154,6 +155,8 @@ export default async function OverviewPage() {
           features={featureSet ? [...featureSet] : null}
         />
       </section>
+
+      <QuickShortcuts school={isSchool} />
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Turmas" value={turmas.length} href="/app/turmas" />

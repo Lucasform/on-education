@@ -18,6 +18,7 @@ import {
   FileQuestion,
   FileSignature,
   FileText,
+  Gauge,
   FolderOpen,
   GraduationCap,
   Home,
@@ -168,6 +169,7 @@ export const NAV: NavGroup[] = [
     label: 'Gestão e análises',
     only: 'organization',
     items: [
+      { label: 'Painel do diretor', href: '/app/diretor', icon: Gauge },
       { label: 'Painel de trabalho', href: '/app/painel', icon: ClipboardList },
       { label: 'Captação (CRM)', href: '/app/captacao', icon: Contact },
       { label: 'Alunos em risco', href: '/app/risco', icon: AlertCircle },

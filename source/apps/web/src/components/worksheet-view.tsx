@@ -24,7 +24,17 @@ const SHEET_PROSE =
   'prose-img:mx-auto prose-img:my-4 prose-img:rounded-2xl prose-img:border prose-img:border-border ' +
   'prose-img:bg-white prose-img:p-2 prose-img:max-h-80 prose-img:shadow-sm';
 
-export function WorksheetView({ children }: { children: string }) {
+export function WorksheetView({
+  children,
+  infantil = false,
+}: {
+  children: string;
+  /** Educação infantil: tipografia maior e mais arejada, mais espaço para a mão da criança. */
+  infantil?: boolean;
+}) {
+  const prose = infantil
+    ? `${SHEET_PROSE} prose-lg prose-p:leading-loose prose-li:leading-loose prose-li:my-3`
+    : SHEET_PROSE;
   const nodes: { key: number; md?: string; trace?: string; figura?: string }[] = [];
   let last = 0;
   let i = 0;
@@ -47,7 +57,7 @@ export function WorksheetView({ children }: { children: string }) {
         ) : n.figura !== undefined ? (
           <FigureBox key={n.key} desc={n.figura} />
         ) : (
-          <div key={n.key} className={SHEET_PROSE}>
+          <div key={n.key} className={prose}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{n.md ?? ''}</ReactMarkdown>
           </div>
         ),

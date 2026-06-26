@@ -154,7 +154,13 @@ export default async function AtividadeDetalhePage({
         )}
 
         {atividade.content ? (
-          <WorksheetView>{atividade.content}</WorksheetView>
+          <WorksheetView
+            infantil={/infantil|pr[ée]|maternal|jardim|creche|ber[çc]/i.test(
+              `${atividade.gradeLevel ?? ''} ${atividade.ageBand ?? ''}`,
+            )}
+          >
+            {atividade.content}
+          </WorksheetView>
         ) : (
           <p className="text-sm text-muted-foreground">Sem conteúdo.</p>
         )}

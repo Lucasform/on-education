@@ -652,7 +652,16 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
   // Figuras (opcional): se pedido e o plano tiver imagem, gera um clip-art para cada
   // marcador [figura: ...]. Controle de custo: qualidade 'low' (clamp do plano), no máx. 6
   // por folha, e a cota/teto de imagens do plano são respeitados (para na 1ª falha/cota cheia).
-  if (formData.get('withImages') === 'on' && atividade.content.includes('[figura:')) {
+  // Imagens: opção explícita do professor OU automático na educação infantil (a folha lúdica
+  // pede ilustração). Se o plano não tiver cota de imagem, o loop abaixo simplesmente para e o
+  // conteúdo segue com as molduras de figura.
+  const faixa = `${input.gradeLevel ?? ''} ${input.level ?? ''} ${input.ageBand ?? ''}`.toLowerCase();
+  const ehInfantil =
+    /infantil|pr[ée]|pre[ -]?escol|maternal|jardim|creche|ber[çc][aá]rio|\b[0-5]\s*anos?\b/.test(
+      faixa,
+    );
+  const querImagens = formData.get('withImages') === 'on' || ehInfantil;
+  if (querImagens && atividade.content.includes('[figura:')) {
     let content = atividade.content;
     const descricoes = [...content.matchAll(/\[figura:\s*([^\]]+)\]/gi)]
       .map((m) => m[1]!.trim())
@@ -699,7 +708,22 @@ export async function generateDraftAction(formData: FormData): Promise<void> {
   // Usa o provider Anthropic default (exige ANTHROPIC_API_KEY). A UI só mostra o form
   // quando a IA está configurada; aqui a chamada lança erro legível se faltar a key.
   const fewShot = await buildTrainingContext(db(), ctx, input.kind, null).catch(() => '');
-  await generateDraft(db(), ctx, input, undefined, fewShot);
+  try {
+    await Promise.race([
+      generateDraft(db(), ctx, input, undefined, fewShot),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Tempo excedido na geração (120s)')), 120_000),
+      ),
+    ]);
+  } catch (e) {
+    await recordError(db(), {
+      tenantId: ctx.tenantId,
+      userId: ctx.userId,
+      context: 'gerar_conteudo',
+      message: e instanceof Error ? e.message : String(e),
+    });
+    redirect('/app/ia?erro=geracao');
+  }
   revalidatePath('/app', 'layout');
 }
 
@@ -725,7 +749,22 @@ export async function generateContentAction(formData: FormData): Promise<void> {
     : prompt;
   const input = generateDraftSchema.parse({ kind, prompt: fullPrompt });
   const fewShot = await buildTrainingContext(db(), ctx, input.kind, null).catch(() => '');
-  await generateDraft(db(), ctx, input, undefined, fewShot);
+  try {
+    await Promise.race([
+      generateDraft(db(), ctx, input, undefined, fewShot),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Tempo excedido na geração (120s)')), 120_000),
+      ),
+    ]);
+  } catch (e) {
+    await recordError(db(), {
+      tenantId: ctx.tenantId,
+      userId: ctx.userId,
+      context: 'gerar_conteudo',
+      message: e instanceof Error ? e.message : String(e),
+    });
+    redirect('/app/ia?erro=geracao');
+  }
   revalidatePath('/app/ia', 'page');
 }
 

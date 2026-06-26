@@ -1,8 +1,11 @@
-﻿/**
+/**
  * Parser de CSV mínimo e robusto para importação por planilha (sem dependências).
  * Suporta delimitador `,` ou `;` (auto-detectado), campos entre aspas com `""` escapado,
  * e quebras de linha CRLF/LF. O Excel exporta "CSV (separado por vírgulas)" neste formato;
- * no Brasil o Excel costuma usar `;` — por isso a auto-detecção.
+ * no Brasil o Excel costuma usar `;` por isso a auto-detecção.
+ *
+ * Funções auxiliares de coerção pt-BR (coerceNumber, coerceBoolean, coerceDate)
+ * convertem valores brutos das células para os tipos corretos sem lançar exceção.
  */
 export function parseCsv(text: string): string[][] {
   // remove BOM do Excel (0xFEFF no início), sem literal irregular no código
@@ -83,4 +86,92 @@ export function pick(rec: Record<string, string>, ...keys: string[]): string {
     if (v) return v;
   }
   return '';
+}
+
+// ---------------------------------------------------------------------------
+// Coerção tolerante pt-BR
+// ---------------------------------------------------------------------------
+
+/**
+ * Converte uma célula bruta em número, aceitando formatos pt-BR.
+ * Exemplos aceitos: "1.234,56" → 1234.56 | "1234,56" → 1234.56 | "1234.56" → 1234.56
+ * Retorna `undefined` se o valor for vazio ou não reconhecido.
+ */
+export function coerceNumber(raw: string): number | undefined {
+  const s = raw.replace(/\s/g, '').replace(/^["']|["']$/g, '');
+  if (s === '') return undefined;
+
+  // Formato pt-BR com separador de milhar ponto e decimal vírgula: 1.234,56
+  const ptBr = s.match(/^-?\d{1,3}(?:\.\d{3})*,\d*$/);
+  if (ptBr) {
+    const normalized = s.replace(/\./g, '').replace(',', '.');
+    const n = Number(normalized);
+    return Number.isFinite(n) ? n : undefined;
+  }
+
+  // Apenas decimal com vírgula (sem separador de milhar): 1234,56
+  const commaDecimal = s.match(/^-?\d+,\d*$/);
+  if (commaDecimal) {
+    const n = Number(s.replace(',', '.'));
+    return Number.isFinite(n) ? n : undefined;
+  }
+
+  // Formato padrão (ponto decimal ou inteiro): 1234.56, 1234
+  const n = Number(s);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/**
+ * Converte uma célula bruta em booleano pt-BR tolerante.
+ * true: "sim", "s", "x", "1", "true", "verdadeiro" (insensível a maiúsculas/acentos)
+ * false: "nao", "não", "n", "0", "false", "falso", ""
+ * Retorna `undefined` se o valor não for reconhecido.
+ */
+export function coerceBoolean(raw: string): boolean | undefined {
+  const s = raw
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+
+  const trueValues = new Set(['sim', 's', 'x', '1', 'true', 'verdadeiro', 'yes', 'y']);
+  const falseValues = new Set(['nao', 'n', '0', 'false', 'falso', 'no', '']);
+
+  if (trueValues.has(s)) return true;
+  if (falseValues.has(s)) return false;
+  return undefined;
+}
+
+/**
+ * Converte "DD/MM/AAAA" ou "AAAA-MM-DD" para ISO "AAAA-MM-DD".
+ * Retorna `undefined` se vazio ou formato não reconhecido.
+ */
+export function coerceDate(raw: string): string | undefined {
+  const s = raw.trim().replace(/^["']|["']$/g, '');
+  if (s === '') return undefined;
+
+  // Já no formato ISO
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  // Formato BR: DD/MM/AAAA (dia e mês com 1 ou 2 dígitos)
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const day = m[1]!.padStart(2, '0');
+    const month = m[2]!.padStart(2, '0');
+    const year = m[3]!;
+    return `${year}-${month}-${day}`;
+  }
+
+  return undefined;
+}
+
+/**
+ * Remove espaços em branco extras, BOM residual e aspas envolventes de uma célula.
+ * Útil para normalizar strings antes de validação.
+ */
+export function trimCell(raw: string): string {
+  // Remove BOM do Excel (0xFEFF) sem literal irregular no código, depois aspas envolventes.
+  const s = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+  return s.trim().replace(/^["']|["']$/g, '').trim();
 }

@@ -10,6 +10,7 @@ import {
 import { redirect } from 'next/navigation';
 
 import { AgentNameText } from '@/components/agent-name-provider';
+import { ContentRating } from '@/components/content-rating';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { GerarAtividadeForm } from '@/components/gerar-atividade-form';
 import { MarkdownView } from '@/components/markdown-view';
@@ -260,6 +261,14 @@ export default async function IaPage({
                 {d.output && (
                   <div className="mt-3 rounded-lg border border-border bg-background/50 p-4">
                     <MarkdownView>{d.output}</MarkdownView>
+                  </div>
+                )}
+                {d.output && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      Avalie para o {agente} aprender:
+                    </span>
+                    <ContentRating contentId={d.id} kind={d.kind} snapshot={d.output} />
                   </div>
                 )}
               </li>

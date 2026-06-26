@@ -2,6 +2,7 @@
 
 import { LifeBuoy, Send, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 type Msg = { id: string; body: string; fromAdmin: boolean; authorName: string | null; createdAt: string };
 type Ticket = {
@@ -29,6 +30,7 @@ const STATUS_LABEL: Record<string, string> = {
 /** Canal de suporte flutuante (canto inferior direito): manda sugestão/elogio/problema e
  * acompanha a resposta do time por chat interno. */
 export function SupportWidget() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [kind, setKind] = useState('sugestao');
@@ -54,11 +56,12 @@ export function SupportWidget() {
     const body = text.trim();
     if (!body || sending) return;
     setSending(true);
+    const enrichedBody = `${body}\n\n-- enviado de: ${pathname}`;
     try {
       await fetch('/api/support', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind, body }),
+        body: JSON.stringify({ kind, body: enrichedBody }),
       });
       setText('');
       await load();
