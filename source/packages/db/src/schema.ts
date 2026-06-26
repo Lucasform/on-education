@@ -1836,6 +1836,34 @@ export const errorLogs = oe.table(
   ],
 );
 
+/**
+ * Aprovações por link mágico: a gestão cria um pedido (ex.: despesa, autorização de saída) e gera
+ * um link com token; o aprovador decide numa página pública, sem login. Token = credencial.
+ */
+export const approvals = oe.table(
+  'approvals',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    kind: text('kind').notNull().default('despesa'), // despesa | saida | outro
+    title: text('title').notNull(),
+    detail: text('detail'),
+    amountCents: integer('amount_cents'), // valor opcional, em centavos
+    status: text('status').notNull().default('pending'), // pending | approved | rejected
+    token: text('token').notNull(),
+    requestedByName: text('requested_by_name'),
+    decidedByName: text('decided_by_name'),
+    decisionReason: text('decision_reason'),
+    decidedAt: timestamp('decided_at', { withTimezone: true }),
+    ...auditCols,
+  },
+  (t) => [
+    index('approvals_tenant_idx').on(t.tenantId),
+    index('approvals_token_idx').on(t.token),
+    tenantPolicy('approvals_tenant_isolation'),
+  ],
+);
+
 export const supportMessages = oe.table(
   'support_messages',
   {

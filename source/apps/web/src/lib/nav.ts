@@ -174,6 +174,7 @@ export const NAV: NavGroup[] = [
       { label: 'Copiloto da escola', href: '/app/copiloto', icon: Bot },
       { label: 'Painel de trabalho', href: '/app/painel', icon: ClipboardList },
       { label: 'Captação (CRM)', href: '/app/captacao', icon: Contact },
+      { label: 'Aprovações por link', href: '/app/aprovacoes', icon: FileSignature },
       { label: 'Alunos em risco', href: '/app/risco', icon: AlertCircle },
       { label: 'Relatórios', href: '/app/relatorios', icon: FileBarChart, requiresFeature: 'analytics.director' },
       { label: 'Relatório de faltas', href: '/app/relatorios/faltas', icon: CalendarX, requiresFeature: 'analytics.director' },
