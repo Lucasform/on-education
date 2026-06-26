@@ -1,6 +1,6 @@
 # On Education — Roadmap
 
-> Status atualizado em: 2026-06-21
+> Status atualizado em: 2026-06-25
 
 ---
 
@@ -145,6 +145,53 @@
 | **IA sugerir vídeos YouTube** | Baixa | API YouTube Key disponível; aguardar validação pedagógica |
 | **Relatório de progresso por aluno (PDF)** | Média | Geração automatizada para responsável |
 | **Gamificação avançada (ranking)** | Baixa | `student_points` já existe; falta leaderboard |
+
+---
+
+## Próxima evolução (priorizado)
+
+> Atualizado em 2026-06-25. Fontes: skills BNCC, estudo do ERP Evercol (Catalisa) e backlog de
+> ideias (`docs/ideias-inspiracao.md`). Marque `✅` na coluna Status conforme for concluindo.
+
+### Já entregue nesta leva
+
+| Item | Status |
+|------|--------|
+| Suíte de geração BNCC (atividade, plano de aula, prova/simulado, correção ENEM, relatório, plano de estudo) com fonte única `content-skill.ts` | ✅ |
+| Memória de rating (`buildTrainingContext`) ligada em todos os geradores em prosa | ✅ |
+| Folha de atividade com visual imprimível (figura/tracejar, tipografia de folha) | ✅ |
+| Command palette / busca global (Cmd+K) | ✅ |
+| Convite por link "definir senha" + link copiável por convite | ✅ |
+
+### A executar (ordem por impacto ÷ esforço, quick wins primeiro)
+
+| # | Item | O que é | Esforço | Impacto | Status |
+|---|------|---------|---------|---------|--------|
+| 1 | **Botão de nota (estrelas) em todos os tipos** | expor o "avalie" em plano de estudo, relatório, prova etc. para fechar o ciclo de rating em 100% das telas | baixo | médio | ⬜ |
+| 2 | **Imagens automáticas no infantil** | gerar clip-art de contorno (colorir) por padrão nas atividades lúdicas/educação infantil | baixo | médio | ⬜ |
+| 3 | **Blocos e linhas estilizadas na folha** | questões em bloco, linhas de resposta de verdade, fonte grande/arredondada no infantil | baixo | médio | ⬜ |
+| 4 | **Widget de feedback in-app** | botão flutuante BUG/IDEIA/DÚVIDA capturando rota + plano, com triagem do admin | baixo | médio | ⬜ |
+| 5 | **Briefing diário do diretor** | KPIs numa tela: matrículas do mês, a receber/vencidas, % presença baixa, alunos em risco, com tom de alerta | baixo | médio | ⬜ |
+| 6 | **Import CSV pt-BR tolerante** | coerção `1.234,56`→nº e `sim/x/1`→bool + relatório de erro por linha (reforço do `csv-import`) | baixo | médio | ⬜ |
+| 7 | **Régua de cobrança (dunning)** | ladder D-3/D0/D+1/D+7/D+15 de mensalidade, idempotente por (fatura, estágio), usando WhatsApp+push existentes | médio | **alto** | ⬜ |
+| 8 | **Motor de alertas (sino + push)** | regras em cron geram notificação com dedupeKey: 3 faltas seguidas, mensalidade vencendo, ocorrência grave | médio | **alto** | ⬜ |
+| 9 | **Field-Level Security** | mascarar notas/financeiro/ocorrência por papel nas leituras (complementa o RLS, que isola por tenant) | médio | **alto** | ⬜ |
+| 10 | **Escopo por hierarquia (ALL/TEAM/OWN)** | `scopeFilter(ctx)`: professor vê suas turmas, coordenação vê a unidade/série | médio | **alto** | ⬜ |
+| 11 | **Aprovação por link mágico** | token assinado numa página pública: despesa aprovada pelo diretor ou saída do aluno autorizada pelo responsável no celular | médio | médio | ⬜ |
+| 12 | **Copiloto da escola (read-only)** | contexto só com contagens agregadas (sem PII): "quantos alunos em risco?", "taxa de inadimplência?" | médio | médio | ⬜ |
+| 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ⬜ |
+| 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ⬜ |
+| 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ⬜ |
+
+### Padrões de engenharia a adotar (do Evercol)
+
+- **Idempotência por construção** em toda comunicação/cobrança automática (chave de dedupe, não checagem frágil).
+- **Best-effort que nunca derruba a operação** (WhatsApp/notificação fora do ar loga e segue, não trava matrícula/cobrança).
+- **Máquinas de estado nomeadas** (status como enum com transições validadas, não flags booleanas soltas).
+- **Cron por tenant com isolamento de erro** (iterar tenants ativos, `withTenant` + try/catch por tenant; o worker hoje é vazio).
+- **Validação de ambiente fail-fast no boot** (não subir parcialmente quebrado).
+
+> Nota: o Evercol não tem fila real (só cron). Para filas, o caminho é pg-boss/Inngest, já citado no nosso worker.
 
 ---
 
