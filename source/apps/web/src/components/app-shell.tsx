@@ -10,6 +10,7 @@ import { type ReactNode, useState } from 'react';
 import { navFor } from '@/lib/nav';
 
 import { useAgentName } from './agent-name-provider';
+import { AlertBell } from './alert-bell';
 import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
 import { CommandPalette } from './command-palette';
@@ -276,6 +277,7 @@ export function AppShell({
             Buscar
             <kbd className="rounded border border-border px-1 text-[10px]">⌘K</kbd>
           </button>
+          <AlertBell />
           <ThemeToggle />
           {headerActions}
         </div>

@@ -1,4 +1,5 @@
 import {
+  canSeeFinanceValues,
   getFinanceSummary,
   isGestao,
   listClasses,
@@ -38,7 +39,10 @@ export default async function DiretorPage() {
     listCommunications(client, ctx).catch(
       () => [] as Awaited<ReturnType<typeof listCommunications>>,
     ),
-    getFinanceSummary(client, ctx).catch(() => null),
+    // Field-level security: só busca/mostra valores financeiros para quem responde pela tesouraria.
+    (canSeeFinanceValues(ctx) ? getFinanceSummary(client, ctx) : Promise.resolve(null)).catch(
+      () => null,
+    ),
   ]);
 
   // Derivados financeiros a partir de invoices que já estão no resumo.

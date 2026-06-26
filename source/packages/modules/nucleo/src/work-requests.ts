@@ -9,6 +9,15 @@ export function isGestao(ctx: AuthContext): boolean {
   return ctx.roles.some((r) => GESTAO.includes(r));
 }
 
+// Field-level security do financeiro: valores em dinheiro só para quem responde pela tesouraria.
+// Coordenação faz gestão pedagógica mas não vê valores; professor/monitor nunca veem.
+const FINANCE_ROLES = ['owner', 'director', 'vice_director', 'secretary', 'treasurer'];
+
+/** Pode ver VALORES financeiros (mensalidades, a receber, resultado). Mascarar para os demais. */
+export function canSeeFinanceValues(ctx: AuthContext): boolean {
+  return ctx.roles.some((r) => FINANCE_ROLES.includes(r));
+}
+
 export interface CreateWorkRequestInput {
   type: string; // ocorrencia | servico | impressao | comparecimento
   title: string;
