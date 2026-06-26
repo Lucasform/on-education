@@ -2,7 +2,7 @@
 
 import type { TenantType } from '@on-education/core';
 import type { Feature } from '@on-education/entitlements';
-import { Lock, Menu, X } from 'lucide-react';
+import { Lock, Menu, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
@@ -12,6 +12,7 @@ import { navFor } from '@/lib/nav';
 import { useAgentName } from './agent-name-provider';
 import { AppGrid } from './app-grid';
 import { BottomNav } from './bottom-nav';
+import { CommandPalette } from './command-palette';
 import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
 import { ProductTour } from './product-tour';
@@ -265,6 +266,16 @@ export function AppShell({
         </button>
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{subtitle}</span>
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('eduon:command'))}
+            aria-label="Buscar (atalho Ctrl K)"
+            className="hidden items-center gap-2 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent sm:flex"
+          >
+            <Search className="h-3.5 w-3.5" />
+            Buscar
+            <kbd className="rounded border border-border px-1 text-[10px]">⌘K</kbd>
+          </button>
           <ThemeToggle />
           {headerActions}
         </div>
@@ -278,6 +289,7 @@ export function AppShell({
 
       <BottomNav />
       <SupportWidget />
+      <CommandPalette groups={allGroups} />
     </div>
   );
 }
