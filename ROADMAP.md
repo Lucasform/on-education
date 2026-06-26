@@ -167,12 +167,12 @@
 
 | # | Item | O que é | Esforço | Impacto | Status |
 |---|------|---------|---------|---------|--------|
-| 1 | **Botão de nota (estrelas) em todos os tipos** | expor o "avalie" em plano de estudo, relatório, prova etc. para fechar o ciclo de rating em 100% das telas | baixo | médio | ⬜ |
-| 2 | **Imagens automáticas no infantil** | gerar clip-art de contorno (colorir) por padrão nas atividades lúdicas/educação infantil | baixo | médio | ⬜ |
-| 3 | **Blocos e linhas estilizadas na folha** | questões em bloco, linhas de resposta de verdade, fonte grande/arredondada no infantil | baixo | médio | ⬜ |
-| 4 | **Widget de feedback in-app** | botão flutuante BUG/IDEIA/DÚVIDA capturando rota + plano, com triagem do admin | baixo | médio | ⬜ |
-| 5 | **Briefing diário do diretor** | KPIs numa tela: matrículas do mês, a receber/vencidas, % presença baixa, alunos em risco, com tom de alerta | baixo | médio | ⬜ |
-| 6 | **Import CSV pt-BR tolerante** | coerção `1.234,56`→nº e `sim/x/1`→bool + relatório de erro por linha (reforço do `csv-import`) | baixo | médio | ⬜ |
+| 1 | **Botão de nota (estrelas) em todos os tipos** | expor o "avalie" em plano de estudo, relatório, prova etc. para fechar o ciclo de rating em 100% das telas | baixo | médio | ✅ |
+| 2 | **Imagens automáticas no infantil** | gerar clip-art de contorno (colorir) por padrão nas atividades lúdicas/educação infantil | baixo | médio | ✅ |
+| 3 | **Blocos e linhas estilizadas na folha** | questões em bloco, linhas de resposta de verdade, fonte grande/arredondada no infantil | baixo | médio | ✅ |
+| 4 | **Widget de feedback in-app** | botão flutuante BUG/IDEIA/DÚVIDA capturando rota + plano, com triagem do admin | baixo | médio | ✅ |
+| 5 | **Briefing diário do diretor** | KPIs numa tela: matrículas do mês, a receber/vencidas, % presença baixa, alunos em risco, com tom de alerta | baixo | médio | ✅ |
+| 6 | **Import CSV pt-BR tolerante** | coerção `1.234,56`→nº e `sim/x/1`→bool + relatório de erro por linha (reforço do `csv-import`) | baixo | médio | ✅ |
 | 7 | **Régua de cobrança (dunning)** | ladder D-3/D0/D+1/D+7/D+15 de mensalidade, idempotente por (fatura, estágio), usando WhatsApp+push existentes | médio | **alto** | ⬜ |
 | 8 | **Motor de alertas (sino + push)** | regras em cron geram notificação com dedupeKey: 3 faltas seguidas, mensalidade vencendo, ocorrência grave | médio | **alto** | ⬜ |
 | 9 | **Field-Level Security** | mascarar notas/financeiro/ocorrência por papel nas leituras (complementa o RLS, que isola por tenant) | médio | **alto** | ⬜ |
@@ -182,9 +182,9 @@
 | 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ⬜ |
 | 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ⬜ |
 | 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ⬜ |
-| 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ⬜ |
+| 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ✅ |
 | 17 | **Aba "Relatório do aluno"** (relatório de desenvolvimento) | por aluno: professor escreve a descrição/observações e o WayOn monta o relatório de desenvolvimento juntando notas/frequência/ocorrências; rascunho revisável, export docx/pdf, histórico por período. Reusa o tipo `report` já criado | médio | médio/alto | ⬜ |
-| 18 | **Timeout + erro educado + log nos demais geradores** | estender o que já fizemos na atividade para "Gerar conteúdo" (plano/redação) e correção, reusando `recordError`. Quick win | baixo | médio | ⬜ |
+| 18 | **Timeout + erro educado + log nos demais geradores** | estender o que já fizemos na atividade para "Gerar conteúdo" (plano/redação) e correção, reusando `recordError`. Quick win | baixo | médio | ✅ |
 
 ### Padrões de engenharia a adotar (do Evercol)
 
