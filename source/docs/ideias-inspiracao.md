@@ -95,4 +95,28 @@ impacto/esforço (quick wins primeiro). Adaptado ao domínio escolar, nunca copi
 
 ---
 
+## 3. Atalhos personalizáveis no painel (quick actions de 1 clique)
+
+**Fonte:** ERP visto pelo Lucas (2026-06-25). Seção "ATALHOS" no painel: "Escolha os atalhos que
+você mais usa, eles abrem a ação em 1 clique." Grade de checkboxes (Novo pedido, Novo produto,
+Importar NF-e, Notas fiscais, Cobrança, Estoque, Abrir caso de suporte...), com um botão "Concluir"
+para sair do modo de edição.
+
+**O que é:** o usuário escolhe (marcando) quais atalhos quer ver no topo do painel/início, e eles
+viram botões grandes que disparam a ação direta. Personalizado por usuário, com modo de edição.
+
+**Como aplicaria no On Education:** atalhos do dia a dia escolar, por papel: "Nova atividade (WayOn)",
+"Fazer chamada", "Lançar notas", "Novo comunicado", "Nova matrícula", "Gerar boletim", "Abrir
+suporte". O catálogo de atalhos pode reusar a mesma fonte do command palette (`nav.ts`). Salvar a
+seleção nas preferências do usuário (por aparelho ou no tenant_settings/perfil). Modo "Editar
+atalhos" com checkboxes, igual ao print.
+
+**Por que cabe:** professor e gestor repetem as mesmas 3 ou 4 ações o dia todo; deixar isso a 1
+clique no início economiza muito tempo e dá sensação de produto sob medida. Casa com o command
+palette (#1) que acabamos de fazer.
+
+**Esforço (estimativa):** baixo a médio. **Impacto:** médio.
+
+---
+
 <!-- Próximas ideias entram abaixo, uma por seção numerada. -->

@@ -182,6 +182,7 @@
 | 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ⬜ |
 | 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ⬜ |
 | 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ⬜ |
+| 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ⬜ |
 
 ### Padrões de engenharia a adotar (do Evercol)
 
