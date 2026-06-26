@@ -143,6 +143,25 @@ export async function listInvitations(client: DbClient, ctx: AuthContext) {
   return client.withTenant(ctx.tenantId, (tx) => tx.select().from(invitations));
 }
 
+/**
+ * Busca um convite pelo token, para a PÁGINA PÚBLICA de aceite (o convidado ainda não tem conta
+ * nem contexto de tenant). Server-only (`client.db`, fora do RLS). Traz o nome da escola.
+ */
+export async function getInvitationByToken(client: DbClient, token: string) {
+  const rows = await client.db
+    .select({
+      email: invitations.email,
+      role: invitations.role,
+      status: invitations.status,
+      tenantId: invitations.tenantId,
+      tenantName: tenants.name,
+    })
+    .from(invitations)
+    .leftJoin(tenants, eq(tenants.id, invitations.tenantId))
+    .where(eq(invitations.token, token));
+  return rows[0] ?? null;
+}
+
 export interface AcceptInvitationResult {
   tenantId: string;
   role: string;

@@ -3,6 +3,7 @@ import { listInvitations } from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
+import { CopyLink } from '@/components/copy-link';
 import { inviteStatusLabel, roleLabel, STAFF_ROLES } from '@/lib/roles';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
@@ -32,13 +33,23 @@ export default async function ConvitesPage() {
           {convites.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum convite ainda.</p>
           ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
+            <ul className="space-y-3">
               {convites.map((c) => (
-                <li key={c.id}>
-                  {c.email}{' '}
-                  <span className="opacity-60">
-                    · {roleLabel(c.role)} · {inviteStatusLabel(c.status)}
-                  </span>
+                <li key={c.id} className="rounded-lg border border-border p-2.5">
+                  <div className="flex flex-wrap items-center gap-x-2 text-sm">
+                    <span className="font-medium">{c.email}</span>
+                    <span className="text-xs text-muted-foreground">
+                      · {roleLabel(c.role)} · {inviteStatusLabel(c.status)}
+                    </span>
+                  </div>
+                  {c.status === 'pending' && (
+                    <div className="mt-2">
+                      <p className="mb-1 text-[11px] text-muted-foreground">
+                        Link para a pessoa criar a senha (envie por WhatsApp ou e-mail):
+                      </p>
+                      <CopyLink path={`/convite/${c.token}`} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
