@@ -115,6 +115,14 @@ atalhos" com checkboxes, igual ao print.
 clique no início economiza muito tempo e dá sensação de produto sob medida. Casa com o command
 palette (#1) que acabamos de fazer.
 
+**Refinamento (catálogo = tabela de referência própria):** os atalhos não são só as páginas do
+`nav.ts`. Vale ter uma **tabela/catálogo de AÇÕES** (à parte das rotas), porque no ERP de referência
+os atalhos misturam página e ação direta ("Importar NF-e", "Abrir caso de suporte", "Novo pedido").
+No On Education: catálogo com itens do tipo `{ id, label, icon, tipo: 'pagina' | 'acao', destino,
+papéis }`, onde "ação" dispara um fluxo (ex.: abrir o gerador do WayOn já no tipo certo, iniciar uma
+chamada, abrir o suporte). A seleção do usuário **referencia esse catálogo** por id, não duplica
+rota. Isso também alimenta o command palette (#1) com ações, não só navegação.
+
 **Esforço (estimativa):** baixo a médio. **Impacto:** médio.
 
 ---
