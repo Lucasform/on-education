@@ -84,8 +84,19 @@ export default async function IaPage({
 
       {erro && (
         <div className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
-          O WayOn demorou mais que o esperado ou teve um problema ao criar o conteúdo. Tente de novo
-          em instantes. Se continuar, deixe o tema mais simples ou gere menos exercícios.
+          <p className="font-medium">O WayOn não conseguiu finalizar o conteúdo desta vez.</p>
+          <p className="mt-1 text-danger/90">
+            Costuma ser um pico de uso ou um pedido muito grande. Tente de novo em instantes. Se
+            continuar, ajude o WayOn a acertar:
+          </p>
+          <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-danger/90">
+            <li>descreva melhor o tema (série, disciplina e o objetivo da atividade);</li>
+            <li>gere menos exercícios de cada vez;</li>
+            <li>se marcou “com imagens”, tente sem elas primeiro.</li>
+          </ul>
+          <p className="mt-1.5 text-danger/80">
+            Se persistir, fale com a gente pelo suporte no canto da tela.
+          </p>
         </div>
       )}
 

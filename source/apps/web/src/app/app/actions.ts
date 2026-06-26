@@ -626,15 +626,16 @@ export async function generateActivityAction(formData: FormData): Promise<void> 
     applyDate: (formData.get('applyDate') as string) || undefined,
     context,
   });
-  // Teto de tempo: a geração normal leva segundos; se passar de 75s tem algo travado.
-  // Em vez de derrubar com erro técnico, registra no log do admin e volta com mensagem educada.
+  // Teto de tempo: a geração normal leva segundos; com folga para imagens, 120s (2 min). Se
+  // passar disso tem algo travado. Em vez de derrubar com erro técnico, registra no log do admin
+  // e volta com mensagem educada.
   const t0 = Date.now();
   let atividade: Awaited<ReturnType<typeof generateActivityWithWayOn>>;
   try {
     atividade = await Promise.race([
       generateActivityWithWayOn(db(), ctx, input),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Tempo excedido na geração (75s)')), 75_000),
+        setTimeout(() => reject(new Error('Tempo excedido na geração (120s)')), 120_000),
       ),
     ]);
   } catch (e) {
