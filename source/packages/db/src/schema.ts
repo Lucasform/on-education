@@ -785,7 +785,12 @@ export const grades = oe.table(
     componentId: uuid('component_id'),
     ...auditCols,
   },
-  (t) => [index('grades_tenant_idx').on(t.tenantId), tenantPolicy('grades_tenant_isolation')],
+  (t) => [
+    index('grades_tenant_idx').on(t.tenantId),
+    // Notas por aluno (ficha do aluno, boletim): composto tenant+aluno casa com o filtro do RLS.
+    index('grades_student_idx').on(t.tenantId, t.studentId),
+    tenantPolicy('grades_tenant_isolation'),
+  ],
 );
 
 export const attendance = oe.table(
@@ -918,6 +923,8 @@ export const portfolioEntries = oe.table(
   },
   (t) => [
     index('portfolio_entries_tenant_idx').on(t.tenantId),
+    // Portfólio por aluno (ficha do aluno): composto tenant+aluno acompanha o filtro do RLS.
+    index('portfolio_entries_student_idx').on(t.tenantId, t.studentId),
     tenantPolicy('portfolio_entries_tenant_isolation'),
   ],
 );
