@@ -36,9 +36,17 @@ const FRAME_RULES: Record<ImageFrame, string> = {
     'A ilustração deve PREENCHER todo o quadro, de borda a borda, sem moldura, sem bordas brancas e sem espaços vazios.',
 };
 
+// Base estética sempre aplicada: garante que a imagem saia bonita e coesa como material de
+// atividade, mesmo quando o tenant não definiu um padrão próprio. O tema pedido vem por cima.
+const BASE_STYLE =
+  'Estilo de ilustração de material escolar de alta qualidade: traço limpo e moderno, cores vivas ' +
+  'e harmônicas, formas amigáveis e bem definidas, fundo simples que valoriza o elemento principal. ' +
+  'Visual caprichado e profissional, nada genérico, adequado a crianças e à impressão.';
+
 /**
- * Monta o prompt final com força, para o padrão pedido ser executado de verdade: padrão visual da
- * escola, referências bem avaliadas (aprendizado), enquadramento e regras de posição/impressão.
+ * Monta o prompt final mirando OS DOIS ao mesmo tempo: o tema pedido bem reconhecível E um padrão
+ * bonito e coeso de atividade. Camadas: base estética + padrão da escola + aprendizado +
+ * enquadramento + regras de posição/impressão.
  */
 function buildImagePrompt(opts: {
   prompt: string;
@@ -46,18 +54,22 @@ function buildImagePrompt(opts: {
   trainingStyle: string | null;
   frame: ImageFrame;
 }): string {
-  const parts: string[] = ['Ilustração para material escolar, pensada para impressão.'];
-  if (opts.style) parts.push(`Siga FIELMENTE este padrão visual da escola: ${opts.style}.`);
+  const parts: string[] = [
+    'Ilustração para material escolar (banco de atividades), pensada para impressão.',
+    `O tema pedido deve ficar claramente reconhecível e ser o protagonista: ${opts.prompt}.`,
+    BASE_STYLE,
+  ];
+  if (opts.style)
+    parts.push(`Aplique também o padrão visual da escola, sem perder o tema: ${opts.style}.`);
   if (opts.trainingStyle)
     parts.push(
-      `Espelhe o estilo das referências que o professor avaliou bem: ${opts.trainingStyle}.`,
+      `Mantenha consistência com as referências que o professor avaliou bem: ${opts.trainingStyle}.`,
     );
-  parts.push(`Tema: ${opts.prompt}.`);
   parts.push(FRAME_RULES[opts.frame]);
   parts.push(
-    'Posicionamento claro e hierarquia visual (elemento principal em primeiro plano). Linhas nítidas ' +
-      'e alto contraste para imprimir bem. Sem texto na imagem, a menos que o tema peça; sem marca ' +
-      "d'água, sem bordas tortas e sem cortar o elemento principal.",
+    'Hierarquia visual clara (tema em primeiro plano), composição equilibrada, linhas nítidas e alto ' +
+      "contraste para imprimir bem. Sem texto na imagem a menos que o tema peça; sem marca d'água, sem " +
+      'bordas tortas e sem cortar o elemento principal. O resultado deve ser bonito, limpo e coeso.',
   );
   return parts.join(' ');
 }
