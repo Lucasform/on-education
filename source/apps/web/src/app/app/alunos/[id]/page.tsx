@@ -145,6 +145,14 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           >
             Relatório de desenvolvimento
           </Link>
+          {camposPersonalizados.length > 0 && (
+            <Link
+              href={`/app/alunos/${id}/campos`}
+              className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            >
+              Campos personalizados
+            </Link>
+          )}
           <PrintButton />
         </span>
       </div>

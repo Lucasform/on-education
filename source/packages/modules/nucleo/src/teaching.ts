@@ -10,6 +10,34 @@ import {
 import type { AssignTeachingInput } from '@on-education/validation';
 import { and, eq, isNull } from 'drizzle-orm';
 
+import { isGestao } from './work-requests';
+
+/**
+ * Escopo por hierarquia (field/row-level): quais turmas o usuário pode ver. Gestão (e o professor
+ * autônomo, que é owner) vê tudo (null). Professor vê só as turmas que leciona. Fallback SEGURO:
+ * sem vínculo encontrado, retorna null (não restringe), para ninguém ficar sem ver por engano.
+ */
+export async function visibleClassIds(
+  client: DbClient,
+  ctx: AuthContext,
+): Promise<Set<string> | null> {
+  if (isGestao(ctx)) return null;
+  const mems = await client
+    .withTenant(ctx.tenantId, (tx) =>
+      tx
+        .select({ id: memberships.id })
+        .from(memberships)
+        .where(and(eq(memberships.userId, ctx.userId), isNull(memberships.deletedAt))),
+    )
+    .catch(() => [] as { id: string }[]);
+  const ids = new Set<string>();
+  for (const m of mems) {
+    const assigns = await listAssignmentsForMembership(client, ctx, m.id).catch(() => []);
+    for (const a of assigns) if (a.classId) ids.add(a.classId);
+  }
+  return ids.size > 0 ? ids : null;
+}
+
 /**
  * Vínculos do professor (item 17): membership ↔ turma ↔ matéria. Gestão institucional —
  * só papéis de gestão (owner/director/coordinator) criam/removem (RBAC). Leitura liberada.

@@ -56,6 +56,27 @@ export default async function InadimplenciaPage() {
     .sort((a, b) => b.total - a.total);
   const totalVencido = linhas.reduce((s, l) => s + l.total, 0);
 
+  // Régua de cobrança (visão, sem automação): vencendo em breve + estágios de atraso.
+  const em3 = (() => {
+    const d = new Date(`${hoje}T00:00:00`);
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().slice(0, 10);
+  })();
+  const vencendoEmBreve = todas.filter(
+    (c) => c.status === 'aberto' && c.dueDate >= hoje && c.dueDate <= em3,
+  );
+  const estagios = [
+    { label: 'até 6 dias', min: 1, max: 6 },
+    { label: '7 a 14 dias', min: 7, max: 14 },
+    { label: '15+ dias', min: 15, max: Number.POSITIVE_INFINITY },
+  ].map((s) => ({
+    label: s.label,
+    qtd: vencidas.filter((c) => {
+      const a = diasAtraso(c.dueDate, hoje);
+      return a >= s.min && a <= s.max;
+    }).length,
+  }));
+
   return (
     <>
       <PageHeader
@@ -75,6 +96,27 @@ export default async function InadimplenciaPage() {
         <div className={cardClass}>
           <div className="text-2xl font-semibold">{vencidas.length}</div>
           <div className="text-xs text-muted-foreground">Cobranças vencidas</div>
+        </div>
+      </section>
+
+      {/* Régua de cobrança (visão): vencendo em breve + estágios de atraso. Envio é manual abaixo. */}
+      <section className={cardClass}>
+        <h2 className="text-sm font-medium">Régua de cobrança</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Acompanhe os estágios e antecipe o aviso. O envio continua manual (cobre pelo WhatsApp
+          abaixo).
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+            <div className="text-xl font-semibold text-amber-600">{vencendoEmBreve.length}</div>
+            <div className="text-xs text-muted-foreground">Vencendo em até 3 dias</div>
+          </div>
+          {estagios.map((s) => (
+            <div key={s.label} className="rounded-lg border border-border p-3">
+              <div className="text-xl font-semibold">{s.qtd}</div>
+              <div className="text-xs text-muted-foreground">Atraso {s.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 

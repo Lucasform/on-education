@@ -1,5 +1,5 @@
 import { SubmitButton } from '@/components/submit-button';
-import { isEntitled, listClasses } from '@on-education/module-nucleo';
+import { isEntitled, listClasses, visibleClassIds } from '@on-education/module-nucleo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -41,7 +41,12 @@ export default async function TurmasPage({
     );
   }
   const sp = await searchParams;
-  const turmas = await listClasses(db(), ctx).catch(() => [] as Awaited<ReturnType<typeof listClasses>>);
+  const todasTurmas = await listClasses(db(), ctx).catch(
+    () => [] as Awaited<ReturnType<typeof listClasses>>,
+  );
+  // Escopo por hierarquia: professor vê só as turmas que leciona (gestão vê tudo; fallback seguro).
+  const visiveis = await visibleClassIds(db(), ctx).catch(() => null);
+  const turmas = visiveis ? todasTurmas.filter((t) => visiveis.has(t.id)) : todasTurmas;
   const termo = (sp.q ?? '').trim().toLowerCase();
   const filtradas = termo ? turmas.filter((t) => t.name.toLowerCase().includes(termo)) : turmas;
 
