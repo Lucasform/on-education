@@ -670,6 +670,9 @@ export const studentGuardians = oe.table(
   },
   (t) => [
     uniqueIndex('student_guardians_uq').on(t.tenantId, t.studentId, t.guardianId),
+    // Reverse lookup: quais alunos um responsável tem (portal do responsável, financeiro). O
+    // índice único lidera por aluno, então não cobre busca por guardian_id sozinho.
+    index('student_guardians_guardian_idx').on(t.tenantId, t.guardianId),
     tenantPolicy('student_guardians_tenant_isolation'),
   ],
 );
@@ -811,6 +814,9 @@ export const attendance = oe.table(
     // O índice físico usa NULLS NOT DISTINCT (ver migration) para que a chamada por dia
     // (subject_id NULL) continue sendo upsert idempotente, e a falta por matéria conviva.
     uniqueIndex('attendance_uq').on(t.tenantId, t.studentId, t.classId, t.date, t.subjectId),
+    // Chamada do dia: filtra por turma + data. O índice único lidera por aluno, então não cobre
+    // bem essa consulta; este composto resolve.
+    index('attendance_class_date_idx').on(t.tenantId, t.classId, t.date),
     tenantPolicy('attendance_tenant_isolation'),
   ],
 );
@@ -1254,7 +1260,12 @@ export const invoices = oe.table(
     chargedAt: timestamp('charged_at', { withTimezone: true }), // quando a cobrança foi gerada
     ...auditCols,
   },
-  (t) => [index('invoices_tenant_idx').on(t.tenantId), tenantPolicy('invoices_tenant_isolation')],
+  (t) => [
+    index('invoices_tenant_idx').on(t.tenantId),
+    // Régua de cobrança: varre faturas em aberto e vencidas por status + vencimento.
+    index('invoices_status_due_idx').on(t.tenantId, t.status, t.dueDate),
+    tenantPolicy('invoices_tenant_isolation'),
+  ],
 );
 
 // ---------------------------------------------------------------------------
