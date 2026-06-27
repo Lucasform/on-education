@@ -179,7 +179,7 @@
 | 10 | **Escopo por hierarquia (ALL/TEAM/OWN)** | `scopeFilter(ctx)`: professor vê suas turmas, coordenação vê a unidade/série | médio | **alto** | ✅ |
 | 11 | **Aprovação por link mágico** | token assinado numa página pública: despesa aprovada pelo diretor ou saída do aluno autorizada pelo responsável no celular | médio | médio | ✅ |
 | 12 | **Copiloto da escola (read-only)** | contexto só com contagens agregadas (sem PII): "quantos alunos em risco?", "taxa de inadimplência?" | médio | médio | ✅ |
-| 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ⬜ |
+| 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ✅ |
 | 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ✅ |
 | 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ✅ |
 | 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ✅ |
