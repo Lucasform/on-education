@@ -1654,6 +1654,15 @@ export async function updateGamificationAction(formData: FormData): Promise<void
   revalidatePath('/app', 'layout');
 }
 
+/** Liga/desliga a régua de cobrança automática (#7). Opt-in da escola, desligado por padrão. */
+export async function updateDunningAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  await upsertTenantSettings(db(), ctx, {
+    dunningEnabled: formData.get('dunningEnabled') === 'on',
+  });
+  revalidatePath('/app/inadimplencia');
+}
+
 /**
  * Define o link público (slug) do tenant: eduonway.com/c/<slug>. Valida formato e unicidade
  * no service; volta à página de personalização com sucesso ou erro amigável.

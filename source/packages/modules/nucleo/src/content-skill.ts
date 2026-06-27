@@ -10,6 +10,15 @@
  * - `BNCC_ALIGNMENT`: bloco leve, seguro para anexar em QUALQUER gerador (não muda formato, só
  *   garante o alinhamento curricular e a regra "(a confirmar)").
  * - `contentSkill(type)`: spec mais completo, para os geradores ainda pouco afinados.
+ *
+ * Para orientacao contextual mais rica (por componente/ano/etapa), use `bnccGuidance` de bncc.ts.
+ * A estrutura BNCC completa (etapas, areas, componentes, campos de experiencia, competencias gerais
+ * e anatomia do codigo de habilidade) esta em bncc.ts.
+ *
+ * REGRA DE OURO (replicada aqui para todos os geradores):
+ *   NUNCA invente codigos de habilidade BNCC (formato EF05LP01, EM13LGG101 etc.).
+ *   Se nao tiver certeza absoluta do codigo exato, use "(a confirmar)" + descricao por extenso.
+ *   Um codigo errado em material escolar e muito mais prejudicial do que nao citar nenhum.
  */
 
 export type ContentType =
@@ -26,13 +35,30 @@ export type ContentType =
 
 const PT = ' Responda em português do Brasil. Não use travessão no meio de frase.';
 
-/** Alinhamento curricular BNCC. Não impõe formato; só garante o "encaixe" e a regra do código. */
+/**
+ * Alinhamento curricular BNCC. Nao impoe formato; so garante o "encaixe" e a regra do codigo.
+ *
+ * Estrutura completa disponivel em bncc.ts:
+ *   - ETAPAS: EI, EF_AI (1-5 ano), EF_AF (6-9 ano), EM
+ *   - AREAS_CONHECIMENTO e COMPONENTES (LP, MA, CI, HI, GE, AR, EF, LI, BI, FI, QU, ER, FL, SO)
+ *   - CAMPOS_EXPERIENCIA: os 5 campos da Educacao Infantil
+ *   - COMPETENCIAS_GERAIS: as 10 competencias gerais (Conhecimento, Pensamento cientifico, etc.)
+ *   - ANATOMIA_CODIGO_HABILIDADE: como montar/interpretar um codigo sem inventar
+ *
+ * Para orientacao contextualizada por componente/ano/etapa, use bnccGuidance() de bncc.ts.
+ */
 export const BNCC_ALIGNMENT =
-  ' Alinhe à BNCC: respeite a etapa (Educação Infantil, Fundamental ou Médio), o ano/faixa e o ' +
-  'componente curricular (ou campo de experiência, no Infantil), adequando vocabulário e ' +
-  'dificuldade à idade real. Quando citar habilidade, use o código no formato ' +
-  '[ETAPA][ANO][COMPONENTE][NUM] (ex.: EF05MA10, EM13LGG101, EI03EO01); NUNCA invente código: se ' +
-  'não tiver certeza do exato, escreva "(a confirmar)" e descreva a habilidade por extenso.';
+  ' Alinhe a BNCC: respeite a etapa (Educacao Infantil, Fundamental ou Medio), o ano/faixa e o ' +
+  'componente curricular (ou campo de experiencia, no Infantil), adequando vocabulario e ' +
+  'dificuldade a idade real. Articule com pelo menos uma das 10 Competencias Gerais da BNCC ' +
+  '(Conhecimento, Pensamento cientifico, Repertorio cultural, Comunicacao, Cultura digital, ' +
+  'Trabalho e projeto de vida, Argumentacao, Autoconhecimento, Empatia e cooperacao, ' +
+  'Responsabilidade e cidadania). ' +
+  'Quando citar habilidade, use o codigo no formato [ETAPA][ANO][COMPONENTE][NUM] ' +
+  '(ex.: EF05MA10, EM13LP01, EI03EO01); ' +
+  'NUNCA invente codigo: se nao tiver certeza absoluta do exato, escreva "(a confirmar)" e ' +
+  'descreva a habilidade por extenso. Um codigo errado em material escolar e muito mais ' +
+  'prejudicial do que nao citar nenhum.';
 
 export function contentSkill(type: ContentType): string {
   switch (type) {

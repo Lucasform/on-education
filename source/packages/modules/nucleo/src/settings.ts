@@ -71,6 +71,7 @@ export async function upsertTenantSettings(
   if (input.gradeScale !== undefined) patch.gradeScale = input.gradeScale;
   if (input.gamificationEnabled !== undefined)
     patch.gamificationEnabled = input.gamificationEnabled;
+  if (input.dunningEnabled !== undefined) patch.dunningEnabled = input.dunningEnabled;
   if (input.feedStoriesEnabled !== undefined)
     patch.feedStoriesEnabled = input.feedStoriesEnabled;
   if (input.feedCommentsEnabled !== undefined)

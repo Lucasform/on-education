@@ -1,4 +1,10 @@
-import { getWhatsappConnection, isEntitled, listGuardians, listInvoices } from '@on-education/module-nucleo';
+import {
+  getTenantSettings,
+  getWhatsappConnection,
+  isEntitled,
+  listGuardians,
+  listInvoices,
+} from '@on-education/module-nucleo';
 import { redirect } from 'next/navigation';
 
 import { UpgradeGate } from '@/components/upgrade-gate';
@@ -9,7 +15,7 @@ import { hojeISO } from '@/lib/date';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
-import { cobrarInadimplenteWhatsappAction } from '../actions';
+import { cobrarInadimplenteWhatsappAction, updateDunningAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Inadimplência · Edu On Way' };
@@ -32,11 +38,13 @@ export default async function InadimplenciaPage() {
     return <UpgradeGate feature="finance.institutional" tenantType={ctx.tenantType} />;
   }
   const hoje = hojeISO();
-  const [todas, responsaveis, wa] = await Promise.all([
+  const [todas, responsaveis, wa, settings] = await Promise.all([
     listInvoices(client, ctx).catch(() => []),
     listGuardians(client, ctx).catch(() => []),
     getWhatsappConnection(client, ctx).catch(() => null),
+    getTenantSettings(client, ctx).catch(() => null),
   ]);
+  const dunningOn = settings?.dunningEnabled ?? false;
   const nomeResp = new Map(responsaveis.map((g) => [g.id, g.fullName]));
   const phoneResp = new Map(responsaveis.map((g) => [g.id, g.phone]));
 
@@ -118,6 +126,30 @@ export default async function InadimplenciaPage() {
             </div>
           ))}
         </div>
+
+        <form
+          action={updateDunningAction}
+          className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-3"
+        >
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="dunningEnabled"
+              defaultChecked={dunningOn}
+              className="h-4 w-4 rounded border-border"
+            />
+            Enviar lembretes automáticos pelo portal do responsável (diário, sem repetir o mesmo
+            estágio)
+          </label>
+          <SubmitButton type="submit" size="sm" variant="outline">
+            Salvar
+          </SubmitButton>
+          <span
+            className={`text-xs font-medium ${dunningOn ? 'text-emerald-600' : 'text-muted-foreground'}`}
+          >
+            {dunningOn ? 'Régua automática ligada' : 'Régua automática desligada'}
+          </span>
+        </form>
       </section>
 
       <div className={`${cardClass} overflow-x-auto p-0`}>

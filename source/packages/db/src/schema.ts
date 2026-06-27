@@ -1095,6 +1095,9 @@ export const tenantSettings = oe.table(
     paymentApiKeyEnc: text('payment_api_key_enc'),
     // Gamificação (Frente 8): liga/desliga por escola/professor + faixas de medalha.
     gamificationEnabled: boolean('gamification_enabled').notNull().default(true),
+    // Régua de cobrança automática (#7): opt-in por escola. Desligado por padrão; quando ligado,
+    // o cron diário envia o lembrete do estágio pelo portal do responsável.
+    dunningEnabled: boolean('dunning_enabled').notNull().default(false),
     medalBronze: integer('medal_bronze').notNull().default(50),
     medalPrata: integer('medal_prata').notNull().default(150),
     medalOuro: integer('medal_ouro').notNull().default(300),
@@ -1861,6 +1864,27 @@ export const approvals = oe.table(
     index('approvals_tenant_idx').on(t.tenantId),
     index('approvals_token_idx').on(t.token),
     tenantPolicy('approvals_tenant_isolation'),
+  ],
+);
+
+// Régua de cobrança (#7): registro de qual lembrete (estágio) já foi disparado para cada
+// fatura. O índice único (invoice, stage) garante idempotência: nunca cobra o mesmo estágio
+// duas vezes, mesmo que o cron rode repetido.
+export const collectionLogs = oe.table(
+  'collection_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    invoiceId: uuid('invoice_id').notNull(),
+    stage: integer('stage').notNull(), // 1..n conforme dias de atraso
+    channel: text('channel').notNull().default('portal'), // portal | whatsapp | email
+    status: text('status').notNull().default('sent'), // sent | skipped | failed
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('collection_logs_tenant_idx').on(t.tenantId),
+    uniqueIndex('collection_logs_invoice_stage_uq').on(t.invoiceId, t.stage),
+    tenantPolicy('collection_logs_tenant_isolation'),
   ],
 );
 

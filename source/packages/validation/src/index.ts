@@ -453,6 +453,7 @@ export const updateTenantSettingsSchema = z.object({
   agentName: z.string().max(40).optional(),
   gradeScale: z.coerce.number().int().min(1).max(1000).optional(),
   gamificationEnabled: z.coerce.boolean().optional(),
+  dunningEnabled: z.coerce.boolean().optional(),
   feedStoriesEnabled: z.coerce.boolean().optional(),
   feedCommentsEnabled: z.coerce.boolean().optional(),
   allowGuardianMessageTeacher: z.coerce.boolean().optional(),
