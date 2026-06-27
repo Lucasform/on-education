@@ -108,6 +108,15 @@ export default async function PlanosPage({
         </div>
       </section>
 
+      {!billingOn && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
+          <p className="font-medium text-primary">🎉 Modo lançamento: tudo liberado de graça.</p>
+          <p className="mt-0.5 text-muted-foreground">
+            Aproveite todos os recursos sem pagar nada. Escolha um plano e ative na hora.
+          </p>
+        </div>
+      )}
+
       {/* Planos prontos */}
       <section>
         <h2 className="mb-4 flex items-center gap-2 text-base font-semibold">

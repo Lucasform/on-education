@@ -16,7 +16,17 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
  *   - À la carte:   STRIPE_PRICE_FEATURE_<FEATURE>  ex.: STRIPE_PRICE_FEATURE_AI_IMAGES
  */
 
+/**
+ * Modo lançamento: a cobrança só liga com BILLING_LIVE=1 no ambiente. Sem isso, o app fica em
+ * "ativação imediata" (todo plano é liberado de graça, sem checkout), MESMO com o Stripe todo
+ * configurado. Assim dá pra deixar tudo pronto e desligado, e ligar a cobrança com 1 variável.
+ */
+export function isLaunchFree(): boolean {
+  return process.env.BILLING_LIVE !== '1';
+}
+
 export function isBillingConfigured(): boolean {
+  if (isLaunchFree()) return false;
   return Boolean(loadEnv().STRIPE_SECRET_KEY);
 }
 
