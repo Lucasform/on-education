@@ -144,7 +144,7 @@
 | **Módulos personalizáveis por matéria** | Média | Ver `project_on_education_fase2_ideias.md` |
 | **IA sugerir vídeos YouTube** | Baixa | API YouTube Key disponível; aguardar validação pedagógica |
 | **Relatório de progresso por aluno (PDF)** | Média | Geração automatizada para responsável |
-| **Gamificação avançada (ranking)** | Baixa | `student_points` já existe; falta leaderboard |
+| **Gamificação avançada (ranking)** | ✅ Feito | `student_points` já existe; falta leaderboard |
 
 ---
 
@@ -173,15 +173,15 @@
 | 4 | **Widget de feedback in-app** | botão flutuante BUG/IDEIA/DÚVIDA capturando rota + plano, com triagem do admin | baixo | médio | ✅ |
 | 5 | **Briefing diário do diretor** | KPIs numa tela: matrículas do mês, a receber/vencidas, % presença baixa, alunos em risco, com tom de alerta | baixo | médio | ✅ |
 | 6 | **Import CSV pt-BR tolerante** | coerção `1.234,56`→nº e `sim/x/1`→bool + relatório de erro por linha (reforço do `csv-import`) | baixo | médio | ✅ |
-| 7 | **Régua de cobrança (dunning)** | ladder D-3/D0/D+1/D+7/D+15 de mensalidade, idempotente por (fatura, estágio), usando WhatsApp+push existentes | médio | **alto** | ⬜ |
+| 7 | **Régua de cobrança (dunning)** | ladder D-3/D0/D+1/D+7/D+15 de mensalidade, idempotente por (fatura, estágio), usando WhatsApp+push existentes | médio | **alto** | ✅ |
 | 8 | **Motor de alertas (sino + push)** | regras em cron geram notificação com dedupeKey: 3 faltas seguidas, mensalidade vencendo, ocorrência grave | médio | **alto** | ✅ |
 | 9 | **Field-Level Security** | mascarar notas/financeiro/ocorrência por papel nas leituras (complementa o RLS, que isola por tenant) | médio | **alto** | ✅ |
-| 10 | **Escopo por hierarquia (ALL/TEAM/OWN)** | `scopeFilter(ctx)`: professor vê suas turmas, coordenação vê a unidade/série | médio | **alto** | ⬜ |
+| 10 | **Escopo por hierarquia (ALL/TEAM/OWN)** | `scopeFilter(ctx)`: professor vê suas turmas, coordenação vê a unidade/série | médio | **alto** | ✅ |
 | 11 | **Aprovação por link mágico** | token assinado numa página pública: despesa aprovada pelo diretor ou saída do aluno autorizada pelo responsável no celular | médio | médio | ✅ |
 | 12 | **Copiloto da escola (read-only)** | contexto só com contagens agregadas (sem PII): "quantos alunos em risco?", "taxa de inadimplência?" | médio | médio | ✅ |
 | 13 | **Base oficial de códigos BNCC** | embutir a base de habilidades para citar o código real em vez de "(a confirmar)" | médio | médio | ⬜ |
-| 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ⬜ |
-| 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ⬜ |
+| 14 | **Custom fields (EAV) por aluno/matrícula** | campos próprios da escola: tipo sanguíneo, autorização de imagem, restrição alimentar, convênio | alto | médio | ✅ |
+| 15 | **Report builder simples** | escolher fonte (presença/notas/financeiro) + período + filtro por turma, salvar e reexecutar (respeitando o escopo do #10) | alto | médio | ✅ |
 | 16 | **Atalhos personalizáveis no painel** (quick win) | usuário marca os atalhos que mais usa e eles viram botões de 1 clique no início; catálogo reusa o `nav.ts`, seleção salva nas preferências | baixo | médio | ✅ |
 | 17 | **Aba "Relatório do aluno"** (relatório de desenvolvimento) | por aluno: professor escreve a descrição/observações e o WayOn monta o relatório de desenvolvimento juntando notas/frequência/ocorrências; rascunho revisável, export docx/pdf, histórico por período. Reusa o tipo `report` já criado | médio | médio/alto | ✅ |
 | 18 | **Timeout + erro educado + log nos demais geradores** | estender o que já fizemos na atividade para "Gerar conteúdo" (plano/redação) e correção, reusando `recordError`. Quick win | baixo | médio | ✅ |
