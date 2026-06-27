@@ -1,6 +1,6 @@
 'use client';
 
-import { Send, Sparkles, X } from 'lucide-react';
+import { Bot, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type Turn = { role: 'user' | 'wayon'; text: string };
@@ -53,13 +53,13 @@ export function WayonWidget() {
         aria-label="WayON"
         className="fixed bottom-36 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-ring md:bottom-6 md:right-24 print:hidden"
       >
-        {open ? <X className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+        {open ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
       </button>
 
       {open && (
         <div className="fixed bottom-52 right-4 z-40 flex h-[30rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl md:bottom-24 md:right-24 print:hidden">
           <div className="flex items-center gap-2 border-b border-border bg-primary/10 px-4 py-3">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Bot className="h-4 w-4 text-primary" />
             <div className="text-sm font-semibold">WayON</div>
           </div>
 
