@@ -41,9 +41,15 @@ const STAGES = [
   },
 ] as const;
 
-function daysOverdue(dueDate: string, today: string): number {
+export function daysOverdue(dueDate: string, today: string): number {
   const ms = new Date(`${today}T00:00:00Z`).getTime() - new Date(`${dueDate}T00:00:00Z`).getTime();
   return Math.floor(ms / 86_400_000);
+}
+
+/** Estágio da régua para uma fatura com N dias de atraso (null = ainda não cobra). Puro, testável. */
+export function dunningStageFor(days: number): number | null {
+  const st = STAGES.find((s) => days >= s.minDays);
+  return st ? st.stage : null;
 }
 
 export interface DunningSummary {
