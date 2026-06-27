@@ -52,7 +52,7 @@ export default async function AdminMensagensPage() {
             </option>
             {escolas.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.name}
+                {e.ownerName ? `${e.name} · ${e.ownerName}` : e.name}
               </option>
             ))}
           </select>
