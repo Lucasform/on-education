@@ -10,8 +10,11 @@ export const metadata = { title: 'Suporte · Admin' };
 export default async function AdminSuportePage() {
   const client = db();
   const tickets = await listAllSupportTickets(client).catch(() => []);
+  // Suporte = só o que a escola abriu. As conversas que o admin iniciou ficam na aba "Mensagens".
   const enriched = await Promise.all(
-    tickets.map(async (t) => ({
+    tickets
+      .filter((t) => !t.initiatedByAdmin)
+      .map(async (t) => ({
       id: t.id,
       kind: t.kind,
       status: t.status,

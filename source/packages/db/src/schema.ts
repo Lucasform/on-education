@@ -1865,6 +1865,9 @@ export const supportTickets = oe.table(
     subject: text('subject'),
     status: text('status').notNull().default('novo'), // novo | em_analise | respondido | resolvido
     createdByName: text('created_by_name'),
+    // true = conversa iniciada pelo admin do produto (aba "Mensagens"); false = suporte aberto
+    // pela escola (aba "Suporte"). Separa os dois canais sem misturar.
+    initiatedByAdmin: boolean('initiated_by_admin').notNull().default(false),
     ...auditCols,
   },
   (t) => [

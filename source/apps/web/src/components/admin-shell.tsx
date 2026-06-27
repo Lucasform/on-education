@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   Menu,
+  MessagesSquare,
   Plug,
   Shield,
   X,
@@ -22,6 +23,7 @@ const NAV = [
   { href: '/admin/contas', label: 'Contas', icon: Building2, exact: false },
   { href: '/admin/coletivo', label: 'Banco coletivo', icon: Library, exact: false },
   { href: '/admin/suporte', label: 'Suporte', icon: LifeBuoy, exact: false },
+  { href: '/admin/mensagens', label: 'Mensagens', icon: MessagesSquare, exact: false },
   { href: '/admin/erros', label: 'Erros', icon: AlertTriangle, exact: false },
   { href: '/admin/integracoes', label: 'Integrações', icon: Plug, exact: false },
 ];
@@ -108,6 +110,14 @@ export function AdminShell({
         </button>
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{email}</span>
         <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/admin/mensagens"
+            title="Mensagens"
+            aria-label="Mensagens"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <MessagesSquare className="h-4 w-4" />
+          </Link>
           <ThemeToggle />
           {headerActions}
         </div>

@@ -6,7 +6,7 @@ import {
   tenants,
   users,
 } from '@on-education/db';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, or } from 'drizzle-orm';
 
 const KINDS = new Set(['sugestao', 'elogio', 'problema', 'duvida']);
 
@@ -54,7 +54,13 @@ export async function listMyTickets(client: DbClient, ctx: AuthContext) {
     tx
       .select()
       .from(supportTickets)
-      .where(and(eq(supportTickets.createdBy, ctx.userId), isNull(supportTickets.deletedAt)))
+      // O usuário vê os tickets que ele abriu E as mensagens que o admin iniciou para a escola.
+      .where(
+        and(
+          isNull(supportTickets.deletedAt),
+          or(eq(supportTickets.createdBy, ctx.userId), eq(supportTickets.initiatedByAdmin, true)),
+        ),
+      )
       .orderBy(desc(supportTickets.updatedAt))
       .limit(50),
   );
@@ -104,6 +110,7 @@ export async function listAllSupportTickets(client: DbClient) {
       kind: supportTickets.kind,
       status: supportTickets.status,
       createdByName: supportTickets.createdByName,
+      initiatedByAdmin: supportTickets.initiatedByAdmin,
       createdAt: supportTickets.createdAt,
       updatedAt: supportTickets.updatedAt,
     })
@@ -143,6 +150,39 @@ export async function adminReplyTicket(
     .update(supportTickets)
     .set({ updatedAt: new Date() })
     .where(eq(supportTickets.id, ticketId));
+}
+
+/**
+ * Admin inicia uma conversa com uma escola (aba "Mensagens", canal separado do Suporte). Cria o
+ * ticket marcado como initiatedByAdmin e a primeira mensagem do admin. A escola vê no balão de
+ * Suporte dela e pode responder.
+ */
+export async function adminStartConversation(
+  client: DbClient,
+  tenantId: string,
+  body: string,
+  adminName = 'Equipe Edu On Way',
+) {
+  const text = (body ?? '').trim();
+  if (!text) throw new Error('Escreva a mensagem.');
+  const [t] = await client.db
+    .insert(supportTickets)
+    .values({
+      tenantId,
+      kind: 'mensagem',
+      status: 'novo',
+      createdByName: adminName,
+      initiatedByAdmin: true,
+    })
+    .returning({ id: supportTickets.id });
+  await client.db.insert(supportMessages).values({
+    tenantId,
+    ticketId: t!.id,
+    body: text,
+    fromAdmin: true,
+    authorName: adminName,
+  });
+  return t!;
 }
 
 export async function setSupportStatus(client: DbClient, ticketId: string, status: string) {

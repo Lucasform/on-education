@@ -18,6 +18,7 @@ const KIND_LABEL: Record<string, string> = {
   elogio: 'Elogio',
   problema: 'Problema',
   duvida: 'Dúvida',
+  mensagem: 'Mensagem do Edu On Way',
 };
 const STATUS_LABEL: Record<string, string> = {
   novo: 'Enviado',
