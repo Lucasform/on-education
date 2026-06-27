@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs';
+
 // Headers de segurança aplicados a TODA resposta. Escolhidos para endurecer sem quebrar o app:
 // nenhum mexe em script/estilo (CSP completa fica para uma rodada testada à parte). O
 // `frame-ancestors 'self'` reforça o anti-clickjacking junto do X-Frame-Options.
@@ -50,4 +52,14 @@ const nextConfig = {
   ],
 };
 
-export default nextConfig;
+// Sentry: instrumenta o build. Upload de source map só acontece se SENTRY_AUTH_TOKEN existir;
+// sem ele, o build segue normal (só não sobe os mapas). Org/projeto na região DE.
+export default withSentryConfig(nextConfig, {
+  org: 'on-way',
+  project: 'on-education',
+  sentryUrl: 'https://de.sentry.io',
+  silent: true,
+  widenClientFileUpload: true,
+  disableLogger: true,
+  automaticVercelMonitors: false,
+});

@@ -24,6 +24,7 @@
     "@on-education/module-sala-de-aula": "workspace:*",
     "@on-education/ui": "workspace:*",
     "@on-education/validation": "workspace:*",
+    "@sentry/nextjs": "^10.62.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "drizzle-orm": "^0.38.4",
