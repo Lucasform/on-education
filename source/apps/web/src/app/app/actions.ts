@@ -117,6 +117,9 @@ import {
   listCustomFieldDefs,
   setCustomFieldValues,
   recordError,
+  ensureStudentPortalToken,
+  assignActivityToStudent,
+  postStudentMessage,
 } from '@on-education/module-nucleo';
 import {
   addQuizQuestion,
@@ -1185,6 +1188,45 @@ export async function transferStudentClassAction(formData: FormData): Promise<vo
   const classId = (formData.get('classId') as string) || null;
   if (!studentId) return;
   await transferStudentClass(db(), ctx, studentId, classId);
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+/** Gera (ou recupera) o link do portal do aluno. */
+export async function gerarPortalAlunoAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  if (!studentId) return;
+  await ensureStudentPortalToken(db(), ctx, studentId);
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+/** Atribui uma atividade do banco ao aluno (passa a aparecer no portal dele). */
+export async function atribuirAtividadeAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const activityId = String(formData.get('activityId') ?? '');
+  if (!studentId || !activityId) return;
+  await assignActivityToStudent(db(), ctx, {
+    studentId,
+    activityId,
+    dueDate: (formData.get('dueDate') as string) || null,
+  });
+  revalidatePath(`/app/alunos/${studentId}`, 'page');
+}
+
+/** Professor responde, pelo portal, a mensagem do aluno. */
+export async function responderAlunoAction(formData: FormData): Promise<void> {
+  const ctx = await requireCtx();
+  const studentId = String(formData.get('studentId') ?? '');
+  const body = String(formData.get('body') ?? '').trim();
+  if (!studentId || !body) return;
+  await postStudentMessage(db(), {
+    tenantId: ctx.tenantId,
+    studentId,
+    body,
+    fromStudent: false,
+    authorName: 'Professor',
+  });
   revalidatePath(`/app/alunos/${studentId}`, 'page');
 }
 

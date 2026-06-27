@@ -5,7 +5,6 @@ import {
   BarChart3,
   BookMarked,
   BookOpen,
-  Bot,
   Building2,
   CalendarCheck,
   CalendarClock,
@@ -172,7 +171,6 @@ export const NAV: NavGroup[] = [
     only: 'organization',
     items: [
       { label: 'Painel do diretor', href: '/app/diretor', icon: Gauge },
-      { label: 'Copiloto da escola', href: '/app/copiloto', icon: Bot },
       { label: 'Painel de trabalho', href: '/app/painel', icon: ClipboardList },
       { label: 'Captação (CRM)', href: '/app/captacao', icon: Contact },
       { label: 'Aprovações por link', href: '/app/aprovacoes', icon: FileSignature },

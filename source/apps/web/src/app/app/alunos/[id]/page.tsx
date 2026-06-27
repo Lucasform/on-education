@@ -11,11 +11,14 @@ import {
   listGuardians,
   listOccurrenceLinks,
   listOccurrences,
+  listStudentAssignments,
   listStudentGuardians,
+  listStudentMessages,
   weightedAverage,
 } from '@on-education/module-nucleo';
 import { listAttendanceForStudent, listGradesForStudent } from '@on-education/module-sala-de-aula';
 import {
+  listActivities,
   listPortfolioForStudent,
   listStudentPoints,
   medalFor,
@@ -24,6 +27,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ConfirmButton } from '@/components/confirm-button';
+import { CopyLink } from '@/components/copy-link';
 import { cardClass, fieldClass, PageHeader } from '@/components/form';
 import { PrintButton } from '@/components/print-button';
 import { TabPanel, Tabs } from '@/components/section-tabs';
@@ -31,10 +35,13 @@ import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
 import {
+  atribuirAtividadeAction,
   awardPointsAction,
   createExitAuthorizationAction,
   deleteStudentPointAction,
+  gerarPortalAlunoAction,
   linkGuardianAction,
+  responderAlunoAction,
   saveStudentCustomFieldsAction,
   transferStudentClassAction,
   unlinkGuardianAction,
@@ -87,6 +94,13 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
   const [camposPersonalizados, valoresCampos] = await Promise.all([
     listCustomFieldDefs(client, ctx.tenantId, 'student').catch(() => [] as CustomFieldDef[]),
     getCustomFieldValues(client, ctx.tenantId, id).catch(() => ({}) as Record<string, string>),
+  ]);
+
+  // Portal do aluno: o que ele tem atribuído, a conversa e o banco para atribuir novas atividades.
+  const [portalAssigns, portalMsgs, bancoAtividades] = await Promise.all([
+    listStudentAssignments(client, ctx.tenantId, id).catch(() => []),
+    listStudentMessages(client, ctx.tenantId, id).catch(() => []),
+    listActivities(client, ctx, {}).catch(() => []),
   ]);
 
   // Ocorrências deste aluno
@@ -156,6 +170,103 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
           <PrintButton />
         </span>
       </div>
+
+      {/* Portal do aluno: link de acesso, atribuir atividades e conversa */}
+      <details className={`${cardClass} print:hidden`}>
+        <summary className="cursor-pointer select-none text-sm font-medium">
+          Portal do aluno
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            link de acesso, atividades e conversa
+          </span>
+        </summary>
+        <div className="mt-4 space-y-4">
+          {aluno.portalToken ? (
+            <div>
+              <p className="mb-1 text-xs text-muted-foreground">
+                Link de acesso do aluno (envie para ele entrar, sem senha):
+              </p>
+              <CopyLink path={`/aluno/${aluno.portalToken}`} />
+            </div>
+          ) : (
+            <form action={gerarPortalAlunoAction}>
+              <input type="hidden" name="studentId" value={aluno.id} />
+              <SubmitButton type="submit" size="sm" variant="outline">
+                Gerar link do portal
+              </SubmitButton>
+            </form>
+          )}
+
+          <form action={atribuirAtividadeAction} className="flex flex-wrap items-end gap-2">
+            <input type="hidden" name="studentId" value={aluno.id} />
+            <div className="min-w-[12rem] flex-1">
+              <label className="mb-1 block text-xs text-muted-foreground">Atribuir atividade</label>
+              <select name="activityId" required className={fieldClass} defaultValue="">
+                <option value="" disabled>
+                  Escolha do banco…
+                </option>
+                {bancoAtividades.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Prazo (opcional)</label>
+              <input type="date" name="dueDate" className={fieldClass} />
+            </div>
+            <SubmitButton type="submit" size="sm">
+              Atribuir
+            </SubmitButton>
+          </form>
+
+          {portalAssigns.length > 0 && (
+            <ul className="space-y-1 text-sm">
+              {portalAssigns.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between rounded-md border border-border px-2 py-1"
+                >
+                  <span>{a.title}</span>
+                  <span
+                    className={`text-xs ${a.status === 'concluida' ? 'text-emerald-600' : 'text-muted-foreground'}`}
+                  >
+                    {a.status === 'concluida' ? 'Concluída' : 'Pendente'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Conversa com o aluno</p>
+            {portalMsgs.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Sem mensagens ainda.</p>
+            ) : (
+              <ul className="mb-2 space-y-1.5">
+                {portalMsgs.map((m) => (
+                  <li key={m.id} className={`flex ${m.fromStudent ? 'justify-start' : 'justify-end'}`}>
+                    <span
+                      className={`max-w-[80%] whitespace-pre-wrap rounded-xl px-2.5 py-1.5 text-xs ${
+                        m.fromStudent ? 'border border-border bg-background' : 'bg-primary text-white'
+                      }`}
+                    >
+                      {m.body}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form action={responderAlunoAction} className="flex items-center gap-2">
+              <input type="hidden" name="studentId" value={aluno.id} />
+              <input name="body" placeholder="Responder ao aluno…" className={`${fieldClass} flex-1`} />
+              <SubmitButton type="submit" size="sm">
+                Enviar
+              </SubmitButton>
+            </form>
+          </div>
+        </div>
+      </details>
 
       {/* Foto do aluno */}
       <div className={`${cardClass} print:hidden`}>

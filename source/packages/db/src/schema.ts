@@ -308,11 +308,15 @@ export const students = oe.table(
     gender: text('gender'), // sexo: 'F' | 'M' | 'outro' (texto livre, sem enum rígido)
     nationality: text('nationality'), // nacionalidade (default 'Brasileira' na UI)
     shift: text('shift'), // turno: manhã/tarde/noite/integral
+    // Portal do aluno: token de acesso público (link gerado pelo professor). Sem senha/e-mail,
+    // já que o aluno é menor; quem tem o link entra (mesmo modelo do portal do responsável).
+    portalToken: text('portal_token'),
     ...auditCols,
   },
   (t) => [
     index('students_tenant_idx').on(t.tenantId),
     index('students_class_idx').on(t.classId),
+    uniqueIndex('students_portal_token_uq').on(t.portalToken),
     pgPolicy('students_tenant_isolation', {
       as: 'permissive',
       for: 'all',
@@ -320,6 +324,61 @@ export const students = oe.table(
       using: tenantPredicate,
       withCheck: tenantPredicate,
     }),
+  ],
+);
+
+// Portal do aluno: atividades que o professor atribuiu a um aluno (do banco de atividades).
+export const activityAssignments = oe.table(
+  'activity_assignments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    activityId: uuid('activity_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    dueDate: date('due_date'),
+    status: text('status').notNull().default('atribuida'), // atribuida | concluida
+    assignedByName: text('assigned_by_name'),
+    ...auditCols,
+  },
+  (t) => [
+    index('activity_assignments_student_idx').on(t.studentId),
+    uniqueIndex('activity_assignments_uq').on(t.activityId, t.studentId),
+    tenantPolicy('activity_assignments_tenant_isolation'),
+  ],
+);
+
+// Portal do aluno: chat aluno <-> professor (espelha o do responsável).
+export const studentMessages = oe.table(
+  'student_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    body: text('body').notNull(),
+    fromStudent: boolean('from_student').notNull().default(true),
+    authorName: text('author_name'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('student_messages_student_idx').on(t.studentId),
+    tenantPolicy('student_messages_tenant_isolation'),
+  ],
+);
+
+// Portal do aluno: histórico do Tutor (IA). Serve de conversa E de base do limite diário por aluno.
+export const studentTutorMessages = oe.table(
+  'student_tutor_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    studentId: uuid('student_id').notNull(),
+    role: text('role').notNull(), // user | tutor
+    body: text('body').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('student_tutor_messages_student_idx').on(t.studentId),
+    tenantPolicy('student_tutor_messages_tenant_isolation'),
   ],
 );
 

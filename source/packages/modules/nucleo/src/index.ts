@@ -4,6 +4,7 @@ export * from './bncc';
 export * from './error-log';
 export * from './approvals';
 export * from './dunning';
+export * from './student-portal';
 export * from './work-requests';
 export * from './operacional';
 export * from './crm';
