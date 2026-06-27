@@ -18,6 +18,7 @@ import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
 import { ProductTour } from './product-tour';
 import { SupportWidget } from './support-widget';
+import { WayonWidget } from './wayon-widget';
 import { ThemeToggle } from './theme-toggle';
 
 // Tour do sidebar (1ª vez): explica o que é cada seção do menu. Só entram os itens que
@@ -291,6 +292,7 @@ export function AppShell({
 
       <BottomNav />
       <SupportWidget />
+      <WayonWidget />
       <CommandPalette groups={allGroups} />
     </div>
   );
