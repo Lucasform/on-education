@@ -11,6 +11,9 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import type { EmailOtpType, User } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { isEmailConfigured, sendEmail } from '@/server/email';
+import { welcomeEmailHtml } from '@/server/welcome-email';
+
 type CookieItem = { name: string; value: string; options: CookieOptions };
 
 /**
@@ -49,6 +52,16 @@ async function ensureTenant(user: User): Promise<void> {
     },
     planId,
   ).catch(() => {});
+
+  // Boas-vindas: só aqui (1º acesso, tenant recém-provisionado), best-effort, nunca bloqueia o login.
+  if (user.email && isEmailConfigured()) {
+    await sendEmail({
+      to: user.email,
+      from: 'Edu On Way <nao-responda@onwaytech.com.br>',
+      subject: 'Que bom ter você no Edu On Way 🎒',
+      html: welcomeEmailHtml(fullName),
+    }).catch(() => {});
+  }
 }
 
 /**
