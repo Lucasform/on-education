@@ -231,6 +231,7 @@ import { parseCsvRecords, pick } from '@/lib/csv';
 import { hojeISO } from '@/lib/date';
 import { faixaForSerie } from '@/lib/series';
 import { emailHtml, escapeHtml, isEmailConfigured, sendEmail } from '@/server/email';
+import { compositeLogoPng } from '@/server/image-logo';
 import { buildClassMaterialsContext } from '@/server/materials-context';
 import { buildReportText, buildStudentSummary } from '@/server/student-report';
 import { db } from '@/server/db';
@@ -481,6 +482,7 @@ export async function generateImageAction(formData: FormData): Promise<void> {
     quality: (formData.get('quality') as string) || 'low',
     size: (formData.get('size') as string) || 'quadrado',
     frame: (formData.get('frame') as string) || 'padrao',
+    logo: formData.get('logo') === 'on',
   });
   try {
     // Aprendizado: estilo das imagens que o professor avaliou bem entra como referência.
@@ -494,7 +496,13 @@ export async function generateImageAction(formData: FormData): Promise<void> {
       input.frame,
       trainingStyle || null,
     );
-    const url = await uploadPublicImagePng(ctx.tenantId, b64);
+    // Logo real da escola (opt-in): composto no canto, de forma determinística.
+    let finalB64 = b64;
+    if (input.logo) {
+      const settings = await getTenantSettings(db(), ctx).catch(() => null);
+      if (settings?.logoUrl) finalB64 = await compositeLogoPng(b64, settings.logoUrl);
+    }
+    const url = await uploadPublicImagePng(ctx.tenantId, finalB64);
     await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });
     await recordImages(db(), ctx.tenantId, 1);
   } catch {

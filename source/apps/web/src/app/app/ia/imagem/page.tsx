@@ -97,6 +97,10 @@ export default async function ImagemPage() {
                     Gerar imagem
                   </SubmitButton>
                 </div>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" name="logo" className="h-3.5 w-3.5 rounded border-border" />
+                  Incluir o logo da escola no canto da imagem
+                </label>
                 <p className="text-xs text-muted-foreground">
                   Econômica custa menos e já serve para a maioria dos usos escolares.
                 </p>

@@ -93,6 +93,8 @@ export const generateImageSchema = z.object({
   quality: z.enum(['low', 'medium', 'high']).default('low'),
   size: z.enum(['quadrado', 'horizontal', 'vertical']).default('quadrado'),
   frame: z.enum(['padrao', 'centralizado', 'preenchido']).default('padrao'),
+  // Compor o logo real da escola no canto da imagem (opcional).
+  logo: z.coerce.boolean().optional(),
 });
 export type GenerateImageInput = z.infer<typeof generateImageSchema>;
 
