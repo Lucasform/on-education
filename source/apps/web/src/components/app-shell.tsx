@@ -16,6 +16,7 @@ import { BottomNav } from './bottom-nav';
 import { CommandPalette } from './command-palette';
 import { HideLockedToggle, useHideLocked } from './hide-locked';
 import { LogoMark } from './logo-mark';
+import { NavCustomizer, useHiddenNav } from './nav-customizer';
 import { ProductTour } from './product-tour';
 import { SupportWidget } from './support-widget';
 import { WayonWidget } from './wayon-widget';
@@ -136,10 +137,17 @@ export function AppShell({
   const pathname = usePathname();
   const agentName = useAgentName();
   const hideLocked = useHideLocked();
+  const hiddenNav = useHiddenNav();
   const allGroups = navFor(tenantType, features);
-  // Esconde os recursos bloqueados quando o usuário optou por isso (preferência do aparelho).
+  // Esconde recursos bloqueados (se optou) e os itens que o usuário tirou do menu. O "Início" fica.
   const groups = allGroups
-    .map((g) => ({ ...g, items: hideLocked ? g.items.filter((i) => !i.locked) : g.items }))
+    .map((g) => ({
+      ...g,
+      items: g.items.filter(
+        (i) =>
+          (hideLocked ? !i.locked : true) && (i.href === '/app' || !hiddenNav.has(i.href)),
+      ),
+    }))
     .filter((g) => g.items.length > 0);
   const mainGroups = groups.filter((g) => !g.pinBottom);
   const bottomGroups = groups.filter((g) => g.pinBottom);
@@ -219,11 +227,10 @@ export function AppShell({
               ))}
             </div>
           )}
-          {hasLocked && (
-            <div className="mt-2 border-t border-border pt-2">
-              <HideLockedToggle className="w-full justify-start" />
-            </div>
-          )}
+          <div className="mt-2 space-y-0.5 border-t border-border pt-2">
+            <NavCustomizer groups={allGroups} className="w-full justify-start" />
+            {hasLocked && <HideLockedToggle className="w-full justify-start" />}
+          </div>
         </nav>
       </aside>
 
