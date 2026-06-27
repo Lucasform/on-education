@@ -14,6 +14,8 @@ import { UpgradeGate } from '@/components/upgrade-gate';
 import { db } from '@/server/db';
 import { getAuthContext } from '@/server/session';
 
+import { ContentRating } from '@/components/content-rating';
+
 import { deleteGeneratedImageAction, generateImageAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -116,6 +118,8 @@ export default async function ImagemPage() {
                 className="aspect-square w-full rounded-md object-cover"
               />
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{img.prompt}</p>
+              {/* Estrela alimenta o aprendizado: imagens bem avaliadas viram referência de estilo. */}
+              <ContentRating contentId={img.id} kind="image" snapshot={img.prompt} />
               <div className="mt-1 flex items-center justify-between">
                 <span className="flex gap-3">
                   <a

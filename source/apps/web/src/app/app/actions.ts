@@ -483,6 +483,8 @@ export async function generateImageAction(formData: FormData): Promise<void> {
     frame: (formData.get('frame') as string) || 'padrao',
   });
   try {
+    // Aprendizado: estilo das imagens que o professor avaliou bem entra como referência.
+    const trainingStyle = await buildTrainingContext(db(), ctx, 'image', null).catch(() => '');
     const { b64 } = await generateTenantImage(
       db(),
       ctx,
@@ -490,6 +492,7 @@ export async function generateImageAction(formData: FormData): Promise<void> {
       input.quality,
       input.size,
       input.frame,
+      trainingStyle || null,
     );
     const url = await uploadPublicImagePng(ctx.tenantId, b64);
     await saveGeneratedImage(db(), ctx, { prompt: input.prompt, url, quality: input.quality });

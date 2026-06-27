@@ -27,11 +27,40 @@ const SIZE_MAP: Record<ImageSize, string> = {
   vertical: '1024x1536', // proporção tipo A4/retrato
 };
 
-const FRAME_HINT: Record<ImageFrame, string> = {
-  padrao: '',
-  centralizado: ' Composição centralizada, com o tema bem no centro.',
-  preenchido: ' A imagem deve PREENCHER todo o quadro, sem bordas nem espaços vazios.',
+const FRAME_RULES: Record<ImageFrame, string> = {
+  padrao:
+    'Enquadramento equilibrado: elemento principal em destaque, com respiro proporcional nas bordas.',
+  centralizado:
+    'Composição centralizada e simétrica: o tema exatamente no centro, com margens iguais nos quatro lados.',
+  preenchido:
+    'A ilustração deve PREENCHER todo o quadro, de borda a borda, sem moldura, sem bordas brancas e sem espaços vazios.',
 };
+
+/**
+ * Monta o prompt final com força, para o padrão pedido ser executado de verdade: padrão visual da
+ * escola, referências bem avaliadas (aprendizado), enquadramento e regras de posição/impressão.
+ */
+function buildImagePrompt(opts: {
+  prompt: string;
+  style: string | null;
+  trainingStyle: string | null;
+  frame: ImageFrame;
+}): string {
+  const parts: string[] = ['Ilustração para material escolar, pensada para impressão.'];
+  if (opts.style) parts.push(`Siga FIELMENTE este padrão visual da escola: ${opts.style}.`);
+  if (opts.trainingStyle)
+    parts.push(
+      `Espelhe o estilo das referências que o professor avaliou bem: ${opts.trainingStyle}.`,
+    );
+  parts.push(`Tema: ${opts.prompt}.`);
+  parts.push(FRAME_RULES[opts.frame]);
+  parts.push(
+    'Posicionamento claro e hierarquia visual (elemento principal em primeiro plano). Linhas nítidas ' +
+      'e alto contraste para imprimir bem. Sem texto na imagem, a menos que o tema peça; sem marca ' +
+      "d'água, sem bordas tortas e sem cortar o elemento principal.",
+  );
+  return parts.join(' ');
+}
 
 /** A geração de imagem está configurada? (sem OPENAI_API_KEY, fica off.) */
 export function isImageConfigured(): boolean {
@@ -69,16 +98,18 @@ export async function generateTenantImage(
   quality: ImageQuality = 'low',
   size: ImageSize = 'quadrado',
   frame: ImageFrame = 'padrao',
-): Promise<{ b64: string }> {
+  // Referência de estilo aprendida das imagens bem avaliadas (vem do caller, evita ciclo de módulo).
+  trainingStyle: string | null = null,
+): Promise<{ b64: string; finalPrompt: string }> {
   assertCan(ctx, 'create', 'activity');
   const planId = await assertEntitled(client, ctx.tenantId, 'ai.images');
   await assertImageQuota(client, ctx.tenantId, planId);
   const finalQuality = clampQuality(planId, quality);
-  // Estilo padrão do tenant ("treino" do visual) + enquadramento entram no prompt.
+  // Padrão visual do tenant + referências bem avaliadas + enquadramento + posição entram no prompt.
   const style = await getImageStyle(client, ctx).catch(() => null);
-  const finalPrompt = `${style ? `Estilo: ${style}. ` : ''}${prompt}${FRAME_HINT[frame]}`;
+  const finalPrompt = buildImagePrompt({ prompt, style, trainingStyle, frame });
   const b64 = await generateImageB64(finalPrompt, finalQuality, size);
-  return { b64 };
+  return { b64, finalPrompt };
 }
 
 /** Quantas imagens ainda cabem no mês para o tenant (para mostrar na UI). */
