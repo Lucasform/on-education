@@ -20,11 +20,11 @@
   "dependencies": {
     "@on-education/config": "workspace:*",
     "@on-education/core": "workspace:*",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.2",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
   }
