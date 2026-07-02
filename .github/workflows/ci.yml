@@ -14,7 +14,7 @@ jobs:
       run:
         working-directory: source
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Lê a versão do pnpm do packageManager em source/package.json.
       - uses: pnpm/action-setup@v4
