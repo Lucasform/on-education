@@ -11,6 +11,12 @@ updates:
         update-types:
           - minor
           - patch
+    # Major quebra (ex.: Tailwind 3->4, Zod 3->4). Migração major é manual e testada, não
+    # automática. O Dependabot cuida só de minor/patch.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
 
   # Versões das actions usadas nos workflows.
   - package-ecosystem: github-actions
