@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Dependências do app (package.json + lockfile ficam em source/).
+  - package-ecosystem: npm
+    directory: /source
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-e-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Versões das actions usadas nos workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

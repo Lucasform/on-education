@@ -1,5 +1,7 @@
 name: CI
 
+# O app fica em source/. O GitHub só executa workflow da RAIZ do repo, por isso este arquivo mora
+# aqui (e não em source/.github). Os comandos rodam dentro de source/ via working-directory.
 on:
   push:
     branches: [main]
@@ -8,17 +10,22 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: source
     steps:
       - uses: actions/checkout@v4
 
-      # Versão do pnpm vem do campo "packageManager" do package.json (evita conflito:
-      # se passarmos `version` aqui E houver packageManager, a action falha).
+      # Lê a versão do pnpm do packageManager em source/package.json.
       - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: source/package.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: source/pnpm-lock.yaml
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -38,3 +45,5 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          CI: 'true'
